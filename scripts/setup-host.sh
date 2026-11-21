@@ -1,13 +1,13 @@
 #!/bin/bash
 # Sets up the desktop (x86_64 Linux) build used for development and testing:
-# mGBA and SDL2 into ./deps, then the app (build/host/gba-ds) and the
+# mGBA and SDL2 into ./deps, then the app (build/host/snes-ds) and the
 # scripted test runner (build/host/harness).
 #
 # Needs: git, cmake, make, gcc, libpng-dev (harness only).
 #
 # Run the app without a screen:
-#   SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy GBADS_WINDOW=640x960 \
-#     build/host/gba-ds --state-dir=/tmp/st --input-script=script.txt GAME.gba
+#   SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy SNESDS_WINDOW=640x960 \
+#     build/host/snes-ds --state-dir=/tmp/st --input-script=script.txt GAME.gba
 # (two 640x480 screens stacked, like the RG DS Plus; script lines are
 #  "TICK BUTTONS" with buttons like A, B+UP or - for none, "TICK SHOT:file.bmp",
 #  "TICK TAP:x,y" with x,y as fractions of the whole window, "TICK QUIT")
@@ -34,4 +34,4 @@ fi
 
 make -j"$(nproc)"
 make tools
-echo "built build/host/gba-ds and build/host/harness"
+echo "built build/host/snes-ds and build/host/harness"

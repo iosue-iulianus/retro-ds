@@ -1,4 +1,4 @@
-package io.github.kyannon.gbads;
+package io.github.iosue_iulianus.snesds;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
@@ -38,7 +38,7 @@ import java.io.OutputStream;
  *   or Daijisho: -a android.intent.action.VIEW -d {file.uri}
  */
 public class LauncherActivity extends Activity {
-    private static final String TAG = "GBADS";
+    private static final String TAG = "SNESDS";
     private boolean askedForFiles;
     private boolean starting; /* the game is being started (onResume can come twice) */
     private static boolean crashLogInstalled;
@@ -51,12 +51,12 @@ public class LauncherActivity extends Activity {
     }
 
     /* ------------------------------------------------------------ launch.log
-     * What frontends sent and what came of it, in the GBA DS folder, so a
-     * launch that fails before the game starts (when gba-ds.log isn't
+     * What frontends sent and what came of it, in the SNES DS folder, so a
+     * launch that fails before the game starts (when snes-ds.log isn't
      * written) can be looked at without adb. */
 
     static File dataDir(Context c) {
-        /* the folder the player chose (Settings > Folders), once GBA DS has moved there */
+        /* the folder the player chose (Settings > Folders), once SNES DS has moved there */
         String now = dataFolderSetting(c, "data_dir_now");
         if (now != null && new File(now).isDirectory()) return new File(now);
         if (Build.VERSION.SDK_INT < 30 || Environment.isExternalStorageManager()) {
@@ -69,7 +69,7 @@ public class LauncherActivity extends Activity {
 
     /**
      * A line of data-folder.cfg in the app's own storage (kept through updates):
-     * data_dir, the folder the player chose for GBA DS's files, and
+     * data_dir, the folder the player chose for SNES DS's files, and
      * data_dir_now, where they are (the native side moves them: paths.c
      * data_dir_setup). Null if it isn't set.
      */
@@ -188,11 +188,11 @@ public class LauncherActivity extends Activity {
             }
             final String found = rom;
             runOnUiThread(() -> launchGame(found));
-        }, "gbads-launch").start();
+        }, "snesds-launch").start();
     }
 
     private void launchGame(String rom) {
-        GbaDsActivity now = GbaDsActivity.running;
+        SnesDsActivity now = SnesDsActivity.running;
         /* One display (a phone, a Surface Duo; issue #48): the game in this
          * task, which keeps this window: a Duo opens a new task on one screen,
          * so a game in a task of its own came up on one screen when the player
@@ -200,8 +200,8 @@ public class LauncherActivity extends Activity {
          * app icon, or a frontend that asked for a new task): in a frontend's
          * task the game would become part of the frontend's. A game already
          * running gets the request where it is. */
-        boolean here = now != null ? now instanceof GbaDsHereActivity : !hasSecondDisplay() && isTaskRoot();
-        Intent game = new Intent(this, here ? GbaDsHereActivity.class : GbaDsActivity.class);
+        boolean here = now != null ? now instanceof SnesDsHereActivity : !hasSecondDisplay() && isTaskRoot();
+        Intent game = new Intent(this, here ? SnesDsHereActivity.class : SnesDsActivity.class);
         if (rom != null) {
             launchLog(this, "game from the launch request: " + rom);
             game.putExtra("rom", rom);

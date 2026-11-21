@@ -1,16 +1,16 @@
 /* RetroAchievements, casual (softcore) mode, through rcheevos' rc_client.
  *
  * The account is ROCKNIX's (EmulationStation's RetroAchievements settings,
- * global.retroachievements.* in system.cfg) unless gba-ds.cfg names one; on
+ * global.retroachievements.* in system.cfg) unless snes-ds.cfg names one; on
  * Android, the one signed in in the game list's Settings (ra_sign_in), kept
  * as a token in <state_dir>/ra/login.cfg. Server requests run in a
  * background thread (the system's curl; Android: Java's HttpURLConnection);
  * their results are handed to rc_client on the main thread. Unlocks and the
  * game's progress show as popups on the second screen.
  *
- * Built where GBADS_RA is defined; elsewhere these are no-ops. */
-#ifndef GBADS_RA_H
-#define GBADS_RA_H
+ * Built where SNESDS_RA is defined; elsewhere these are no-ops. */
+#ifndef SNESDS_RA_H
+#define SNESDS_RA_H
 
 #include "config.h"
 #include "emu.h"
@@ -22,7 +22,7 @@
 /* ra_account's answer */
 enum { RA_ACCOUNT_NONE, RA_ACCOUNT_BUSY, RA_ACCOUNT_OK, RA_ACCOUNT_FAILED, RA_ACCOUNT_OFF };
 
-#ifdef GBADS_RA
+#ifdef SNESDS_RA
 /* At start-up: reads the account and starts signing in. */
 void ra_init(const Config* cfg);
 void ra_shutdown(void);

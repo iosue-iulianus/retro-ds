@@ -89,7 +89,7 @@ void game_paths(const Config* cfg, const char* rom, GamePaths* o) {
 	snprintf(o->patches, sizeof(o->patches), "%s/%s.patches", cfg->stateDir, o->base);
 	snprintf(o->settings, sizeof(o->settings), "%s/%s.cfg", cfg->stateDir, o->base);
 
-	/* GBA DS's own save from where it kept them before (save_from: on
+	/* SNES DS's own save from where it kept them before (save_from: on
 	 * BananaOS, /data/saves/<game>.sav, now the GBA list's own
 	 * /data/saves/gba/<game>.srm, shared with its emulators): carried over
 	 * if there's no save yet, or if it's newer than the one there (that one
@@ -156,7 +156,7 @@ void game_paths(const Config* cfg, const char* rom, GamePaths* o) {
 
 	/* Save states shared with RetroArch (issue #39): slots 0-9 and the
 	 * automatic state are its own files (after the carrying over above,
-	 * which is GBA DS's own) */
+	 * which is SNES DS's own) */
 	o->raDir[0] = 0;
 	o->raCompress = true;
 	if (!strcmp(cfg->stateFolder, "retroarch") && retroarch_state_dir(cfg, rom, o->raDir, sizeof(o->raDir), &o->raCompress)) {
@@ -229,7 +229,7 @@ static bool ra_cfg_bool(const char* text, const char* key, bool def) {
 #define ROCKNIX_RA_CFG "/storage/.config/retroarch/retroarch.cfg"
 #define ROCKNIX_ROMS "/storage/roms"
 
-/* retroarch.cfg: gba-ds.cfg's retroarch_cfg, else ROCKNIX's, BananaOS's
+/* retroarch.cfg: snes-ds.cfg's retroarch_cfg, else ROCKNIX's, BananaOS's
  * (its own copy, or the one it starts from before RetroArch's first
  * start), the usual one in the home folder or Flatpak's */
 static bool ra_cfg_find(const Config* cfg, char* out, size_t n, bool* rocknix) {
@@ -419,7 +419,7 @@ void game_paths_patched(const Config* cfg, GamePaths* o, const PatchChoice* c) {
 		}
 	}
 	if (c->sepStates) {
-		/* (GBA DS's own folder even when states are shared with RetroArch:
+		/* (SNES DS's own folder even when states are shared with RetroArch:
 		 * RetroArch has no states of its own for a patched game) */
 		o->raDir[0] = 0;
 		snprintf(o->quick, sizeof(o->quick), "%s/%s.quick.state", cfg->stateDir, base);
@@ -527,7 +527,7 @@ static bool inside(const char* path, const char* dir) {
 
 static bool can_write(const char* dir) {
 	char test[1100];
-	snprintf(test, sizeof(test), "%s/.gba-ds-write-test", dir);
+	snprintf(test, sizeof(test), "%s/.snes-ds-write-test", dir);
 	FILE* f = fopen(test, "w");
 	if (!f) return false;
 	bool ok = fclose(f) == 0;
@@ -598,7 +598,7 @@ static bool copy_tree(const char* from, const char* to) {
 /* from moved to to: renamed, or copied and then deleted (another card or
  * storage). Where to is there already, folders are merged; a file there
  * already is kept and the one from `from` left where it is (except the
- * README.txt files GBA DS puts in its folders). Returns how many things
+ * README.txt files SNES DS puts in its folders). Returns how many things
  * couldn't move. */
 static int move_tree(const char* from, const char* to) {
 	struct stat sf, st;
@@ -641,7 +641,7 @@ static int move_tree(const char* from, const char* to) {
 	return 1;
 }
 
-/* GBA DS's own folders on Linux (the app folder's other files are the program) */
+/* SNES DS's own folders on Linux (the app folder's other files are the program) */
 static const char* const dataEntries[] = { "states", "cheats", "overlays", "logos", "patches", "bug-reports", "screenshots" };
 /* the ones the zip has (with a README.txt): an update puts them back in the app folder */
 static const char* const shippedEntries[] = { "cheats", "overlays", "logos", "patches" };
@@ -673,7 +673,7 @@ void data_dir_setup(const char* defDir, const char* record, const char* want, bo
 			if (!is_dir(now) && is_dir(parent)) mkdirs(now);
 			if (!is_dir(now) || !can_write(now)) {
 				fprintf(stderr, "data folder: can't reach %s: using %s for now\n", now, defDir);
-				snprintf(dataNote, sizeof(dataNote), tr("Can't reach GBA DS's folder, using %s for now: %s"), defDir, now);
+				snprintf(dataNote, sizeof(dataNote), tr("Can't reach SNES DS's folder, using %s for now: %s"), defDir, now);
 				snprintf(out, n, "%s", defDir);
 				mkdirs(defDir);
 				return;
@@ -700,7 +700,7 @@ void data_dir_setup(const char* defDir, const char* record, const char* want, bo
 			snprintf(dataNote, sizeof(dataNote), tr("Chosen folder not found, files not moved: %s"), to);
 		} else if (nested) {
 			fprintf(stderr, "data folder: %s is inside %s's own folders: staying there\n", to, now);
-			snprintf(dataNote, sizeof(dataNote), tr("Chosen folder is inside GBA DS's own, files not moved: %s"), to);
+			snprintf(dataNote, sizeof(dataNote), tr("Chosen folder is inside SNES DS's own, files not moved: %s"), to);
 		} else if ((mkdirs(to), !is_dir(to)) || !can_write(to)) {
 			fprintf(stderr, "data folder: can't write in %s: staying in %s\n", to, now);
 			snprintf(dataNote, sizeof(dataNote), tr("Can't save in the chosen folder, files not moved: %s"), to);
@@ -708,15 +708,15 @@ void data_dir_setup(const char* defDir, const char* record, const char* want, bo
 			char states[1100];
 			snprintf(states, sizeof(states), "%s/states", to);
 			if (is_dir(states)) {
-				/* GBA DS's files from before (moved back, or another install's) */
-				fprintf(stderr, "data folder: %s has GBA DS's files already: using them (%s left as it is)\n", to, now);
+				/* SNES DS's files from before (moved back, or another install's) */
+				fprintf(stderr, "data folder: %s has SNES DS's files already: using them (%s left as it is)\n", to, now);
 			} else if (is_dir(now)) {
 				fprintf(stderr, "data folder: moving %s to %s\n", now, to);
 				char a[1100], b[1100];
 				snprintf(a, sizeof(a), "%s/states", now);
 				int fails = move_tree(a, states);
 				if (fails) {
-					snprintf(dataNote, sizeof(dataNote), tr("Couldn't move GBA DS's files, they stay in %s"), now);
+					snprintf(dataNote, sizeof(dataNote), tr("Couldn't move SNES DS's files, they stay in %s"), now);
 					rmdir(to);
 					if (!is_dir(now) || !can_write(now)) snprintf(out, n, "%s", defDir), mkdirs(defDir);
 					return;
@@ -760,7 +760,7 @@ void data_dir_setup(const char* defDir, const char* record, const char* want, bo
 		char was[1024] = "";
 		bool have = kv_get(record, "data_dir_now", was, sizeof(was));
 		if ((have || !same_dir(out, defDir) || (want && want[0])) && strcmp(was, out))
-			kv_set(record, "data_dir_now", out, "# GBA DS's data folder");
+			kv_set(record, "data_dir_now", out, "# SNES DS's data folder");
 	}
 	/* Linux: the folders an update (or unzipping a new version over the old)
 	 * put back in the app folder: anything a player put in them goes over

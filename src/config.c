@@ -17,7 +17,7 @@ void config_defaults(Config* c) {
 	memset(c, 0, sizeof(*c));
 	strcpy(c->layout, "auto");
 	strcpy(c->saveExt, "sav");
-	strcpy(c->stateFolder, "gbads");
+	strcpy(c->stateFolder, "snesds");
 	strcpy(c->scale, "integer");
 	strcpy(c->mapScale, "integer");
 	strcpy(c->accent, "purple");
@@ -376,12 +376,12 @@ bool config_parse_args(Config* c, int argc, char** argv) {
 
 void config_usage(const char* argv0) {
 	fprintf(stderr,
-	        "GBA DS " GBADS_VERSION "\n"
+	        "SNES DS " SNESDS_VERSION "\n"
 	        "usage: %s [options] [game.gba]\n"
 	        "\n"
 	        "Without a game, opens the game library (games found in --rom-dir).\n"
 	        "\n"
-	        "Options (also accepted as key=value lines in gba-ds.cfg):\n"
+	        "Options (also accepted as key=value lines in snes-ds.cfg):\n"
 	        "  --rom-dir=DIR[:DIR]    library folders (/storage/roms/gba)\n"
 	        "  --cheat-dir=DIR[:DIR]  RetroArch .cht folders (/config/retroarch/cheats:...)\n"
 	        "  --patch-dir=DIR        patches, a folder per game (default: patches beside the app)\n"
@@ -407,7 +407,7 @@ void config_usage(const char* argv0) {
 	        "                         each shortcut's button (a, b, x, y, l, r, l2, r2, select,\n"
 	        "                         start, l3, up, down, left, right) or none\n"
 	        "  --menu-combo=select+start|none   buttons that open the menu together (none)\n"
-	        "  --home-button=N        raw joystick button that acts as HOME (see GBADS_DEBUG=1 log)\n"
+	        "  --home-button=N        raw joystick button that acts as HOME (see SNESDS_DEBUG=1 log)\n"
 	        "  --no-auto-resume       don't save on exit / resume on launch\n"
 	        "  --no-save-on-quit      don't save a resume point on quitting (--no-auto-load: don't load it)\n"
 	        "  --show-fps\n"
@@ -417,7 +417,7 @@ void config_usage(const char* argv0) {
 	        "  --ff-speed=N|max       fast-forward multiplier (3)\n"
 	        "  --save-dir=DIR         battery saves (next to the ROM)\n"
 	        "  --state-dir=DIR        save states and thumbnails (<data folder>/states)\n"
-	        "  --data-dir=DIR         GBA DS's data folder: states, cheats, overlays, logos...\n"
+	        "  --data-dir=DIR         SNES DS's data folder: states, cheats, overlays, logos...\n"
 	        "                         (the app's folder; best set in data-folder.cfg there)\n"
 	        "\n"
 	        "Testing: --load-state=FILE --quit-after=TICKS --input-script=FILE\n"
@@ -483,9 +483,9 @@ static const Setting settingsTable[] = {
 	{ "swap", "Screens", SF_BOOL, OFFB(swap), ARR(chSwap), 0, 0, 0, NULL, "Which screen the game is on." },
 	{ "screen_match", "Screen shapes", SF_STR, OFFB(screenMatch), ARR(chMatch), 0, 0, 0, NULL, "Only when your two screens differ in shape. Experimental." },
 	{ "screen_placement", "Screen placement", SF_STR, OFFB(screenPlace), ARR(chPlace), 0, 0, 0, NULL, "Pictures in the middle of their screens, or close together." },
-	{ "overlays", "Overlays", SF_INT, OFFB(overlayMode), ARR(chOverlays), 0, 0, 0, NULL, "GBA DS's bezel, or your own PNGs, round the picture." },
+	{ "overlays", "Overlays", SF_INT, OFFB(overlayMode), ARR(chOverlays), 0, 0, 0, NULL, "SNES DS's bezel, or your own PNGs, round the picture." },
 	{ "overlay_screens", "Overlays on", SF_INT, OFFB(overlays), ARR(chOvlScreens), 0, 0, 0, NULL, "Which screens have them." },
-	{ "bezel_logo", "Bezel logo", SF_BOOL, OFFB(bezelLogo), ARR(chOnOff), 0, 0, 0, NULL, "The GBA DS logo in the generated bezel." },
+	{ "bezel_logo", "Bezel logo", SF_BOOL, OFFB(bezelLogo), ARR(chOnOff), 0, 0, 0, NULL, "The SNES DS logo in the generated bezel." },
 	{ "show_fps", "Show FPS", SF_BOOL, OFFB(showFps), ARR(chOnOff), 0, 0, 0, NULL, "Frames a second above the game, all the time." },
 
 	{ "theme", "Light/dark mode", SF_BOOL, OFFB(lightTheme), ARR(chTheme), 0, 0, 0, NULL, "The menus' buttons: dark grey, or light grey like the web player's." },
@@ -516,7 +516,7 @@ static const Setting settingsTable[] = {
 
 	{ "map", "Second screen", SF_BOOL, OFFB(map), ARR(chOnOff), 0, 0, 0, NULL, "Off: every game plays like an ordinary GBA game." },
 	{ "map_interval", "Map refresh", SF_INT, OFFB(mapInterval), ARR(chInterval), 0, 0, 0, NULL, "Shorter can make the sound crackle on a slow device." },
-	{ "pinball_live", "Pinball two-screen view", SF_BOOL, OFFB(tallLive), ARR(chOnOff), 0, 0, 0, NULL, "Off for slower devices: the table on one screen. Close and restart GBA DS to apply." },
+	{ "pinball_live", "Pinball two-screen view", SF_BOOL, OFFB(tallLive), ARR(chOnOff), 0, 0, 0, NULL, "Off for slower devices: the table on one screen. Close and restart SNES DS to apply." },
 };
 
 const Setting* config_setting(const char* key) {
@@ -595,7 +595,7 @@ bool config_setting_step(Config* c, const Setting* s, int dir) {
 	}
 	int i = config_setting_index(c, s), to;
 	if (i < 0 && s->field == SF_INT) {
-		/* a number gba-ds.cfg gave that isn't on the list: the next one up or down */
+		/* a number snes-ds.cfg gave that isn't on the list: the next one up or down */
 		int v = *(const int*) ((const char*) c + s->off);
 		to = dir > 0 ? 0 : s->nChoices - 1;
 		for (int k = 0; k < s->nChoices; ++k) {

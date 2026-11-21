@@ -135,7 +135,7 @@ def main():
         for fn in os.listdir(I18N):
             if fn.endswith(".po"):
                 hdr, _ = i18n.parse_po(os.path.join(I18N, fn))
-                autonyms |= set(hdr.get("X-GBADS-Autonym", ""))
+                autonyms |= set(hdr.get("X-SNESDS-Autonym", ""))
         wanted = sorted(chars | set(BASE) | set(family.get("extra", "")) | {c for c in autonyms if ord(c) > 0x7F})
         names = globals()[family["names"]]() if "names" in family else set()
         print(f"{family['name']}: {count} strings, {len(chars)} Chinese characters")

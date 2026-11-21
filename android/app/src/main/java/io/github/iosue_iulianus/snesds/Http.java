@@ -1,4 +1,4 @@
-package io.github.kyannon.gbads;
+package io.github.iosue_iulianus.snesds;
 
 import android.util.Log;
 
@@ -18,7 +18,7 @@ import java.net.URL;
  * certificates.
  */
 final class Http {
-    private static final String TAG = "GBADS";
+    private static final String TAG = "SNESDS";
 
     /** Set from the native side (android_http_cancel): stops a download to a file. */
     static volatile boolean cancelDownloads;

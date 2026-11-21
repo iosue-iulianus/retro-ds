@@ -1,4 +1,4 @@
-package io.github.kyannon.gbads;
+package io.github.iosue_iulianus.snesds;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -9,15 +9,15 @@ import android.os.Bundle;
  * The game, started in the launcher's own task instead of one of its own:
  * on a device with one display (a phone, a Surface Duo; issue #48). A Surface
  * Duo opens a new task on one screen, so the game started in its own task
- * (as {@link GbaDsActivity} is) left an app the player had spanned over both
+ * (as {@link SnesDsActivity} is) left an app the player had spanned over both
  * screens on one of them. In the task the launcher was opened in, the game
  * keeps the launcher's window, spanned or not.
  *
- * Everything else is GbaDsActivity's. The manifest gives this one the app's
- * usual task affinity and singleTop, where GbaDsActivity has a task of its own
+ * Everything else is SnesDsActivity's. The manifest gives this one the app's
+ * usual task affinity and singleTop, where SnesDsActivity has a task of its own
  * (needed with two displays: GammaOS put the launcher's task on either).
  */
-public class GbaDsHereActivity extends GbaDsActivity {
+public class SnesDsHereActivity extends SnesDsActivity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);

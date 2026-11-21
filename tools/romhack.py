@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""How well does GBA DS take to a romhack? Applies a patch to the release it's
+"""How well does SNES DS take to a romhack? Applies a patch to the release it's
 made for and runs that release's regression cases on the patched ROM.
 
   tools/romhack.py PATCH [--base CODE|ROM] [--name NAME] [--out DIR]
@@ -12,8 +12,8 @@ ROM file. A ROM that's already patched is matched to its release's fixture
 by the code in its header (or --base).
 
 It reports:
-  - the patched ROM: its header (a changed code means GBA DS won't know the
-    game at all), size and CRC32, and whether that's a dump or mod GBA DS
+  - the patched ROM: its header (a changed code means SNES DS won't know the
+    game at all), size and CRC32, and whether that's a dump or mod SNES DS
     already knows (src/dumps_data.h);
   - what the patch changes: how much, and where (the largest areas, and
     which went into the base's free space, 0x00 / 0xFF);
@@ -28,7 +28,7 @@ It reports:
 Output (default build/romhack/<name>/): report.md, the patched ROM as
 <name>.gba, regress.json and the regress report (regress/index.html).
 Needs the host build (make && make tools) and the fixtures (../gba-ds-tests
-or $GBADS_TESTS).
+or $SNESDS_TESTS).
 """
 import argparse, glob, json, os, re, shutil, subprocess, sys, tempfile, zipfile, zlib
 
@@ -177,7 +177,7 @@ def apply_vcdiff(src, p):
     if p[:3] != b"\xd6\xc3\xc4" or p[3] != 0:
         raise ValueError("not an xdelta")
     if p[4] & 3:
-        raise ValueError("an xdelta made with compression (xdelta3 -S), which GBA DS can't read")
+        raise ValueError("an xdelta made with compression (xdelta3 -S), which SNES DS can't read")
     i = 5
     if p[4] & 4:
         n, i = _vcd_int(p, i)
@@ -196,7 +196,7 @@ def apply_vcdiff(src, p):
         _, i = _vcd_int(p, i)
         tlen, i = _vcd_int(p, i)
         if p[i]:
-            raise ValueError("an xdelta made with compression (xdelta3 -S), which GBA DS can't read")
+            raise ValueError("an xdelta made with compression (xdelta3 -S), which SNES DS can't read")
         i += 1
         al, i = _vcd_int(p, i)
         il, i = _vcd_int(p, i)
@@ -318,7 +318,7 @@ def main():
     ap.add_argument("--base", help="the release's code (its fixture) or a ROM file")
     ap.add_argument("--name", help="a short name for the mod (default: the patch's file name)")
     ap.add_argument("--out", help="where to write (default build/romhack/<name>)")
-    ap.add_argument("--fixtures", default=os.environ.get("GBADS_TESTS", os.path.join(os.path.dirname(ROOT), "gba-ds-tests")))
+    ap.add_argument("--fixtures", default=os.environ.get("SNESDS_TESTS", os.path.join(os.path.dirname(ROOT), "gba-ds-tests")))
     ap.add_argument("--no-tests", action="store_true", help="only apply the patch and describe it")
     a = ap.parse_args()
     a.fixtures = os.path.abspath(a.fixtures)
@@ -386,9 +386,9 @@ def main():
         os.path.relpath(romPath, ROOT), len(rom), crc, title, code, ver))
     k = known.get((code, crc))
     if k:
-        rep.append("GBA DS already knows it: %s%s (%s)." % ("a mod" if k[1] else "a dump", ", tested" if k[0] else "", k[2]))
+        rep.append("SNES DS already knows it: %s%s (%s)." % ("a mod" if k[1] else "a dump", ", tested" if k[0] else "", k[2]))
     if code != bCode:
-        rep.append("**Its header code is `%s`, not the game's `%s`: GBA DS won't know it as the game, so it plays on one "
+        rep.append("**Its header code is `%s`, not the game's `%s`: SNES DS won't know it as the game, so it plays on one "
                    "screen.** Supporting it means adding `%s` to the profile (as a release), not a Mods row." % (code, bCode, code))
     rep.append("")
 
@@ -416,7 +416,7 @@ def main():
     slug, casesPath = game_for(bCode)
     verdict = None
     if not slug:
-        rep.append("No rules file lists `%s` in its Releases row: GBA DS has no profile for this game." % bCode)
+        rep.append("No rules file lists `%s` in its Releases row: SNES DS has no profile for this game." % bCode)
     elif a.no_tests:
         rep.append("Tests not run (--no-tests).")
     elif not casesPath:
@@ -427,7 +427,7 @@ def main():
             rep.append("None of %s's cases run on `%s`." % (slug, bCode))
         else:
             # a copy of the fixtures with the patched ROM where the release's is
-            fx = tempfile.mkdtemp(prefix="gbads-romhack-")
+            fx = tempfile.mkdtemp(prefix="snesds-romhack-")
             for d in os.listdir(a.fixtures):
                 if d not in ("roms", ".git"):
                     os.symlink(os.path.join(a.fixtures, d), os.path.join(fx, d))

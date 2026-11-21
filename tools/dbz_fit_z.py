@@ -3,7 +3,7 @@
 Goku's title frame, for the logo mask's rebuilt Z (DBZ-1; the title paints
 Goku's hair over the Z's lower left).
 
-    GBADS_LOGO_DEBUG=1 build/host/harness ALGE.gba out logo.txt  # 'logo logo'
+    SNESDS_LOGO_DEBUG=1 build/host/harness ALGE.gba out logo.txt  # 'logo logo'
     tools/dbz_fit_z.py LOGO.svg out/logo.png.fg.png tools/dbz-z.json
 
 The SVG is the owner's (Oct 31, 2026); only the fitted outline of its Z

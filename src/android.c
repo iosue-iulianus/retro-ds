@@ -1,5 +1,5 @@
 /* Android glue: see android.h. The Java side is in android/app/src/main/java
- * (GbaDsActivity, SecondScreen). */
+ * (SnesDsActivity, SecondScreen). */
 #ifdef __ANDROID__
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE /* sched_setaffinity, CPU_SET */
@@ -29,7 +29,7 @@
 #include <strings.h>
 #include <unistd.h>
 
-#define TAG "GBADS"
+#define TAG "SNESDS"
 
 /* ------------------------------------------------------------- log */
 
@@ -57,7 +57,7 @@ void android_init_log(void) {
 	const char* home = android_home();
 	if (home) {
 		char path[1100];
-		snprintf(path, sizeof(path), "%s/gba-ds.log", home);
+		snprintf(path, sizeof(path), "%s/snes-ds.log", home);
 		logFile = fopen(path, "w");
 	}
 	int fds[2];
@@ -72,12 +72,12 @@ void android_init_log(void) {
 }
 
 const char* android_home(void) {
-	const char* h = getenv("GBADS_HOME");
+	const char* h = getenv("SNESDS_HOME");
 	return h && *h ? h : NULL;
 }
 
 bool android_data_record(char* out, size_t size) {
-	const char* files = getenv("GBADS_APP_FILES");
+	const char* files = getenv("SNESDS_APP_FILES");
 	if (!files || !*files) return false;
 	snprintf(out, size, "%s/data-folder.cfg", files);
 	return true;
@@ -93,7 +93,7 @@ void android_data_setup(void) {
 	char was[1024];
 	if (!kv_get(record, "data_dir_now", was, sizeof(was))) snprintf(was, sizeof(was), "%s", def);
 	data_dir_setup(def, record, want, true, out, sizeof(out));
-	setenv("GBADS_HOME", out, 1);
+	setenv("SNESDS_HOME", out, 1);
 	/* a ROM or save folder chosen inside the old folder (Settings > Folders,
 	 * library.cfg) moved with it */
 	size_t wn = strlen(was);
@@ -114,10 +114,10 @@ void android_data_setup(void) {
 void android_config_defaults(Config* c) {
 	/* shared storage ignores case: this is also a folder called GBA */
 	snprintf(c->romDir, sizeof(c->romDir), "/storage/emulated/0/ROMs/gba");
-	/* GBADS_HOME is "SNES DS" on the internal storage (or, without All files
+	/* SNESDS_HOME is "SNES DS" on the internal storage (or, without All files
 	 * access, the app's folder), laid out like the ROCKNIX install folder:
 	 * states/ (the default state_dir), logos/ and overlays/ (asset_dir),
-	 * cheats/, screenshots/, gba-ds.log */
+	 * cheats/, screenshots/, snes-ds.log */
 	const char* home = android_home();
 	if (home) {
 		snprintf(c->screenshotDir, sizeof(c->screenshotDir), "%s/screenshots", home);
@@ -130,16 +130,16 @@ void android_config_defaults(Config* c) {
 			{ "cheats", "Put RetroArch cheat files (.cht) here, subfolders are fine.\n"
 			            "A file goes with the ROM of the same name: Metroid Fusion (World) (Code Breaker).cht\n"
 			            "with Metroid Fusion (USA).gba. Switch cheats on in the pause menu: Extras > Cheats.\n"
-			            "More in the wiki: https://github.com/kyannon/gba-ds/wiki/Playing#cheats\n" },
+			            "More in the wiki: https://github.com/iosue-iulianus/snes-ds/wiki/Playing#cheats\n" },
 			{ "overlays", "Your own overlay PNGs go in this folder. Make each one the screen's size, transparent where\n"
 			              "the picture shows.\n\n"
 			              "top.png is drawn on the top screen and bottom.png on the bottom screen, for every game.\n"
 			              "<CODE>-top.png and <CODE>-bottom.png are for one game.\n"
 			              "To use them, set Display > Overlays in the pause menu to Custom (in /overlays). Which Screen\n"
 			              "there picks the screens: Both, Top Only or Bottom Only. Swapping screens doesn't move them.\n"
-			              "A screen with no file of its own gets GBA DS's generated bezel in its default colors.\n\n"
+			              "A screen with no file of its own gets SNES DS's generated bezel in its default colors.\n\n"
 			              "Names for one scaling or screen shape, and more, in the wiki:\n"
-			              "https://github.com/kyannon/gba-ds/wiki/Overlays\n" },
+			              "https://github.com/iosue-iulianus/snes-ds/wiki/Overlays\n" },
 			{ "logos", "Optional: your own logo images (<CODE>.png or .bmp) override the ones extracted from the games.\n" },
 			{ "screenshots", NULL },
 		};
@@ -334,7 +334,7 @@ static jfieldID httpCancel;
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 	JNIEnv* env;
 	if ((*vm)->GetEnv(vm, (void**) &env, JNI_VERSION_1_6) != JNI_OK) return JNI_VERSION_1_6;
-	jclass c = (*env)->FindClass(env, "io/github/kyannon/gbads/Http");
+	jclass c = (*env)->FindClass(env, "io/github/iosue_iulianus/snesds/Http");
 	if (c) {
 		httpClass = (*env)->NewGlobalRef(env, c);
 		httpRequest = (*env)->GetStaticMethodID(env, c, "request",
@@ -449,7 +449,7 @@ int android_take_install_result(char* msg, size_t size) {
 	return st;
 }
 
-JNIEXPORT void JNICALL Java_io_github_kyannon_gbads_GbaDsActivity_nativeInstallResult(JNIEnv* env, jclass cls, jint state,
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SnesDsActivity_nativeInstallResult(JNIEnv* env, jclass cls, jint state,
                                                                                      jstring msg) {
 	const char* m = msg ? (*env)->GetStringUTFChars(env, msg, NULL) : NULL;
 	pthread_mutex_lock(&installLock);
@@ -489,10 +489,10 @@ static bool call_activity(const char* name, const char* arg) {
 }
 
 /* ---- Settings > Rotation (issue #60): rotation.cfg in the app's own
- * storage, "auto" | "portrait" | "landscape" on one line; GbaDsActivity
+ * storage, "auto" | "portrait" | "landscape" on one line; SnesDsActivity
  * reads it before the window exists and applyRotation changes it live. */
 static bool rotation_file(char* out, size_t size) {
-	const char* files = getenv("GBADS_APP_FILES");
+	const char* files = getenv("SNESDS_APP_FILES");
 	if (!files || !*files) return false;
 	snprintf(out, size, "%s/rotation.cfg", files);
 	return true;
@@ -545,7 +545,7 @@ int android_take_ra_credentials(char* user, size_t userSize, char* pass, size_t 
 	return st;
 }
 
-JNIEXPORT void JNICALL Java_io_github_kyannon_gbads_GbaDsActivity_nativeRaCredentials(JNIEnv* env, jclass cls, jstring user,
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SnesDsActivity_nativeRaCredentials(JNIEnv* env, jclass cls, jstring user,
                                                                                      jstring pass) {
 	const char* u = user ? (*env)->GetStringUTFChars(env, user, NULL) : NULL;
 	const char* p = pass ? (*env)->GetStringUTFChars(env, pass, NULL) : NULL;
@@ -600,7 +600,7 @@ int android_take_picked_folder(char* out, size_t size) {
 	return st;
 }
 
-JNIEXPORT void JNICALL Java_io_github_kyannon_gbads_GbaDsActivity_nativeFolderPicked(JNIEnv* env, jclass cls, jstring path) {
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SnesDsActivity_nativeFolderPicked(JNIEnv* env, jclass cls, jstring path) {
 	const char* p = path ? (*env)->GetStringUTFChars(env, path, NULL) : NULL;
 	pthread_mutex_lock(&pickLock);
 	if (p && *p) {
@@ -836,7 +836,7 @@ void android_second_log_timing(int frames) {
 	nBegin = nRestore = 0;
 }
 
-JNIEXPORT void JNICALL Java_io_github_kyannon_gbads_SecondScreen_nativeSetDisplay(JNIEnv* env, jclass cls, jint w, jint h) {
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_nativeSetDisplay(JNIEnv* env, jclass cls, jint w, jint h) {
 	pthread_mutex_lock(&winLock);
 	dispW = w;
 	dispH = h;
@@ -847,7 +847,7 @@ JNIEXPORT void JNICALL Java_io_github_kyannon_gbads_SecondScreen_nativeSetDispla
  * activity's and the second's, for screen_match = size */
 static float displayPpi[2];
 
-JNIEXPORT void JNICALL Java_io_github_kyannon_gbads_SecondScreen_nativeSetPpi(JNIEnv* env, jclass cls, jfloat app, jfloat second) {
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_nativeSetPpi(JNIEnv* env, jclass cls, jfloat app, jfloat second) {
 	displayPpi[0] = app;
 	displayPpi[1] = second;
 	__android_log_print(ANDROID_LOG_INFO, TAG, "display ppi: %.1f (the app's) / %.1f (second)", app, second);
@@ -859,7 +859,7 @@ float android_display_ppi(int view) {
 
 /* Called on the UI thread; holding the lock means the native side is done
  * with the old surface before Java lets it go. */
-JNIEXPORT void JNICALL Java_io_github_kyannon_gbads_SecondScreen_nativeSetSurface(JNIEnv* env, jclass cls, jobject surface) {
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_nativeSetSurface(JNIEnv* env, jclass cls, jobject surface) {
 	pthread_mutex_lock(&winLock);
 	/* may still be current on the game thread (until it next switches): EGL
 	 * then frees it once it isn't */
@@ -875,7 +875,7 @@ JNIEXPORT void JNICALL Java_io_github_kyannon_gbads_SecondScreen_nativeSetSurfac
 /* kind: 1 down, 2 up, 3 motion; x, y: 0..1 across the second display.
  * Goes through SDL's event queue (thread-safe) to ui.c, which treats the
  * window id as the second view. */
-JNIEXPORT void JNICALL Java_io_github_kyannon_gbads_SecondScreen_nativeTouch(JNIEnv* env, jclass cls, jint kind, jfloat x,
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_nativeTouch(JNIEnv* env, jclass cls, jint kind, jfloat x,
                                                                             jfloat y) {
 	if (!SDL_WasInit(SDL_INIT_EVENTS)) return;
 	SDL_Event ev;
@@ -886,7 +886,7 @@ JNIEXPORT void JNICALL Java_io_github_kyannon_gbads_SecondScreen_nativeTouch(JNI
 	ev.tfinger.x = x;
 	ev.tfinger.y = y;
 	ev.tfinger.pressure = 1.0f;
-	ev.tfinger.windowID = GBADS_SECOND_WINDOW_ID;
+	ev.tfinger.windowID = SNESDS_SECOND_WINDOW_ID;
 	SDL_PushEvent(&ev);
 }
 

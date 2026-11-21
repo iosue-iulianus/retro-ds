@@ -1,4 +1,4 @@
-package io.github.kyannon.gbads;
+package io.github.iosue_iulianus.snesds;
 
 import android.app.Presentation;
 import android.content.Context;
@@ -22,7 +22,7 @@ import android.view.WindowManager;
  * pointer queue.
  */
 public class SecondScreen extends Presentation implements SurfaceHolder.Callback {
-    private static final String TAG = "GBADS";
+    private static final String TAG = "SNESDS";
     private SurfaceView view;
 
     static native void nativeSetDisplay(int width, int height);

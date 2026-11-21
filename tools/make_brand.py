@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Renders the GBA DS branding images and embeds them in src/brand_data.c.
+"""Renders the SNES DS branding images and embeds them in src/brand_data.c.
 
     tools/make_brand.py FUTURA_BOLD_ITALIC.otf GAMECUBEN.ttf
 
 The font files are not part of the repository (Futura is a commercial font);
 only the rendered images are. Outputs:
 
-    assets/brand/gba-ds-logo.png        full-size logo (transparent)
-    assets/brand/gba-ds-logo-1024.png   1024 px wide
+    assets/brand/snes-ds-logo.png        full-size logo (transparent)
+    assets/brand/snes-ds-logo-1024.png   1024 px wide
     src/brand_data.c                    PNGs used by the app, as byte arrays
 
 Menu and other UI text isn't here: the app draws it in Jost (assets/fonts,
@@ -164,9 +164,9 @@ def main():
     full = logo(futura, gamecuben)
     out = os.path.join(ROOT, "assets", "brand")
     os.makedirs(out, exist_ok=True)
-    full.save(os.path.join(out, "gba-ds-logo.png"))
+    full.save(os.path.join(out, "snes-ds-logo.png"))
     full.resize((1024, round(full.height * 1024 / full.width)), Image.LANCZOS).save(
-        os.path.join(out, "gba-ds-logo-1024.png"))
+        os.path.join(out, "snes-ds-logo-1024.png"))
 
     # in-app images, sized for ~2x their on-screen size on a 1024x768 screen
     images = {

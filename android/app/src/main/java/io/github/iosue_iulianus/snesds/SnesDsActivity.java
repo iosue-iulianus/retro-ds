@@ -1,4 +1,4 @@
-package io.github.kyannon.gbads;
+package io.github.iosue_iulianus.snesds;
 
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -43,16 +43,16 @@ import java.io.OutputStream;
  * into.
  *
  * Intent extra "rom": a ROM path to play (e.g. adb shell am start -n
- * io.github.iosue_iulianus.snesds/io.github.kyannon.gbads.LauncherActivity --es rom /storage/emulated/0/ROMs/snes/x.sfc).
+ * io.github.iosue_iulianus.snesds/io.github.iosue_iulianus.snesds.LauncherActivity --es rom /storage/emulated/0/ROMs/snes/x.sfc).
  */
-public class GbaDsActivity extends SDLActivity {
-    private static final String TAG = "GBADS";
+public class SnesDsActivity extends SDLActivity {
+    private static final String TAG = "SNESDS";
     private SecondScreen second;
 
     /** The game activity in this process, if one is running (this class or
-     * {@link GbaDsHereActivity}): the launcher sends a new request to it,
+     * {@link SnesDsHereActivity}): the launcher sends a new request to it,
      * in its task, rather than starting a second one. */
-    static volatile GbaDsActivity running;
+    static volatile SnesDsActivity running;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -60,16 +60,16 @@ public class GbaDsActivity extends SDLActivity {
         /* before SDL starts the native thread: where config, states and the log go */
         File home = dataFolder();
         try {
-            Os.setenv("GBADS_HOME", home.getAbsolutePath(), true);
+            Os.setenv("SNESDS_HOME", home.getAbsolutePath(), true);
             /* data-folder.cfg there: the folder the player chose instead (android.c android_data_setup) */
-            Os.setenv("GBADS_APP_FILES", getFilesDir().getAbsolutePath(), true);
+            Os.setenv("SNESDS_APP_FILES", getFilesDir().getAbsolutePath(), true);
         } catch (ErrnoException e) {
             Log.e(TAG, "setenv: " + e);
         }
-        Log.i(TAG, "GBA DS " + BuildConfig.VERSION_NAME + ", data in " + home);
+        Log.i(TAG, "SNES DS " + BuildConfig.VERSION_NAME + ", data in " + home);
         /* launch.log: the steps up to the native side's own log, so a start
-         * that dies before gba-ds.log exists can still be followed */
-        LauncherActivity.launchLog(this, "starting GBA DS " + BuildConfig.VERSION_NAME + " on " + Build.MANUFACTURER + " "
+         * that dies before snes-ds.log exists can still be followed */
+        LauncherActivity.launchLog(this, "starting SNES DS " + BuildConfig.VERSION_NAME + " on " + Build.MANUFACTURER + " "
                 + Build.MODEL + " (" + Build.HARDWARE + "), Android " + Build.VERSION.RELEASE + " (API "
                 + Build.VERSION.SDK_INT + "), ABIs " + java.util.Arrays.toString(Build.SUPPORTED_ABIS)
                 + ", data in " + home);
@@ -305,7 +305,7 @@ public class GbaDsActivity extends SDLActivity {
             final boolean[] answered = { false };
             AlertDialog d = new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
                     .setTitle("RetroAchievements")
-                    .setMessage("Sign in with your retroachievements.org account. GBA DS keeps a sign-in token, not your password.")
+                    .setMessage("Sign in with your retroachievements.org account. SNES DS keeps a sign-in token, not your password.")
                     .setView(box)
                     .setPositiveButton("Sign in", (dialog, which) -> {
                         answered[0] = true;
@@ -383,7 +383,7 @@ public class GbaDsActivity extends SDLActivity {
             id = pi.createSession(params);
             File apk = new File(path);
             try (PackageInstaller.Session s = pi.openSession(id)) {
-                try (InputStream in = new FileInputStream(apk); OutputStream out = s.openWrite("gba-ds.apk", 0, apk.length())) {
+                try (InputStream in = new FileInputStream(apk); OutputStream out = s.openWrite("snes-ds.apk", 0, apk.length())) {
                     byte[] buf = new byte[1 << 16];
                     for (int n; (n = in.read(buf)) > 0; ) out.write(buf, 0, n);
                     s.fsync(out);
@@ -457,7 +457,7 @@ public class GbaDsActivity extends SDLActivity {
     /* ------------------------------------------------------------ in the background (issue #28) */
 
     /* Android leaves a Presentation up while its activity is in the
-     * background: the second display stayed GBA DS's (and awake) until the
+     * background: the second display stayed SNES DS's (and awake) until the
      * app closed. So it's hidden while the app can't be seen and shown
      * again when it can. Hiding takes its surface away (the native side lets
      * go of it: nativeSetSurface(null)) and showing brings a new one, which

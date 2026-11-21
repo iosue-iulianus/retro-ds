@@ -315,7 +315,7 @@ FolderPick folder_pick(const char* title, const char* start, const char* count, 
 			result = FOLDER_AUTO, finished = true;
 		} else if (act == -10 - BTN_USE) {
 			if (access(v->path, W_OK) != 0) {
-				snprintf(v->note, sizeof(v->note), "GBA DS can't save in this folder: choose another");
+				snprintf(v->note, sizeof(v->note), "SNES DS can't save in this folder: choose another");
 			} else {
 				snprintf(out, n, "%s", v->path);
 				result = FOLDER_CHOSEN, finished = true;

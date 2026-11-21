@@ -1,7 +1,7 @@
-# GBA DS build
+# SNES DS build
 #
 #   scripts/setup-host.sh     first time: fetches and builds mGBA and SDL2 into deps/, then builds
-#   make / make tools         host build (build/host/gba-ds, build/host/harness)
+#   make / make tools         host build (build/host/snes-ds, build/host/harness)
 #   make CROSS=aarch64-linux-gnu- MGBA_BUILD=../mgba/build-aarch64 SDL_PREFIX=../sdl-aarch64
 #
 # MGBA_SRC   mGBA source tree (headers)
@@ -26,15 +26,15 @@ SIDE       ?=
 SIDE_CODES ?=
 ifneq ($(SIDE),)
 VERSION    := $(VERSION)+$(SIDE)
-SIDE_DEF   := -DGBADS_SIDE='"$(SIDE)"'
+SIDE_DEF   := -DSNESDS_SIDE='"$(SIDE)"'
 ifneq ($(SIDE_CODES),)
-SIDE_DEF   += -DGBADS_SIDE_CODES='"$(SIDE_CODES)"'
+SIDE_DEF   += -DSNESDS_SIDE_CODES='"$(SIDE_CODES)"'
 endif
 endif
 OPTFLAGS   ?= -O2 -g
 
 override CFLAGS := $(OPTFLAGS) -std=gnu11 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers \
-              -DGBADS_VERSION='"$(VERSION)"' $(SIDE_DEF) $(MGBA_DEFS) -I$(MGBA_SRC)/include -I$(MGBA_BUILD)/include -I$(SDL_PREFIX)/include/SDL2 -D_REENTRANT
+              -DSNESDS_VERSION='"$(VERSION)"' $(SIDE_DEF) $(MGBA_DEFS) -I$(MGBA_SRC)/include -I$(MGBA_BUILD)/include -I$(SDL_PREFIX)/include/SDL2 -D_REENTRANT
 LDFLAGS    += -L$(SDL_PREFIX)/lib -Wl,-rpath-link,$(SDL_PREFIX)/lib
 # mGBA's bundled zlib (for .zip ROMs), when it was built with it
 ZLIB_A     := $(wildcard $(MGBA_BUILD)/zlib/libz.a)
@@ -52,11 +52,11 @@ WEBP_OBJ   := $(patsubst $(WEBP_DIR)/src/%.c,$(OUT)/libwebp/%.o,$(WEBP_SRC))
 
 APP_SRC    := src/main.c src/config.c src/i18n.c src/i18n_data.c src/font.c src/ui.c src/library.c src/mapper.c src/hotkeys.c src/folderpick.c src/game.c src/paths.c src/image.c src/brand_data.c src/bezel.c src/bezel_logo.c src/logo.c src/cheats.c src/textfont.c src/fonts_data.c src/ra.c src/http.c src/sha256.c src/update.c src/clocks.c $(CORE_SRC)
 
-all: $(OUT)/gba-ds
+all: $(OUT)/snes-ds
 
-$(OUT)/gba-ds: $(APP_SRC) src/*.h VERSION $(MGBA_BUILD)/libmgba.a $(RC_OBJ) $(WEBP_OBJ)
+$(OUT)/snes-ds: $(APP_SRC) src/*.h VERSION $(MGBA_BUILD)/libmgba.a $(RC_OBJ) $(WEBP_OBJ)
 	@mkdir -p $(OUT)
-	$(CC) $(CFLAGS) -DGBADS_RA -I$(RC_DIR)/include -I$(RC_DIR)/src -I$(WEBP_DIR) -o $@ $(APP_SRC) $(RC_OBJ) $(WEBP_OBJ) $(LDFLAGS) $(LIBS)
+	$(CC) $(CFLAGS) -DSNESDS_RA -I$(RC_DIR)/include -I$(RC_DIR)/src -I$(WEBP_DIR) -o $@ $(APP_SRC) $(RC_OBJ) $(WEBP_OBJ) $(LDFLAGS) $(LIBS)
 
 $(OUT)/rcheevos/%.o: $(RC_DIR)/src/%.c $(wildcard $(RC_DIR)/include/*.h)
 	@mkdir -p $(dir $@)

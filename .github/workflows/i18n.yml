@@ -35,7 +35,7 @@ jobs:
         run: |
           python3 tools/i18n.py test
           python3 tools/i18n.py all
-          git diff --exit-code -- assets/i18n/gba-ds.pot src/i18n_data.c src/i18n_data.h ||
+          git diff --exit-code -- assets/i18n/snes-ds.pot src/i18n_data.c src/i18n_data.h ||
             { echo "::error::run tools/i18n.py all and commit the result"; exit 1; }
       - name: Language and font tests
         run: |

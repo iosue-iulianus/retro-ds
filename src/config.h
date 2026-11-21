@@ -1,10 +1,10 @@
-#ifndef GBADS_CONFIG_H
-#define GBADS_CONFIG_H
+#ifndef SNESDS_CONFIG_H
+#define SNESDS_CONFIG_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-/* Display > Overlays: off, GBA DS's own bezel drawn by the app in the
+/* Display > Overlays: off, SNES DS's own bezel drawn by the app in the
  * player's colours (bezel.c), or the player's PNGs in overlays/ (a screen
  * without one: the bezel in its default colours). OVM_LEGACY: a config from
  * before (overlays = top / both...), settled at start (main.c): custom if
@@ -17,12 +17,12 @@ enum { OVL_TOP = 1, OVL_BOTTOM = 2, OVL_BOTH = 3 };
  * LCD grid; the subpixel presets also brighten the colours to make up for
  * their stripes (the colour table, ui.c). */
 enum { SH_OFF, SH_GRID, SH_SCANLINES, SH_SOFT, SH_SUB_LIGHT, SH_SUB, SH_SUB_STRONG, SH_COUNT };
-extern const char* const shaderNames[SH_COUNT]; /* gba-ds.cfg's names: off, grid, ... */
+extern const char* const shaderNames[SH_COUNT]; /* snes-ds.cfg's names: off, grid, ... */
 /* the fast-forward speeds the pause menu goes through (ff_speed) */
 #define FF_SPEED_MIN 2
 #define FF_SPEED_MAX 5
 /* Hotkeys: the hotkey button held with an action's button does the action
- * (game.c). gba-ds.cfg: hotkey_<name> = a button (a, b, x, y, l, r, l2, r2,
+ * (game.c). snes-ds.cfg: hotkey_<name> = a button (a, b, x, y, l, r, l2, r2,
  * select, start, l3, up, down, left, right) or none. */
 enum { HK_QUIT, HK_SAVE, HK_LOAD, HK_BAR, HK_SWAP, HK_SHADER, HK_COUNT };
 extern const char* const hotkeyNames[HK_COUNT]; /* quit, save_state, ... */
@@ -40,7 +40,7 @@ typedef struct Config {
 	char borderColor[16]; /* RRGGBB behind the map screen (outside the map image) */
 	int overlayMode;   /* OVM_*: overlays */
 	int overlays;      /* OVL_TOP | OVL_BOTTOM: overlay_screens, the screens that have them */
-	bool bezelLogo;    /* the GBA DS logo in the generated bezel */
+	bool bezelLogo;    /* the SNES DS logo in the generated bezel */
 	char bezelInner[8], bezelOuter[8]; /* its colours, RRGGBB */
 	int shader;        /* SH_*: a pattern over every pixel on both screens (Display > Shader) */
 	bool colorCorrection; /* the GBA's screen colours (mGBA's GBA Color shader) */
@@ -68,13 +68,13 @@ typedef struct Config {
 	int audioLatency;  /* ms */
 	bool audioAuto;    /* raise the sound delay a step when the sound keeps running dry (game.c; the setting itself is left alone) */
 	bool keepSound;    /* the game and its sound go on while the system holds up a frame's present (game.c keeper) */
-	bool perfMax;      /* Linux: CPU, memory and GPU clocks held at their fastest while GBA DS runs (clocks.c); off: the system decides */
+	bool perfMax;      /* Linux: CPU, memory and GPU clocks held at their fastest while SNES DS runs (clocks.c); off: the system decides */
 	int ffSpeed;       /* fast-forward multiplier (the menu cycles FF_SPEED_MIN..MAX) */
 	char saveDir[512]; /* battery saves; default: next to the ROM */
 	char saveExt[8];   /* their extension: sav, or srm (RetroArch's: BananaOS's GBA saves, shared) */
-	char saveFrom[512]; /* where GBA DS kept them before (<game>.sav), carried over: BananaOS */
+	char saveFrom[512]; /* where SNES DS kept them before (<game>.sav), carried over: BananaOS */
 	char stateDir[512]; /* save states, thumbnails, prefs; default: <app>/states */
-	char stateFolder[12]; /* slots 0-9 and the automatic state: "gbads" (stateDir) or "retroarch" (RetroArch's own, shared: issue #39) */
+	char stateFolder[12]; /* slots 0-9 and the automatic state: "snesds" (stateDir) or "retroarch" (RetroArch's own, shared: issue #39) */
 	char raStateDir[512]; /* RetroArch's state folder when it isn't found from its settings (retroarch_state_dir) */
 	char raCfg[512];      /* RetroArch's retroarch.cfg (retroarch_cfg; default: looked for) */
 	char romDir[1024]; /* library folders, ':'-separated */
@@ -82,11 +82,11 @@ typedef struct Config {
 	char cheatDir[1024]; /* RetroArch .cht folders, ':'-separated (searched two levels deep) */
 	char patchDir[1024]; /* patches, a folder per game in it (GEN-9); default: <assetDir>/patches */
 	char libraryView[8]; /* game list: "list" (names) or "grid" (logos) */
-	char esConfigDir[512]; /* EmulationStation's config folder (Settings: GBA DS in EmulationStation) */
+	char esConfigDir[512]; /* EmulationStation's config folder (Settings: SNES DS in EmulationStation) */
 	char assetDir[512]; /* logos etc.; default: the data folder */
 	char logoFolder[512]; /* scraped logos, found by the ROM's file name (GEN-11); empty: none */
 	int customLogos;      /* the player's own and scraped logos (GEN-11): CL_PIXELATED, CL_FULL or CL_OFF */
-	char dataDir[512]; /* data_dir: GBA DS's data folder (states/, cheats/...); default: the app's folder (paths.c data_dir_setup) */
+	char dataDir[512]; /* data_dir: SNES DS's data folder (states/, cheats/...); default: the app's folder (paths.c data_dir_setup) */
 	char touchScreen[16]; /* first | second: which screen has the touch panel */
 	char topScreen[16];   /* Android: auto | app | second: which display is the top screen */
 	char screenMatch[8];  /* keep | aspect | size: the wider screen's picture area (ui.c layout_pictures) */
@@ -95,7 +95,7 @@ typedef struct Config {
 	char touchMap[16];    /* window | screen: how touch coordinates map */
 	/* Read the touchscreen straight from this input device (/dev/input/eventN)
 	 * instead of SDL's touches (the RG DS Plus's Stock Linux OS: weston hands
-	 * GBA DS none); its coordinates are fractions of the touch screen.
+	 * SNES DS none); its coordinates are fractions of the touch screen.
 	 * touch_rotate: 0, 90, 180 or 270 degrees; -1: by the panel's shape. */
 	char touchDevice[128];
 	int touchRotate;
@@ -133,11 +133,11 @@ void config_defaults(Config* c);
 /* ---- the settings the menus offer (docs/MENUS.md): the game list's Settings
  * (for all games) and, later, the pause menu (this game or all) show the same
  * rows, from this table. A setting is a bool, an int or a string in Config
- * with a list of choices (each with the text gba-ds.cfg uses), or a number
+ * with a list of choices (each with the text snes-ds.cfg uses), or a number
  * in a range; fast forward is two keys in one row. */
 enum { SF_BOOL, SF_INT, SF_STR, SF_FF };
 typedef struct {
-	const char* value; /* as gba-ds.cfg writes it */
+	const char* value; /* as snes-ds.cfg writes it */
 	const char* label; /* as the menu says it */
 	int ival;          /* SF_BOOL / SF_INT: the field's value for it */
 } SettingChoice;
@@ -163,7 +163,7 @@ int config_setting_index(const Config* c, const Setting* s);
 void config_setting_text(const Config* c, const Setting* s, char* out, size_t n);
 /* step by dir (+1 / -1), round at the ends; false if nothing changed */
 bool config_setting_step(Config* c, const Setting* s, int dir);
-/* the lines gba-ds.cfg would hold for the setting's value: [n][2] key, value; returns n */
+/* the lines snes-ds.cfg would hold for the setting's value: [n][2] key, value; returns n */
 int config_setting_lines(const Config* c, const Setting* s, char lines[2][2][24]);
 /* Updates (or adds) key = value lines in a file of the app's own (prefs.cfg), keeping
  * every other line. */

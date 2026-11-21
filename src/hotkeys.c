@@ -202,7 +202,7 @@ static void save(Config* cfg, const View_* v) {
 		fprintf(stderr, "hotkeys: can't write %s\n", path);
 		return;
 	}
-	fprintf(f, "# written by Settings > Hotkeys; overrides gba-ds.cfg (delete this file to use gba-ds.cfg's again)\n");
+	fprintf(f, "# written by Settings > Hotkeys; overrides snes-ds.cfg (delete this file to use snes-ds.cfg's again)\n");
 	fprintf(f, "hotkey = %s\n", cfg->hotkey);
 	for (int i = 0; i < HK_COUNT; ++i) fprintf(f, "hotkey_%s = %s\n", hotkeyNames[i], cfg->hotkeyBtn[i]);
 	fclose(f);

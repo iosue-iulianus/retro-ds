@@ -1,6 +1,6 @@
 /* Tiny 5x7 bitmap font for on-screen messages. */
-#ifndef GBADS_FONT_H
-#define GBADS_FONT_H
+#ifndef SNESDS_FONT_H
+#define SNESDS_FONT_H
 
 #include <stdint.h>
 

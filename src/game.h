@@ -1,5 +1,5 @@
-#ifndef GBADS_GAME_H
-#define GBADS_GAME_H
+#ifndef SNESDS_GAME_H
+#define SNESDS_GAME_H
 
 #include "config.h"
 

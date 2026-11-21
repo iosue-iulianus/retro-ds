@@ -1,8 +1,8 @@
 /* HTTP GETs for the updater (Linux): the curl program, or libcurl loaded at
  * run time where there's no program (BananaOS). Blocking: call from a
  * worker thread. */
-#ifndef GBADS_HTTP_H
-#define GBADS_HTTP_H
+#ifndef SNESDS_HTTP_H
+#define SNESDS_HTTP_H
 
 #include <stdbool.h>
 #include <stddef.h>

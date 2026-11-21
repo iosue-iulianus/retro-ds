@@ -1,5 +1,5 @@
-#ifndef GBADS_PATHS_H
-#define GBADS_PATHS_H
+#ifndef SNESDS_PATHS_H
+#define SNESDS_PATHS_H
 
 #include "config.h"
 
@@ -20,8 +20,8 @@ typedef struct {
 	/* Save states shared with RetroArch (state_folder = retroarch, issue
 	 * #39): its folder, where slots 0-9 are RetroArch's <game>.state,
 	 * .state1 ... .state9 and the automatic state its .state.auto (in its
-	 * format, compressed when raCompress); empty: GBA DS's own. The quick
-	 * state stays GBA DS's. */
+	 * format, compressed when raCompress); empty: SNES DS's own. The quick
+	 * state stays SNES DS's. */
 	char raDir[1024];
 	bool raCompress;
 } GamePaths;
@@ -30,7 +30,7 @@ void game_paths(const Config* cfg, const char* rom, GamePaths* out);
 
 /* RetroArch's folder for a game's states (rom: its path), as RetroArch
  * works it out from its retroarch.cfg, found on ROCKNIX, BananaOS or in
- * ~/.config/retroarch (or retroarch_state_dir in gba-ds.cfg). *compress:
+ * ~/.config/retroarch (or retroarch_state_dir in snes-ds.cfg). *compress:
  * its savestate_file_compression. False if RetroArch's settings weren't
  * found. */
 bool retroarch_state_dir(const Config* cfg, const char* rom, char* out, size_t n, bool* compress);
@@ -67,20 +67,20 @@ bool file_exists(const char* path);
 void mkdirs(const char* path);
 bool copy_file(const char* from, const char* to);
 
-/* key = value files (gba-ds.cfg's form): one key's value (the last line
+/* key = value files (snes-ds.cfg's form): one key's value (the last line
  * with it), and setting one key, the file's other lines kept (header: the
  * first line of a new file) */
 bool kv_get(const char* file, const char* key, char* out, size_t n);
 bool kv_set(const char* file, const char* key, const char* val, const char* header);
 
-/* GBA DS's data folder (issue #34): states/ (settings, save states,
+/* SNES DS's data folder (issue #34): states/ (settings, save states,
  * extracted logos...), cheats/, overlays/, logos/, patches/, bug-reports/
- * and screenshots/. By default the app's folder (Linux) or "GBA DS" on the
+ * and screenshots/. By default the app's folder (Linux) or "SNES DS" on the
  * internal storage (Android: defDir). `want` (data_dir) puts it elsewhere;
  * `record` is the file that says where it is now (data_dir_now, written
  * here). When want and the record differ, what's there is moved over (or,
- * if `want` already has GBA DS's data, that's used as it is). On Linux only
- * GBA DS's own folders move (the app folder keeps the program); with
+ * if `want` already has SNES DS's data, that's used as it is). On Linux only
+ * SNES DS's own folders move (the app folder keeps the program); with
  * `all`, everything in the old folder does (Android) and the emptied folder
  * goes. Writes the folder to use into out. */
 void data_dir_setup(const char* defDir, const char* record, const char* want, bool all, char* out, size_t n);

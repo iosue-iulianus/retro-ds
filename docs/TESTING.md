@@ -22,7 +22,7 @@ ROMs and save states never go in this repository.
 ## Running
 
 ```sh
-make && make tools                          # build/host/gba-ds and harness
+make && make tools                          # build/host/snes-ds and harness
 git clone https://github.com/kyannon/gba-ds-tests ../gba-ds-tests
 tools/regress.py                            # every case (once per release; see "When to run what")
 tools/regress.py fire-emblem                # one game
@@ -34,7 +34,7 @@ tools/regress.py --uncovered                # rules no case covers yet, the ones
 tools/regress.py --prune                    # delete goldens no case uses (after removing or renaming shots)
 ```
 
-The fixtures are looked for in `../gba-ds-tests`, or `$GBADS_TESTS`, or
+The fixtures are looked for in `../gba-ds-tests`, or `$SNESDS_TESTS`, or
 `--fixtures DIR`. Each run writes `build/regress/index.html`: every case,
 failures first, with each check's result, and for a golden that differs the
 picture, the golden and a diff side by side.
@@ -84,7 +84,7 @@ prints each changed file and what it picked:
 the same thing for reading: per game, the files and functions it runs)
 lists, for every function of `src/`, the games whose cases execute it
 (`"*"`: all of them; `[]`: none does). It's measured: the app is built with
-gcov (`make OUT=build/cov OPTFLAGS="-O0 -g --coverage" build/cov/gba-ds`)
+gcov (`make OUT=build/cov OPTFLAGS="-O0 -g --coverage" build/cov/snes-ds`)
 and `tools/regress_deps.py measure` runs each game's cases on it
 (`GCOV_PREFIX` keeps the games' counters apart), then `build` merges the
 results into the two files. `--changed` uses it for changes to `src/`:
@@ -118,7 +118,7 @@ checkout). Only "Run workflow" with "full"
 ticked runs every game: once per release, on the commit before the release
 commit (a "Release vX.Y.Z" commit changes only VERSION and the changelog's
 date, so it runs nothing). The fixtures come in with the repository secret
-`GBA_DS_TESTS_TOKEN` (a fine-grained token, Contents: read-only on
+`SNES_DS_TESTS_TOKEN` (a fine-grained token, Contents: read-only on
 kyannon/gba-ds-tests). The run's summary lists what was picked and why,
 each share's failures, and the releases tested only on their logo; a
 failing share keeps its report as an artifact for 7 days.
@@ -128,7 +128,7 @@ failing share keeps its report as an artifact for 7 days.
 The app runs headless (`SDL_VIDEODRIVER=offscreen`) in a 1024x1536 window
 (both RG DS Plus screens stacked: the game screen on top), drawn by SDL's
 own software renderer (`SDL_RENDER_DRIVER=software`), with
-`GBADS_SYNC=1`. The software renderer does the same arithmetic on any
+`SNESDS_SYNC=1`. The software renderer does the same arithmetic on any
 machine: through OpenGL (Mesa's llvmpipe, where a machine has it)
 blended pictures (text and its shadow, a dimmed map, a menu's panels)
 came out a shade apart from one CPU or Mesa to another, so goldens
@@ -136,8 +136,8 @@ approved on a session's container failed on GitHub's runners, which
 have no OpenGL (71 cases, Nov 11, 2026). That switch makes map captures and logo extraction run
 inline at the frame they're asked for instead of on background threads, so
 every run of a case gives exactly the same pictures. The app also runs
-as fast as it can (`GBADS_NOPACE=1`) and draws only the frames that need
-it (`GBADS_DRAW_SHOTS_ONLY=1`: a screenshot's, and those within 30 frames
+as fast as it can (`SNESDS_NOPACE=1`) and draws only the frames that need
+it (`SNESDS_DRAW_SHOTS_ONLY=1`: a screenshot's, and those within 30 frames
 of a tap, swipe, state load or joystick line): the game, map and HUD
 pictures are still made every frame, only the screens aren't put
 together, so the pictures are the same as when it draws every frame, in
@@ -226,7 +226,7 @@ Check types:
 | `pixels` / `not_pixels` | at least `min` (default all) / none of `probes` (`[x, y, "RRGGBB"]`) match, within `tol` (default 12) |
 | `uniform` / `not_uniform` | at least / under `frac` (default 0.99) of `rect` (`[x0, y0, x1, y1]`) is `color` |
 | `same` / `differs` | rect `a` of one shot and rect `b` of another differ in at most / more than `frac` (default 1%) of their pixels |
-| `log` / `no_log` | the app's log (`GBADS_DEBUG=1`) matches / doesn't match the regex `match` (e.g. `map updated`) |
+| `log` / `no_log` | the app's log (`SNESDS_DEBUG=1`) matches / doesn't match the regex `match` (e.g. `map updated`) |
 | `file` / `no_file` | `path` in a `retroarch` case's state folder is there and starts with `starts` (its bytes as Latin-1: `"#RZIPv\u0001#"`, `"RASTATE\u0001"`, `"\u0089PNG"`) / isn't there |
 
 Rule checks say *why* a picture is right and keep passing through
@@ -279,24 +279,24 @@ won't read USA saves), make a state by playing in from a new game.
 The updater (`src/update.c`) is tested against `tools/update_mock.py`, a
 stand-in for GitHub's latest-release API serving a zip you give it:
 
-1. Make a fake release zip laid out like the real one (`gba-ds/gba-ds`,
-   `gba-ds/launch.sh`, `gba-ds/gba-ds.cfg`, `GBA DS.sh`, `images/`). A
-   `gba-ds/gba-ds` that's a shell script writing a file shows the restart
+1. Make a fake release zip laid out like the real one (`snes-ds/snes-ds`,
+   `snes-ds/launch.sh`, `snes-ds/snes-ds.cfg`, `GBA DS.sh`, `images/`). A
+   `snes-ds/snes-ds` that's a shell script writing a file shows the restart
    worked.
-2. Copy `build/host/gba-ds` into an install folder like the device's
-   (`ports/gba-ds/gba-ds`, with an old `launch.sh`, a `gba-ds.cfg` of your
+2. Copy `build/host/snes-ds` into an install folder like the device's
+   (`ports/snes-ds/snes-ds`, with an old `launch.sh`, a `snes-ds.cfg` of your
    own and `ports/GBA DS.sh`).
 3. `python3 tools/update_mock.py --zip release.zip [--slow] [--bad-digest]
    [--status 404]`, then run that copy headless with
-   `--update-url=http://127.0.0.1:8098/repos/kyannon/gba-ds/releases/latest`
+   `--update-url=http://127.0.0.1:8098/repos/iosue-iulianus/snes-ds/releases/latest`
    (unset `https_proxy`). With no `states/update.cfg` the automatic check
    runs at once and the notice appears; `auto = 0` in it tests the Settings
    path (SELECT, DOWN to Updates, A, A to check).
-4. Check: the new files are in place, `gba-ds.cfg` is yours, `GBA DS.sh` is
+4. Check: the new files are in place, `snes-ds.cfg` is yours, `GBA DS.sh` is
    the new one (an `images/` folder that wasn't there isn't created), the
    restart ran with the same arguments, and `states/update/` is empty.
    `--apk APP.apk` instead of `--zip` serves an Android release (the APK
    asset); docs/ANDROID.md, "Updates", says how the Android side was tested.
    `PATH=/nonexistent` tests the libcurl fallback (BananaOS); running a copy
-   from elsewhere with `GBADS_HOME` set tests launch.sh's copied binary
+   from elsewhere with `SNESDS_HOME` set tests launch.sh's copied binary
    (both copies are replaced).

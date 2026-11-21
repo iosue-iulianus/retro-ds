@@ -107,7 +107,7 @@ bool logo_extract(const char* romPath, const char* gameCode, const char* outPng)
 	emu_close(&e);
 	free(st);
 
-	if (getenv("GBADS_LOGO_DEBUG")) {
+	if (getenv("SNESDS_LOGO_DEBUG")) {
 		char dbg[1200];
 		snprintf(dbg, sizeof(dbg), "%s.fg.png", outPng);
 		stbi_write_png(dbg, GBA_W, GBA_H, 4, fg, GBA_W * 4);
@@ -434,10 +434,10 @@ static void enqueue(const char* romPath, const char* gameCode, const char* outPn
 		while (*tail) tail = &(*tail)->next;
 	}
 	*tail = j;
-	/* (GBADS_SYNC=1, regression tests: inline) */
-	if (!running && !(getenv("GBADS_SYNC") && atoi(getenv("GBADS_SYNC")))) running = pthread_create(&thread, NULL, worker, NULL) == 0;
+	/* (SNESDS_SYNC=1, regression tests: inline) */
+	if (!running && !(getenv("SNESDS_SYNC") && atoi(getenv("SNESDS_SYNC")))) running = pthread_create(&thread, NULL, worker, NULL) == 0;
 	if (!running) {
-		/* no thread (GBADS_SYNC, or it couldn't start): the work now */
+		/* no thread (SNESDS_SYNC, or it couldn't start): the work now */
 		while (queue) {
 			Job* q = queue;
 			queue = q->next;
