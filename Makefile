@@ -36,6 +36,11 @@ OPTFLAGS   ?= -O2 -g
 override CFLAGS := $(OPTFLAGS) -std=gnu11 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers \
               -DSNESDS_VERSION='"$(VERSION)"' $(SIDE_DEF) $(MGBA_DEFS) -I$(MGBA_SRC)/include -I$(MGBA_BUILD)/include -I$(SDL_PREFIX)/include/SDL2 -D_REENTRANT
 LDFLAGS    += -L$(SDL_PREFIX)/lib -Wl,-rpath-link,$(SDL_PREFIX)/lib
+# desktop builds: run with the SDL built into deps/, not an older system one
+# (which may lack the offscreen driver the headless runs use)
+ifeq ($(CROSS),)
+LDFLAGS    += -Wl,-rpath,$(abspath $(SDL_PREFIX)/lib)
+endif
 # mGBA's bundled zlib (for .zip ROMs), when it was built with it
 ZLIB_A     := $(wildcard $(MGBA_BUILD)/zlib/libz.a)
 LIBS       := $(MGBA_BUILD)/libmgba.a $(ZLIB_A) -lSDL2 -lpthread -lm
