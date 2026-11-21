@@ -1,5 +1,6 @@
-# Builds the Android APK on every push to android / dev (and by hand from
-# the Actions tab). The APK is attached to the run as an artifact.
+# Builds the Android APK on every push to snes, on pull requests into snes
+# (so a branch is built before it's merged), and by hand from the Actions
+# tab. The APK is attached to the run as an artifact.
 #
 # Signing: the repository secrets ANDROID_KEYSTORE_B64 (the keystore,
 # base64), ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD.
@@ -9,7 +10,9 @@ name: Android
 
 on:
   push:
-    branches: [android, dev]
+    branches: [snes]
+  pull_request:
+    branches: [snes]
   workflow_dispatch:
 
 jobs:
