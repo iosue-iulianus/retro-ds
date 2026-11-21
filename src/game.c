@@ -4585,8 +4585,11 @@ static void draw_drag_preview(int s) {
 	ui_fill(s, in, (SDL_Color) { 0, 0, 0, 255 });
 	SDL_Rect clip = { in.x + screens[s].rect.x, in.y + screens[s].rect.y, in.w, in.h };
 	ui_clip(s, &clip);
-	SDL_Rect moved = { img.x + dragX - dragX0, img.y + dragY - dragY0, img.w, img.h };
-	ui_image(s, mapTex, mapW, mapH, "stretch", &moved);
+	/* only the frame's inside moves (the frame, the area's name and the
+	 * plates stay where they are) */
+	SDL_Rect src = { ix0, iy0, ix1 - ix0, iy1 - iy0 };
+	SDL_Rect moved = { in.x + dragX - dragX0, in.y + dragY - dragY0, in.w, in.h };
+	ui_image_part(s, mapTex, src, moved);
 	ui_clip(s, NULL);
 }
 

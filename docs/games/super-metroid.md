@@ -22,7 +22,7 @@ Every game also follows the general rules GBA DS set out (`docs/reference/gba/RE
 
 **SM-4. Logo before the first map.** Until the first map is captured, and at the title screen, the intro, the file select and the options, the second screen shows the logo, taken from the title screen.
 
-**SM-5. Samus's marker blinks.** With Map Animations on, Samus's marker blinks as it does on the pause screen.
+**SM-5. A still map.** The map is shown still, each part that blinks on the pause screen (Samus's marker, the scroll arrows, the plates) at its brightest. *(Until Nov 21, 2026's test builds the marker blinked, but the recorded loop was shorter than the game's cycles, 24 and 54 frames, and everything that blinks pulsed too fast.)*
 
 **SM-6. No mini-map on the game screen.** While the second screen shows the map and Samus is played (going through doors and pausing included), the mini-map in the energy bar's top right corner is covered in black: the second screen's map makes it pointless. Ceres Station, which has no map on the second screen, keeps it. Only what's shown changes: the game, its screenshots and states are as the game draws them. *Exception to "the live game's picture isn't changed" (the owner's choice, Nov 21, 2026).*
 

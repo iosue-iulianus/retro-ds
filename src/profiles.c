@@ -70,7 +70,10 @@ static const MapProfile profiles[] = {
 		.hideIf = { { 0x7E0998, 0xFF, 0x08, 1, true, 0x12, true }, { 0x7E079F, 0xFF, 0x00, 1, true, 0x05, true } },
 		/* the title screen, its lettering */
 		.logo = { .wait = 600, .pressStart = true, .wait2 = 126, .minX = 44, .minY = 17, .maxX = 224, .maxY = 80 },
-		.animFrames = 12, .animStep = 1,
+		/* SM-5: still (its marker, the scroll arrows and the plates blink
+		 * on 24- and 54-frame cycles: a loop short enough to record cut
+		 * them off and they pulsed too fast) */
+		.animFrames = 12, .animStep = 1, .mapStill = true, .animCycle = 54,
 	},
 };
 

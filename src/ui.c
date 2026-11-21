@@ -1407,7 +1407,7 @@ static void font_text_raw(int screen, int font, int x, int cy, int capPx, const 
  * showing the last picture. The second screen is drawn by the GPU into the
  * second display's window (android_second_begin/_end) or, failing that, by
  * a software renderer into views[1].surf. */
-enum { OP_IMAGE, OP_PIXELS, OP_FILL, OP_ROUND, OP_TEXT, OP_LABEL, OP_CLIP, OP_NOCLIP };
+enum { OP_IMAGE, OP_PIXELS, OP_FILL, OP_ROUND, OP_TEXT, OP_LABEL, OP_CLIP, OP_NOCLIP, OP_PART };
 typedef struct {
 	int kind, screen;
 	SDL_Texture* const* tex; /* per-view array, as passed in */
@@ -1525,6 +1525,7 @@ static bool sw_render(int v) {
 		case OP_LABEL: font_text_raw(o->screen, o->d & 15, o->a, o->b, o->c, o->text, o->col, (o->d >> 4) - 1); break;
 		case OP_CLIP: ui_clip(o->screen, &o->r); break;
 		case OP_NOCLIP: ui_clip(o->screen, NULL); break;
+		case OP_PART: ui_image_part(o->screen, o->tex, (SDL_Rect) { o->a, o->b, o->c, o->d }, o->r); break;
 		}
 	}
 	replaying = false;
@@ -1798,6 +1799,18 @@ static void fit_rect_at(const SDL_Rect* area, int w, int h, const char* mode, in
 }
 static void fit_rect(const SDL_Rect* area, int w, int h, const char* mode, SDL_Rect* out) {
 	fit_rect_at(area, w, h, mode, 0, out);
+}
+
+void ui_image_part(int screen, SDL_Texture* const* texPerView, SDL_Rect src, SDL_Rect dstLocal) {
+	RECORD(screen, OP_PART) {
+		rec_tex(o, texPerView);
+		o->a = src.x, o->b = src.y, o->c = src.w, o->d = src.h, o->r = dstLocal;
+		return;
+	}
+	Screen* s = &screens[screen];
+	SDL_Rect dst = { dstLocal.x + s->rect.x, dstLocal.y + s->rect.y, dstLocal.w, dstLocal.h };
+	SDL_SetTextureScaleMode(texPerView[s->view], SDL_ScaleModeNearest);
+	SDL_RenderCopy(views[s->view].ren, texPerView[s->view], &src, &dst);
 }
 
 void ui_image(int screen, SDL_Texture* const* texPerView, int w, int h, const char* mode, const SDL_Rect* areaLocal) {
