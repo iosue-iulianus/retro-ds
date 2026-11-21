@@ -11,9 +11,11 @@ marker (custom asset mode), or the game's logo.
 The owner (Joshua) decides what gets built and tests on the device.
 Nothing counts as working until it has run on the Duo.
 
-**Status:** M1 (SNES games on one screen), on branch `m1-port`: the
-emulator is the libretro bsnes core, GBA DS's GBA-only features are gone,
-and no game has a profile yet (M2: Super Metroid). Much of `src/` is
+**Status:** M1 (SNES games on one screen) is merged: the emulator is the
+libretro bsnes core and GBA DS's GBA-only features are gone. M2, on
+branch `m2-super-metroid`: Super Metroid's map on the second screen (the
+first profile), the game on the screen closer to 4:3 (the Duo's bottom
+one), overlays (the bezel) off by default. Much of `src/` is
 GBA DS's (the game list, menus, settings, Android glue); upstream's session
 notes, with the detail on every inherited subsystem, are
 `git show 3b452dc:CLAUDE.md` (GBA DS v1.5.6, the commit this fork starts
@@ -188,7 +190,14 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   by frame: `load/save`, `wait`, `hold`, `tap`, `shot`, `peek`, `poke`,
   `dumpram`, `copy`, `mapcap` (a capture on copy B, timed), `bench`. SNES
   addresses are written as the CPU sees them (`7E0998`). `SNESDS_SAVE`
-  gives copy A a battery save.
+  gives copy A a battery save (copied into OUTDIR first).
+- Test states and saves live outside the repo, in
+  `/home/joshua/projects/snes-ds/test-data/<game>/` (Super Metroid:
+  `crateria-ship.state`, playing at the ship, and
+  `crateria-pause-map.state`). Never delete them; copy new ones from the
+  Duo there. The app loads one from a script line `TICK LOAD:path`, and
+  `SNESDS_SCREENS=1920x1080,1280x960` (with `SNESDS_WINDOW=1920x2040`)
+  stands in for the Duo's two screens.
 - `tools/ramdiff.py` (RAM dumps with a screen open vs closed) carries over.
 - The app runs headless: `SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy
   SDL_RENDER_DRIVER=software SNESDS_WINDOW=1024x1536 build/host/snes-ds
@@ -222,7 +231,7 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   normalized 256x224 picture (hi-res and interlaced ones halved): profiles
   give coordinates on the SNES screen.
 - `profiles.c/.h`: everything game-specific (`MapProfile`), keyed by game
-  code (CRC32). Empty until M2.
+  code (CRC32). Super Metroid so far (`docs/games/super-metroid.md`).
 - `game.c`: a play session (input, the second screen, pause menu). The
   game's picture is `texW` x `texH` as the core draws it, shown as `picW` x
   `picH` (256 x 224 or 239). The second screen is an SNES-sized picture
@@ -250,10 +259,12 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   Duo's bottom screen by default.
 - **M3:** Chrono Trigger and the FF status screens, logos, custom asset
   mode (ALttP's overworld).
-- For the port, on the Duo: the game goes on the bottom screen (1280x960,
-  4:3, a better fit for an SNES picture) and the second screen on the top
-  one. `top_screen = auto` currently puts the game on the larger display
-  (the top), as GBA DS does (seen on the device Nov 21, 2026).
+- Which screen has the game: `swap`, until the player sets it, follows
+  the screens' shapes (the one closer to 4:3 gets the game: the Duo's
+  bottom screen). `top_screen` only says which display is physically on
+  top.
+- Overlays default to Off: the owner doesn't want the bezel (on OLED
+  screens the black round the picture is the frame).
 - For the port, left by the rename: ES-DE's integration (`esde.c`) still
   adds SNES DS to ES-DE's `gba` system; links in `android.c` point at
   wiki pages SNES DS doesn't have yet (Playing, Overlays); the Display
