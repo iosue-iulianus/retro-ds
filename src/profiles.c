@@ -53,7 +53,17 @@ static const MapProfile profiles[] = {
 		           { 20, 205, 9, 5, true, 0xBDBDBD, 0x42008C, { "...#.....", "..#......", ".######..", "..#......", "...#....." } },
 		           { 228, 205, 9, 5, true, 0xBDBDBD, 0x42008C, { "....#....", ".....#...", ".######..", ".....#...", "....#...." } },
 		           { 8, 199, 74, 16, true, 0x000000, .page = 1 },
-		           { 174, 199, 74, 16, true, 0x000000, .page = 2 } },
+		           { 174, 199, 74, 16, true, 0x000000, .page = 2 },
+		           /* the equipment page's line from SUPPLY up to the energy
+		           * row's reserve tanks (left out above): the grid seven
+		           * cells below over it, the frame's top edge beside it, and
+		           * the gap it leaves in SUPPLY's wall closed */
+		           { 10, 38, 4, 3, true, 0x000000, .page = 2 },
+		           { 10, 41, 4, 4, .page = 2, .fromDx = 4 },
+		           { 10, 45, 4, 52, .page = 2, .fromDy = 56 },
+		           { 10, 97, 8, 4, .page = 2, .fromDy = 56 },
+		           { 18, 95, 4, 8, .page = 2, .fromDy = -8 },
+		           { 22, 97, 2, 4, true, 0x000000, .page = 2 } },
 		/* SM-6: the HUD's mini-map, while Samus is played, goes through a
 		 * door, pauses and unpauses (08 to 12), outside Ceres Station */
 		.hide = { { 206, 4, 46, 28 } },

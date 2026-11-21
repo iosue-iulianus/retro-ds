@@ -339,9 +339,21 @@ static void recolor(MapCapture* mc, uint32_t* out) {
 /* The profile's paint (SM-7's plates), onto a cropped picture */
 static void paint(MapCapture* mc, uint32_t* out) {
 	const MapProfile* p = mc->prof;
-	for (int i = 0; i < 6; ++i) {
+	for (int i = 0; i < 10; ++i) {
 		const __typeof__(p->paint[0])* pt = &p->paint[i];
-		if ((!pt->filled && !pt->rows[0]) || (pt->page && pt->page != mc->curPage + 1)) continue;
+		if (pt->page && pt->page != mc->curPage + 1) continue;
+		if (pt->fromDx || pt->fromDy) {
+			for (int y = pt->y; y < pt->y + pt->h; ++y) {
+				for (int x = pt->x; x < pt->x + pt->w; ++x) {
+					int sx = x + pt->fromDx, sy = y + pt->fromDy;
+					bool in = x >= mc->cx && y >= mc->cy && x < mc->cx + mc->cw && y < mc->cy + mc->ch;
+					bool sin = sx >= mc->cx && sy >= mc->cy && sx < mc->cx + mc->cw && sy < mc->cy + mc->ch;
+					if (in && sin) out[(y - mc->cy) * mc->cw + (x - mc->cx)] = out[(sy - mc->cy) * mc->cw + (sx - mc->cx)];
+				}
+			}
+			continue;
+		}
+		if (!pt->filled && !pt->rows[0]) continue;
 		for (int y = pt->y; pt->filled && y < pt->y + pt->h; ++y) {
 			for (int x = pt->x; x < pt->x + pt->w; ++x) {
 				if (x >= mc->cx && y >= mc->cy && x < mc->cx + mc->cw && y < mc->cy + mc->ch) out[(y - mc->cy) * mc->cw + (x - mc->cx)] = to_fb(pt->fill);
