@@ -130,15 +130,20 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   private, a standalone copy with GBA DS's history, not a GitHub fork);
   `snes` is its default branch. `upstream` is GBA DS (kyannon/gba-ds):
   fetch from it to pick up fixes to shared code, never push there.
-- **Renaming:** stage 1 is done (repo, README, the Android application ID
-  `io.github.iosue_iulianus.snesds`, its task affinity and install action,
-  the "SNES DS" storage folder and app label), so SNES DS installs beside
-  GBA DS without sharing anything. Stage 2 happens with the port, as the
-  files are rewritten: the binary, `gba-ds.cfg`, `GBADS_*` variables,
-  folder names, the Java namespace and packages (and the JNI names in
-  `android.c` with them), ES-DE's integration (`esde.c`, which edits ES-DE's
-  `gba` system and an emulator rule named GBA-DS) and Cocoon's player entry
-  (`android/cocoon/`).
+- **Names:** the app is SNES DS everywhere: binary `snes-ds`, `snes-ds.cfg`,
+  `SNESDS_*` variables and macros, Android package and application ID
+  `io.github.iosue_iulianus.snesds` (JNI names write its `_` as `_1`:
+  `Java_io_github_iosue_1iulianus_snesds_...`), classes `SnesDsActivity` and
+  `SnesDsHereActivity`, the "SNES DS" folder on Android. Still to do: the
+  logo artwork (`src/brand_data.c`, from `tools/make_brand.py`), whose font
+  isn't settled. GBA DS is named on purpose in the README's credits, this
+  file, Philosophy, the changelog's opening, `docs/reference/gba/` and the
+  APK's licence notice; `src/profiles.c`, the dump and mask tables and the
+  GBA tooling docs (`docs/TESTING.md`, `docs/patches.md`) keep "GBA DS" in
+  their prose because they describe GBA DS's games, until the port
+  replaces them. Some development notes inherited from GBA DS (dated ones
+  in `docs/ANDROID.md`, version mentions in comments) now say SNES DS where
+  they meant GBA DS.
 - **Commits:** small, one idea each, with the session's attribution
   trailers. Write long messages to a file and `git commit -F`. Never
   force-push, never rewrite pushed history.
@@ -156,9 +161,14 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
 
 - Cores (host): `../cores/bsnes` (libretro/bsnes, `make target=libretro
   binary=library`) and `../cores/snes9x` (`make` in `libretro/`).
-- (GBA DS, until the core swap lands) desktop: `scripts/setup-host.sh` once,
-  then `make` and `make tools`; device and Android build scripts are
-  upstream's and still build the GBA app.
+- The app (still GBA DS's emulator until the core swap): `scripts/setup-host.sh`
+  once (mGBA and SDL2 into `deps/`), then `make` (`build/host/snes-ds`) and
+  `make tools` (the GBA harness). Host builds run with the SDL in `deps/`
+  (rpath). Android: `scripts/build-android.sh`, which needs the Android SDK
+  and NDK, so it runs on GitHub Actions (`.github/workflows/android.yml`,
+  on pushes to `android` and `dev`, or "Run workflow"; debug-signed without
+  the signing secrets). Platforms: Android and the Linux desktop only;
+  GBA DS's ROCKNIX, BananaOS, Stock Linux OS and web builds were removed.
 
 ## Testing without the device
 
@@ -169,8 +179,11 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   $7FFFFF) comes from `RETRO_MEMORY_SYSTEM_RAM`.
 - `tools/ramdiff.py` (RAM dumps with a screen open vs closed) and
   `tools/scout/bench.c` carry over from GBA DS.
-- The app runs headless (GBA DS): `SDL_VIDEODRIVER=offscreen
-  SDL_AUDIODRIVER=dummy build/host/gba-ds --input-script=SCRIPT ROM`.
+- The app runs headless: `SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy
+  SDL_RENDER_DRIVER=software SNESDS_WINDOW=1024x1536 build/host/snes-ds
+  --rom-dir=DIR --state-dir=DIR --quick_bar_hint=0 --input-script=SCRIPT`
+  (script lines `TICK BUTTONS`, `TICK SHOT:file.bmp`, `TICK TAP:x,y` as
+  fractions of the window, `TICK QUIT`).
 - Verify visual changes by rendering screenshots and looking at them before
   sending a build.
 - Results that depend on where they were measured (fps, timings) are
@@ -205,3 +218,10 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   size, settle time, whether blind frames skip rendering) for bsnes and
   snes9x in `docs/M0-results.md`. Stop after M0 for review.
 - After review: Android (two sonames), profiles, custom asset mode.
+- For the port, left by the rename: ES-DE's integration (`esde.c`) still
+  adds SNES DS to ES-DE's `gba` system; links in `android.c` point at
+  wiki pages SNES DS doesn't have yet (Playing, Overlays); the Display
+  theme's hint mentions the web player (a translated string: change it with
+  its translations); the .po files keep translations of removed strings
+  (obsolete, warnings only); Linux features with ROCKNIX roots (CPU clocks,
+  the volume file, RetroArch's state folder, the updater's zip install).
