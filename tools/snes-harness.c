@@ -357,10 +357,26 @@ int main(int argc, char** argv) {
 	mkdir(outDir, 0755);
 
 	/* the core copied to OUTDIR/core-a.so and core-b.so: one copy per instance.
-	 * SNESDS_SAVE: a battery save for instance A */
+	 * SNESDS_SAVE: a battery save for instance A, copied to OUTDIR/game.srm
+	 * first (the game writes to its save: the original is never touched) */
 	if (!emu_set_core_copies(core, outDir)) return 1;
+	char save[1200] = "";
+	if (getenv("SNESDS_SAVE") && getenv("SNESDS_SAVE")[0]) {
+		snprintf(save, sizeof save, "%s/game.srm", outDir);
+		size_t n = 0;
+		FILE* in = fopen(getenv("SNESDS_SAVE"), "rb");
+		FILE* out = in ? fopen(save, "wb") : NULL;
+		char buf[1 << 16];
+		while (in && out && (n = fread(buf, 1, sizeof buf, in)) > 0) fwrite(buf, 1, n, out);
+		if (in) fclose(in);
+		if (out) fclose(out);
+		if (!in || !out) {
+			fprintf(stderr, "can't copy the save %s to %s\n", getenv("SNESDS_SAVE"), save);
+			return 1;
+		}
+	}
 	for (int i = 0; i < 2; ++i) {
-		if (!emu_open(&inst[i], rom, i == 0 ? getenv("SNESDS_SAVE") : NULL, false)) return 1;
+		if (!emu_open(&inst[i], rom, i == 0 && save[0] ? save : NULL, false)) return 1;
 	}
 	size_t wn = 0, sn = 0;
 	emu_memory(&inst[0], EMU_MEM_WRAM, &wn);
