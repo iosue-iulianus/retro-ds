@@ -485,6 +485,11 @@ bool emu_state_save(Emu* e, void* buf, size_t size) {
 	return ok;
 }
 
+bool emu_state_save_live(Emu* e, uint32_t nextKeys, void* buf, size_t size) {
+	e->keys = nextKeys;
+	return emu_state_save(e, buf, size);
+}
+
 bool emu_state_load(Emu* e, const void* buf, size_t size) {
 	Emu* prev = cur;
 	cur = e;

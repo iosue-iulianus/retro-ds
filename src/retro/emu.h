@@ -107,6 +107,14 @@ void emu_reset(Emu* e);
 size_t emu_state_size(Emu* e);
 bool emu_state_save(Emu* e, void* buf, size_t size);
 bool emu_state_load(Emu* e, const void* buf, size_t size);
+/* A snapshot of the live game, taken between frames, when the next frame
+ * will run with nextKeys. bsnes's retro_serialize runs the emulation forward
+ * to a sync point, and if the game reads the controller on the way, it
+ * reads the keys the core was last given: a press on exactly that frame
+ * would land a frame late in the live game. Setting the next frame's keys
+ * first makes the snapshot leave the live game exactly where it would have
+ * been (checked in docs/M0-results.md). Always use this on the live game. */
+bool emu_state_save_live(Emu* e, uint32_t nextKeys, void* buf, size_t size);
 /* Files: saving writes the core's bytes; loading also takes RetroArch's
  * state files (RASTATE, RZIP-compressed or not) for the same core. */
 bool emu_state_save_file(Emu* e, const char* path);
