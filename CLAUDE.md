@@ -218,7 +218,9 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   size, settle time, whether blind frames skip rendering) for bsnes and
   snes9x in `docs/M0-results.md`. Stop after M0 for review.
 - After review: Android (two sonames), profiles, custom asset mode.
-- For the port, left by the rename: ES-DE's integration (`esde.c`) still
+- For the port, left by the rename: the default ROM folder on Android is
+  still `ROMs/gba` (`android.c`; GBA DS's, shared on purpose while the app
+  still plays GBA games), to become `ROMs/snes`; ES-DE's integration (`esde.c`) still
   adds SNES DS to ES-DE's `gba` system; links in `android.c` point at
   wiki pages SNES DS doesn't have yet (Playing, Overlays); the Display
   theme's hint mentions the web player (a translated string: change it with
