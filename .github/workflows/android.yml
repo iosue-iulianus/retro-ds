@@ -1,5 +1,6 @@
-# Builds the Android APK on every push to android / dev (and by hand from
-# the Actions tab). The APK is attached to the run as an artifact.
+# Builds the Android APK on every push to snes, on pull requests into snes
+# (so a branch is built before it's merged), and by hand from the Actions
+# tab. The APK is attached to the run as an artifact.
 #
 # Signing: the repository secrets ANDROID_KEYSTORE_B64 (the keystore,
 # base64), ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD.
@@ -9,7 +10,9 @@ name: Android
 
 on:
   push:
-    branches: [android, dev]
+    branches: [snes]
+  pull_request:
+    branches: [snes]
   workflow_dispatch:
 
 jobs:
@@ -32,17 +35,17 @@ jobs:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
         run: |
           if [ -n "$KEYSTORE_B64" ]; then
-            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/gba-ds.jks"
-            echo "GBADS_KEYSTORE=$RUNNER_TEMP/gba-ds.jks" >> "$GITHUB_ENV"
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/snes-ds.jks"
+            echo "SNESDS_KEYSTORE=$RUNNER_TEMP/snes-ds.jks" >> "$GITHUB_ENV"
           else
             echo "::warning::No ANDROID_KEYSTORE_B64 secret: this APK is debug-signed and won't install over a release-signed one."
           fi
 
       - name: Build
         env:
-          GBADS_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          GBADS_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          GBADS_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          SNESDS_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          SNESDS_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          SNESDS_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           export ANDROID_NDK_HOME="${ANDROID_NDK_LATEST_HOME}"
           set -o pipefail
@@ -64,10 +67,10 @@ jobs:
         run: |
           echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
           # for the release notes: the APK's own checksum (the artifact digest is the zip's)
-          echo "::notice title=APK SHA-256::$(cd dist && sha256sum gba-ds-*-android.apk)"
+          echo "::notice title=APK SHA-256::$(cd dist && sha256sum snes-ds-*-android.apk)"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: gba-ds-v${{ steps.v.outputs.version }}-android
-          path: dist/gba-ds-*-android.apk
+          name: snes-ds-v${{ steps.v.outputs.version }}-android
+          path: dist/snes-ds-*-android.apk
           if-no-files-found: error

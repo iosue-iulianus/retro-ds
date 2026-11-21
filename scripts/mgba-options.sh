@@ -1,5 +1,5 @@
-# libmgba build options, sourced by build-rocknix.sh (device) and
-# setup-host.sh (desktop), so both builds have the same defines.
+# libmgba build options, sourced by setup-host.sh (desktop) and
+# build-android.sh (Android), so both builds have the same defines.
 #
 # Not LIBMGBA_ONLY: that switches every dependency off, and .zip ROMs need
 # zlib. Frontends and optional libraries are off one by one instead; zlib

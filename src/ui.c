@@ -94,14 +94,6 @@ typedef struct {
 static ScriptLine* script;
 static int scriptLen, scriptPos;
 static uint32_t scriptBtns;
-#ifdef __wasi__
-/* The web player's buttons, held now: bit i is button i of ui.h's list
- * (B_A, B_B, B_X...), whatever key or controller the player mapped to it */
-static uint32_t webBtns;
-__attribute__((export_name("web_buttons"))) void web_buttons(uint32_t held) {
-	webBtns = held;
-}
-#endif
 static long scriptTapUp = -1;
 static float tapX, tapY;
 /* SWIPE:x0,y0,x1,y1 (fractions of the window): down, 4 moves a tick apart, up */
@@ -154,7 +146,7 @@ void ui_load_script(const char* path) {
 	script_virtual_pad();
 }
 
-/* GBADS_DRAW_SHOTS_ONLY (tools/regress.py): nothing needs drawing this
+/* SNESDS_DRAW_SHOTS_ONLY (tools/regress.py): nothing needs drawing this
  * frame, as an input script runs with no screenshot due and no touch,
  * swipe, load or joystick line within 30 ticks (the quick bar's layout and
  * hit areas are worked out as it's drawn). The game, map and HUD
@@ -164,7 +156,7 @@ bool ui_scripted(void) { return scriptLen > 0; }
 
 bool ui_script_quiet(void) {
 	static int on = -1;
-	if (on < 0) on = getenv("GBADS_DRAW_SHOTS_ONLY") != NULL;
+	if (on < 0) on = getenv("SNESDS_DRAW_SHOTS_ONLY") != NULL;
 	if (!on || !scriptLen || pendingShot[0] || swipeStep >= 0 || scriptTapUp >= 0) return false;
 	for (int i = 0; i < scriptLen; ++i) {
 		if (!script[i].action[0] || !strncmp(script[i].action, "SHOT:", 5) || !strcmp(script[i].action, "QUIT")) continue;
@@ -193,13 +185,6 @@ static void push_finger(Uint32 type, float x, float y) {
 	ev.tfinger.windowID = SDL_GetWindowID(views[0].win);
 	SDL_PushEvent(&ev);
 }
-
-#ifdef __wasi__
-/* State Saver's GBA DS tab: a touch on the page (x, y fractions of the window) */
-__attribute__((export_name("web_touch"))) void web_touch(int type, float x, float y) {
-	push_finger(type == 1 ? SDL_FINGERDOWN : type == 2 ? SDL_FINGERUP : SDL_FINGERMOTION, x, y);
-}
-#endif
 
 static void run_script(void) {
 	while (scriptPos < scriptLen && script[scriptPos].tick <= (long) ticks) {
@@ -243,7 +228,7 @@ static void run_script(void) {
 static bool create_view(View* v, int display, const char* title, bool fullscreen, int ww, int wh) {
 	Uint32 flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
 	if (fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-	if (getenv("GBADS_WINDOW")) sscanf(getenv("GBADS_WINDOW"), "%dx%d", &ww, &wh);
+	if (getenv("SNESDS_WINDOW")) sscanf(getenv("SNESDS_WINDOW"), "%dx%d", &ww, &wh);
 	v->win = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED_DISPLAY(display), SDL_WINDOWPOS_CENTERED_DISPLAY(display),
 	                          ww, wh, flags);
 	if (!v->win) {
@@ -402,8 +387,8 @@ static void open_pads(void) {
 
 bool ui_init(Config* c, bool wantDual) {
 	cfg = c;
-	debug = getenv("GBADS_DEBUG") != NULL;
-	SDL_SetHint(SDL_HINT_APP_NAME, "GBA DS");
+	debug = getenv("SNESDS_DEBUG") != NULL;
+	SDL_SetHint(SDL_HINT_APP_NAME, "SNES DS");
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, cfg->smooth ? "linear" : "nearest");
 #ifdef __ANDROID__
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft");
@@ -415,8 +400,7 @@ bool ui_init(Config* c, bool wantDual) {
 	 * coming regardless. The environment variable still overrides this. */
 	SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 #endif
-	setenv("SDL_VIDEO_WAYLAND_WMCLASS", "gba-ds", 0);
-	/* (the web build's sound too: web/sdl_audio_web.c, pulled by the page) */
+	setenv("SDL_VIDEO_WAYLAND_WMCLASS", "snes-ds", 0);
 	const Uint32 audioInit = SDL_INIT_AUDIO;
 	if (SDL_Init(SDL_INIT_VIDEO | audioInit | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) != 0) {
 		fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
@@ -439,16 +423,16 @@ bool ui_init(Config* c, bool wantDual) {
 	 * Presentation window in Java (android.c). It's view 1, drawn at
 	 * ui_present: with the GPU (the game screen's renderer, made to draw into
 	 * the other window), or failing that with a software renderer. */
-	/* (GBADS_WINDOW: tools/androidtest, a window of that size, as SDL's
+	/* (SNESDS_WINDOW: tools/androidtest, a window of that size, as SDL's
 	 * offscreen driver makes a full-screen one 1024x768) */
-	if (!create_view(&views[0], 0, "GBA DS", !getenv("GBADS_WINDOW"), 1024, 768)) return false;
+	if (!create_view(&views[0], 0, "SNES DS", !getenv("SNESDS_WINDOW"), 1024, 768)) return false;
 	nViews = 1;
 	int sw, sh, w0, h0;
 	SDL_RendererInfo ri;
 	SDL_GetRendererOutputSize(views[0].ren, &w0, &h0);
 	bool gles = SDL_GetRendererInfo(views[0].ren, &ri) == 0 && !strncmp(ri.name, "opengles", 8);
 	fprintf(stderr, "game screen renderer: %s, %dx%d\n", gles ? ri.name : "not OpenGL ES", w0, h0);
-	if (strcmp(cfg->layout, "single") && android_second_size(&sw, &sh) && gles && !getenv("GBADS_SOFT_SECOND") &&
+	if (strcmp(cfg->layout, "single") && android_second_size(&sw, &sh) && gles && !getenv("SNESDS_SOFT_SECOND") &&
 	    android_second_gpu_init(w0, h0)) {
 		views[1].ren = views[0].ren;
 		views[1].offwin = views[1].retained = true;
@@ -478,7 +462,7 @@ bool ui_init(Config* c, bool wantDual) {
 	bool dual = !strcmp(cfg->layout, "dual") ||
 	            (wantDual && !strcmp(cfg->layout, "auto") && displays >= 2 && !underSway);
 	bool fullscreen = strcmp(driver, "offscreen") && strcmp(driver, "dummy") && strcmp(driver, "x11") &&
-	                  strcmp(driver, "windows") && strcmp(driver, "cocoa") && !getenv("GBADS_WINDOWED");
+	                  strcmp(driver, "windows") && strcmp(driver, "cocoa") && !getenv("SNESDS_WINDOWED");
 	fprintf(stderr, "video driver %s, %d display(s)%s -> %s\n", driver, displays, underSway ? ", sway" : "",
 	        dual && displays >= 2 ? "two windows" : "one window");
 	for (int i = 0; i < displays && i < 4; ++i) {
@@ -490,8 +474,8 @@ bool ui_init(Config* c, bool wantDual) {
 	fprintf(stderr, "touch devices: %d\n", SDL_GetNumTouchDevices());
 	if (dual && displays >= 2) {
 		nViews = 2;
-		if (!create_view(&views[0], 0, "GBA DS", true, 720, 480) ||
-		    !create_view(&views[1], 1, "GBA DS map", true, 720, 480)) {
+		if (!create_view(&views[0], 0, "SNES DS", true, 720, 480) ||
+		    !create_view(&views[1], 1, "SNES DS map", true, 720, 480)) {
 			return false;
 		}
 	} else {
@@ -505,7 +489,7 @@ bool ui_init(Config* c, bool wantDual) {
 			if (SDL_GetDesktopDisplayMode(0, &m) == 0 && m.w > 0 && m.h > 0) ww = m.w, wh = m.h;
 			fprintf(stderr, "BananaOS: both panels as one window, %dx%d\n", ww, wh);
 		}
-		if (!create_view(&views[0], 0, "GBA DS", fullscreen, ww, wh)) return false;
+		if (!create_view(&views[0], 0, "SNES DS", fullscreen, ww, wh)) return false;
 	}
 	ui_layout();
 	return true;
@@ -703,10 +687,10 @@ static void layout_screens(void) {
 	int w, h;
 	SDL_GetRendererOutputSize(views[0].ren, &w, &h);
 	/* tests: two screens of other sizes stacked in the window (the top one
-	 * first), as on devices whose screens differ: GBADS_SCREENS=1920x1080,1240x1080
-	 * (with GBADS_WINDOW the larger width x the heights together) */
+	 * first), as on devices whose screens differ: SNESDS_SCREENS=1920x1080,1240x1080
+	 * (with SNESDS_WINDOW the larger width x the heights together) */
 	int tw0, th0, tw1, th1;
-	if (getenv("GBADS_SCREENS") && sscanf(getenv("GBADS_SCREENS"), "%dx%d,%dx%d", &tw0, &th0, &tw1, &th1) == 4) {
+	if (getenv("SNESDS_SCREENS") && sscanf(getenv("SNESDS_SCREENS"), "%dx%d,%dx%d", &tw0, &th0, &tw1, &th1) == 4) {
 		nScreens = 2;
 		screens[0] = (Screen) { 0, { (w - tw0) / 2, 0, tw0, th0 } };
 		screens[1] = (Screen) { 0, { (w - tw1) / 2, th0, tw1, th1 } };
@@ -779,7 +763,7 @@ int ui_other_screen(void) {
 
 static int view_of_window(Uint32 id) {
 #ifdef __ANDROID__
-	if (id == GBADS_SECOND_WINDOW_ID) return nViews == 2 ? 1 : -1;
+	if (id == SNESDS_SECOND_WINDOW_ID) return nViews == 2 ? 1 : -1;
 #endif
 	for (int i = 0; i < nViews; ++i) {
 		if (SDL_GetWindowID(views[i].win) == id) return i;
@@ -862,7 +846,7 @@ void ui_on_foreground(void (*fn)(void)) {
 	foregroundFn = fn;
 }
 
-#if defined(__linux__) && !defined(__ANDROID__) && !defined(__wasi__)
+#if defined(__linux__) && !defined(__ANDROID__)
 #include <fcntl.h>
 #include <linux/input.h>
 #include <sys/ioctl.h>
@@ -891,7 +875,7 @@ static void evdev_touch_poll(void) {
 			evAx[a].min = ai.minimum, evAx[a].max = ai.maximum;
 		}
 		if (cfg->touchRotate < 0) cfg->touchRotate = evAx[0].max - evAx[0].min >= evAx[1].max - evAx[1].min ? 0 : 90;
-		/* ours alone while GBA DS runs (fails if another program holds it) */
+		/* ours alone while SNES DS runs (fails if another program holds it) */
 		int grab = ioctl(evTouchFd, EVIOCGRAB, 1);
 		char name[64] = "?";
 		ioctl(evTouchFd, EVIOCGNAME(sizeof(name)), name);
@@ -936,15 +920,15 @@ static void evdev_touch_poll(void) {
 	}
 }
 
-/* GBA DS's own volume, where the system leaves the volume keys to the
- * program running (launch.sh sets GBADS_VOLUME to the file that keeps it:
+/* SNES DS's own volume, where the system leaves the volume keys to the
+ * program running (launch.sh sets SNESDS_VOLUME to the file that keeps it:
  * the RG DS Plus's Stock Linux OS, whose ports play straight to the sound card).
  * The keys come as key events, from their input device, or as raw joystick
- * buttons (GBADS_VOLUME_BUTTONS=up,down). */
+ * buttons (SNESDS_VOLUME_BUTTONS=up,down). */
 static int softVolume = -1; /* 0-100; -1: not read yet */
 
 static const char* volume_file(void) {
-	return getenv("GBADS_VOLUME");
+	return getenv("SNESDS_VOLUME");
 }
 
 int ui_volume(void) {
@@ -977,7 +961,7 @@ static void volume_button(int button) {
 	static int vb[2] = { -2, -2 };
 	if (vb[0] == -2) {
 		vb[0] = vb[1] = -1;
-		const char* e = getenv("GBADS_VOLUME_BUTTONS");
+		const char* e = getenv("SNESDS_VOLUME_BUTTONS");
 		if (e) sscanf(e, "%d,%d", &vb[0], &vb[1]);
 	}
 	if (button >= 0 && button == vb[0]) volume_key(true);
@@ -1111,7 +1095,7 @@ bool ui_events(void) {
 			if (!ev.key.repeat) raw_push('k', -1, ev.key.keysym.scancode, 1);
 			static int keysLogged;
 			if (debug || keysLogged++ < 6) fprintf(stderr, "key %s\n", SDL_GetKeyName(ev.key.keysym.sym));
-#if defined(__linux__) && !defined(__ANDROID__) && !defined(__wasi__)
+#if defined(__linux__) && !defined(__ANDROID__)
 			/* the volume keys, where the system leaves them to us */
 			SDL_Scancode sc = ev.key.keysym.scancode;
 			if ((sc == SDL_SCANCODE_VOLUMEUP || sc == SDL_SCANCODE_VOLUMEDOWN) && evVolFd < 0) volume_key(sc == SDL_SCANCODE_VOLUMEUP);
@@ -1121,7 +1105,7 @@ bool ui_events(void) {
 		case SDL_FINGERDOWN:
 		case SDL_FINGERUP:
 		case SDL_FINGERMOTION:
-#if defined(__linux__) && !defined(__ANDROID__) && !defined(__wasi__)
+#if defined(__linux__) && !defined(__ANDROID__)
 			if (evTouchFd >= 0) break; /* (touch_device: read there) */
 #endif
 			static int touchesLogged;
@@ -1249,9 +1233,6 @@ void ui_read_buttons(void) {
 
 	for (int i = 0; i < B_COUNT; ++i) {
 		if (scriptBtns & (1u << i)) btnNow[i] = true;
-#ifdef __wasi__
-		if (webBtns & (1u << i)) btnNow[i] = true;
-#endif
 	}
 }
 
@@ -1632,11 +1613,10 @@ void ui_sync_view(int view) {
 double ui_display_hz(int view) {
 	static double cached = -1;
 	if (view < 0 || view >= nViews || !views[view].win) return 0;
-	if (getenv("GBADS_DISPLAY_HZ")) return atof(getenv("GBADS_DISPLAY_HZ")); /* testing */
+	if (getenv("SNESDS_DISPLAY_HZ")) return atof(getenv("SNESDS_DISPLAY_HZ")); /* testing */
 	double hz = 0;
 #ifndef __ANDROID__
 	if (cached >= 0) return cached;
-#ifndef __wasi__
 	if (getenv("SWAYSOCK")) {
 		FILE* f = popen("swaymsg -r -t get_outputs 2>/dev/null", "r");
 		if (f) {
@@ -1656,7 +1636,6 @@ double ui_display_hz(int view) {
 			}
 		}
 	}
-#endif /* __wasi__ */
 #endif
 	if (hz <= 0) {
 		SDL_DisplayMode m;
@@ -1682,11 +1661,11 @@ void ui_brightness(int top, int bottom) {
 
 void ui_present(void) {
 	{
-		/* testing (issue #50): GBADS_TEST_PRESENT_STALL=MS,EVERY holds every
+		/* testing (issue #50): SNESDS_TEST_PRESENT_STALL=MS,EVERY holds every
 		 * EVERY-th present up for MS ms, as one player's system did */
 		static int stallMs = -1, stallEvery, presents;
 		if (stallMs < 0) {
-			const char* e = getenv("GBADS_TEST_PRESENT_STALL");
+			const char* e = getenv("SNESDS_TEST_PRESENT_STALL");
 			stallMs = 0;
 			if (e && sscanf(e, "%d,%d", &stallMs, &stallEvery) != 2) stallMs = 0;
 		}
@@ -2689,7 +2668,7 @@ void ui_fill_round(int screen, SDL_Rect r, SDL_Color c, int radius) {
 /* ---------------------------------------------------------- keys and the theme
  * The menus' buttons look like a GBA's: a raised key with an edge under it.
  * Dark (the default): dark grey keys with a light rim and a heavy dark edge.
- * Light: the web player's pale grey keys. Text on a plain key in the light
+ * Light: pale grey keys. Text on a plain key in the light
  * theme is drawn in dark ink: ui_key notes where the keys are, and
  * ui_font_text turns light colours inside one into ink. */
 static int themeLight;

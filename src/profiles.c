@@ -1380,7 +1380,7 @@ static const char* ft_world_laws(Emu* s, uint32_t* const* out, int w, int h) {
 		 * Info window none) */
 		int cyan = 0;
 		for (int i = 0; i < cw * ch; ++i) cyan += ft_is_cyan(cut[i]);
-		if (getenv("GBADS_DEBUG")) fprintf(stderr, "ft laws: %d cyan of %dx%d\n", cyan, cw, ch);
+		if (getenv("SNESDS_DEBUG")) fprintf(stderr, "ft laws: %d cyan of %dx%d\n", cyan, cw, ch);
 		if (cyan < cw * ch / 10) return "not the Laws (a place's Info?)";
 		memcpy(ftLaws, cut, (size_t) cw * ch * 4), ftLawsW = cw, ftLawsH = ch;
 		ftLawsAt = at;
@@ -1536,7 +1536,7 @@ static int ftWw[2], ftWh[2];
  * whether it's been taken in that turn (FT-13) */
 static uint32_t ftTurnRec, ftTurnSig;
 static bool ftTurnTaken;
-static unsigned ftTurnN; /* (turns noticed since the world map, for GBADS_DEBUG) */
+static unsigned ftTurnN; /* (turns noticed since the world map, for SNESDS_DEBUG) */
 /* FT-9's screen from the turn order and the Laws as last taken */
 static void ft_draw_turn(uint32_t* o, int w, int h) {
 	uint32_t (*win)[GBA_W * GBA_H] = ftWin, (*win3)[GBA_W * GBA_H] = ftWin3;
@@ -1661,7 +1661,7 @@ static const char* ft_compose(Emu* s, const void* state, uint32_t* const* out, i
 		if (st) memcpy(page, np, sizeof(page)), pages = 2;
 		else pages = 0;
 		if (!st || turn) {
-			if (ok[0] && !ftTurnTaken && getenv("GBADS_DEBUG")) fprintf(stderr, "ft turn %u (unit %04x): turn order taken\n", ftTurnN, (unsigned) (ftTurnRec & 0xFFFF));
+			if (ok[0] && !ftTurnTaken && getenv("SNESDS_DEBUG")) fprintf(stderr, "ft turn %u (unit %04x): turn order taken\n", ftTurnN, (unsigned) (ftTurnRec & 0xFFFF));
 			if (ok[0]) ftTurnTaken = true;
 			for (int i = 0; i < 2; ++i) {
 				if (ok[i]) memcpy(win[i], nw[i], (size_t) a[i] * b[i] * 4), memcpy(win3[i], nw3[i], (size_t) a[i] * b[i] * 4), ww[i] = a[i], wh[i] = b[i];
@@ -4517,7 +4517,7 @@ static void* mmbn_worker(void* arg) {
 					tx += 24, ty += 16;
 				}
 				if (!mmbn_look(e, area, pos, tx, ty, layers, &cx, &cy)) {
-					if (getenv("GBADS_DEBUG"))
+					if (getenv("SNESDS_DEBUG"))
 						fprintf(stderr, "mmbn map: no screen at %d,%d (state %d, area %04X)\n", tx, ty, emu_read8(e, N->state),
 						        emu_read16(e, N->area));
 					continue;
@@ -4612,7 +4612,7 @@ static const uint32_t* mmbn_live_view(Emu* live, const char* rom) {
 		mmbnStop = false;
 		mmbnBusy = true;
 		/* in exact runs (the tests), and with no threads, made here */
-		if (getenv("GBADS_SYNC") || pthread_create(&mmbnThread, NULL, mmbn_worker, NULL)) mmbnThread = 0, mmbn_worker(NULL);
+		if (getenv("SNESDS_SYNC") || pthread_create(&mmbnThread, NULL, mmbn_worker, NULL)) mmbnThread = 0, mmbn_worker(NULL);
 	}
 	if (m->failed && m->early) {
 		/* again in a second, for at most ten seconds */
@@ -7239,7 +7239,7 @@ static const uint32_t* bgd_live_view(Emu* live, const char* rom) {
 		bgdStop = false;
 		bgdBusy = true;
 		/* in exact runs (the tests), and with no threads, made here */
-		if (getenv("GBADS_SYNC") || pthread_create(&bgdThread, NULL, bgd_worker, NULL)) bgdThread = 0, bgd_worker(NULL);
+		if (getenv("SNESDS_SYNC") || pthread_create(&bgdThread, NULL, bgd_worker, NULL)) bgdThread = 0, bgd_worker(NULL);
 	}
 	if (m->failed || !m->done) return NULL; /* (the logo meanwhile) */
 	/* a quarter of the size: each pixel the mean of 4x4 of the picture's,

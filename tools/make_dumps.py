@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Write each supported release's known dumps: the "Dumps" row of every rules
-file (docs/games/*.md) and src/dumps_data.h, the table GBA DS checks a ROM's
+file (docs/games/*.md) and src/dumps_data.h, the table SNES DS checks a ROM's
 CRC32 against to tell a clean copy of a game from a modified one.
 
   tools/make_dumps.py --dat DAT [--fixtures DIR] [--check]
@@ -135,7 +135,7 @@ def row(codes, by, tested):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--dat", required=True)
-    ap.add_argument("--fixtures", default=os.environ.get("GBADS_TESTS", os.path.join(ROOT, "..", "gba-ds-tests")))
+    ap.add_argument("--fixtures", default=os.environ.get("SNESDS_TESTS", os.path.join(ROOT, "..", "gba-ds-tests")))
     ap.add_argument("--check", action="store_true")
     a = ap.parse_args()
     by = read_dat(a.dat)

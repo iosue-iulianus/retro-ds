@@ -19,7 +19,7 @@
     <!-- RetroAchievements and updates (granted without asking) -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Settings > Updates hands the new APK to Android's installer (which asks
-         the player to allow GBA DS to install apps the first time) -->
+         the player to allow SNES DS to install apps the first time) -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application
@@ -57,7 +57,7 @@
         </activity>
 
         <activity
-            android:name=".GbaDsActivity"
+            android:name=".SnesDsActivity"
             android:exported="false"
             android:launchMode="singleTask"
             android:taskAffinity="io.github.iosue_iulianus.snesds.game"
@@ -69,7 +69,7 @@
              display (phones, Surface Duo: a new task opens on one screen
              there, so a spanned app lost its span; issue #48) -->
         <activity
-            android:name=".GbaDsHereActivity"
+            android:name=".SnesDsHereActivity"
             android:exported="false"
             android:launchMode="singleTop"
             android:preferMinimalPostProcessing="true"

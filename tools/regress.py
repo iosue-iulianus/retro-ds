@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""GBA DS regression tests.
+"""SNES DS regression tests.
 
 Runs the cases in tests/regress/*.json against the fixtures repository
 (kyannon/gba-ds-tests, private: ROMs, save states and approved screenshots)
@@ -16,8 +16,8 @@ and reports which of the games' rules (docs/games/*.md) still hold.
                                        the releases tested only on their logo
     tools/regress.py --prune           delete goldens no case uses any more
 
-Options: --fixtures DIR (default $GBADS_TESTS, else ../gba-ds-tests),
---bin build/host/gba-ds, --harness build/host/harness, --report DIR
+Options: --fixtures DIR (default $SNESDS_TESTS, else ../gba-ds-tests),
+--bin build/host/snes-ds, --harness build/host/harness, --report DIR
 (default build/regress: index.html with each failure's pictures), -j N
 (default: the CPU count + 1), --shard I/N (the Ith of N even shares of
 the cases, for running on several machines), --json FILE (each case's results, for tools/romhack.py), --any-rom (run
@@ -26,7 +26,7 @@ ROMs), --paced (at 60 frames a second, drawing
 every frame, as players run it; by default the app runs as fast as it
 can and draws only the frames a screenshot or a touch needs).
 
-Every run is deterministic: GBADS_SYNC=1 makes map captures and logo
+Every run is deterministic: SNESDS_SYNC=1 makes map captures and logo
 extraction run inline, at the same frames each time, so goldens are
 compared exactly (a case can allow a tolerance). See docs/TESTING.md.
 """
@@ -39,7 +39,7 @@ except ImportError:
     sys.exit("regress.py needs Pillow (pip install --break-system-packages pillow)")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SCREEN_W, SCREEN_H = 1024, 768  # each screen in the test window (GBADS_WINDOW=1024x1536)
+SCREEN_W, SCREEN_H = 1024, 768  # each screen in the test window (SNESDS_WINDOW=1024x1536)
 SCREENS = {"game": 0, "second": 1}  # default layout: the game on top
 
 
@@ -130,7 +130,7 @@ _releaseNames = None
 
 
 def release_name(code):
-    """The release's No-Intro name as GBA DS names its patches folder
+    """The release's No-Intro name as SNES DS names its patches folder
     (profile_release_name: the tested dump's, else the first official one's,
     the title with its region and languages only), or None."""
     global _releaseNames
@@ -250,7 +250,7 @@ def run_app(case, args, workdir):
                 return r
             dst = os.path.join(sd, name)
             os.makedirs(os.path.dirname(dst), exist_ok=True)
-            shutil.copy(src, dst)  # (a copy: GBA DS may save over it)
+            shutil.copy(src, dst)  # (a copy: SNES DS may save over it)
             # (in order, a minute apart, from noon UTC on Jan 1, 2020: slot
             # labels show the same date on any machine, in any time zone)
             t = 1577880000 + 60 * i
@@ -303,8 +303,8 @@ def run_app(case, args, workdir):
     # its shadow, a dimmed map) came out a shade apart from one CPU or Mesa to
     # another, so goldens made on a session's container failed on GitHub's runners
     env = dict(os.environ, SDL_VIDEODRIVER="offscreen", SDL_AUDIODRIVER="dummy", SDL_RENDER_DRIVER="software",
-               GBADS_WINDOW="%dx%d" % (SCREEN_W, SCREEN_H * 2), GBADS_SYNC="1", GBADS_DEBUG="1",
-               GBADS_RTC_FIXED="1794934800",
+               SNESDS_WINDOW="%dx%d" % (SCREEN_W, SCREEN_H * 2), SNESDS_SYNC="1", SNESDS_DEBUG="1",
+               SNESDS_RTC_FIXED="1794934800",
                # the cartridge clock above is 17:00 UTC; mGBA shows it in the machine's
                # time zone, so a game that draws its clock (Boktai's, BT-8) read 12:00 on
                # a session's container (New York) and 17:00 on GitHub's UTC runners: the
@@ -313,7 +313,7 @@ def run_app(case, args, workdir):
     if not args.paced:
         # (as fast as it goes, drawing only the frames a screenshot or a
         # touch needs: the same pictures, in under half the time)
-        env.update(GBADS_NOPACE="1", GBADS_DRAW_SHOTS_ONLY="1")
+        env.update(SNESDS_NOPACE="1", SNESDS_DRAW_SHOTS_ONLY="1")
     try:
         p = subprocess.run(cmd, env=env, capture_output=True, text=True, errors="replace", timeout=args.timeout)
         r.log = p.stdout + p.stderr
@@ -497,7 +497,7 @@ def write_report(results, outdir):
         if os.path.exists(cdir):
             shutil.rmtree(cdir)
         shutil.copytree(r["dir"], cdir, ignore=shutil.ignore_patterns("*.bmp", "state", "rom", "*.txt"))
-        open(os.path.join(cdir, "gba-ds.log"), "w").write(r.get("log", ""))
+        open(os.path.join(cdir, "snes-ds.log"), "w").write(r.get("log", ""))
         status = "pass" if r["ok"] else "FAIL"
         items = []
         if r["error"]:
@@ -516,11 +516,11 @@ def write_report(results, outdir):
             status.lower(), html.escape(c["id"]), html.escape(c["game"]), status, r["secs"],
             html.escape(c.get("desc", "")), "".join(items), "".join(pics)))
     fails = sum(1 for r in results if not r["ok"])
-    page = """<!doctype html><meta charset=utf-8><title>GBA DS regression</title>
+    page = """<!doctype html><meta charset=utf-8><title>SNES DS regression</title>
 <style>body{font:14px system-ui;margin:16px;background:#fff;color:#111}section{border-top:1px solid #ccc;padding:8px 0}
 .fail h2{color:#b00}.ok{color:#060}.bad{color:#b00}.miss{color:#a60}img{max-width:256px;image-rendering:pixelated;border:1px solid #ccc}
 figure{display:inline-block;margin:4px}small{font-weight:normal;color:#666}</style>
-<h1>GBA DS regression: %d of %d cases pass</h1>%s""" % (len(results) - fails, len(results), "".join(
+<h1>SNES DS regression: %d of %d cases pass</h1>%s""" % (len(results) - fails, len(results), "".join(
         sorted(rows, key=lambda s: not s.startswith("<section class=fail"))))
     open(os.path.join(outdir, "index.html"), "w").write(page)
 
@@ -528,8 +528,8 @@ figure{display:inline-block;margin:4px}small{font-weight:normal;color:#666}</sty
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("only", nargs="*", help="game slugs, case ids or globs")
-    ap.add_argument("--fixtures", default=os.environ.get("GBADS_TESTS", os.path.join(os.path.dirname(ROOT), "gba-ds-tests")))
-    ap.add_argument("--bin", default=os.path.join(ROOT, "build", "host", "gba-ds"))
+    ap.add_argument("--fixtures", default=os.environ.get("SNESDS_TESTS", os.path.join(os.path.dirname(ROOT), "gba-ds-tests")))
+    ap.add_argument("--bin", default=os.path.join(ROOT, "build", "host", "snes-ds"))
     ap.add_argument("--harness", default=os.path.join(ROOT, "build", "host", "harness"))
     ap.add_argument("--report", default=os.path.join(ROOT, "build", "regress"))
     ap.add_argument("--update", action="store_true", help="save the current pictures as the goldens")
@@ -663,8 +663,8 @@ def main():
         if not os.path.exists(need[0]):
             sys.exit("%s not found: run %s" % need)
     if not os.path.isdir(os.path.join(args.fixtures, "roms")):
-        sys.exit("fixtures not found at %s (clone kyannon/gba-ds-tests there, or pass --fixtures / set GBADS_TESTS)" % args.fixtures)
-    args.work = tempfile.mkdtemp(prefix="gbads-regress-")
+        sys.exit("fixtures not found at %s (clone kyannon/gba-ds-tests there, or pass --fixtures / set SNESDS_TESTS)" % args.fixtures)
+    args.work = tempfile.mkdtemp(prefix="snesds-regress-")
     with ThreadPoolExecutor(max_workers=args.j) as pool:
         results = list(pool.map(lambda c: evaluate(c, args), cases))
     write_report(results, args.report)

@@ -29,7 +29,7 @@ import glob, os, re, subprocess, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import regress_deps
 
-ROOT = os.environ.get("GBADS_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.environ.get("SNESDS_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROFILES = "src/profiles.c"
 
 # paths (prefixes or globs) that can't change what the app does under test
@@ -225,7 +225,7 @@ def select(base=None, fixtures=None):
     deps = regress_deps.load(fixtures)
     slugs, reasons, everything = set(), [], False
     if deps:
-        reasons.append("dependency map: gba-ds commit %s, %s" % (deps["commit"][:9], deps["date"]))
+        reasons.append("dependency map: snes-ds commit %s, %s" % (deps["commit"][:9], deps["date"]))
     for path in changed_files(base):
         m = re.match(r"(?:docs/games|tests/regress)/([\w-]+)\.(?:md|json)$", path)
         if m and m.group(1) != "README":

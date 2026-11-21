@@ -2,8 +2,8 @@
  * folders in one, until one is chosen or it's left. The D-pad (or a tap)
  * picks a folder and A opens it, B goes up a folder, "Use This Folder"
  * chooses the one shown. Hidden folders aren't listed. */
-#ifndef GBADS_FOLDERPICK_H
-#define GBADS_FOLDERPICK_H
+#ifndef SNESDS_FOLDERPICK_H
+#define SNESDS_FOLDERPICK_H
 
 #include <stdbool.h>
 #include <stddef.h>

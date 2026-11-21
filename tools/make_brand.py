@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Renders the GBA DS branding images and embeds them in src/brand_data.c.
+"""Embeds SNES DS's branding images in src/brand_data.c.
 
-    tools/make_brand.py FUTURA_BOLD_ITALIC.otf GAMECUBEN.ttf
+    tools/make_brand.py FUTURA_BOLD_ITALIC.otf   everything (button prompts in Futura)
+    tools/make_brand.py --logo-only              only the logo, in the existing file
 
-The font files are not part of the repository (Futura is a commercial font);
-only the rendered images are. Outputs:
-
-    assets/brand/gba-ds-logo.png        full-size logo (transparent)
-    assets/brand/gba-ds-logo-1024.png   1024 px wide
-    src/brand_data.c                    PNGs used by the app, as byte arrays
+The logo is a picture, assets/brand/snes-ds-logo.png (transparent; made from
+assets/brand/source/ by tools/logo_transparent.py), not drawn here. The
+button prompts are drawn in Futura Bold Italic, which isn't part of the
+repository (a commercial font): without it, --logo-only replaces the logo in
+src/brand_data.c and leaves the other images as they are.
 
 Menu and other UI text isn't here: the app draws it in Jost (assets/fonts,
 embedded by tools/embed_fonts.py).
@@ -19,7 +19,7 @@ import io
 import os
 import sys
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WHITE = (255, 255, 255, 255)
@@ -31,40 +31,6 @@ def sized(path, cap):
     f = ImageFont.truetype(path, 1000)
     b = f.getbbox("H")
     return ImageFont.truetype(path, round(1000 * cap / (b[3] - b[1])))
-
-
-def logo(futura, gamecuben):
-    """GBA (Futura Bold Italic) + DS (Gamecuben, 75% height), white with a thick navy outline."""
-    cap = 400
-    fut, gc = sized(futura, cap), sized(gamecuben, cap * 0.75)
-    sw = 88                      # outline thickness
-    track, wgap = 0.012, 0.13    # letter spacing removed / gap between words, x cap height
-    glyphs, x = [], 0.0
-    for word, font in (("GBA", fut), ("DS", gc)):
-        if glyphs:
-            x += wgap * cap
-        for c in word:
-            glyphs.append((font, c, x))
-            x += font.getlength(c) - track * cap
-    pad = sw + 200
-    img = Image.new("RGBA", (int(x + 2 * pad + cap), int(cap * 2 + 2 * pad)), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    base = pad + cap * 1.3
-
-    def pos(font, gx):
-        return (pad + gx, base - font.getbbox("H")[3])
-
-    for font, c, gx in glyphs:
-        d.text(pos(font, gx), c, font=font, fill=NAVY, stroke_width=sw, stroke_fill=NAVY)
-    # one solid silhouette: fill pinholes the stroke leaves inside letters (B's counters)
-    a = img.getchannel("A").point(lambda v: 255 if v > 0 else 0)
-    ImageDraw.floodfill(a, (0, 0), 128)
-    holes = a.point(lambda v: 255 if v == 0 else 0).filter(ImageFilter.MaxFilter(7))
-    img.paste(Image.new("RGBA", img.size, NAVY), (0, 0), holes)
-    for font, c, gx in glyphs:
-        d.text(pos(font, gx), c, font=font, fill=WHITE)
-    img = img.crop(img.getbbox())
-    return img.crop((-24, -24, img.width + 24, img.height + 24))
 
 
 def button(futura, letter, size=96):
@@ -157,20 +123,45 @@ def png_bytes(img):
     return buf.getvalue()
 
 
-def main():
-    if len(sys.argv) != 3:
-        sys.exit(__doc__)
-    futura, gamecuben = sys.argv[1], sys.argv[2]
-    full = logo(futura, gamecuben)
-    out = os.path.join(ROOT, "assets", "brand")
-    os.makedirs(out, exist_ok=True)
-    full.save(os.path.join(out, "gba-ds-logo.png"))
-    full.resize((1024, round(full.height * 1024 / full.width)), Image.LANCZOS).save(
-        os.path.join(out, "gba-ds-logo-1024.png"))
+LOGO = os.path.join(ROOT, "assets", "brand", "snes-ds-logo.png")
+OUT = os.path.join(ROOT, "src", "brand_data.c")
 
-    # in-app images, sized for ~2x their on-screen size on a 1024x768 screen
+
+def c_array(name, data):
+    lines = [f"static const unsigned char {name}_png[{len(data)}] = {{"]
+    for i in range(0, len(data), 20):
+        lines.append("\t" + ", ".join(str(b) for b in data[i:i + 20]) + ",")
+    lines.append("};")
+    return lines
+
+
+def logo_image():
+    # in-app images are sized for ~2x their on-screen size on a 1024x768 screen
+    return scale_h(Image.open(LOGO).convert("RGBA"), 192)
+
+
+def replace_logo():
+    """Only the logo's array in the existing src/brand_data.c."""
+    with open(OUT) as f:
+        text = f.read()
+    start = text.index("static const unsigned char logo_png[")
+    end = text.index("};\n", start) + 3
+    img = logo_image()
+    text = text[:start] + "\n".join(c_array("logo", png_bytes(img))) + "\n" + text[end:]
+    with open(OUT, "w") as f:
+        f.write(text)
+    print(f"logo: {img.width}x{img.height}")
+
+
+def main():
+    if sys.argv[1:] == ["--logo-only"]:
+        replace_logo()
+        return
+    if len(sys.argv) != 2:
+        sys.exit(__doc__)
+    futura = sys.argv[1]
     images = {
-        "logo": scale_h(full, 192),
+        "logo": logo_image(),
         "btn_a": button(futura, "A"),
         "btn_b": button(futura, "B"),
         "btn_l1": pill(futura, "L1"),
@@ -187,18 +178,14 @@ def main():
     }
     lines = ["/* Generated by tools/make_brand.py - do not edit. */", '#include "brand.h"', ""]
     for name, img in images.items():
-        data = png_bytes(img)
-        lines.append(f"static const unsigned char {name}_png[{len(data)}] = {{")
-        for i in range(0, len(data), 20):
-            lines.append("\t" + ", ".join(str(b) for b in data[i:i + 20]) + ",")
-        lines.append("};")
+        lines += c_array(name, png_bytes(img))
     lines.append("")
     lines.append("const BrandImage brandImages[BRAND_COUNT] = {")
     for name in images:
         lines.append(f"\t[BRAND_{name.upper()}] = {{ {name}_png, sizeof({name}_png) }},")
     lines.append("};")
     lines.append("")
-    with open(os.path.join(ROOT, "src", "brand_data.c"), "w") as f:
+    with open(OUT, "w") as f:
         f.write("\n".join(lines) + "\n")
     for name, img in images.items():
         print(f"{name}: {img.width}x{img.height}")

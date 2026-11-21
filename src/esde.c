@@ -8,17 +8,17 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-/* ------------------------------------------------------------ what GBA DS puts in */
+/* ------------------------------------------------------------ what SNES DS puts in */
 
-#define CMD_OPEN "<command label=\"GBA DS (Standalone)\">"
+#define CMD_OPEN "<command label=\"SNES DS (Standalone)\">"
 /* LauncherActivity reads the extra "rom" as a file path: patches beside the
  * game then work (they don't with a content link, %ROMPROVIDER%) */
-#define CMD_LINE "        " CMD_OPEN "%EMULATOR_GBA-DS% %ACTIVITY_CLEAR_TASK% %ACTIVITY_CLEAR_TOP% %EXTRA_rom%=%ROM%</command>\n"
+#define CMD_LINE "        " CMD_OPEN "%EMULATOR_SNES-DS% %ACTIVITY_CLEAR_TASK% %ACTIVITY_CLEAR_TOP% %EXTRA_rom%=%ROM%</command>\n"
 
-#define COPY_MARK "gba-ds: ES-DE's own gba entry"
+#define COPY_MARK "snes-ds: ES-DE's own gba entry"
 #define COPY_NOTE                                                                                              \
-	"        <!-- " COPY_MARK ", copied by GBA DS (Settings > GBA DS in ES-DE) with GBA DS put first.\n" \
-	"             GBA DS brings it up to date when it starts, and takes it out when that's switched off. -->\n"
+	"        <!-- " COPY_MARK ", copied by SNES DS (Settings > SNES DS in ES-DE) with SNES DS put first.\n" \
+	"             SNES DS brings it up to date when it starts, and takes it out when that's switched off. -->\n"
 
 /* ES-DE's own gba system for Android (resources/systems/android/es_systems.xml,
  * ES-DE 3.4, Sep 2026). With RetroArch in SAF mode its RetroArch lines end
@@ -48,12 +48,12 @@ static const char* const GBA_BODY =
 	"        <platform>gba</platform>\n"
 	"        <theme>gba</theme>\n";
 
-#define RULE_OPEN "<emulator name=\"GBA-DS\">"
+#define RULE_OPEN "<emulator name=\"SNES-DS\">"
 static const char* const RULE =
 	"    " RULE_OPEN "\n"
-	"        <!-- gba-ds: GBA DS, added by GBA DS (Settings > GBA DS in ES-DE); switching that off takes it out -->\n"
+	"        <!-- snes-ds: SNES DS, added by SNES DS (Settings > SNES DS in ES-DE); switching that off takes it out -->\n"
 	"        <rule type=\"androidpackage\">\n"
-	"            <entry>io.github.kyannon.gbads/.LauncherActivity</entry>\n"
+	"            <entry>io.github.iosue_iulianus.snesds/.LauncherActivity</entry>\n"
 	"        </rule>\n"
 	"    </emulator>\n";
 
@@ -199,9 +199,9 @@ char* esde_systems_add(const char* xml, bool saf) {
 		/* (the marker is in a comment: looked for in the text itself) */
 		const char* mark = strstr(xml + from, COPY_MARK);
 		if (mark && (size_t) (mark - xml) < to) {
-			out = splice(xml, from, to, sys); /* GBA DS's copy: brought up to date */
+			out = splice(xml, from, to, sys); /* SNES DS's copy: brought up to date */
 		} else {
-			/* the player's own gba entry: GBA DS's line first among its emulators */
+			/* the player's own gba entry: SNES DS's line first among its emulators */
 			const char* own = strstr(m + from, CMD_OPEN);
 			if (own && (size_t) (own - m) < to) {
 				size_t a = line_start(m, (size_t) (own - m));
@@ -302,9 +302,9 @@ static bool is_esde(const char* dir) {
 }
 
 /* ES-DE's folder: ES-DE on the internal storage by default; the player may
- * have put it on an SD card. GBADS_ESDE_DIR overrides (tests). */
+ * have put it on an SD card. SNESDS_ESDE_DIR overrides (tests). */
 static const char* esde_dir(void) {
-	const char* env = getenv("GBADS_ESDE_DIR");
+	const char* env = getenv("SNESDS_ESDE_DIR");
 	if (env && env[0]) return is_esde(env) ? env : NULL;
 	if (esdeDir[0] && is_esde(esdeDir)) return esdeDir;
 	esdeDir[0] = 0;
@@ -348,7 +348,7 @@ static char* read_file(const char* path) {
 /* via a temporary file, so ES-DE never reads half a file */
 static bool write_file(const char* path, const char* text) {
 	char tmp[800];
-	snprintf(tmp, sizeof(tmp), "%s.gba-ds.tmp", path);
+	snprintf(tmp, sizeof(tmp), "%s.snes-ds.tmp", path);
 	FILE* f = fopen(tmp, "w");
 	if (!f) return false;
 	bool ok = fputs(text, f) >= 0;
@@ -436,11 +436,11 @@ bool esde_integration_set(bool on, char* msg, size_t msgSize) {
 		if (ok) edit(dir, "es_find_rules.xml", rules_remove, false);
 	}
 	if (!ok)
-		snprintf(msg, msgSize, tr("Couldn't change the files in %s/custom_systems: allow GBA DS All files access in Android's settings."), dir);
+		snprintf(msg, msgSize, tr("Couldn't change the files in %s/custom_systems: allow SNES DS All files access in Android's settings."), dir);
 	else if (on)
-		snprintf(msg, msgSize, tr("GBA DS is now ES-DE's emulator for Game Boy Advance games. Quit ES-DE and open it again to see it."));
+		snprintf(msg, msgSize, tr("SNES DS is now ES-DE's emulator for Game Boy Advance games. Quit ES-DE and open it again to see it."));
 	else
-		snprintf(msg, msgSize, tr("GBA DS is out of ES-DE's emulator list. Quit ES-DE and open it again to see it."));
+		snprintf(msg, msgSize, tr("SNES DS is out of ES-DE's emulator list. Quit ES-DE and open it again to see it."));
 	return ok;
 }
 

@@ -36,7 +36,7 @@ The rest of the build (the app, the Android build) is still GBA DS's; see `CLAUD
 
 ## AI disclosure
 
-SNES DS is written almost entirely by AI: the code, documentation and commit messages are written by Claude, Anthropic's AI model, in Claude Code sessions. Its owner decides what gets built and how it should behave, and tests it on the device. GBA DS, which SNES DS is built from, was made the same way (see its README). Emulation itself is bsnes's, a long-established, human-written emulator.
+SNES DS is written almost entirely by AI: the code, documentation and commit messages are written by Claude, Anthropic's AI model, in Claude Code sessions. Its owner decides what gets built and how it should behave, and tests it on the device. GBA DS, which SNES DS is built from, was made the same way (see its README). The SNES DS logo was generated with Google's Gemini (its background made transparent by `tools/logo_transparent.py`). Emulation itself is bsnes's, a long-established, human-written emulator.
 
 ## Not affiliated
 

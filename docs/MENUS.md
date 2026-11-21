@@ -4,7 +4,7 @@ Status: design, with the data layer started (stage 1). Written for issues
 #53 (per-game settings and screen layouts), #54 (play every game, two
 lists), #55 (turbo A and B, Select and Start on the face buttons), #56
 (brightness of each screen) and #57 (left stick as D-pad on or off), and
-for the owner's wish that everything in `gba-ds.cfg` and `prefs.cfg` can be
+for the owner's wish that everything in `snes-ds.cfg` and `prefs.cfg` can be
 changed in the app, for all games or for one.
 
 ## What is wrong today
@@ -15,10 +15,10 @@ changed in the app, for all games or for one.
 - Every pause-menu choice goes to `prefs.cfg` for all games. A game can't
   have its own scale, shader or layout. Only the face buttons (`.buttons`),
   controls (`.controls`) and patches are per game.
-- `prefs_save` writes a fixed list of keys. Anything else in `gba-ds.cfg`
+- `prefs_save` writes a fixed list of keys. Anything else in `snes-ds.cfg`
   can only be changed by editing the file; the game list's Settings screen
   is a few big buttons with a paragraph under each, and it's full at five.
-- A setting changed in `gba-ds.cfg` is silently shadowed once `prefs.cfg`
+- A setting changed in `snes-ds.cfg` is silently shadowed once `prefs.cfg`
   has written its own copy of the key.
 
 ## Principles
@@ -29,7 +29,7 @@ changed in the app, for all games or for one.
    the same words.
 2. **Only what was changed is kept.** `prefs.cfg` and a game's file hold
    the keys the player changed, not a dump of everything, so a line in
-   `gba-ds.cfg` still counts until someone changes that setting in the app.
+   `snes-ds.cfg` still counts until someone changes that setting in the app.
 3. **Say where a value comes from**, and make going back one tap.
 4. **Big rows, few on screen, no typing where a choice will do.** Everything
    is reachable with a finger on the touchscreen and with the D-pad.
@@ -38,7 +38,7 @@ changed in the app, for all games or for one.
 ## Layers (later wins)
 
 1. built-in defaults
-2. `gba-ds.cfg` (and `~/.config/gba-ds/gba-ds.cfg`, `data-folder.cfg`)
+2. `snes-ds.cfg` (and `~/.config/snes-ds/snes-ds.cfg`, `data-folder.cfg`)
 3. `states/prefs.cfg`: changed in the app **for all games**
 4. `states/library.cfg`, `states/hotkeys.cfg` (already there: the list view,
    Android's folders, hotkeys)
@@ -49,7 +49,7 @@ changed in the app, for all games or for one.
 `<game>` is the ROM's file name without its extension, as for `.cheats`,
 `.patches` and the save states, so a ROM that moves folders keeps its
 settings and a patched ROM shares them. The file is plain `key = value`
-lines, the same names as `gba-ds.cfg`, so it can be edited by hand. Removing
+lines, the same names as `snes-ds.cfg`, so it can be edited by hand. Removing
 a line, or the file, goes back to the settings for all games.
 
 Per-game keys: `swap`, `scale`, `map_scale`, `smooth`, `border_color`,
@@ -103,7 +103,7 @@ returns one step. B/Back and HOME work as now.
 | **Controls** | Left stick as D-pad (#57), Face buttons (#55), Turbo rate, GBA A/B swap, Map Buttons, Hotkeys, menu combo |
 | **Speed and sound** | Show FPS, Performance, Frame buffer, Match display rate, Rewind and its length, Fast forward and its speed, Sound delay |
 | **Second screen** | Map on/off, Map refresh, Pinball live view |
-| **Saves** | Save on quit, Auto-load, Save folder and type, GBA DS data folder |
+| **Saves** | Save on quit, Auto-load, Save folder and type, SNES DS data folder |
 | **System** | Language, RetroAchievements, Updates, EmulationStation / BananaOS list (as now) |
 
 The existing special screens (Map Buttons, Hotkeys, Updates, Folders,
@@ -122,7 +122,7 @@ Six tabs (Game, Display, Screens, Controls, Speed, Map; L1 / R1 and taps); a pag
 
 | Tab | Holds |
 |---|---|
-| **Game** | Resume / Restart Game and Save State / Load State (two to a row), the slot, then Cheats / Patches and Take Screenshot / Submit a Bug Report (two to a row; Achievements between them when on), then Close Game and Close GBA DS last, double height and side by side (Close GBA DS alone, full width, when the game wasn't started from the game list) (actions) |
+| **Game** | Resume / Restart Game and Save State / Load State (two to a row), the slot, then Cheats / Patches and Take Screenshot / Submit a Bug Report (two to a row; Achievements between them when on), then Close Game and Close SNES DS last, double height and side by side (Close SNES DS alone, full width, when the game wasn't started from the game list) (actions) |
 | **Display** | the Display category's rows; Overlays opens its screen as now |
 | **Controls** | the Controls category's rows; Face buttons becomes four rows here instead of its own screen |
 | **More** | Speed and sound, Second screen and Saves rows that make sense for one game |
@@ -138,7 +138,7 @@ second line, always visible on the four settings tabs.
   **Supported / All** switch beside the list / grid button: the list shows
   one or the other (the first is today's), kept as `show_all` in `prefs.cfg`.
   Games without second-screen support get the logo-less single-screen play they
-  have now. (`show_all = 1` in `gba-ds.cfg` keeps meaning All.)
+  have now. (`show_all = 1` in `snes-ds.cfg` keeps meaning All.)
 - **#56** `brightness_top` / `brightness_bottom` (20-100, steps of 10), rows
   in Screens (both menus; per game or all games). `ui_brightness` puts a
   black layer over each screen at the end of the frame (`ui_present`, once per

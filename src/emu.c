@@ -39,7 +39,6 @@ static void quiet_log(struct mLogger* l, int cat, enum mLogLevel level, const ch
 }
 static struct mLogger quietLogger = { .log = quiet_log };
 
-#ifndef __wasi__ /* (the web build has no threads) */
 /* ------------------------------------------------- battery saves, async
  * When a game writes its save, mGBA flushes it from the emulation thread a
  * few frames later: futimens + msync + fsync. On Android's shared storage
@@ -79,7 +78,7 @@ static void* async_save_worker(void* arg) {
 		if (fd >= 0) {
 			futimens(fd, NULL);
 			if (fsync(fd) != 0) fprintf(stderr, "save: couldn't flush %s\n", a->path);
-			else if (getenv("GBADS_DEBUG")) fprintf(stderr, "save: flushed %s\n", a->path);
+			else if (getenv("SNESDS_DEBUG")) fprintf(stderr, "save: flushed %s\n", a->path);
 			close(fd);
 		}
 		pthread_mutex_lock(&a->lock);
@@ -141,7 +140,6 @@ static struct VFile* async_save_open(const char* path) {
 	a->d = (struct VFile) { as_close, as_seek, as_read, as_readline, as_write, as_map, as_unmap, as_truncate, as_size, as_sync };
 	return &a->d;
 }
-#endif
 
 static void split_resync(Emu* e);
 static void split_release(Emu* e);
@@ -320,11 +318,11 @@ static uint8_t lux_read(struct GBALuminanceSource* lux) {
 	int value = 0x16 + (level > 0 ? GBA_LUX_LEVELS[level - 1] : 0);
 	return (uint8_t) (0xFF - value);
 }
-/* (testing: GBADS_RTC_FIXED=<unix seconds> holds the cartridge clock still, for games
+/* (testing: SNESDS_RTC_FIXED=<unix seconds> holds the cartridge clock still, for games
  * that look at the time of day: Boktai's areas change with it. A state carries its
  * clock's setting, so this is applied again after each load.) */
 static void rtc_pin(Emu* e) {
-	const char* t = getenv("GBADS_RTC_FIXED");
+	const char* t = getenv("SNESDS_RTC_FIXED");
 	if (!t) return;
 	e->core->rtc.override = RTC_FIXED;
 	e->core->rtc.value = atoll(t) * 1000;
@@ -352,7 +350,7 @@ bool emu_open(Emu* e, const char* romPath, const char* savePath, bool audio) {
 	e->fb = calloc(GBA_W * GBA_H, sizeof(uint32_t));
 	e->core->setVideoBuffer(e->core, (mColor*) e->fb, GBA_W);
 	e->core->setPeripheral(e->core, mPERIPH_GBA_LUMINANCE, &luxSource);
-	/* (testing: GBADS_RTC_FIXED=<unix seconds> holds the cartridge clock still, for games
+	/* (testing: SNESDS_RTC_FIXED=<unix seconds> holds the cartridge clock still, for games
 	 * that look at the time of day: Boktai's areas change with it) */
 	rtc_pin(e);
 	e->audio = audio;
@@ -375,11 +373,7 @@ bool emu_open(Emu* e, const char* romPath, const char* savePath, bool audio) {
 		return false;
 	}
 	if (savePath) {
-#ifndef __wasi__
 		struct VFile* vf = async_save_open(savePath);
-#else
-		struct VFile* vf = VFileOpen(savePath, O_CREAT | O_RDWR);
-#endif
 		if (vf) {
 			e->core->loadSave(e->core, vf);
 		} else {
@@ -498,14 +492,14 @@ size_t emu_rewind_count(void) {
 
 /* ---------------------------------------------------------------- state files
  *
- * GBA DS's state files are mGBA's own: the state, then mGBA's extra data
- * (the battery save, the clock, when it was saved, and GBA DS's second
- * screen, EXTDATA_GBADS below).
+ * SNES DS's state files are mGBA's own: the state, then mGBA's extra data
+ * (the battery save, the clock, when it was saved, and SNES DS's second
+ * screen, EXTDATA_SNESDS below).
  *
  * RetroArch's (and BananaFront's: the same files) wrap a core's state
  * (issue #39): "RASTATE" and version 1, then blocks (a 4-character tag, a
  * u32 size, the data, zeros to a multiple of 8) up to "END ": MEM the
- * core's own bytes (for its mGBA core, the same as GBA DS's states:
+ * core's own bytes (for its mGBA core, the same as SNES DS's states:
  * checked byte for byte), ACHV RetroAchievements progress, RPLY a replay.
  * Usually compressed (savestate_file_compression, on by default):
  * "#RZIPv" 1 "#", u32 chunk size, u64 size, then each chunk as a u32 size
@@ -513,7 +507,7 @@ size_t emu_rewind_count(void) {
  * of these; saving writes the format asked for. All numbers little-endian. */
 
 /* (in mGBA's subsystem range, which it doesn't use for the GBA) */
-#define EXTDATA_GBADS ((enum mStateExtdataTag) (EXTDATA_SUBSYSTEM_START + 0x3D))
+#define EXTDATA_SNESDS ((enum mStateExtdataTag) (EXTDATA_SUBSYSTEM_START + 0x3D))
 
 #ifdef USE_ZLIB
 /* (zlib's, linked with libmgba; its header isn't on every build's include path) */
@@ -667,7 +661,7 @@ bool emu_state_save_file_as(Emu* e, const char* path, const void* extra, size_t 
 	if (!vf) return false;
 	bool ok = mCoreSaveStateNamed(e->core, vf, SAVESTATE_SAVEDATA | SAVESTATE_RTC | SAVESTATE_METADATA);
 	if (ok && extra) {
-		/* GBA DS's own data, put in with mGBA's (other emulators skip it) */
+		/* SNES DS's own data, put in with mGBA's (other emulators skip it) */
 		struct mStateExtdata ext;
 		mStateExtdataInit(&ext);
 		mCoreExtractExtdata(e->core, vf, &ext);
@@ -675,11 +669,11 @@ bool emu_state_save_file_as(Emu* e, const char* path, const void* extra, size_t 
 		if (copy) {
 			memcpy(copy, extra, extraN);
 			struct mStateExtdataItem item = { .size = (int32_t) extraN, .data = copy, .clean = free };
-			mStateExtdataPut(&ext, EXTDATA_GBADS, &item);
+			mStateExtdataPut(&ext, EXTDATA_SNESDS, &item);
 			size_t sz = e->core->stateSize(e->core);
 			vf->truncate(vf, sz);
 			vf->seek(vf, sz, SEEK_SET);
-			if (!mStateExtdataSerialize(&ext, vf)) fprintf(stderr, "save state: GBA DS's own data not kept with it\n");
+			if (!mStateExtdataSerialize(&ext, vf)) fprintf(stderr, "save state: SNES DS's own data not kept with it\n");
 		}
 		mStateExtdataDeinit(&ext);
 	}
@@ -719,19 +713,19 @@ bool emu_state_load_file(Emu* e, const char* path) {
 	return ok;
 }
 
-StateFileKind emu_state_file_kind(Emu* e, const char* path, bool* fromGbads) {
-	if (fromGbads) *fromGbads = false;
+StateFileKind emu_state_file_kind(Emu* e, const char* path, bool* fromSnesds) {
+	if (fromSnesds) *fromSnesds = false;
 	size_t n;
 	StateFileKind kind;
 	uint8_t* b = state_file_read(path, &n, &kind);
-	if (b && fromGbads && e && (kind == STATE_FILE_MGBA || kind == STATE_FILE_RETROARCH)) {
+	if (b && fromSnesds && e && (kind == STATE_FILE_MGBA || kind == STATE_FILE_RETROARCH)) {
 		struct VFile* vf = VFileFromConstMemory(b, n);
 		struct mStateExtdata ext;
 		mStateExtdataInit(&ext);
 		struct mStateExtdataItem item;
 		/* (Get says yes for a tag that isn't there too: its size says) */
-		if (vf && mCoreExtractExtdata(e->core, vf, &ext) && mStateExtdataGet(&ext, EXTDATA_GBADS, &item) && item.size > 0 && item.data)
-			*fromGbads = true;
+		if (vf && mCoreExtractExtdata(e->core, vf, &ext) && mStateExtdataGet(&ext, EXTDATA_SNESDS, &item) && item.size > 0 && item.data)
+			*fromSnesds = true;
 		mStateExtdataDeinit(&ext);
 		if (vf) vf->close(vf);
 	}
@@ -764,7 +758,7 @@ void* emu_state_file_get_extra(Emu* e, const char* path, size_t* n) {
 	mStateExtdataInit(&ext);
 	void* out = NULL;
 	struct mStateExtdataItem item;
-	if (mCoreExtractExtdata(e->core, vf, &ext) && mStateExtdataGet(&ext, EXTDATA_GBADS, &item) && item.size > 0 && item.data) {
+	if (mCoreExtractExtdata(e->core, vf, &ext) && mStateExtdataGet(&ext, EXTDATA_SNESDS, &item) && item.size > 0 && item.data) {
 		out = malloc((size_t) item.size);
 		if (out) memcpy(out, item.data, (size_t) item.size), *n = (size_t) item.size;
 	}

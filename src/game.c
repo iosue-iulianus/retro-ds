@@ -1,9 +1,6 @@
 /* One play session: the emulator, the second-screen map, and the pause menu. */
 #include "game.h"
 #include "i18n.h"
-#ifdef __wasi__
-extern void web_sleep(unsigned ms) __attribute__((import_module("env"), import_name("web_sleep")));
-#endif
 #include "android.h"
 #include "brand.h"
 #include "emu.h"
@@ -52,11 +49,7 @@ static long thread_preemptions(void) {
 }
 static double thread_cpu_ms(void) {
 	struct timespec t;
-#ifdef __wasi__
-	if (clock_gettime(CLOCK_MONOTONIC, &t) != 0) return 0;
-#else
 	if (clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t) != 0) return 0;
-#endif
 	return t.tv_sec * 1000.0 + t.tv_nsec / 1e6;
 }
 /* CLOCK_MONOTONIC in seconds: the time the kernel log and the journal's
@@ -123,7 +116,7 @@ static uint32_t aheadFb[GBA_W * GBA_H]; /* the frame on screen, while the worker
  * (profile controls.snes) left / right while a shoulder is held. */
 #define KX_PAN_L (1u << 20)
 #define KX_PAN_R (1u << 21)
-static bool debug; /* GBADS_DEBUG (declared again below) */
+static bool debug; /* SNESDS_DEBUG (declared again below) */
 static const struct MapProfile* ctlProf; /* NULL: no alternate layout for this game */
 
 /* One frame of the game with these keys (on the worker too, while the main
@@ -196,7 +189,7 @@ static void* twinStates[2]; /* the game's state from before each of the last two
 static uint32_t twinKeys[2];
 static int twinHave, twinCur; /* how many of them there are; the latest */
 static const MapProfile* twinProf;
-static bool tallTrace; /* GBADS_TALL_TRACE: a line a frame about the live view */
+static bool tallTrace; /* SNESDS_TALL_TRACE: a line a frame about the live view */
 static int twinShakeNow, twinShakeNext; /* the game's screen shake in this frame's picture / the next's */
 static bool tallMsg, tallGameTop; /* (for the log: PP-11's screen, the top screen's picture) */
 static bool tallTopLogo; /* PP-11's screen up with no table rows above it: the logo on the top screen */
@@ -233,7 +226,7 @@ static void* twin_worker(void* arg) {
 	pthread_mutex_unlock(&w->lock);
 	return NULL;
 }
-/* fn(arg) on worker i; no thread (the web build): here, now */
+/* fn(arg) on worker i; no thread: here, now */
 static void twin_work_start(int i, void (*fn)(void*), void* arg) {
 	typeof(twinWork[0])* w = &twinWork[i];
 	pthread_mutex_lock(&w->lock);
@@ -732,7 +725,7 @@ static void twin_open(const char* rom, const MapProfile* p) {
 	}
 	twinProf = p;
 	twinOpen = true;
-	tallTrace = getenv("GBADS_TALL_TRACE") != NULL;
+	tallTrace = getenv("SNESDS_TALL_TRACE") != NULL;
 	fprintf(stderr, "live view: two more copies of the game for the table's other rows\n");
 }
 
@@ -911,10 +904,10 @@ static char subCode[5];          /* the profile in use: the game's code, or what
 static const char* dump_text(char* buf, size_t n) {
 	const char* name;
 	switch (profile_dump(emu.gameCode, emu.romCrc, &name)) {
-	case DUMP_TESTED: snprintf(buf, n, "CRC32 %08x, the dump GBA DS is tested on (%s)", emu.romCrc, name); break;
-	case DUMP_OFFICIAL: snprintf(buf, n, "CRC32 %08x, an official dump GBA DS isn't tested on (%s)", emu.romCrc, name); break;
-	case DUMP_MOD_TESTED: snprintf(buf, n, "CRC32 %08x, a mod GBA DS is tested on (%s)", emu.romCrc, name); break;
-	case DUMP_MOD: snprintf(buf, n, "CRC32 %08x, a known mod GBA DS isn't tested on (%s)", emu.romCrc, name); break;
+	case DUMP_TESTED: snprintf(buf, n, "CRC32 %08x, the dump SNES DS is tested on (%s)", emu.romCrc, name); break;
+	case DUMP_OFFICIAL: snprintf(buf, n, "CRC32 %08x, an official dump SNES DS isn't tested on (%s)", emu.romCrc, name); break;
+	case DUMP_MOD_TESTED: snprintf(buf, n, "CRC32 %08x, a mod SNES DS is tested on (%s)", emu.romCrc, name); break;
+	case DUMP_MOD: snprintf(buf, n, "CRC32 %08x, a known mod SNES DS isn't tested on (%s)", emu.romCrc, name); break;
 	case DUMP_MODIFIED:
 		snprintf(buf, n, "CRC32 %08x, not a known dump of %.4s: modified (a patch or hack), trimmed or a bad dump", emu.romCrc,
 		         emu.gameCode);
@@ -963,7 +956,7 @@ static SDL_Texture* logoCanvasTex[2];
 static SDL_Texture* overlayTex[2][2];
 static int overlayW[2], overlayH[2];
 static char overlayMode[2][32];
-/* GBA DS's own bezel (draw_bezel, bezel.c): [0] top screen, [1] bottom,
+/* SNES DS's own bezel (draw_bezel, bezel.c): [0] top screen, [1] bottom,
  * made again when anything it's drawn from changes */
 static SDL_Texture* bezelTex[2][2];
 static int bezelW[2], bezelH[2];
@@ -1078,7 +1071,7 @@ static double fps, speedPct;
 static Uint64 emuTicks, drawTicks; /* time spent emulating / drawing, for the 5 s report */
 
 /* Slow frames (work over a frame's time): the worst each second, broken down,
- * logged on Android (where frame time is tight) or with GBADS_DEBUG. */
+ * logged on Android (where frame time is tight) or with SNESDS_DEBUG. */
 typedef struct {
 	double total, input, emulate, ra, map, draw, top, bottom;
 	int redraws;
@@ -1094,7 +1087,7 @@ static SlowFrame slowWorst;
 static int slowCount;
 
 /* Stalls (issue #50): a loop iteration over STALL_MS from top to top, any
- * build, no GBADS_DEBUG needed. Each part of the iteration is timed, the
+ * build, no SNESDS_DEBUG needed. Each part of the iteration is timed, the
  * wait before the frame and the sleep after it included (slow frames above
  * only see the work in between), so one line in a player's log says where
  * the time went. At most STALL_LINES lines per 5 s; the 5 s report counts
@@ -1150,7 +1143,7 @@ enum MenuItem { M_RESUME, M_CHEATS, M_PATCHES, M_ACH, M_SHOT, M_SWAP, M_SCALE, M
 static const char* menuLabels[] = {
 	/* title case: drawn in Futura from the built-in images (tools/make_brand.py) */
 	[M_RESUME] = N_("Resume"), [M_SWAP] = N_("Swap Screens"), [M_SAVE] = N_("Save State"), [M_SCALE] = "", [M_LCD] = "", [M_FPS] = "", [M_FRAMEBUF] = "", [M_OVERLAY] = "", [M_LOGO] = "", [M_MATCH] = "", [M_REWIND] = "", [M_RESTART] = N_("Restart Game"),
-	[M_LOAD] = N_("Load State"), [M_CHEATS] = "Cheats", [M_PATCHES] = "Patches", [M_BUTTONS] = N_("Buttons"), [M_ACH] = "Achievements", [M_SHOT] = N_("Take Screenshot"), [M_LIBRARY] = N_("Close Game"), [M_EXIT] = N_("Close GBA DS"),
+	[M_LOAD] = N_("Load State"), [M_CHEATS] = "Cheats", [M_PATCHES] = "Patches", [M_BUTTONS] = N_("Buttons"), [M_ACH] = "Achievements", [M_SHOT] = N_("Take Screenshot"), [M_LIBRARY] = N_("Close Game"), [M_EXIT] = N_("Close SNES DS"),
 	[M_AUTOSAVE] = "", [M_AUTOLOAD] = "", [M_BUG] = N_("Submit a Bug Report"), [M_SLOT] = "", [M_FF] = "", [M_COLOR] = "", [M_GHOST] = "", [M_PIXLOGO] = "", [M_PLACE] = "",
 };
 static int menuItems[12], nMenuItems;
@@ -1161,7 +1154,7 @@ static bool half_item(int item) {
 	return item == M_RESUME || item == M_RESTART || item == M_SAVE || item == M_LOAD || item == M_AUTOSAVE || item == M_AUTOLOAD || item == M_REWIND || item == M_FF ||
 	       item == M_COLOR || item == M_GHOST || item == M_CHEATS || item == M_PATCHES || item == M_SHOT || item == M_BUG;
 }
-/* Close Game and Close GBA DS are double height: two rows tall, side by side
+/* Close Game and Close SNES DS are double height: two rows tall, side by side
  * when both are there, else the one across the whole row */
 static bool tall_item(int item) {
 	return item == M_LIBRARY || item == M_EXIT;
@@ -1221,7 +1214,7 @@ static void suppress_held(void) {
 	for (int b = 0; b < B_COUNT; ++b) suppress[b] = btnNow[b];
 }
 static const char* pageNames[N_PAGES] = { "Game", N_("Display"), "Screens", "Controls", N_("Speed"), N_("Map")};
-/* Restart Game, Close Game and Close GBA DS ask first: chosen once, the
+/* Restart Game, Close Game and Close SNES DS ask first: chosen once, the
  * button says "Are You Sure?" (and the note what happens); chosen again,
  * it's done. Another page, another button or closing the menu calls it off. */
 static int armedItem = -1;
@@ -1252,7 +1245,7 @@ static SDL_Rect ach_area(int scr);
  * widest fits (item_label gives the current one). */
 static const char* const allLabels[] = {
 	N_("Resume"), N_("Restart Game"), N_("Are You Sure?"), N_("Save State"), N_("Load State"), "Cheats", "Patches", "Achievements",
-	N_("Take Screenshot"), N_("Close Game"), N_("Close GBA DS"), N_("Submit a Bug Report"),
+	N_("Take Screenshot"), N_("Close Game"), N_("Close SNES DS"), N_("Submit a Bug Report"),
 	"\u2039   Slot 0: Sep 30, 12:59 PM   \u203A", /* (the slot row, with its arrows) */
 };
 /* the labels of the half-width buttons, which fit in half the width */
@@ -1335,21 +1328,21 @@ static void slot_pick_newest(void) {
 }
 /* What's in a slot shared with RetroArch (issue #39), looked at again
  * only when the file changes */
-static StateFileKind slot_kind(const struct stat* st, bool* fromGbads) {
+static StateFileKind slot_kind(const struct stat* st, bool* fromSnesds) {
 	static struct {
 		char path[1024];
 		time_t time;
 		off_t size;
 		StateFileKind kind;
-		bool gbads;
+		bool snesds;
 	} seen[10];
 	int i = stateSlot;
 	if (strcmp(seen[i].path, gp.slot[i]) || seen[i].time != st->st_mtime || seen[i].size != st->st_size) {
 		snprintf(seen[i].path, sizeof(seen[i].path), "%s", gp.slot[i]);
 		seen[i].time = st->st_mtime, seen[i].size = st->st_size;
-		seen[i].kind = emu_state_file_kind(&emu, gp.slot[i], &seen[i].gbads);
+		seen[i].kind = emu_state_file_kind(&emu, gp.slot[i], &seen[i].snesds);
 	}
-	*fromGbads = seen[i].gbads;
+	*fromSnesds = seen[i].snesds;
 	return seen[i].kind;
 }
 /* "Slot 3: Oct 31, 1:45 PM" (when it was saved), or "Slot 3: Empty";
@@ -1364,13 +1357,13 @@ static const char* slot_label(void) {
 	}
 	const char* by = "";
 	if (gp.raDir[0]) {
-		bool fromGbads;
-		StateFileKind k = slot_kind(&st, &fromGbads);
+		bool fromSnesds;
+		StateFileKind k = slot_kind(&st, &fromSnesds);
 		if (k == STATE_FILE_OTHER_CORE || k == STATE_FILE_UNREADABLE) {
 			snprintf(buf, sizeof(buf), tr("Slot %d: %s"), stateSlot, k == STATE_FILE_OTHER_CORE ? tr("Another emulator's"): tr("Can't be read"));
 			return buf;
 		}
-		if (!fromGbads) by = N_(", RetroArch");
+		if (!fromSnesds) by = N_(", RetroArch");
 	}
 	struct tm t, now;
 	time_t n = time(NULL);
@@ -1598,7 +1591,7 @@ typedef struct {
 	bool usable;       /* applies to this ROM on its own */
 	ByteRange* ranges; /* (usable) the bytes it changes */
 	int nRanges;
-	/* a patch GBA DS knows (docs/patches.md): the ROMs it's made for, and
+	/* a patch SNES DS knows (docs/patches.md): the ROMs it's made for, and
 	 * what to say when it goes on one of them (an optional patch: on
 	 * another patch's result, found when they're tried together) */
 	const KnownPatch* known;
@@ -1753,7 +1746,7 @@ static void patch_describe(const uint8_t* rom, size_t romN, uint32_t romCrc, con
 		snprintf(pi->note, sizeof(pi->note), tr("Made for another version of the game: it can't be switched on for this ROM"));
 	} else if (r != PATCH_APPLIED && compressed) {
 		snprintf(pi->note, sizeof(pi->note),
-		         tr("An xdelta made with compression, which GBA DS can't read: patch the ROM with it beforehand, or make it again without (xdelta3 -S none)"));
+		         tr("An xdelta made with compression, which SNES DS can't read: patch the ROM with it beforehand, or make it again without (xdelta3 -S none)"));
 	} else if (r != PATCH_APPLIED) {
 		snprintf(pi->note, sizeof(pi->note), tr("Can't be read: not a patch, or damaged"));
 	} else if (pi->known && !pi->baseOk) {
@@ -2507,7 +2500,7 @@ static void draw_battery(void) {
  * Swiping up from the bottom of the touchscreen brings up a bar along its
  * bottom, over whatever it shows, without pausing: the time, the battery
  * and the frames a second, then icon buttons: Save State, Load State,
- * Settings (the pause menu), Bug Report (bug_report) and Close GBA DS
+ * Settings (the pause menu), Bug Report (bug_report) and Close SNES DS
  * (tapped twice). In games with another button layout, Controls above.
  * Swiping down, the pause menu opening or 5 seconds untouched put it
  * away. Greys only, to sit over any game's colours. */
@@ -2516,7 +2509,7 @@ static float barShown;          /* 0 hidden .. 1 all the way up (sliding) */
 static Uint32 barSince;         /* last touched */
 static Uint32 barLitAt;         /* a button's action just done: it shows white a moment */
 static int barLit = -1;
-static Uint32 barExitArmed;     /* Close GBA DS tapped once (a second tap within 3 s closes) */
+static Uint32 barExitArmed;     /* Close SNES DS tapped once (a second tap within 3 s closes) */
 enum { G_NONE, G_TRACK, G_DONE, G_BTN, G_PIN };
 static int barGesture = G_NONE;
 static int barBtn = -1;         /* the button under the finger (G_BTN) */
@@ -3002,7 +2995,7 @@ static const char* ovl_row_label(int row) {
 	switch (row) {
 	case OR_MODE: return modes[SDL_clamp(cfg->overlayMode, 0, 2)];
 	case OR_SCREENS: return cfg->overlays == OVL_TOP ? N_("Which Screen: Top Only"): cfg->overlays == OVL_BOTTOM ? N_("Which Screen: Bottom Only"): N_("Which Screen: Both");
-	case OR_LOGO: return cfg->bezelLogo ? N_("GBA DS Logo: Show"): N_("GBA DS Logo: Hide");
+	case OR_LOGO: return cfg->bezelLogo ? N_("SNES DS Logo: Show"): N_("SNES DS Logo: Hide");
 	case OR_INNER: return N_("Inner Bezel Color");
 	case OR_OUTER: return N_("Outer Bezel Color");
 	default: return N_("Reset Bezels");
@@ -3266,7 +3259,7 @@ static void draw_ovl_menu(int scr) {
 	if (cfg->overlayMode == OVM_CUSTOM) {
 		SDL_Rect last = ovl_row_rect(scr, n - 1);
 		ui_font_wrap(scr, TF_BODY, mg.margin + mg.pad, last.y + last.h + mg.gap * 2, mg.w - mg.pad * 2, mg.noteCap,
-		             "Your own PNGs in gba-ds/overlays/. A screen without one gets the generated bezel in its default colors.", C_DIS);
+		             "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors.", C_DIS);
 	}
 }
 
@@ -3388,10 +3381,10 @@ static void ovl_close_all(void) {
  * GEN-10: which GBA button each face button gives the game, by position
  * (right, bottom, top, left): GBA A / B / L / R, Start, Select, Turbo A /
  * Turbo B or nothing. Controls > the four button rows (button_right ... in
- * gba-ds.cfg, for this game or for all games); with none chosen, ab_swap's
+ * snes-ds.cfg, for this game or for all games); with none chosen, ab_swap's
  * layout. Before v1.5.4 a game's choices were kept in <game>.buttons: read
  * once into the game's own settings (fb_load). Only the game's keys change
- * (run loop, the GBA layout's branch): GBA DS's own screens keep B_A / B_B.
+ * (run loop, the GBA layout's branch): SNES DS's own screens keep B_A / B_B.
  * In games with a layout picker (profile `controls`), the SNES / four-button
  * layout decides the face buttons wherever it's in use. */
 enum { FB_RIGHT, FB_BOTTOM, FB_TOP, FB_LEFT, FB_FACES, FB_L = FB_FACES, FB_R, FB_UP, FB_DOWN, FB_PADLEFT, FB_PADRIGHT, FB_COUNT };
@@ -3579,7 +3572,7 @@ static void draw_rows_page(int scr, const MenuGeom* mg) {
 			rowTagOn[i] = true;
 		}
 		if (!strcmp(key, "pinball_live") && cfg->tallLive != tallLiveAtStart) {
-			/* changed since GBA DS started: it only counts once GBA DS is closed and started again */
+			/* changed since SNES DS started: it only counts once SNES DS is closed and started again */
 			int tc = SDL_max(6, cap * 5 / 8), gp2 = mg->pad / 2;
 			int px0 = r.x + mg->pad + lw + gp2 + (has ? ui_font_width(TF_BOLD, tc, "Game") + mg->pad + gp2 : 0);
 			const char* txt = N_("Restart required");
@@ -3848,7 +3841,7 @@ static void draw_menu(void) {
 		int lc = cap;
 		if (tall_item(menuItems[i])) {
 			/* double height: the text as big as the button and its widest label allow */
-			static const char* const tallLabels[] = { "Close Game", "Close GBA DS", "Are You Sure?" };
+			static const char* const tallLabels[] = { "Close Game", "Close SNES DS", "Are You Sure?" };
 			int widest = 1;
 			for (size_t k = 0; k < sizeof(tallLabels) / sizeof(*tallLabels); ++k) widest = SDL_max(widest, ui_label_width(scr, 100, tallLabels[k]));
 			lc = SDL_min(r.h * 2 / 5, (r.w - mg.pad * 2) * 100 / widest);
@@ -3859,7 +3852,7 @@ static void draw_menu(void) {
 		int lastRow = SDL_min(nMenuRows, ROW_VIS) - 1;
 		SDL_Rect last = { 0, mg.top + lastRow * (mg.h + mg.gap), 0, mg.h };
 		int nc = SDL_min(mg.noteCap, mg.noteCap * mg.w / SDL_max(1, ui_font_width(TF_BOLD, mg.noteCap, menuNote)));
-		/* (the last item is always a whole row: Close GBA DS, Show FPS...) */
+		/* (the last item is always a whole row: Close SNES DS, Show FPS...) */
 		ui_font_text(scr, TF_BOLD, screens[scr].rect.w / 2, last.y + last.h + mg.h * 3 / 5, nc, menuNote, C_GOLD, 0);
 	}
 	if (nScreens > 1) {
@@ -5023,7 +5016,7 @@ typedef struct { const uint32_t* px; int row; int from, safe; } TallSrc;
 int stbi_write_png(char const* filename, int w, int h, int comp, const void* data, int stride_in_bytes);
 static bool tallKeep; /* (carry) a row no picture has keeps what it showed last */
 /* the live view's last 10 seconds, a line a frame, for bug reports
- * (GBADS_TALL_TRACE's lines, kept whether it's set or not) */
+ * (SNESDS_TALL_TRACE's lines, kept whether it's set or not) */
 #define TALL_LOG 600
 static char tallLog[TALL_LOG][176];
 static unsigned tallLogN;
@@ -5302,20 +5295,20 @@ static void update_tall(void) {
 		}
 		if (n[0] + n[1] + n[2]) fprintf(stderr, "cmp %d/%d %d/%d %d/%d\n", d[0], n[0], d[1], n[1], d[2], n[2]);
 	}
-	if (getenv("GBADS_TALL_AT") && frameCount == (unsigned long long) atoll(getenv("GBADS_TALL_AT"))) {
+	if (getenv("SNESDS_TALL_AT") && frameCount == (unsigned long long) atoll(getenv("SNESDS_TALL_AT"))) {
 		static uint32_t sh[GBA_W * 3 * GBA_H];
 		for (int y = 0; y < GBA_H; ++y) for (int x = 0; x < GBA_W; ++x) {
 			sh[y * GBA_W * 3 + x] = emu.fb[y * GBA_W + x] | 0xFF000000;
 			sh[y * GBA_W * 3 + GBA_W + x] = twins[0].pic[y * GBA_W + x] | 0xFF000000;
 			sh[y * GBA_W * 3 + 2 * GBA_W + x] = twins[1].pic[y * GBA_W + x] | 0xFF000000;
 		}
-		stbi_write_png(getenv("GBADS_TALL_PNG"), GBA_W * 3, GBA_H, 4, sh, GBA_W * 3 * 4);
+		stbi_write_png(getenv("SNESDS_TALL_PNG"), GBA_W * 3, GBA_H, 4, sh, GBA_W * 3 * 4);
 		char sp[1200];
-		snprintf(sp, sizeof sp, "%s.game.ss", getenv("GBADS_TALL_PNG")); emu_state_save_file(&emu, sp);
-		snprintf(sp, sizeof sp, "%s.b.ss", getenv("GBADS_TALL_PNG")); emu_state_save_file(&twins[1].e, sp);
-		FILE* of = fopen(getenv("GBADS_TALL_PNG"), "ab"); if (of) fclose(of);
+		snprintf(sp, sizeof sp, "%s.game.ss", getenv("SNESDS_TALL_PNG")); emu_state_save_file(&emu, sp);
+		snprintf(sp, sizeof sp, "%s.b.ss", getenv("SNESDS_TALL_PNG")); emu_state_save_file(&twins[1].e, sp);
+		FILE* of = fopen(getenv("SNESDS_TALL_PNG"), "ab"); if (of) fclose(of);
 		for (int w = 0; w < 2; ++w) {
-			snprintf(sp, sizeof sp, "%s.%s.oam", getenv("GBADS_TALL_PNG"), w ? "b" : "game");
+			snprintf(sp, sizeof sp, "%s.%s.oam", getenv("SNESDS_TALL_PNG"), w ? "b" : "game");
 			FILE* f = fopen(sp, "wb");
 			for (int i = 0; f && i < 512; ++i) { uint16_t v = emu_read16(w ? &twins[1].e : &emu, 0x07000000 + i * 2); fwrite(&v, 2, 1, f); }
 			if (f) fclose(f);
@@ -5741,7 +5734,7 @@ static void screen_restore_apply(void) {
 }
 
 /* Save states, with the RetroAchievements progress beside them (<state>.ra;
- * for one in RetroArch's folder, in GBA DS's own: <state_dir>/retroarch/) */
+ * for one in RetroArch's folder, in SNES DS's own: <state_dir>/retroarch/) */
 static const char* state_ra_side(const char* path) {
 	static char side[1200];
 	if (!state_is_retroarch(path)) return path;
@@ -5784,21 +5777,21 @@ static void state_rom_check(const char* path) {
 
 static StateFileKind stateLoadKind; /* (what the last state_load found: why it failed) */
 static bool state_load(const char* path) {
-	bool fromGbads = false;
-	stateLoadKind = emu_state_file_kind(&emu, path, &fromGbads);
+	bool fromSnesds = false;
+	stateLoadKind = emu_state_file_kind(&emu, path, &fromSnesds);
 	bool ok = emu_state_load_file(&emu, path);
 	{
-		static const char* const kinds[] = { "no file", "GBA DS's / mGBA's", "RetroArch's", "another emulator's", "unreadable" };
+		static const char* const kinds[] = { "no file", "SNES DS's / mGBA's", "RetroArch's", "another emulator's", "unreadable" };
 		fprintf(stderr, "load state: %s: %s (%s%s)\n", path, ok ? "loaded" : "not loaded", kinds[stateLoadKind],
-		        stateLoadKind == STATE_FILE_RETROARCH ? (fromGbads ? ", saved by GBA DS" : ", saved by RetroArch") : "");
+		        stateLoadKind == STATE_FILE_RETROARCH ? (fromSnesds ? ", saved by SNES DS" : ", saved by RetroArch") : "");
 	}
 	stateWarned = false;
 	if (ok && !stateNoCheck) state_rom_check(path);
 	if (ok) {
-		/* (saved by RetroArch over one of GBA DS's: the progress kept with
+		/* (saved by RetroArch over one of SNES DS's: the progress kept with
 		 * that one is another moment's, so achievements start over) */
 		const char* side = state_ra_side(path);
-		if (side != path && !fromGbads) {
+		if (side != path && !fromSnesds) {
 			char ra[1210];
 			snprintf(ra, sizeof(ra), "%s.ra", side);
 			remove(ra);
@@ -5820,17 +5813,6 @@ static bool state_load(const char* path) {
 	return ok;
 }
 
-#ifdef __wasi__
-/* State Saver's GBA DS tab: states saved and loaded from the page, between frames */
-static bool webPlaying;
-__attribute__((export_name("web_save_state"))) int web_save_state(const char* path) {
-	return webPlaying && state_save(path);
-}
-__attribute__((export_name("web_load_state"))) int web_load_state(const char* path) {
-	return webPlaying && state_load(path);
-}
-#endif
-
 /* ---------------------------------------------------------------- bug reports
  *
  * The quick bar's bug button: <asset_dir>/bug-reports/GAME-DATE_TIME.zip
@@ -5842,7 +5824,7 @@ __attribute__((export_name("web_load_state"))) int web_load_state(const char* pa
 /* README.txt in the bug-reports folder: how to send a report (written with
  * the first report, if it isn't there; replaced when the text changes) */
 static const char bugReadme[] =
-	"GBA DS bug reports\n"
+	"SNES DS bug reports\n"
 	"==================\n"
 	"\n"
 	"Each zip in this folder is one bug report, saved by the quick bar's bug\n"
@@ -5854,7 +5836,7 @@ static const char bugReadme[] =
 	"  - GAME-DATE-keys.txt        every button you pressed in between\n"
 	"  - GAME-DATE-info.txt        your note (if you typed one), your device,\n"
 	"                              system, screens and settings, and the end\n"
-	"                              of GBA DS's log\n"
+	"                              of SNES DS's log\n"
 	"\n"
 	"In the pinball games' two-screen view, also what both screens showed\n"
 	"(GAME-DATE-tall.png, with the two extra copies' own pictures), the\n"
@@ -5875,7 +5857,7 @@ static const char bugReadme[] =
 	"   restarting, play on for 10 seconds before making one.\n"
 	"2. Copy the zip from this folder to a computer or phone.\n"
 	"3. Open a new issue on GitHub:\n"
-	"   https://github.com/kyannon/gba-ds/issues/new\n"
+	"   https://github.com/iosue-iulianus/snes-ds/issues/new\n"
 	"   (you need a free GitHub account).\n"
 	"4. Give it a short title: the game and what's wrong, for example\n"
 	"   \"F-Zero: GP Legend: the course map flickers\".\n"
@@ -5896,11 +5878,11 @@ static const char bugReadme[] =
 	"  - Whether it happens every time, and how to make it happen again.\n"
 	"  - Photos or screenshots of both screens, if it's something you see.\n"
 	"    A photo of the device is fine.\n"
-	"  - Anything you changed in Settings or gba-ds.cfg, and whether cheats\n"
+	"  - Anything you changed in Settings or snes-ds.cfg, and whether cheats\n"
 	"    were on.\n"
 	"\n"
-	"If GBA DS crashes, won't start, or a game won't load (so there's no way\n"
-	"to make a report), attach gba-ds.log instead: it's in the GBA DS folder,\n"
+	"If SNES DS crashes, won't start, or a game won't load (so there's no way\n"
+	"to make a report), attach snes-ds.log instead: it's in the SNES DS folder,\n"
 	"next to this bug-reports folder. Say which system you use (ROCKNIX,\n"
 	"BananaOS, Anbernic's own system, Android) and which device.\n"
 	"\n"
@@ -6033,7 +6015,7 @@ static void read_line(const char* path, char* out, size_t size) {
 static void log_path(char* out, size_t size) {
 	out[0] = 0;
 #ifdef __ANDROID__
-	if (android_home()) snprintf(out, size, "%s/gba-ds.log", android_home());
+	if (android_home()) snprintf(out, size, "%s/snes-ds.log", android_home());
 #else
 	struct stat st;
 	if (fstat(2, &st) != 0 || !S_ISREG(st.st_mode)) return;
@@ -6042,11 +6024,11 @@ static void log_path(char* out, size_t size) {
 #endif
 }
 
-/* The report's -info.txt: the device and system, GBA DS's settings, the
+/* The report's -info.txt: the device and system, SNES DS's settings, the
  * game and the end of the log (without lines about passwords or tokens). */
 static void bug_info(Text* t, const char* date, uint64_t back) {
-#ifdef GBADS_VERSION
-	text_add(t, "GBA DS %s bug report, %s\n\n", GBADS_VERSION, date);
+#ifdef SNESDS_VERSION
+	text_add(t, "SNES DS %s bug report, %s\n\n", SNESDS_VERSION, date);
 #endif
 	text_add(t, "== Device\n");
 	char line[256];
@@ -6108,7 +6090,7 @@ static void bug_info(Text* t, const char* date, uint64_t back) {
 		text_add(t, "Save states: shared with RetroArch in %s (%s, %s); slot %d\n", gp.raDir, cfg->raStateDir[0] ? "chosen by hand" : "from its settings",
 		         gp.raCompress ? "compressed" : "uncompressed", stateSlot);
 	else
-		text_add(t, "Save states: GBA DS's own%s; slot %d\n", !strcmp(cfg->stateFolder, "retroarch") ? " (shared with RetroArch, but its folder wasn't found)" : "",
+		text_add(t, "Save states: SNES DS's own%s; slot %d\n", !strcmp(cfg->stateFolder, "retroarch") ? " (shared with RetroArch, but its folder wasn't found)" : "",
 		         stateSlot);
 
 	text_add(t, "\n== Settings\n");
@@ -6213,18 +6195,18 @@ static bool bug_report(char* out, size_t outSize) {
 	double fps60 = GBA_FPS;
 	char date[64], k[64];
 	strftime(date, sizeof(date), "%Y-%m-%d %H:%M:%S", &tm);
-#ifdef GBADS_VERSION
-	const char* version = GBADS_VERSION;
+#ifdef SNESDS_VERSION
+	const char* version = SNESDS_VERSION;
 #else
 	const char* version = "?";
 #endif
-	text_add(&t, "# GBA DS bug report, %s\n", date);
-	text_add(&t, "# GBA DS %s, %s (%s%s%s)\n", version, gp.base, emu.gameCode, strcmp(subCode, emu.gameCode) ? ", playing " : "",
+	text_add(&t, "# SNES DS bug report, %s\n", date);
+	text_add(&t, "# SNES DS %s, %s (%s%s%s)\n", version, gp.base, emu.gameCode, strcmp(subCode, emu.gameCode) ? ", playing " : "",
 	         strcmp(subCode, emu.gameCode) ? subCode : "");
 	text_add(&t, "# Controls: %s. Cheats on: %d.\n", ctlProf ? ctl_name(ctlMode) : "GBA", cheats_on(&cheats));
 	text_add(&t, "# %s is the game %.1f seconds (%llu frames) before %s.\n", name[1], (to - from) / fps60,
 	         (unsigned long long) (to - from), name[0]);
-	text_add(&t, "# The keys the game got from then on (after GBA DS's button layouts), by frame:\n#\n");
+	text_add(&t, "# The keys the game got from then on (after SNES DS's button layouts), by frame:\n#\n");
 	text_add(&t, "#  frame    time  event\n");
 	unsigned prev = 0;
 	uint64_t since[10] = { 0 };
@@ -6312,7 +6294,7 @@ static bool bug_report(char* out, size_t outSize) {
 		bool xok = stbi_write_png(xtmp[0], GBA_W * 3, GBA_H * 2, 4, sheet, GBA_W * 3 * 4) != 0;
 		FILE* f = fopen(xtmp[1], "wb");
 		if (f) {
-			fprintf(f, "# GBA DS live view, the last %u frames (top/bottom screen and the copies' rows; game.c update_tall)\n",
+			fprintf(f, "# SNES DS live view, the last %u frames (top/bottom screen and the copies' rows; game.c update_tall)\n",
 			        tallLogN < TALL_LOG ? tallLogN : TALL_LOG);
 			for (unsigned i = tallLogN > TALL_LOG ? tallLogN - TALL_LOG : 0; i < tallLogN; ++i) fprintf(f, "%s\n", tallLog[i % TALL_LOG]);
 			fclose(f);
@@ -6792,7 +6774,7 @@ static double audioSpeed = 1.0; /* emulated time per real time */
 /* ---- Keeping the game and its sound going while a frame's present is held
  * up (issue #50). On one player's RG DS Plus (ROCKNIX, a second SD card),
  * presenting a frame stalled for half a second every few seconds: the
- * graphics driver waiting for sway to give a buffer back. Nothing in GBA DS
+ * graphics driver waiting for sway to give a buffer back. Nothing in SNES DS
  * can make the screen take the frame sooner, but the emulator isn't needed
  * for presenting: once a present has taken 1.5 frames, this thread runs the
  * game's frames on time with the last keys held (run_frame, as the frame
@@ -6802,7 +6784,6 @@ static double audioSpeed = 1.0; /* emulated time per real time */
  * break and the game doesn't fall behind. Not run: RetroAchievements'
  * frame check (main thread only), the rewind buffer's states, the map's
  * room checks; those carry on with the next frame. keep_sound = 0: off. */
-#ifndef __wasi__
 static struct {
 	pthread_t thread;
 	pthread_mutex_t lock;
@@ -6932,13 +6913,6 @@ static void keeper_stop(void) {
 	if (keeper.conv) SDL_FreeAudioStream(keeper.conv);
 	keeper.conv = NULL, keeper.convFrom = 0;
 }
-#else
-static void keeper_arm(uint32_t keys, SDL_AudioDeviceID audio, int outRate, int maxQueued, int ahead) {
-	(void) keys, (void) audio, (void) outRate, (void) maxQueued, (void) ahead;
-}
-static int keeper_disarm(void) { return 0; }
-static void keeper_stop(void) {}
-#endif
 /* Matched, a frame that misses its refresh waits for the next one, and the
  * time is never made up: the game slows down (the GBA's rate catches up
  * after a slow frame). A game that keeps missing (three seconds in a row
@@ -6973,7 +6947,7 @@ static void rewind_setup(void) {
 	fprintf(stderr, "rewind: %d s (%d states)\n", secs, secs * 30);
 }
 
-/* ff_speed as gba-ds.cfg writes it: a number, or max (0, as atoi reads it) */
+/* ff_speed as snes-ds.cfg writes it: a number, or max (0, as atoi reads it) */
 static const char* ff_speed_name(const Config* c) {
 	static char s[12];
 	if (c->ffSpeed <= 0) return "max";
@@ -7000,7 +6974,7 @@ void prefs_save(Config* cfg) {
 		{ "bezel_inner", cfg->bezelInner },
 		{ "bezel_outer", cfg->bezelOuter },
 	};
-	config_kv_update(prefs, "# written by gba-ds's menus; overrides gba-ds.cfg", 4, kv);
+	config_kv_update(prefs, "# written by snes-ds's menus; overrides snes-ds.cfg", 4, kv);
 }
 
 static bool gameTexAll = true; /* upload the game's frame to every view next time */
@@ -7031,7 +7005,7 @@ static void set_shader(int sh) {
 }
 
 /* ---- hotkeys (hotkeys.c): the hotkey button (HOME, SELECT, START or L3)
- * held with an action's button (Settings > Hotkeys, gba-ds.cfg).
+ * held with an action's button (Settings > Hotkeys, snes-ds.cfg).
  * SELECT or START as the hotkey still reach the game when tapped alone;
  * L3 tapped alone opens the quick menu, as it does when it isn't the hotkey. */
 static void hotkeys_setup(void) {
@@ -7104,7 +7078,7 @@ static void load_overlay(int s, int which) {
 	}
 }
 
-/* GBA DS's own bezel round screen s's picture (bezel.c): in the player's
+/* SNES DS's own bezel round screen s's picture (bezel.c): in the player's
  * colours and with their logo setting (Overlays: Generated; while the
  * colour picker is open, its colour as it's picked), or in the defaults
  * (a screen without a PNG in Overlays: Custom). Nothing where the picture
@@ -7409,7 +7383,7 @@ static void open_menu(void) {
  * games while the game runs (cfg has this game's put over them). */
 static Config uniCfg;
 static const char* const gameHeader = "# this game's own settings: they win over the ones for all games";
-static const char* const prefsHeader = "# written by gba-ds's menus; overrides gba-ds.cfg";
+static const char* const prefsHeader = "# written by snes-ds's menus; overrides snes-ds.cfg";
 
 static void game_keys_reload(void) {
 	nGameKeys = config_kv_keys(gp.settings, 48, gameKeys);
@@ -7473,7 +7447,7 @@ static void setting_applied(const Setting* st) {
 	} else if (!strcmp(k, "ab_swap") || !strncmp(k, "button_", 7)) {
 		fb_default();
 	} else if (!strcmp(k, "pinball_live")) {
-		snprintf(menuNote, sizeof(menuNote), tr("Takes effect after you close and restart GBA DS"));
+		snprintf(menuNote, sizeof(menuNote), tr("Takes effect after you close and restart SNES DS"));
 	}
 }
 
@@ -7616,7 +7590,7 @@ static bool activate(int item, enum GameExit* exitTo) {
 		armedItem = item;
 		const char* lost = cfg->autoSave ? N_("your place is saved"): N_("unsaved progress is lost");
 		if (item == M_RESTART) snprintf(menuNote, sizeof(menuNote), tr("Choose it again to restart: unsaved progress is lost"));
-		else snprintf(menuNote, sizeof(menuNote), tr("Choose it again to close %s: %s"), item == M_EXIT ? "GBA DS" : tr("the game"), lost);
+		else snprintf(menuNote, sizeof(menuNote), tr("Choose it again to close %s: %s"), item == M_EXIT ? "SNES DS" : tr("the game"), lost);
 		return false;
 	}
 	armedItem = -1;
@@ -7966,7 +7940,7 @@ enum GameExit game_run(Config* c, const char* rom, bool fromLibrary) {
 static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary) {
 	cfg = c;
 	tallLiveAtStart = cfg->tallLive;
-	debug = getenv("GBADS_DEBUG") != NULL;
+	debug = getenv("SNESDS_DEBUG") != NULL;
 	romPath = rom, lastLoop = 0;
 	game_paths(cfg, rom, &gp);
 	ui_brightness(cfg->brightTop, cfg->brightBottom); /* (this game's own, if it has them) */
@@ -7983,9 +7957,6 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		char d[640];
 		fprintf(stderr, "ROM: %s\n", dump_text(d, sizeof(d)));
 	}
-#ifdef __wasi__
-	webPlaying = true;
-#endif
 	if (emu.patch != PATCH_NONE) {
 		ra_game_patched(); /* (RetroAchievements doesn't allow patched games) */
 	} else {
@@ -8118,11 +8089,11 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	want.freq = 48000;
 	want.format = AUDIO_S16SYS;
 	want.channels = 2;
-	/* GBADS_AUDIO_SAMPLES: testing only (SDL's dummy driver keeps exact time
+	/* SNESDS_AUDIO_SAMPLES: testing only (SDL's dummy driver keeps exact time
 	 * only when the buffer is a whole number of milliseconds, e.g. 480) */
-	want.samples = getenv("GBADS_AUDIO_SAMPLES") ? atoi(getenv("GBADS_AUDIO_SAMPLES")) : 512;
+	want.samples = getenv("SNESDS_AUDIO_SAMPLES") ? atoi(getenv("SNESDS_AUDIO_SAMPLES")) : 512;
 	SDL_AudioDeviceID audio = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
-#if !defined(__wasi__) && !defined(__ANDROID__)
+#if !defined(__ANDROID__)
 	if (!audio && getenv("AUDIODEV")) {
 		/* the device launch.sh asked for (the RG DS Plus's Stock Linux OS: ALSA's pulse)
 		 * won't open: the driver's own default instead */
@@ -8133,7 +8104,6 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		audio = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
 	}
 #endif
-#ifndef __wasi__
 	if (!audio) {
 		/* (a player on ROCKNIXDS heard nothing: the driver SDL picked may
 		 * not reach the sound server; the others, in turn) */
@@ -8149,7 +8119,6 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		}
 		if (!audio) SDL_AudioQuit(), SDL_AudioInit(NULL);
 	}
-#endif
 	if (audio) {
 		SDL_PauseAudioDevice(audio, 0);
 		fprintf(stderr, "audio: %s%s%s, %d Hz, %d channels, %d samples\n", SDL_GetCurrentAudioDriver(), getenv("AUDIODEV") ? " on " : "",
@@ -8166,8 +8135,8 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	uint64_t audioQuietUntil = 0; /* no dry-queue counting before this frame: the sound was being started again */
 	uint64_t dryWindowStart = 0;
 	int dryQueueBefore = 1, dryEvents = 0;
-	/* testing only: GBADS_TEST_STARVE=1 throws away the sound of 20 frames in every 100 (after frame 200) */
-	const bool testStarve = getenv("GBADS_TEST_STARVE") && atoi(getenv("GBADS_TEST_STARVE"));
+	/* testing only: SNESDS_TEST_STARVE=1 throws away the sound of 20 frames in every 100 (after frame 200) */
+	const bool testStarve = getenv("SNESDS_TEST_STARVE") && atoi(getenv("SNESDS_TEST_STARVE"));
 
 	static int16_t samples[4096 * 2];
 	uint32_t lastRoomKey = 0;
@@ -8188,7 +8157,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	int comboPulse[2] = { 0, 0 };        /* SELECT, START handed to the game late */
 	int modPulse = 0; /* the hotkey button (SELECT or START), tapped alone: handed to the game */
 	unsigned ffPhase = 0;
-	bool noPace = getenv("GBADS_NOPACE") != NULL;
+	bool noPace = getenv("SNESDS_NOPACE") != NULL;
 	enum GameExit exitTo = GAME_QUIT_APP;
 	bool done = false;
 	bool wasMenu = false;
@@ -8342,7 +8311,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 						} else if (bb == BB_EXIT) {
 							if (!barExitArmed) {
 								barExitArmed = barSince;
-								ui_osd("Tap again to close GBA DS.");
+								ui_osd("Tap again to close SNES DS.");
 							} else {
 								exitTo = GAME_QUIT_APP;
 								done = true;
@@ -9263,14 +9232,14 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			if (gameTexAll || i == screens[game_screen()].view) ui_update_texture(gameTex[i], shownFb, GBA_W * 4);
 		}
 		gameTexAll = false;
-		/* (tests, GBADS_DRAW_SHOTS_ONLY: only the frames a screenshot or a
+		/* (tests, SNESDS_DRAW_SHOTS_ONLY: only the frames a screenshot or a
 		 * touch needs are drawn) */
 		if (!ui_script_quiet()) {
 			ui_sync_view(cfg->vsync || pacedHz > 0 ? screens[game_screen()].view : -1); /* Match Display Rate; vsync: testing (docs/ANDROID.md) */
 			{
 				/* the other screen's redraw waits a frame if this one is past 70% of its time */
 				static double budget = -1;
-				if (budget < 0) budget = getenv("GBADS_DRAW_BUDGET") ? atof(getenv("GBADS_DRAW_BUDGET")) : frameSec * 1000.0 * 0.7;
+				if (budget < 0) budget = getenv("SNESDS_DRAW_BUDGET") ? atof(getenv("SNESDS_DRAW_BUDGET")) : frameSec * 1000.0 * 0.7;
 				ui_present_budget(ff ? -1 : screens[game_screen()].view, workT0, budget);
 			}
 			ui_clear();
@@ -9386,16 +9355,10 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		double wait = next - now;
 		loopCur.sleep0 = SDL_GetPerformanceCounter();
 		loopCur.sleepWant = wait > 0 ? wait : 0;
-#ifdef __wasi__
-		/* the web build: back to the page every frame, for the wait or not */
-		web_sleep(wait > 0 ? (unsigned) (wait * 1000) : 0);
-		logo_step(); /* (a logo a frame: the game's own, started without the game list) */
-#else
 		if (wait > 0) {
 			struct timespec ts = { 0, (long) (wait * 1e9) };
 			nanosleep(&ts, NULL);
 		}
-#endif
 		loopCur.end = SDL_GetPerformanceCounter();
 	}
 
@@ -9418,9 +9381,6 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	mapcap_destroy(mc);
 	mc = NULL;
 	emu_rewind_deinit();
-#ifdef __wasi__
-	webPlaying = false;
-#endif
 	twin_close();
 	emu_close(&emu); /* flushes the battery save */
 	for (int i = 0; i < MAP_MAX_FRAMES; ++i) {

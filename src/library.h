@@ -1,5 +1,5 @@
-#ifndef GBADS_LIBRARY_H
-#define GBADS_LIBRARY_H
+#ifndef SNESDS_LIBRARY_H
+#define SNESDS_LIBRARY_H
 
 #include "config.h"
 

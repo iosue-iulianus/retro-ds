@@ -1,5 +1,5 @@
 /* RetroAchievements (see ra.h). */
-#ifdef GBADS_RA
+#ifdef SNESDS_RA
 
 #include "ra.h"
 #include "i18n.h"
@@ -716,10 +716,10 @@ static void next_login(void) {
 		return;
 	}
 #ifdef __ANDROID__
-	note("Sign-in failed", cfg->raUser[0] ? "Check ra_username and ra_password in gba-ds.cfg"
+	note("Sign-in failed", cfg->raUser[0] ? "Check ra_username and ra_password in snes-ds.cfg"
 	                                     : "Sign in again in the game list's Settings");
 #else
-	note("Sign-in failed", cfg->raUser[0] ? "Check ra_username and ra_password in gba-ds.cfg"
+	note("Sign-in failed", cfg->raUser[0] ? "Check ra_username and ra_password in snes-ds.cfg"
 	                                     : "Check the account in EmulationStation's RetroAchievements settings");
 #endif
 }
@@ -887,16 +887,16 @@ static bool client_setup(void) {
 	mkdirs(badges);
 	client = rc_client_create(read_memory, server_call);
 	if (!client) return false;
-	rc_client_enable_logging(client, getenv("GBADS_DEBUG") ? RC_CLIENT_LOG_LEVEL_VERBOSE : RC_CLIENT_LOG_LEVEL_WARN, log_message);
+	rc_client_enable_logging(client, getenv("SNESDS_DEBUG") ? RC_CLIENT_LOG_LEVEL_VERBOSE : RC_CLIENT_LOG_LEVEL_WARN, log_message);
 	rc_client_set_event_handler(client, on_event);
 	rc_client_set_hardcore_enabled(client, 0); /* casual only, for now */
 	if (cfg->raHost[0]) rc_client_set_host(client, cfg->raHost);
 	char clause[64] = "";
 	rc_client_get_user_agent_clause(client, clause, sizeof(clause));
 #ifdef __ANDROID__
-	snprintf(userAgent, sizeof(userAgent), "GBADS/%s (Android) %s", GBADS_VERSION, clause);
+	snprintf(userAgent, sizeof(userAgent), "SNESDS/%s (Android) %s", SNESDS_VERSION, clause);
 #else
-	snprintf(userAgent, sizeof(userAgent), "GBADS/%s (Linux) %s", GBADS_VERSION, clause);
+	snprintf(userAgent, sizeof(userAgent), "SNESDS/%s (Linux) %s", SNESDS_VERSION, clause);
 #endif
 	return true;
 }

@@ -1,13 +1,13 @@
-# GBA DS: Italian (machine translation, not yet reviewed).
+# SNES DS: Italian (machine translation, not yet reviewed).
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Language: it\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-GBADS-Autonym: Italiano\n"
-"X-GBADS-Script: latin\n"
-"X-GBADS-Status: machine\n"
-"X-GBADS-Locales: it_IT it_CH\n"
+"X-SNESDS-Autonym: Italiano\n"
+"X-SNESDS-Script: latin\n"
+"X-SNESDS-Status: machine\n"
+"X-SNESDS-Locales: it_IT it_CH\n"
 
 msgid " (patch)"
 msgstr " (patch)"
@@ -48,8 +48,8 @@ msgstr[1] "%d giochi trovati."
 msgid "%d of %d"
 msgstr "%d di %d"
 
-msgid "%d of %d set for %s, kept in controllers.txt beside GBA DS's save states. The line for it is in gba-ds.log too: send it in to have it built into GBA DS for this device."
-msgstr "%d di %d impostati per %s, salvati in controllers.txt accanto agli stati di GBA DS. La riga è anche in gba-ds.log: inviala per farla integrare in GBA DS per questo dispositivo."
+msgid "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in snes-ds.log too: send it in to have it built into SNES DS for this device."
+msgstr "%d di %d impostati per %s, salvati in controllers.txt accanto agli stati di SNES DS. La riga è anche in snes-ds.log: inviala per farla integrare in SNES DS per questo dispositivo."
 
 msgid "%d on"
 msgstr "%d attivi"
@@ -155,8 +155,8 @@ msgstr "Una linea scura sotto ogni riga di pixel"
 msgid "A game's save already next to it, or in the other type, is copied over the first time you play it. .srm is the type RetroArch uses: choose its saves folder too to share each game's save with it."
 msgstr "Un salvataggio del gioco già accanto, o dell'altro tipo, viene copiato la prima volta che giochi. .srm è il tipo usato da RetroArch: scegli anche la sua cartella dei salvataggi per condividere quello di ogni gioco con lui."
 
-msgid "A new version of GBA DS"
-msgstr "Una nuova versione di GBA DS"
+msgid "A new version of SNES DS"
+msgstr "Una nuova versione di SNES DS"
 
 msgid "A pattern over every pixel, on both screens."
 msgstr "Una trama su ogni pixel, su entrambi gli schermi."
@@ -173,8 +173,8 @@ msgstr "Obiettivi"
 msgid "Add a note (optional): what happened, and what you expected to happen."
 msgstr "Aggiungi una nota (facoltativa): cos'è successo e cosa ti aspettavi."
 
-msgid "Adds GBA DS to the emulators for Game Boy Advance games in EmulationStation. Pick it for one game (its Advanced Game Options > Emulator) or for all of them (the system's advanced settings). The other emulators keep working as before."
-msgstr "Aggiunge GBA DS agli emulatori per i giochi Game Boy Advance in EmulationStation. Sceglilo per un gioco (Opzioni avanzate del gioco > Emulatore) o per tutti (impostazioni avanzate del sistema). Gli altri emulatori continuano a funzionare come prima."
+msgid "Adds SNES DS to the emulators for Game Boy Advance games in EmulationStation. Pick it for one game (its Advanced Game Options > Emulator) or for all of them (the system's advanced settings). The other emulators keep working as before."
+msgstr "Aggiunge SNES DS agli emulatori per i giochi Game Boy Advance in EmulationStation. Sceglilo per un gioco (Opzioni avanzate del gioco > Emulatore) o per tutti (impostazioni avanzate del sistema). Gli altri emulatori continuano a funzionare come prima."
 
 msgid "All"
 msgstr "Tutti"
@@ -203,8 +203,8 @@ msgstr "Sempre attivo, applicato per primo (alla maniera di RetroArch: una patch
 msgid "AM"
 msgstr "AM"
 
-msgid "An xdelta made with compression, which GBA DS can't read: patch the ROM with it beforehand, or make it again without (xdelta3 -S none)"
-msgstr "Uno xdelta creato con compressione, che GBA DS non sa leggere: applicalo prima alla ROM, oppure ricrealo senza compressione (xdelta3 -S none)"
+msgid "An xdelta made with compression, which SNES DS can't read: patch the ROM with it beforehand, or make it again without (xdelta3 -S none)"
+msgstr "Uno xdelta creato con compressione, che SNES DS non sa leggere: applicalo prima alla ROM, oppure ricrealo senza compressione (xdelta3 -S none)"
 
 msgid "Android's installer couldn't be reached"
 msgstr "Impossibile raggiungere il programma di installazione di Android"
@@ -329,11 +329,11 @@ msgstr "Illeggibile"
 msgid "Can't be read: not a patch, or damaged"
 msgstr "Illeggibile: non è una patch, oppure è danneggiata"
 
-msgid "Can't find the GBA DS folder."
-msgstr "Impossibile trovare la cartella di GBA DS."
+msgid "Can't find the SNES DS folder."
+msgstr "Impossibile trovare la cartella di SNES DS."
 
-msgid "Can't reach GBA DS's folder, using %s for now: %s"
-msgstr "Impossibile accedere alla cartella di GBA DS, per ora si usa %s: %s"
+msgid "Can't reach SNES DS's folder, using %s for now: %s"
+msgstr "Impossibile accedere alla cartella di SNES DS, per ora si usa %s: %s"
 
 msgid "Can't rewind further"
 msgstr "Impossibile riavvolgere oltre"
@@ -359,8 +359,8 @@ msgstr "Trucchi"
 msgid "Check now"
 msgstr "Controlla ora"
 
-msgid "Check ra_username and ra_password in gba-ds.cfg"
-msgstr "Controlla ra_username e ra_password in gba-ds.cfg"
+msgid "Check ra_username and ra_password in snes-ds.cfg"
+msgstr "Controlla ra_username e ra_password in snes-ds.cfg"
 
 msgid "Check the account in EmulationStation's RetroAchievements settings"
 msgstr "Controlla l'account nelle impostazioni RetroAchievements di EmulationStation"
@@ -368,8 +368,8 @@ msgstr "Controlla l'account nelle impostazioni RetroAchievements di EmulationSta
 msgid "Choose a folder in Android's file picker..."
 msgstr "Scegli una cartella nel selettore file di Android..."
 
-msgid "Choose GBA DS folder"
-msgstr "Scegli la cartella di GBA DS"
+msgid "Choose SNES DS folder"
+msgstr "Scegli la cartella di SNES DS"
 
 msgid "Choose it again to close %s: %s"
 msgstr "Sceglilo di nuovo per chiudere %s: %s"
@@ -383,8 +383,8 @@ msgstr "Scegli la cartella delle ROM"
 msgid "Choose save folder"
 msgstr "Scegli la cartella dei salvataggi"
 
-msgid "Chosen folder is inside GBA DS's own, files not moved: %s"
-msgstr "La cartella scelta è dentro quella di GBA DS, file non spostati: %s"
+msgid "Chosen folder is inside SNES DS's own, files not moved: %s"
+msgstr "La cartella scelta è dentro quella di SNES DS, file non spostati: %s"
 
 msgid "Chosen folder not found, files not moved: %s"
 msgstr "Cartella scelta non trovata, file non spostati: %s"
@@ -395,8 +395,8 @@ msgstr "Scelta qui:"
 msgid "Close Game"
 msgstr "Chiudi il gioco"
 
-msgid "Close GBA DS"
-msgstr "Chiudi GBA DS"
+msgid "Close SNES DS"
+msgstr "Chiudi SNES DS"
 
 msgid "Closest to gap"
 msgstr "Il più vicino allo spazio"
@@ -422,8 +422,8 @@ msgstr "Correzione colore: Sì"
 msgid "Colors as a Game Boy Advance's screen showed them."
 msgstr "I colori come li mostrava lo schermo di un Game Boy Advance."
 
-msgid "Confirm the update to v%s in Android's installer. Android closes GBA DS while it installs; open it again afterwards. If Android asks first, allow GBA DS to install apps."
-msgstr "Conferma l'aggiornamento a v%s nel programma di installazione di Android. Android chiude GBA DS durante l'installazione; riaprilo dopo. Se Android chiede prima il permesso, consenti a GBA DS di installare app."
+msgid "Confirm the update to v%s in Android's installer. Android closes SNES DS while it installs; open it again afterwards. If Android asks first, allow SNES DS to install apps."
+msgstr "Conferma l'aggiornamento a v%s nel programma di installazione di Android. Android chiude SNES DS durante l'installazione; riaprilo dopo. Se Android chiede prima il permesso, consenti a SNES DS di installare app."
 
 msgid "Connect a controller and try again."
 msgstr "Collega un controller e riprova."
@@ -434,14 +434,14 @@ msgstr "Comandi"
 msgid "Couldn't change %s."
 msgstr "Impossibile modificare %s."
 
-msgid "Couldn't change the files in %s/custom_systems: allow GBA DS All files access in Android's settings."
-msgstr "Impossibile modificare i file in %s/custom_systems: consenti a GBA DS l'accesso a tutti i file nelle impostazioni di Android."
+msgid "Couldn't change the files in %s/custom_systems: allow SNES DS All files access in Android's settings."
+msgstr "Impossibile modificare i file in %s/custom_systems: consenti a SNES DS l'accesso a tutti i file nelle impostazioni di Android."
 
 msgid "Couldn't connect"
 msgstr "Impossibile connettersi"
 
-msgid "Couldn't find GBA DS's folder."
-msgstr "Impossibile trovare la cartella di GBA DS."
+msgid "Couldn't find SNES DS's folder."
+msgstr "Impossibile trovare la cartella di SNES DS."
 
 msgid "Couldn't keep that choice."
 msgstr "Impossibile mantenere quella scelta."
@@ -452,8 +452,8 @@ msgstr "Impossibile caricare gli obiettivi"
 msgid "Couldn't load the game"
 msgstr "Impossibile caricare il gioco"
 
-msgid "Couldn't move GBA DS's files, they stay in %s"
-msgstr "Impossibile spostare i file di GBA DS, restano in %s"
+msgid "Couldn't move SNES DS's files, they stay in %s"
+msgstr "Impossibile spostare i file di SNES DS, restano in %s"
 
 msgid "Couldn't open the file picker."
 msgstr "Impossibile aprire il selettore file."
@@ -551,8 +551,8 @@ msgstr "Download in corso"
 msgid "Each pixel a little darker toward its edges"
 msgstr "Ogni pixel un po' più scuro verso i bordi"
 
-msgid "Earn achievements in casual mode with your retroachievements.org account. GBA DS keeps a sign-in token, not your password."
-msgstr "Ottieni obiettivi in modalità casual con il tuo account retroachievements.org. GBA DS conserva un token di accesso, non la tua password."
+msgid "Earn achievements in casual mode with your retroachievements.org account. SNES DS keeps a sign-in token, not your password."
+msgstr "Ottieni obiettivi in modalità casual con il tuo account retroachievements.org. SNES DS conserva un token di accesso, non la tua password."
 
 msgid "English"
 msgstr "English"
@@ -668,8 +668,8 @@ msgstr "I giochi vengono letti da %s (sottocartelle comprese). I salvataggi (%s)
 msgid "Games are read from %s (subfolders too). Saves (%s) are kept next to the games."
 msgstr "I giochi vengono letti da %s (sottocartelle comprese). I salvataggi (%s) sono conservati accanto ai giochi."
 
-msgid "Games picked in BananaOS's own Game Boy Advance list start in GBA DS when it has second-screen support for them. Restart BananaOS after switching this."
-msgstr "I giochi scelti nell'elenco Game Boy Advance di BananaOS partono in GBA DS quando supporta il secondo schermo per loro. Riavvia BananaOS dopo averlo cambiato."
+msgid "Games picked in BananaOS's own Game Boy Advance list start in SNES DS when it has second-screen support for them. Restart BananaOS after switching this."
+msgstr "I giochi scelti nell'elenco Game Boy Advance di BananaOS partono in SNES DS quando supporta il secondo schermo per loro. Riavvia BananaOS dopo averlo cambiato."
 
 msgid "Games shown"
 msgstr "Giochi mostrati"
@@ -692,62 +692,62 @@ msgstr "GBA B"
 msgid "GBA Down"
 msgstr "GBA Giù"
 
-msgid "GBA DS can't save files there: allow it All files access in Android's settings, or choose another folder."
-msgstr "GBA DS non può salvare file lì: consentigli l'accesso a tutti i file nelle impostazioni di Android, oppure scegli un'altra cartella."
+msgid "SNES DS can't save files there: allow it All files access in Android's settings, or choose another folder."
+msgstr "SNES DS non può salvare file lì: consentigli l'accesso a tutti i file nelle impostazioni di Android, oppure scegli un'altra cartella."
 
-msgid "GBA DS in BananaOS's GBA list: Off"
-msgstr "GBA DS nell'elenco GBA di BananaOS: No"
+msgid "SNES DS in BananaOS's GBA list: Off"
+msgstr "SNES DS nell'elenco GBA di BananaOS: No"
 
-msgid "GBA DS in BananaOS's GBA list: On"
-msgstr "GBA DS nell'elenco GBA di BananaOS: Sì"
+msgid "SNES DS in BananaOS's GBA list: On"
+msgstr "SNES DS nell'elenco GBA di BananaOS: Sì"
 
-msgid "GBA DS in EmulationStation: Off"
-msgstr "GBA DS in EmulationStation: No"
+msgid "SNES DS in EmulationStation: Off"
+msgstr "SNES DS in EmulationStation: No"
 
-msgid "GBA DS in EmulationStation: On"
-msgstr "GBA DS in EmulationStation: Sì"
+msgid "SNES DS in EmulationStation: On"
+msgstr "SNES DS in EmulationStation: Sì"
 
-msgid "GBA DS in ES-DE: Off"
-msgstr "GBA DS in ES-DE: No"
+msgid "SNES DS in ES-DE: Off"
+msgstr "SNES DS in ES-DE: No"
 
-msgid "GBA DS in ES-DE: On"
-msgstr "GBA DS in ES-DE: Sì"
+msgid "SNES DS in ES-DE: On"
+msgstr "SNES DS in ES-DE: Sì"
 
-msgid "GBA DS is now ES-DE's emulator for Game Boy Advance games. Quit ES-DE and open it again to see it."
-msgstr "GBA DS è ora l'emulatore di ES-DE per i giochi Game Boy Advance. Esci da ES-DE e riaprilo per vederlo."
+msgid "SNES DS is now ES-DE's emulator for Game Boy Advance games. Quit ES-DE and open it again to see it."
+msgstr "SNES DS è ora l'emulatore di ES-DE per i giochi Game Boy Advance. Esci da ES-DE e riaprilo per vederlo."
 
-msgid "GBA DS is out of ES-DE's emulator list. Quit ES-DE and open it again to see it."
-msgstr "GBA DS non è più nell'elenco degli emulatori di ES-DE. Esci da ES-DE e riaprilo per vederlo."
+msgid "SNES DS is out of ES-DE's emulator list. Quit ES-DE and open it again to see it."
+msgstr "SNES DS non è più nell'elenco degli emulatori di ES-DE. Esci da ES-DE e riaprilo per vederlo."
 
-msgid "GBA DS Logo: Hide"
-msgstr "Logo GBA DS: Nascondi"
+msgid "SNES DS Logo: Hide"
+msgstr "Logo SNES DS: Nascondi"
 
-msgid "GBA DS Logo: Show"
-msgstr "Logo GBA DS: Mostra"
+msgid "SNES DS Logo: Show"
+msgstr "Logo SNES DS: Mostra"
 
-msgid "GBA DS Settings"
-msgstr "Impostazioni di GBA DS"
+msgid "SNES DS Settings"
+msgstr "Impostazioni di SNES DS"
 
-msgid "GBA DS v%s is out (this is v%s). Update now to download it (%.1f MB) and install it: Android asks you to confirm. Your games, saves, states and settings are kept."
-msgstr "GBA DS v%s è disponibile (questa è la v%s). Scegli Aggiorna ora per scaricarla (%.1f MB) e installarla: Android chiede conferma. Giochi, salvataggi, stati e impostazioni vengono conservati."
+msgid "SNES DS v%s is out (this is v%s). Update now to download it (%.1f MB) and install it: Android asks you to confirm. Your games, saves, states and settings are kept."
+msgstr "SNES DS v%s è disponibile (questa è la v%s). Scegli Aggiorna ora per scaricarla (%.1f MB) e installarla: Android chiede conferma. Giochi, salvataggi, stati e impostazioni vengono conservati."
 
-msgid "GBA DS v%s is out (this is v%s). Update now to download it (%.1f MB) and restart into it; your games, saves, states and settings are kept."
-msgstr "GBA DS v%s è disponibile (questa è la v%s). Scegli Aggiorna ora per scaricarla (%.1f MB) e riavviare con essa; giochi, salvataggi, stati e impostazioni vengono conservati."
+msgid "SNES DS v%s is out (this is v%s). Update now to download it (%.1f MB) and restart into it; your games, saves, states and settings are kept."
+msgstr "SNES DS v%s è disponibile (questa è la v%s). Scegli Aggiorna ora per scaricarla (%.1f MB) e riavviare con essa; giochi, salvataggi, stati e impostazioni vengono conservati."
 
-msgid "GBA DS's bezel, or your own PNGs, round the picture."
-msgstr "La cornice di GBA DS, o i tuoi PNG, intorno all'immagine."
+msgid "SNES DS's bezel, or your own PNGs, round the picture."
+msgstr "La cornice di SNES DS, o i tuoi PNG, intorno all'immagine."
 
-msgid "GBA DS's files are kept there already."
-msgstr "I file di GBA DS sono già lì."
+msgid "SNES DS's files are kept there already."
+msgstr "I file di SNES DS sono già lì."
 
-msgid "GBA DS's files go to %s the next time it starts: close GBA DS and open it again."
-msgstr "I file di GBA DS andranno in %s al prossimo avvio: chiudi GBA DS e riaprilo."
+msgid "SNES DS's files go to %s the next time it starts: close SNES DS and open it again."
+msgstr "I file di SNES DS andranno in %s al prossimo avvio: chiudi SNES DS e riaprilo."
 
-msgid "GBA DS's own files (states, settings, cheats, overlays) are in %s, moving to %s at the next start."
-msgstr "I file propri di GBA DS (stati, impostazioni, trucchi, overlay) sono in %s e passeranno a %s al prossimo avvio."
+msgid "SNES DS's own files (states, settings, cheats, overlays) are in %s, moving to %s at the next start."
+msgstr "I file propri di SNES DS (stati, impostazioni, trucchi, overlay) sono in %s e passeranno a %s al prossimo avvio."
 
-msgid "GBA DS's own files (states, settings, cheats, overlays) are in %s."
-msgstr "I file propri di GBA DS (stati, impostazioni, trucchi, overlay) sono in %s."
+msgid "SNES DS's own files (states, settings, cheats, overlays) are in %s."
+msgstr "I file propri di SNES DS (stati, impostazioni, trucchi, overlay) sono in %s."
 
 msgid "GBA L"
 msgstr "GBA L"
@@ -950,8 +950,8 @@ msgstr "traduzione automatica"
 msgid "Made for another version of the game: it can't be switched on for this ROM"
 msgstr "Fatta per un'altra versione del gioco: non può essere attivata per questa ROM"
 
-msgid "Makes GBA DS the emulator for Game Boy Advance games in ES-DE. For a game it doesn't support, choose another in ES-DE (the game's metadata > Alternative emulator)."
-msgstr "Rende GBA DS l'emulatore per i giochi Game Boy Advance in ES-DE. Per un gioco che non supporta, scegline un altro in ES-DE (metadati del gioco > Emulatore alternativo)."
+msgid "Makes SNES DS the emulator for Game Boy Advance games in ES-DE. For a game it doesn't support, choose another in ES-DE (the game's metadata > Alternative emulator)."
+msgstr "Rende SNES DS l'emulatore per i giochi Game Boy Advance in ES-DE. Per un gioco che non supporta, scegline un altro in ES-DE (metadati del gioco > Emulatore alternativo)."
 
 msgid "Map"
 msgstr "Mappa"
@@ -1097,8 +1097,8 @@ msgstr "No"
 msgid "off"
 msgstr "disattivato"
 
-msgid "Off for slower devices: the table on one screen. Close and restart GBA DS to apply."
-msgstr "Disattivato per i dispositivi lenti: il tavolo su uno schermo. Chiudi e riavvia GBA DS per applicarlo."
+msgid "Off for slower devices: the table on one screen. Close and restart SNES DS to apply."
+msgstr "Disattivato per i dispositivi lenti: il tavolo su uno schermo. Chiudi e riavvia SNES DS per applicarlo."
 
 msgid "Off while a patch is on"
 msgstr "Disattivato finché una patch è attiva"
@@ -1385,8 +1385,8 @@ msgstr "RetroAchievements: accesso in corso..."
 msgid "RetroArch's settings weren't found here: choose the folder where it keeps its save states."
 msgstr "Impostazioni di RetroArch non trovate qui: scegli la cartella in cui tiene i suoi stati."
 
-msgid "RetroArch's settings weren't found, so slots 0-9 and the automatic state are GBA DS's own again."
-msgstr "Impostazioni di RetroArch non trovate, quindi gli slot 0-9 e lo stato automatico tornano a essere propri di GBA DS."
+msgid "RetroArch's settings weren't found, so slots 0-9 and the automatic state are SNES DS's own again."
+msgstr "Impostazioni di RetroArch non trovate, quindi gli slot 0-9 e lo stato automatico tornano a essere propri di SNES DS."
 
 msgid "RetroArch's State Folder"
 msgstr "Cartella degli stati di RetroArch"
@@ -1463,8 +1463,8 @@ msgstr "Salva stato"
 msgid "Save State %d"
 msgstr "Salva stato %d"
 
-msgid "Save States: GBA DS's Own"
-msgstr "Stati: propri di GBA DS"
+msgid "Save States: SNES DS's Own"
+msgstr "Stati: propri di SNES DS"
 
 msgid "Save States: Shared with RetroArch"
 msgstr "Stati: condivisi con RetroArch"
@@ -1646,20 +1646,20 @@ msgstr "Slot %1$d: %3$d %2$s, %4$d:%5$02d %6$s%7$s"
 msgid "Slot %d: Empty"
 msgstr "Slot %d: vuoto"
 
-msgid "Slots 0-9 and the automatic state are GBA DS's own again. The states saved in RetroArch's folder stay there."
-msgstr "Gli slot 0-9 e lo stato automatico tornano a essere propri di GBA DS. Gli stati salvati nella cartella di RetroArch restano lì."
+msgid "Slots 0-9 and the automatic state are SNES DS's own again. The states saved in RetroArch's folder stay there."
+msgstr "Gli slot 0-9 e lo stato automatico tornano a essere propri di SNES DS. Gli stati salvati nella cartella di RetroArch restano lì."
 
-msgid "Slots 0-9 and the automatic state are now RetroArch's. GBA DS's own states stay in its folder, for when this is switched back."
-msgstr "Gli slot 0-9 e lo stato automatico sono ora di RetroArch. Gli stati propri di GBA DS restano nella sua cartella, per quando lo riporterai indietro."
+msgid "Slots 0-9 and the automatic state are now RetroArch's. SNES DS's own states stay in its folder, for when this is switched back."
+msgstr "Gli slot 0-9 e lo stato automatico sono ora di RetroArch. Gli stati propri di SNES DS restano nella sua cartella, per quando lo riporterai indietro."
 
 msgid "Slots 0-9 and the automatic state are now shared with RetroArch, in %s."
 msgstr "Gli slot 0-9 e lo stato automatico sono ora condivisi con RetroArch, in %s."
 
-msgid "Slots 0-9 and the resume point are GBA DS's own. Shared, they're RetroArch's: %s."
-msgstr "Gli slot 0-9 e il punto di ripresa sono propri di GBA DS. Condivisi, sono di RetroArch: %s."
+msgid "Slots 0-9 and the resume point are SNES DS's own. Shared, they're RetroArch's: %s."
+msgstr "Gli slot 0-9 e il punto di ripresa sono propri di SNES DS. Condivisi, sono di RetroArch: %s."
 
-msgid "Slots 0-9 and the resume point are GBA DS's own. To share them, choose RetroArch's state folder."
-msgstr "Gli slot 0-9 e il punto di ripresa sono propri di GBA DS. Per condividerli, scegli la cartella degli stati di RetroArch."
+msgid "Slots 0-9 and the resume point are SNES DS's own. To share them, choose RetroArch's state folder."
+msgstr "Gli slot 0-9 e il punto di ripresa sono propri di SNES DS. Per condividerli, scegli la cartella degli stati di RetroArch."
 
 msgid "Slots 0-9 and the resume point are RetroArch's (its GBA core set to mGBA): %s."
 msgstr "Gli slot 0-9 e il punto di ripresa sono di RetroArch (il suo core GBA impostato su mGBA): %s."
@@ -1748,8 +1748,8 @@ msgstr "Scambiati"
 msgid "Swipe up for quick menu"
 msgstr "Scorri verso l'alto per il menu rapido"
 
-msgid "Switched off in gba-ds.cfg (retroachievements = 0)."
-msgstr "Disattivato in gba-ds.cfg (retroachievements = 0)."
+msgid "Switched off in snes-ds.cfg (retroachievements = 0)."
+msgstr "Disattivato in snes-ds.cfg (retroachievements = 0)."
 
 msgid "System"
 msgstr "Sistema"
@@ -1760,11 +1760,11 @@ msgstr "I tag nel nome file di una ROM, come (USA) o (En,Fr,De)."
 msgid "Take Screenshot"
 msgstr "Fai uno screenshot"
 
-msgid "Takes effect after you close and restart GBA DS"
-msgstr "Ha effetto dopo aver chiuso e riavviato GBA DS"
+msgid "Takes effect after you close and restart SNES DS"
+msgstr "Ha effetto dopo aver chiuso e riavviato SNES DS"
 
-msgid "Tap again to close GBA DS."
-msgstr "Tocca di nuovo per chiudere GBA DS."
+msgid "Tap again to close SNES DS."
+msgstr "Tocca di nuovo per chiudere SNES DS."
 
 msgid "Tap the screen or press HOME for the menu"
 msgstr "Tocca lo schermo o premi HOME per il menu"
@@ -1790,8 +1790,8 @@ msgstr "Questo qui arriva come tasto della tastiera: non può essere assegnato. 
 msgid "That one is already %s. Press another, or tap to skip."
 msgstr "Questo è già %s. Premine un altro, oppure tocca per saltare."
 
-msgid "That's inside GBA DS's own folder: choose one outside it."
-msgstr "È dentro la cartella di GBA DS: scegline una fuori."
+msgid "That's inside SNES DS's own folder: choose one outside it."
+msgstr "È dentro la cartella di SNES DS: scegline una fuori."
 
 msgid "That's the hotkey button: press another"
 msgstr "È il tasto scorciatoia: premine un altro"
@@ -1799,8 +1799,8 @@ msgstr "È il tasto scorciatoia: premine un altro"
 msgid "the bottom face button"
 msgstr "il pulsante in basso"
 
-msgid "the button that opens GBA DS's menu (Home, Menu or Function)"
-msgstr "il pulsante che apre il menu di GBA DS (Home, Menu o Function)"
+msgid "the button that opens SNES DS's menu (Home, Menu or Function)"
+msgstr "il pulsante che apre il menu di SNES DS (Home, Menu o Function)"
 
 msgid "the game"
 msgstr "il gioco"
@@ -1808,8 +1808,8 @@ msgstr "il gioco"
 msgid "The game's pixels as they are"
 msgstr "I pixel del gioco così come sono"
 
-msgid "The GBA DS logo in the generated bezel."
-msgstr "Il logo GBA DS nella cornice generata."
+msgid "The SNES DS logo in the generated bezel."
+msgstr "Il logo SNES DS nella cornice generata."
 
 msgid "The hotkey button can be %s, Select, Start or L3"
 msgstr "Il tasto scorciatoia può essere %s, Select, Start o L3"
@@ -1835,8 +1835,8 @@ msgstr "la patch accanto alla ROM"
 msgid "The patches aren't as the game started: restart it to play with them (or they're used from the next start)"
 msgstr "Le patch non sono quelle dell'avvio del gioco: riavvialo per giocare con esse (oppure vengono usate dal prossimo avvio)"
 
-msgid "The processor, memory and graphics run at full speed while GBA DS is open: the smoothest play, but the battery runs down faster and the device gets warmer."
-msgstr "Processore, memoria e grafica vanno a piena velocità finché GBA DS è aperto: il gioco più fluido, ma la batteria si scarica più in fretta e il dispositivo si scalda di più."
+msgid "The processor, memory and graphics run at full speed while SNES DS is open: the smoothest play, but the battery runs down faster and the device gets warmer."
+msgstr "Processore, memoria e grafica vanno a piena velocità finché SNES DS è aperto: il gioco più fluido, ma la batteria si scarica più in fretta e il dispositivo si scalda di più."
 
 msgid "the right face button"
 msgstr "il pulsante a destra"
@@ -1868,8 +1868,8 @@ msgstr "Questo gioco ha un valore proprio. X, o andare oltre l'ultima scelta: co
 msgid "This game has no achievements yet"
 msgstr "Questo gioco non ha ancora obiettivi"
 
-msgid "This is GBA DS v%s."
-msgstr "Questa è GBA DS v%s."
+msgid "This is SNES DS v%s."
+msgstr "Questa è SNES DS v%s."
 
 msgid "This is v%s. Look for a new version, and download and install it."
 msgstr "Questa è la v%s. Cerca una nuova versione, poi la scarica e la installa."
@@ -2030,8 +2030,8 @@ msgstr "con un altro dump del gioco (%s)"
 msgid "with another version of the game (other patches, or another ROM)"
 msgstr "con un'altra versione del gioco (altre patch, o un'altra ROM)"
 
-msgid "With automatic checks on, GBA DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/kyannon/gba-ds."
-msgstr "Con il controllo automatico attivo, GBA DS cerca una nuova versione una volta al giorno all'apertura dell'elenco giochi e chiede prima di scaricare qualsiasi cosa. Gli aggiornamenti arrivano dalle release su github.com/kyannon/gba-ds."
+msgid "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/snes-ds."
+msgstr "Con il controllo automatico attivo, SNES DS cerca una nuova versione una volta al giorno all'apertura dell'elenco giochi e chiede prima di scaricare qualsiasi cosa. Gli aggiornamenti arrivano dalle release su github.com/iosue-iulianus/snes-ds."
 
 msgid "With Four buttons picked under Controls in the quick bar, the four-button layout replaces these."
 msgstr "Con Quattro pulsanti scelto in Comandi nella barra rapida, il layout a quattro pulsanti sostituisce questi."
@@ -2060,8 +2060,8 @@ msgstr "Pulsante Y (sinistra)"
 msgid "Your own and scraped logos on the second screen."
 msgstr "I tuoi loghi e quelli recuperati sul secondo schermo."
 
-msgid "Your own PNGs in gba-ds/overlays/. A screen without one gets the generated bezel in its default colors."
-msgstr "I tuoi PNG in gba-ds/overlays/. Uno schermo senza ne riceve la cornice generata nei suoi colori predefiniti."
+msgid "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors."
+msgstr "I tuoi PNG in snes-ds/overlays/. Uno schermo senza ne riceve la cornice generata nei suoi colori predefiniti."
 
 msgid "your place is saved"
 msgstr "la tua posizione è salvata"

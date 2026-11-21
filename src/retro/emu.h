@@ -9,7 +9,7 @@
  * An Emu may run on any thread, but one thread at a time; two Emus may run
  * on two threads at once.
  *
- * Replaces GBA DS's src/emu.c (libmgba) once the port is done; until then
+ * Replaces SNES DS's src/emu.c (libmgba) once the port is done; until then
  * it builds only into the M0 tools (make m0). */
 #ifndef SNESDS_RETRO_EMU_H
 #define SNESDS_RETRO_EMU_H
@@ -53,7 +53,7 @@ typedef struct Emu {
 	struct EmuCore* core;
 
 	/* The last picture, as many pixels as the core drew (w x h, w wide in
-	 * memory). Each pixel is bytes R, G, B, X (GBA DS's framebuffer format,
+	 * memory). Each pixel is bytes R, G, B, X (SNES DS's framebuffer format,
 	 * so the capture code's colour probes carry over). w and h change when
 	 * a game switches to hi-res (512 wide) or interlace. */
 	uint32_t* fb;
@@ -71,7 +71,7 @@ typedef struct Emu {
 	 * (EMU_STATE_*). Default NORMAL. */
 	int stateContext;
 
-	/* Set while a capture is called off: frames don't run (as GBA DS). */
+	/* Set while a capture is called off: frames don't run (as SNES DS). */
 	volatile bool* cancel;
 
 	/* Core options (key = value), read by the core through GET_VARIABLE.

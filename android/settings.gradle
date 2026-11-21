@@ -11,5 +11,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "gba-ds"
+rootProject.name = "snes-ds"
 include ":app"

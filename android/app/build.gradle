@@ -2,7 +2,7 @@
 // libmgba with the NDK and passes their paths as Gradle properties:
 //   -PsdlDir=...  -PmgbaSrc=...  -PmgbaBuild=...
 // Release signing (optional; debug-signed otherwise) from the environment:
-//   GBADS_KEYSTORE, GBADS_KEYSTORE_PASSWORD, GBADS_KEY_ALIAS, GBADS_KEY_PASSWORD
+//   SNESDS_KEYSTORE, SNESDS_KEYSTORE_PASSWORD, SNESDS_KEY_ALIAS, SNESDS_KEY_PASSWORD
 plugins {
     id "com.android.application"
 }
@@ -17,10 +17,10 @@ def mgbaBuild = need("mgbaBuild")
 def cpuFlags = project.hasProperty("cpuFlags") ? project.property("cpuFlags") : ""
 def appVersion = rootProject.file("../VERSION").text.trim()
 def runNumber = (System.getenv("GITHUB_RUN_NUMBER") ?: "1") as int
-def keystore = System.getenv("GBADS_KEYSTORE")
+def keystore = System.getenv("SNESDS_KEYSTORE")
 
 android {
-    namespace "io.github.kyannon.gbads"
+    namespace "io.github.iosue_iulianus.snesds"
     compileSdk 34
     def ndkDir = System.getenv("ANDROID_NDK_HOME") ?: System.getenv("ANDROID_NDK_LATEST_HOME")
     if (ndkDir) {
@@ -33,7 +33,6 @@ android {
 
     defaultConfig {
         // SNES DS's own ID, so it installs beside GBA DS instead of replacing it.
-        // (namespace and the Java packages keep GBA DS's names until the port.)
         applicationId "io.github.iosue_iulianus.snesds"
         minSdk 26
         targetSdk 34
@@ -45,10 +44,10 @@ android {
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_STL=c++_static",
-                        "-DGBADS_SDL_SRC=${sdlDir}",
-                        "-DGBADS_MGBA_SRC=${mgbaSrc}",
-                        "-DGBADS_MGBA_BUILD=${mgbaBuild}",
-                        "-DGBADS_VERSION=${appVersion}"
+                        "-DSNESDS_SDL_SRC=${sdlDir}",
+                        "-DSNESDS_MGBA_SRC=${mgbaSrc}",
+                        "-DSNESDS_MGBA_BUILD=${mgbaBuild}",
+                        "-DSNESDS_VERSION=${appVersion}"
             }
         }
     }
@@ -57,9 +56,9 @@ android {
         if (keystore) {
             release {
                 storeFile file(keystore)
-                storePassword System.getenv("GBADS_KEYSTORE_PASSWORD")
-                keyAlias System.getenv("GBADS_KEY_ALIAS")
-                keyPassword System.getenv("GBADS_KEY_PASSWORD")
+                storePassword System.getenv("SNESDS_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("SNESDS_KEY_ALIAS")
+                keyPassword System.getenv("SNESDS_KEY_PASSWORD")
             }
         }
     }

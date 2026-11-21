@@ -1,10 +1,10 @@
-/* GBA DS's own bezel round the picture (Overlays: Generated), drawn on the
+/* SNES DS's own bezel round the picture (Overlays: Generated), drawn on the
  * device for whatever screen and picture it's asked for. The design is
  * tools/make_overlays.py's (the reference: it draws the same at any size,
  * for checking this against): in GBA pixels (u, one GBA pixel at the
  * picture's scale), the outer colour all over, a bezel in the inner colour
  * 12u round the picture with 3u corners (out to the screen's edge where
- * less than 2u of the outer colour would be left), the GBA DS logo (black
+ * less than 2u of the outer colour would be left), the SNES DS logo (black
  * outline, dimmed letters) in the bezel by the hinge: below the picture on
  * the top screen, above it on the bottom one (Screen Placement: Closest
  * to Gap: below it on the bottom screen only, game.c draw_bezel), 56% of
@@ -31,8 +31,8 @@ SDL_Surface* image_load_mem(const unsigned char* data, size_t size); /* image.c 
 #define LOGO_H 0.56f
 #define MIN_LOGO 9.0f
 
-/* the logo as the bezel draws it (black outline, dimmed letters), cropped:
- * tools/make_overlays.py --embed (from assets/brand/gba-ds-logo.png) */
+/* the logo as the bezel draws it (printed in one dim colour), cropped:
+ * tools/make_overlays.py --embed (from assets/brand/snes-ds-logo.png) */
 extern const unsigned char bezelLogoPng[];
 extern const size_t bezelLogoPngSize;
 

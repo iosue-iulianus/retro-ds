@@ -2,8 +2,8 @@
 """Makes src/logo_masks.c: the shapes of title logos that are painted into a
 full-screen title picture rather than drawn on a layer of their own.
 
-    GBADS_LOGO_DEBUG=1 build/host/harness THPS2.gba out logo.txt   # 'logo logo'
-    (writes out/logo.png.fg.png: the exact title frame GBA DS renders)
+    SNESDS_LOGO_DEBUG=1 build/host/harness THPS2.gba out logo.txt   # 'logo logo'
+    (writes out/logo.png.fg.png: the exact title frame SNES DS renders)
     tools/make_logo_masks.py THPS2=THPS2-frame.png [SK8=SK8-frame.png] [THPS3=...] [AMW=...]
 
 Masks not named on the command line are kept as they are in

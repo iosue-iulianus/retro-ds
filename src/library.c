@@ -9,7 +9,6 @@
 #include "brand.h"
 #include "emu.h"
 #include "esde.h"
-#include "esinteg.h"
 #include "hotkeys.h"
 #include "folderpick.h"
 #include "mapper.h"
@@ -29,10 +28,8 @@
 #include <strings.h>
 #include <sys/stat.h>
 #include <time.h>
-#ifndef __wasi__
 #include <sys/resource.h>
 #include <sys/syscall.h>
-#endif
 
 typedef struct {
 	char path[1024];
@@ -212,7 +209,7 @@ static bool seenOverflow; /* (more folders than that: always scanned again) */
 
 static void dir_time(const struct stat* st, long long* s, long long* ns) {
 	*s = (long long) st->st_mtime;
-#if defined(__linux__) || defined(__ANDROID__) || defined(__wasi__)
+#if defined(__linux__) || defined(__ANDROID__)
 	*ns = (long long) st->st_mtim.tv_nsec;
 #else
 	*ns = 0;
@@ -380,9 +377,9 @@ static void scan_dir(Config* cfg, const char* d, int depth) {
 		snprintf(g.path, sizeof(g.path), "%s", full);
 		if (!game_code(g.path, &st, g.code)) continue;
 		g.supported = profile_find(g.code) != NULL;
-#ifdef GBADS_SIDE_CODES
+#ifdef SNESDS_SIDE_CODES
 		/* a side build lists only its game's releases (the Makefile's SIDE_CODES) */
-		if (!strstr(GBADS_SIDE_CODES, g.code)) continue;
+		if (!strstr(SNESDS_SIDE_CODES, g.code)) continue;
 #endif
 		if (!g.supported && !cfg->showAll) continue; /* (before its patches are looked for: issue #49) */
 		entry_patches(cfg, &g, de->d_name, (long long) st.st_size, (long long) st.st_mtime);
@@ -416,11 +413,11 @@ static int region_flag(char c) {
 }
 
 /* ------------------------------------------- ROM checksums (GEN-8) */
-/* Is the selected game's ROM the game as released, a romhack GBA DS knows,
+/* Is the selected game's ROM the game as released, a romhack SNES DS knows,
  * or modified? Its CRC32 against the known dumps and mods (profile_dump).
  * Reading a whole ROM takes a moment, so it's done once per file, for the
- * selected game only, on a worker thread (inline with GBADS_SYNC=1 and in
- * the web build, which has no threads), and remembered in
+ * selected game only, on a worker thread (inline with SNESDS_SYNC=1), and
+ * remembered in
  * <state_dir>/roms.cache, lines "size mtime crc32 patch path" (crc32 0:
  * unreadable; the ROM as played: patched when a patch file beside it fits,
  * patch its PatchResult, GEN-9). */
@@ -477,9 +474,7 @@ static uint32_t rom_crc_read(const char* path, char files[][1024], int nFiles, i
 
 static void* rom_crc_worker(void* arg) {
 	(void) arg;
-#ifndef __wasi__
 	setpriority(PRIO_PROCESS, (id_t) syscall(SYS_gettid), 19); /* (background work: the game first) */
-#endif
 	pthread_mutex_lock(&crcLock);
 	for (;;) {
 		while (!crcWant.path[0]) pthread_cond_wait(&crcWake, &crcLock);
@@ -545,14 +540,14 @@ static bool game_crc(const GameEntry* g, uint32_t* crc, int* patch) {
 		crcWant.mtime = g->mtime;
 		snprintf(crcWant.path, sizeof(crcWant.path), "%s", g->path);
 		crcWantN = crcCfg ? patch_plan(crcCfg, g->path, g->code, &g->patchOn, crcWantFiles, PATCH_ON_MAX + 1) : 0;
-		if (!crcThread && !(getenv("GBADS_SYNC") && atoi(getenv("GBADS_SYNC")))) {
+		if (!crcThread && !(getenv("SNESDS_SYNC") && atoi(getenv("SNESDS_SYNC")))) {
 			pthread_t t;
 			crcThread = pthread_create(&t, NULL, rom_crc_worker, NULL) == 0;
 			if (crcThread) pthread_detach(t);
 		}
 		if (crcThread) {
 			pthread_cond_signal(&crcWake);
-		} else { /* (no threads, or GBADS_SYNC: now) */
+		} else { /* (no threads, or SNESDS_SYNC: now) */
 			RomCrc w = crcWant;
 			crcWant.path[0] = 0;
 			pthread_mutex_unlock(&crcLock);
@@ -576,7 +571,7 @@ static unsigned rom_crc_generation(void) {
 }
 
 static void scan_progress(void) {
-	if (getenv("GBADS_SYNC") && atoi(getenv("GBADS_SYNC"))) return; /* (tests: exact frames) */
+	if (getenv("SNESDS_SYNC") && atoi(getenv("SNESDS_SYNC"))) return; /* (tests: exact frames) */
 	Uint32 now = SDL_GetTicks();
 	if (now - scanStart < 300 || now - scanDrawn < 100) return;
 	scanDrawn = now;
@@ -724,7 +719,7 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 		 * (the pixel font's capitals; without https://, so it stays clear
 		 * of a wide game logo on the right) */
 		int vpx = SDL_max(1, px / 2);
-		ui_text(scr, m + px * 2, m + headH + px * 2, vpx, "GITHUB.COM/KYANNON/GBA-DS", C_DIM);
+		ui_text(scr, m + px * 2, m + headH + px * 2, vpx, "GITHUB.COM/IOSUE-IULIANUS/SNES-DS", C_DIM);
 	}
 
 	/* button hints along the bottom */
@@ -742,7 +737,7 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 
 	{
 		int vpx = SDL_max(1, px / 2);
-		const char* v = "V" GBADS_VERSION;
+		const char* v = "V" SNESDS_VERSION;
 		ui_text(scr, r.w - m - ui_text_width(v, vpx), cy - vpx * 7 / 2, vpx, v, C_DIM);
 	}
 	if (nGames == 0 || sel < 0) {
@@ -977,7 +972,7 @@ static void save_library_cfg(const Config* cfg) {
 	if (!f) return;
 	fprintf(f, "# written by the game list\nlibrary_view = %s\n", listMode ? "list" : "grid");
 	/* (Settings > Save States: shared with RetroArch or not, issue #39) */
-	fprintf(f, "state_folder = %s\n", strcmp(cfg->stateFolder, "retroarch") ? "gbads" : "retroarch");
+	fprintf(f, "state_folder = %s\n", strcmp(cfg->stateFolder, "retroarch") ? "snesds" : "retroarch");
 	/* (Settings > RetroArch's Folder: one chosen by hand, or empty: found from RetroArch's settings) */
 	fprintf(f, "retroarch_state_dir = %s\n", cfg->raStateDir);
 #ifdef __ANDROID__
@@ -1001,7 +996,7 @@ static void toggle_view(Config* cfg) {
 	save_library_cfg(cfg);
 }
 
-/* Can GBA DS write where it keeps its files (states, logos, screenshots)?
+/* Can SNES DS write where it keeps its files (states, logos, screenshots)?
  * Checked once a run; when it can't, the game list's header says so
  * instead of everything failing quietly. */
 static char storageMsg[256];
@@ -1130,14 +1125,14 @@ static bool updatesNotice; /* opened by an automatic check */
 static int updatesSel;
 
 /* Settings: a row of buttons, each with its text below, then Back.
- * Linux: GBA DS in EmulationStation (ROCKNIX) or in BananaOS's list, where
- * there's one; Map Buttons and Hotkeys; Performance, where GBA DS can set
+ * Linux: SNES DS in EmulationStation (ROCKNIX) or in BananaOS's list, where
+ * there's one; Map Buttons and Hotkeys; Performance, where SNES DS can set
  * the clock governors (clocks.c); Updates. Android: Folders,
  * RetroAchievements, Map Buttons and Hotkeys, Updates. */
 #define SETTINGS_MAX 8
 static int nRows = 1; /* rows shown (Back is row nRows) */
 /* (Hotkeys shares Map Buttons' line: the right half of it, under one text) */
-enum { ROW_BANANA, ROW_ES, ROW_MAP, ROW_HOTKEYS, ROW_UPDATES, ROW_FOLDERS, ROW_RA, ROW_ESDE, ROW_PERF, ROW_STATES, ROW_STATES_DIR, ROW_RESET, ROW_DELCFG, ROW_ROTATION, ROW_LANGUAGE };
+enum { ROW_MAP, ROW_HOTKEYS, ROW_UPDATES, ROW_FOLDERS, ROW_RA, ROW_ESDE, ROW_PERF, ROW_STATES, ROW_STATES_DIR, ROW_RESET, ROW_DELCFG, ROW_ROTATION, ROW_LANGUAGE };
 static int rowKind[SETTINGS_MAX];
 
 /* System's top row: the interface's language, stepped on each press (the setting is the one in config.c's table) */
@@ -1167,7 +1162,7 @@ static void settings_rows(const Config* cfg) {
 	nRows = 0;
 	rowKind[nRows++] = ROW_LANGUAGE;
 	rowKind[nRows++] = ROW_UPDATES;
-	/* ES-DE's folder found: GBA DS in its emulator list (esde.c) */
+	/* ES-DE's folder found: SNES DS in its emulator list (esde.c) */
 	if (esde_present()) rowKind[nRows++] = ROW_ESDE;
 	for (size_t i = 0; i < sizeof(android) / sizeof(android[0]); ++i) {
 		rowKind[nRows++] = android[i];
@@ -1179,16 +1174,11 @@ static void settings_rows(const Config* cfg) {
 #else
 	nRows = 0;
 	rowKind[nRows++] = ROW_LANGUAGE;
-#ifdef GBADS_UPDATES
+#ifdef SNESDS_UPDATES
 	rowKind[nRows++] = ROW_UPDATES;
 #endif
 	rowKind[nRows++] = ROW_STATES; /* (save states shared with RetroArch: issue #39) */
 	rowKind[nRows++] = ROW_STATES_DIR;
-#ifndef GBADS_SIDE
-	/* (not in a side build: the system's GBA games would start it) */
-	if (banana_present()) rowKind[nRows++] = ROW_BANANA;
-	else if (es_present(cfg)) rowKind[nRows++] = ROW_ES;
-#endif
 	rowKind[nRows++] = ROW_RESET;
 	rowKind[nRows++] = ROW_DELCFG;
 #endif
@@ -1207,7 +1197,7 @@ static SDL_Rect set_row_gaps(int scr, int n, int i, int gaps);
 /* the Updates row's text: this version, and what the row does */
 static const char* update_blurb(void) {
 	static char blurb[160];
-	snprintf(blurb, sizeof(blurb), tr("This is v%s. Look for a new version, and download and install it."), GBADS_VERSION);
+	snprintf(blurb, sizeof(blurb), tr("This is v%s. Look for a new version, and download and install it."), SNESDS_VERSION);
 	return blurb;
 }
 
@@ -1246,9 +1236,6 @@ static SettingsGeom settings_geom(int scr) {
 		}
 	}
 	g.back = set_row_gaps(scr, slots, slots, gaps);
-	/* BananaOS's note is long (and its NOTE under it): Back sits a little higher so the text, centred on it, stays in the panel */
-	for (int i = 0; i < nRows; ++i)
-		if (rowKind[i] == ROW_BANANA) g.back.y -= g.px * 12;
 	return g;
 }
 
@@ -1321,7 +1308,7 @@ static void draw_system_note(int scr, const SettingsGeom* g, const char* text, S
 /* ---- Settings: a page of categories, each a page of rows (docs/MENUS.md).
  * The rows come from config.c's settings table; a change is kept in
  * states/prefs.cfg, for all games (a game's own file is for the pause menu).
- * System is the older panel: GBA DS in EmulationStation / BananaOS's list,
+ * System is the older panel: SNES DS in EmulationStation / BananaOS's list,
  * Map Buttons, Hotkeys, Updates, and on Android Folders and RetroAchievements. */
 enum { SP_HOME = -1, SP_SYSTEM = 6, SP_COUNT = 7 };
 typedef struct {
@@ -1429,7 +1416,7 @@ static void draw_set_home(int scr, int sel) {
 	SDL_Rect p = set_panel(scr);
 	ui_dim(scr, 200);
 	ui_fill_round(scr, p, C_HEADER, px * 4);
-	draw_set_heading(scr, p, "GBA DS Settings", -1);
+	draw_set_heading(scr, p, "SNES DS Settings", -1);
 	for (int i = 0; i < 8; ++i) {
 		SDL_Rect t = set_tile(scr, i);
 		ui_key(scr, t, px * 3, i == sel ? KEY_SEL : KEY_PLAIN);
@@ -1508,7 +1495,7 @@ static void setting_changed(Config* cfg, const Setting* st) {
 	char path[1100];
 	mkdirs(cfg->stateDir);
 	snprintf(path, sizeof(path), "%s/prefs.cfg", cfg->stateDir);
-	config_kv_update(path, "# written by gba-ds's menus; overrides gba-ds.cfg", n, kv);
+	config_kv_update(path, "# written by snes-ds's menus; overrides snes-ds.cfg", n, kv);
 	if (!strcmp(st->key, "performance")) clocks_set(cfg->perfMax);
 	if (!strcmp(st->key, "language")) i18n_set(cfg->language), ui_language_changed();
 	if (!strcmp(st->key, "theme")) ui_theme(cfg->lightTheme);
@@ -1680,7 +1667,7 @@ static bool settings_pages_input(Config* cfg, int ls) {
 /* Android: the ROM and save folders (Folders, a panel of its own), chosen
  * with Android's folder picker (android.c), kept in <state_dir>/library.cfg;
  * the RetroAchievements account, signed in with a dialog (android.c,
- * GbaDsActivity) and kept as a token by ra.c. */
+ * SnesDsActivity) and kept as a token by ra.c. */
 static bool pickPending, raDialogPending;
 static int pickFor; /* PICK_ROMS, PICK_SAVES or PICK_DATA: what the picker's folder is for */
 enum { PICK_ROMS, PICK_SAVES, PICK_DATA };
@@ -1717,7 +1704,7 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 	for (int i = 0; i < nRows; ++i) {
 		int k = rowKind[i];
 		labels[i] = k == ROW_LANGUAGE ? lang_label(cfg)
-		          : k == ROW_ESDE    ? (esde_integration_on() ? N_("GBA DS in ES-DE: On"): N_("GBA DS in ES-DE: Off"))
+		          : k == ROW_ESDE    ? (esde_integration_on() ? N_("SNES DS in ES-DE: On"): N_("SNES DS in ES-DE: Off"))
 		          : k == ROW_FOLDERS ? "Folders"
 		          : k == ROW_RA      ? raLabel
 		          : k == ROW_ROTATION ? (android_rotation_get() == 1 ? N_("Rotation: Portrait"): android_rotation_get() == 2 ? N_("Rotation: Landscape"): N_("Rotation: Auto"))
@@ -1735,7 +1722,7 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 		text = N_("Automatic follows the system. Text that isn't translated yet stays in English.");
 		break;
 	case ROW_ESDE:
-		text = N_("Makes GBA DS the emulator for Game Boy Advance games in ES-DE. For a game it doesn't support, "
+		text = N_("Makes SNES DS the emulator for Game Boy Advance games in ES-DE. For a game it doesn't support, "
 		       "choose another in ES-DE (the game's metadata > Alternative emulator).");
 		break;
 	case ROW_RESET:
@@ -1761,10 +1748,10 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 			snprintf(line, sizeof(line), tr("Couldn't sign in as %s%s%s. Sign in to try again."), user, err[0] ? ": " : "", err);
 			col = C_GOLD;
 		} else if (ra == RA_ACCOUNT_OFF) {
-			snprintf(line, sizeof(line), tr("Switched off in gba-ds.cfg (retroachievements = 0)."));
+			snprintf(line, sizeof(line), tr("Switched off in snes-ds.cfg (retroachievements = 0)."));
 		} else {
 			snprintf(line, sizeof(line),
-			         tr("Earn achievements in casual mode with your retroachievements.org account. GBA DS keeps a sign-in token, "
+			         tr("Earn achievements in casual mode with your retroachievements.org account. SNES DS keeps a sign-in token, "
 			         "not your password."));
 		}
 		text = line;
@@ -1815,11 +1802,11 @@ static void settings_activate(Config* cfg, int row) {
 	}
 }
 
-/* GBA DS can write in dir (made if it isn't there): All files access */
+/* SNES DS can write in dir (made if it isn't there): All files access */
 static bool can_write_in(const char* dir) {
 	mkdirs(dir);
 	char test[1100];
-	snprintf(test, sizeof(test), "%s/.gba-ds-write-test", dir);
+	snprintf(test, sizeof(test), "%s/.snes-ds-write-test", dir);
 	FILE* f = fopen(test, "w");
 	if (!f) return false;
 	fclose(f);
@@ -1827,7 +1814,7 @@ static bool can_write_in(const char* dir) {
 	return true;
 }
 
-/* GBA DS's own folder (issue #34): where it's moved to at the next start
+/* SNES DS's own folder (issue #34): where it's moved to at the next start
  * (android_data_setup), data_dir in data-folder.cfg in the app's storage */
 static bool data_folder_wanted(char* out, size_t n) {
 	char record[1100];
@@ -1852,25 +1839,25 @@ static void data_folder_picked(const char* path) {
 	snprintf(to, sizeof(to), "%s", path);
 	snprintf(states, sizeof(states), "%s/states", path);
 	/* a folder with other things in it (Emulators, the storage's own top):
-	 * GBA DS's in a "GBA DS" folder there, not spread among them */
-	if (home && strcmp(path, home) && dir_in_use(path) && stat(states, &st) != 0) snprintf(to, sizeof(to), "%s/GBA DS", path);
+	 * SNES DS's in a "SNES DS" folder there, not spread among them */
+	if (home && strcmp(path, home) && dir_in_use(path) && stat(states, &st) != 0) snprintf(to, sizeof(to), "%s/SNES DS", path);
 	size_t hn = home ? strlen(home) : 0;
 	if (!android_data_record(record, sizeof(record))) {
 		snprintf(settingsMsg, sizeof(settingsMsg), tr("Couldn't keep that choice."));
 	} else if (home && !strcmp(to, home)) {
 		/* (chosen back before the move happened: nothing to move) */
-		kv_set(record, "data_dir", to, "# GBA DS's data folder");
-		snprintf(settingsMsg, sizeof(settingsMsg), tr("GBA DS's files are kept there already."));
+		kv_set(record, "data_dir", to, "# SNES DS's data folder");
+		snprintf(settingsMsg, sizeof(settingsMsg), tr("SNES DS's files are kept there already."));
 	} else if (home && !strncmp(to, home, hn) && to[hn] == '/') {
-		snprintf(settingsMsg, sizeof(settingsMsg), tr("That's inside GBA DS's own folder: choose one outside it."));
+		snprintf(settingsMsg, sizeof(settingsMsg), tr("That's inside SNES DS's own folder: choose one outside it."));
 	} else if (!can_write_in(path)) {
 		snprintf(settingsMsg, sizeof(settingsMsg),
-		         tr("GBA DS can't save files there: allow it All files access in Android's settings, or choose another folder."));
-	} else if (!kv_set(record, "data_dir", to, "# GBA DS's data folder")) {
+		         tr("SNES DS can't save files there: allow it All files access in Android's settings, or choose another folder."));
+	} else if (!kv_set(record, "data_dir", to, "# SNES DS's data folder")) {
 		snprintf(settingsMsg, sizeof(settingsMsg), tr("Couldn't keep that choice."));
 	} else {
 		snprintf(settingsMsg, sizeof(settingsMsg),
-		         tr("GBA DS's files go to %s the next time it starts: close GBA DS and open it again."), to);
+		         tr("SNES DS's files go to %s the next time it starts: close SNES DS and open it again."), to);
 		fprintf(stderr, "library: data folder to %s at the next start\n", to);
 	}
 }
@@ -1904,7 +1891,7 @@ static bool settings_poll(Config* cfg) {
 	if (pickFor == PICK_SAVES) {
 		if (!can_write_in(path)) {
 			snprintf(settingsMsg, sizeof(settingsMsg),
-			         tr("GBA DS can't save files there: allow it All files access in Android's settings, or choose another folder."));
+			         tr("SNES DS can't save files there: allow it All files access in Android's settings, or choose another folder."));
 			return false;
 		}
 		snprintf(cfg->saveDir, sizeof(cfg->saveDir), "%s", path);
@@ -1964,7 +1951,7 @@ static void draw_folders(const Config* cfg, int scr, int sel) {
 	for (int i = 0; i < nb; ++i) {
 		SDL_Rect b = g.btn[i];
 		const char* label = ids[i] == FB_ROMS   ? N_("Choose ROM folder"): ids[i] == FB_SAVES  ? N_("Choose save folder"): ids[i] == FB_BESIDE ? N_("Keep saves next to the games"): ids[i] == FB_TYPE   ? (srm_saves(cfg) ? N_("Save files: .srm (RetroArch's)"): N_("Save files: .sav"))
-		                  : ids[i] == FB_DATA   ? N_("Choose GBA DS folder"): "Back";
+		                  : ids[i] == FB_DATA   ? N_("Choose SNES DS folder"): "Back";
 		ui_key(scr, b, px * 3, i == sel ? KEY_SEL : KEY_PLAIN);
 		ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, px * 5, label, C_TEXT);
 	}
@@ -1975,14 +1962,14 @@ static void draw_folders(const Config* cfg, int scr, int sel) {
 	if (pickPending) snprintf(line, sizeof(line), tr("Choose a folder in Android's file picker..."));
 	else folders_text(cfg, line, sizeof(line));
 	y = draw_wrapped(scr, tx, y, tw, px, line, C_TEXT);
-	/* GBA DS's own folder, and where it's going */
+	/* SNES DS's own folder, and where it's going */
 	char want[1024];
 	const char* home = android_home();
 	if (home) {
 		if (data_folder_wanted(want, sizeof(want)) && strcmp(want, home))
-			snprintf(line, sizeof(line), tr("GBA DS's own files (states, settings, cheats, overlays) are in %s, moving to %s at the next start."), home, want);
+			snprintf(line, sizeof(line), tr("SNES DS's own files (states, settings, cheats, overlays) are in %s, moving to %s at the next start."), home, want);
 		else
-			snprintf(line, sizeof(line), tr("GBA DS's own files (states, settings, cheats, overlays) are in %s."), home);
+			snprintf(line, sizeof(line), tr("SNES DS's own files (states, settings, cheats, overlays) are in %s."), home);
 		y = draw_wrapped(scr, tx, y + px * 3, tw, px, line, C_TEXT);
 	}
 	if (settingsMsg[0]) y = draw_wrapped(scr, tx, y + px * 3, tw, px, settingsMsg, C_GOLD);
@@ -2047,7 +2034,7 @@ static bool folders_input(Config* cfg, int ls) {
 static int settingsMsgRow; /* the row settingsMsg is about: shown in place of its text */
 
 /* Settings > Save States (issue #39): slots 0-9 and the automatic state in
- * GBA DS's own folder, or shared with RetroArch (its own files, in its
+ * SNES DS's own folder, or shared with RetroArch (its own files, in its
  * folder: a game goes on in either). The folder shown is the selected
  * game's (RetroArch's can depend on the game's). */
 /* a long path's last parts (…/savestates/gba; whole up to 40 characters), for a line of text */
@@ -2072,9 +2059,9 @@ static void states_text(const Config* cfg, char* out, size_t n) {
 	bool compress;
 	bool found = retroarch_state_dir(cfg, states_rom(), dir, sizeof(dir), &compress);
 	if (!found)
-		snprintf(out, n, tr("Slots 0-9 and the resume point are GBA DS's own. To share them, choose RetroArch's state folder."));
+		snprintf(out, n, tr("Slots 0-9 and the resume point are SNES DS's own. To share them, choose RetroArch's state folder."));
 	else if (strcmp(cfg->stateFolder, "retroarch"))
-		snprintf(out, n, tr("Slots 0-9 and the resume point are GBA DS's own. Shared, they're RetroArch's: %s."), path_tail(dir));
+		snprintf(out, n, tr("Slots 0-9 and the resume point are SNES DS's own. Shared, they're RetroArch's: %s."), path_tail(dir));
 	else
 		snprintf(out, n, tr("Slots 0-9 and the resume point are RetroArch's (its GBA core set to mGBA): %s."), path_tail(dir));
 }
@@ -2100,13 +2087,13 @@ static void states_dir_pick(Config* cfg) {
 		if (retroarch_state_dir(cfg, states_rom(), dir, sizeof(dir), &compress)) {
 			snprintf(settingsMsg, sizeof(settingsMsg), tr("RetroArch's state folder is found from its settings again: %s."), path_tail(dir));
 		} else {
-			snprintf(cfg->stateFolder, sizeof(cfg->stateFolder), "gbads");
-			snprintf(settingsMsg, sizeof(settingsMsg), tr("RetroArch's settings weren't found, so slots 0-9 and the automatic state are GBA DS's own again."));
+			snprintf(cfg->stateFolder, sizeof(cfg->stateFolder), "snesds");
+			snprintf(settingsMsg, sizeof(settingsMsg), tr("RetroArch's settings weren't found, so slots 0-9 and the automatic state are SNES DS's own again."));
 		}
 	}
 	save_library_cfg(cfg);
 	fprintf(stderr, "library: RetroArch's state folder %s%s, states %s\n", cfg->raStateDir[0] ? "chosen: " : "from its settings",
-	        cfg->raStateDir, strcmp(cfg->stateFolder, "retroarch") ? "GBA DS's own" : "shared");
+	        cfg->raStateDir, strcmp(cfg->stateFolder, "retroarch") ? "SNES DS's own" : "shared");
 }
 /* RetroArch's State Folder's note: the folder, and where it came from */
 static void states_dir_text(const Config* cfg, char* out, size_t n) {
@@ -2127,11 +2114,11 @@ static void states_switch(Config* cfg) {
 		states_dir_pick(cfg);
 		return;
 	}
-	snprintf(cfg->stateFolder, sizeof(cfg->stateFolder), "%s", shared ? "gbads" : "retroarch");
+	snprintf(cfg->stateFolder, sizeof(cfg->stateFolder), "%s", shared ? "snesds" : "retroarch");
 	save_library_cfg(cfg);
-	fprintf(stderr, "library: save states %s\n", shared ? "in GBA DS's own folder" : "shared with RetroArch");
+	fprintf(stderr, "library: save states %s\n", shared ? "in SNES DS's own folder" : "shared with RetroArch");
 	snprintf(settingsMsg, sizeof(settingsMsg), "%s",
-	         shared ? tr("Slots 0-9 and the automatic state are GBA DS's own again. The states saved in RetroArch's folder stay there."): tr("Slots 0-9 and the automatic state are now RetroArch's. GBA DS's own states stay in its folder, for when this is switched back."));
+	         shared ? tr("Slots 0-9 and the automatic state are SNES DS's own again. The states saved in RetroArch's folder stay there."): tr("Slots 0-9 and the automatic state are now RetroArch's. SNES DS's own states stay in its folder, for when this is switched back."));
 }
 
 static void draw_settings(const Config* cfg, int scr, int sel) {
@@ -2144,11 +2131,9 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 	states_dir_text(cfg, statesDirText, sizeof(statesDirText));
 	for (int i = 0; i < nRows; ++i) {
 		labels[i] = rowKind[i] == ROW_LANGUAGE ? lang_label(cfg)
-		          : rowKind[i] == ROW_BANANA ? (banana_integration_on() ? N_("GBA DS in BananaOS's GBA list: On"): N_("GBA DS in BananaOS's GBA list: Off"))
-		          : rowKind[i] == ROW_ES     ? (es_integration_on(cfg) ? N_("GBA DS in EmulationStation: On"): N_("GBA DS in EmulationStation: Off"))
 		          : rowKind[i] == ROW_RESET  ? (confirmRow == i ? N_("Are you sure? Reset settings"): N_("Reset settings to defaults"))
 		          : rowKind[i] == ROW_DELCFG ? (confirmRow == i ? N_("Are you sure? Delete them"): N_("Delete per-game settings"))
-		          : rowKind[i] == ROW_STATES ? (shared ? N_("Save States: Shared with RetroArch"): N_("Save States: GBA DS's Own"))
+		          : rowKind[i] == ROW_STATES ? (shared ? N_("Save States: Shared with RetroArch"): N_("Save States: SNES DS's Own"))
 		          : rowKind[i] == ROW_STATES_DIR ? "RetroArch's State Folder"
 		          : rowKind[i] == ROW_PERF   ? (cfg->perfMax ? N_("Performance: Set to Max"): N_("Performance: Let the System Decide"))
 		                                     : N_("Updates");
@@ -2157,29 +2142,18 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 	if (sel >= nRows) return;
 	int i = sel;
 	const char* text = rowKind[i] == ROW_LANGUAGE ? N_("Automatic follows the system. Text that isn't translated yet stays in English.")
-	                   : rowKind[i] == ROW_BANANA
-	                       ? N_("Games picked in BananaOS's own Game Boy Advance list start in GBA DS when it has "
-	                         "second-screen support for them. Restart BananaOS after switching this."): rowKind[i] == ROW_ES
-	                       ? N_("Adds GBA DS to the emulators for Game Boy Advance games in EmulationStation. Pick it for one game "
-	                         "(its Advanced Game Options > Emulator) or for all of them (the system's advanced settings). "
-	                         "The other emulators keep working as before."): rowKind[i] == ROW_RESET || rowKind[i] == ROW_DELCFG ? NULL
+	                   : rowKind[i] == ROW_RESET || rowKind[i] == ROW_DELCFG ? NULL
 	                   : rowKind[i] == ROW_STATES ? statesText
 	                   : rowKind[i] == ROW_STATES_DIR ? statesDirText
 	                   : rowKind[i] == ROW_PERF
-	                       ? (cfg->perfMax ? N_("The processor, memory and graphics run at full speed while GBA DS is open: "
+	                       ? (cfg->perfMax ? N_("The processor, memory and graphics run at full speed while SNES DS is open: "
 	                                         "the smoothest play, but the battery runs down faster and the device gets warmer."): N_("The system sets the speed, as for its other emulators. If games stutter or "
 	                                         "the sound breaks up, try Set to Max."))
 	                       : update_blurb();
 	/* a message from switching a row (settings_activate): in place of its text */
 	bool msg = settingsMsg[0] && settingsMsgRow == i;
 	if (msg) text = settingsMsg;
-	/* (BananaOS: the trade-off set apart and in bold so it isn't missed) */
-	if (rowKind[i] == ROW_BANANA && !msg)
-		set_notes(scr, g.panel, g.back, text, C_DIM, TF_BODY,
-		          "NOTE: Unsupported games will play in RetroArch, but without BananaOS's own "
-		          "second screen (its game panel and companions).", C_TEXT, TF_BOLD);
-	else
-		draw_system_note(scr, &g, text, msg ? C_GOLD : C_DIM);
+	draw_system_note(scr, &g, text, msg ? C_GOLD : C_DIM);
 }
 
 static void settings_activate(Config* cfg, int row) {
@@ -2193,8 +2167,6 @@ static void settings_activate(Config* cfg, int row) {
 	if (rowKind[row] == ROW_LANGUAGE) {
 		if (config_setting_step(cfg, lang_setting(), 1)) setting_changed(cfg, lang_setting());
 	} else if (rowKind[row] == ROW_UPDATES) updatesOpen = true, updatesNotice = false, updatesSel = 0;
-	else if (rowKind[row] == ROW_BANANA) banana_integration_set(!banana_integration_on(), settingsMsg, sizeof(settingsMsg));
-	else if (rowKind[row] == ROW_ES) es_integration_set(cfg, !es_integration_on(cfg), settingsMsg, sizeof(settingsMsg));
 	else if (rowKind[row] == ROW_STATES) states_switch(cfg);
 	else if (rowKind[row] == ROW_STATES_DIR) states_dir_pick(cfg);
 	else if (rowKind[row] == ROW_PERF) {
@@ -2210,7 +2182,7 @@ static bool settings_poll(Config* cfg) {
 }
 #endif
 
-#ifdef GBADS_UPDATES
+#ifdef SNESDS_UPDATES
 /* ------------------------------------------------------------ updates */
 
 enum { UB_CHECK, UB_AUTO, UB_BACK, UB_UPDATE, UB_LATER, UB_SKIP, UB_CANCEL };
@@ -2229,7 +2201,7 @@ static int update_buttons(const UpdateInfo* u, int* ids) {
 		break;
 	case UPD_DONE:
 #ifdef __ANDROID__
-		ids[n++] = UB_BACK; /* (Android's installer is up; it closes GBA DS once it installs) */
+		ids[n++] = UB_BACK; /* (Android's installer is up; it closes SNES DS once it installs) */
 #endif
 		break;
 	case UPD_CHECKING:
@@ -2275,7 +2247,7 @@ static void draw_updates(int scr, int sel) {
 	ui_dim(scr, 200);
 	ui_fill_round(scr, g.panel, C_HEADER, px * 4);
 	ui_label(scr, g.panel.x + g.panel.w / 2, g.panel.y + px * 12, px * 6,
-	         u.state == UPD_AVAILABLE ? "A new version of GBA DS" : "Updates", C_TEXT);
+	         u.state == UPD_AVAILABLE ? "A new version of SNES DS" : "Updates", C_TEXT);
 	for (int i = 0; i < nb; ++i) {
 		SDL_Rect b = g.btn[i];
 		const char* label = ids[i] == UB_CHECK  ? N_("Check now"): ids[i] == UB_AUTO   ? (u.autoOn ? N_("Automatic checks: On"): N_("Automatic checks: Off"))
@@ -2291,12 +2263,12 @@ static void draw_updates(int scr, int sel) {
 	switch (u.state) {
 	case UPD_AVAILABLE:
 #ifdef __ANDROID__
-		snprintf(line, sizeof(line), tr("GBA DS v%s is out (this is v%s). Update now to download it (%.1f MB) and install "
+		snprintf(line, sizeof(line), tr("SNES DS v%s is out (this is v%s). Update now to download it (%.1f MB) and install "
 		         "it: Android asks you to confirm. Your games, saves, states and settings are kept."), u.version,
-		         GBADS_VERSION, u.size / 1048576.0);
+		         SNESDS_VERSION, u.size / 1048576.0);
 #else
-		snprintf(line, sizeof(line), tr("GBA DS v%s is out (this is v%s). Update now to download it (%.1f MB) and restart "
-		         "into it; your games, saves, states and settings are kept."), u.version, GBADS_VERSION, u.size / 1048576.0);
+		snprintf(line, sizeof(line), tr("SNES DS v%s is out (this is v%s). Update now to download it (%.1f MB) and restart "
+		         "into it; your games, saves, states and settings are kept."), u.version, SNESDS_VERSION, u.size / 1048576.0);
 #endif
 		y = draw_wrapped(scr, tx, y, tw, px, line, C_TEXT) + px * 2;
 		/* the release notes: a heading or a bullet point a line */
@@ -2315,10 +2287,10 @@ static void draw_updates(int scr, int sel) {
 	case UPD_DONE: {
 #ifdef __ANDROID__
 		if (u.state == UPD_DONE) {
-			/* Android's installer is asking; it closes GBA DS while it installs */
+			/* Android's installer is asking; it closes SNES DS while it installs */
 			snprintf(line, sizeof(line),
-			         tr("Confirm the update to v%s in Android's installer. Android closes GBA DS while it installs; open it "
-			         "again afterwards. If Android asks first, allow GBA DS to install apps."), u.version);
+			         tr("Confirm the update to v%s in Android's installer. Android closes SNES DS while it installs; open it "
+			         "again afterwards. If Android asks first, allow SNES DS to install apps."), u.version);
 			draw_wrapped(scr, tx, y, tw, px, line, C_TEXT);
 			break;
 		}
@@ -2338,7 +2310,7 @@ static void draw_updates(int scr, int sel) {
 		break;
 	}
 	default: {
-		snprintf(line, sizeof(line), tr("This is GBA DS v%s."), GBADS_VERSION);
+		snprintf(line, sizeof(line), tr("This is SNES DS v%s."), SNESDS_VERSION);
 		if (u.state == UPD_CHECKING) snprintf(line + strlen(line), sizeof(line) - strlen(line), tr(" Checking for a new version..."));
 		else if (u.state == UPD_LATEST) snprintf(line + strlen(line), sizeof(line) - strlen(line), tr(" It's the newest version."));
 		y = draw_wrapped(scr, tx, y, tw, px, line, C_TEXT);
@@ -2351,8 +2323,8 @@ static void draw_updates(int scr, int sel) {
 			y = draw_wrapped(scr, tx, y + px * 3, tw, px, line, C_DIM);
 		}
 		draw_wrapped(scr, tx, y + px * 3, tw, px,
-		             "With automatic checks on, GBA DS looks for a new version once a day when the game list opens, and asks "
-		             "before downloading anything. Updates come from the releases on github.com/kyannon/gba-ds.",
+		             "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks "
+		             "before downloading anything. Updates come from the releases on github.com/iosue-iulianus/snes-ds.",
 		             C_DIM);
 	}
 	}
@@ -2497,17 +2469,11 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 	settingsMsg[0] = 0;
 	updatesOpen = false;
 	update_auto_check(); /* once a day, in the background */
-#ifdef GBADS_UPDATES
+#ifdef SNESDS_UPDATES
 	int restartIn = -1; /* frames until the restart into an installed update */
 #endif
 
-#ifdef __wasi__
-	int listFrames = 0;
-#endif
 	while (!quit && chosen < 0) {
-#ifdef __wasi__
-		if (listFrames++) logo_step(); /* (the web build: a logo a frame, from the list's second) */
-#endif
 		{
 			static unsigned crcSeen;
 			unsigned cg = rom_crc_generation();
@@ -2559,7 +2525,7 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 			continue;
 		}
 
-#ifdef GBADS_UPDATES
+#ifdef SNESDS_UPDATES
 		/* an automatic check found a new version: ask (on the game list) */
 		if (!updatesOpen && !settingsOpen && update_notice_pending()) {
 			update_notice_seen();

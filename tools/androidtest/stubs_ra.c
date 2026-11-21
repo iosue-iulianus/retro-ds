@@ -8,7 +8,7 @@
 int android_http(const char* url, const char* ctype, const char* post, const char* ua, const char* outPath, char** body, size_t* len) {
 	if (body) *body = NULL;
 	if (len) *len = 0;
-	char postFile[] = "/tmp/gbads-rapostXXXXXX", cmd[4096];
+	char postFile[] = "/tmp/snesds-rapostXXXXXX", cmd[4096];
 	if (post) {
 		int fd = mkstemp(postFile);
 		if (write(fd, post, strlen(post)) < 0) {}

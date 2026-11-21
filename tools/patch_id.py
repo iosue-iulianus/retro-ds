@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The checksum GBA DS knows a patch file by (docs/patches.md): CRC32 of the
+"""The checksum SNES DS knows a patch file by (docs/patches.md): CRC32 of the
 file without its last four bytes (a UPS or BPS ends with its own checksum,
 so the whole file's CRC32 is the same for every one of them).
 

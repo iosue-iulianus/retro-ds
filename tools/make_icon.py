@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Renders the square GBA DS icon: two stacked rounded screens with a glass
+"""Renders the square SNES DS icon: two stacked rounded screens with a glass
 sheen, lettered in the logo's style (GBA on the top screen, DS on the bottom).
 
     tools/make_icon.py FUTURA_BOLD_ITALIC.otf GAMECUBEN.ttf [OUT.png]
 
-Default output: assets/brand/gba-ds-icon.png (1024x1024, very light purple background). Needs Pillow.
+Default output: assets/brand/snes-ds-icon.png (1024x1024, very light purple background). Needs Pillow.
 """
 import os
 import sys
@@ -115,7 +115,7 @@ def main():
     if len(sys.argv) < 3:
         sys.exit(__doc__)
     futura, gamecuben = sys.argv[1], sys.argv[2]
-    out = sys.argv[3] if len(sys.argv) > 3 else os.path.join(ROOT, "assets", "brand", "gba-ds-icon.png")
+    out = sys.argv[3] if len(sys.argv) > 3 else os.path.join(ROOT, "assets", "brand", "snes-ds-icon.png")
 
     img = Image.new("RGBA", (S, S), BACKGROUND)
     # two 3:2 screens stacked, filling the square

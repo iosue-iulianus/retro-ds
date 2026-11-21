@@ -1,6 +1,6 @@
 /* Per-game knowledge: how to open the map and how to recognise it. */
-#ifndef GBADS_PROFILES_H
-#define GBADS_PROFILES_H
+#ifndef SNESDS_PROFILES_H
+#define SNESDS_PROFILES_H
 
 #include "emu.h"
 #include "logo_masks.h"

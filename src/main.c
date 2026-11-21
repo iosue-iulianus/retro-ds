@@ -1,4 +1,4 @@
-/* GBA DS: a GBA emulator for dual-screen handhelds that keeps the game's own
+/* SNES DS: a GBA emulator for dual-screen handhelds that keeps the game's own
  * map on the second screen.
  *
  *   library.c  game list (rescans the ROM folder every time it opens)
@@ -9,7 +9,6 @@
 #include "android.h"
 #include "config.h"
 #include "esde.h"
-#include "esinteg.h"
 #include "game.h"
 #include "library.h"
 #include "logo.h"
@@ -19,9 +18,6 @@
 #include "update.h"
 #include "clocks.h"
 #include "i18n.h"
-#ifdef __wasi__
-#include "mapcap.h"
-#endif
 #include "emu.h"
 #include "profiles.h"
 
@@ -70,22 +66,13 @@ static void on_crash(int sig) {
 #endif
 
 int main(int argc, char** argv) {
-#ifdef __wasi__
-	/* the web player's capture worker: GBADS_CAPTURE_SERVE=CODE, the ROM last,
-	 * GBADS_CAPTURE_TIGHT=1 for the tight crop (mapcap.c) */
-	if (getenv("GBADS_CAPTURE_SERVE") && argc > 1) {
-		const char* t = getenv("GBADS_CAPTURE_TIGHT");
-		return mapcap_web_serve(argv[argc - 1], getenv("GBADS_CAPTURE_SERVE"), t && *t == '1');
-	}
-#endif
 	for (int i = 1; i < argc; ++i) {
 		if (!strcmp(argv[i], "--version")) {
-			printf("GBA DS %s\n", GBADS_VERSION);
+			printf("SNES DS %s\n", SNESDS_VERSION);
 			return 0;
 		}
-		/* --supported ROM: exit 0 if GBA DS has second-screen support for the
-		 * game (a profile for its code), 1 if not, 2 if it can't be read
-		 * (BananaOS's banana-play.sh: other games go to RetroArch) */
+		/* --supported ROM: exit 0 if SNES DS has second-screen support for the
+		 * game (a profile for its code), 1 if not, 2 if it can't be read */
 		if (!strcmp(argv[i], "--supported") && i + 1 < argc) {
 			uint8_t h[0xC0];
 			if (!emu_rom_header(argv[i + 1], h, sizeof(h))) return 2;
@@ -96,12 +83,12 @@ int main(int argc, char** argv) {
 		}
 	}
 #ifdef __ANDROID__
-	/* GBA DS's folder where the player chose it (Settings > Folders), its
+	/* SNES DS's folder where the player chose it (Settings > Folders), its
 	 * files moved there first if it's new: before the log, which goes in it */
 	android_data_setup();
 	android_init_log();
 #endif
-	fprintf(stderr, "GBA DS %s\n", GBADS_VERSION);
+	fprintf(stderr, "SNES DS %s\n", SNESDS_VERSION);
 	Config cfg;
 	config_defaults(&cfg);
 #ifdef __ANDROID__
@@ -115,28 +102,28 @@ int main(int argc, char** argv) {
 		exe[n] = 0;
 		snprintf(exeDir, sizeof(exeDir), "%s", dirname(exe));
 	}
-	/* GBADS_HOME: the app's folder when the executable runs from a copy
+	/* SNESDS_HOME: the app's folder when the executable runs from a copy
 	 * elsewhere (launch.sh, where the card won't run programs) */
-	if (getenv("GBADS_HOME") && getenv("GBADS_HOME")[0]) snprintf(exeDir, sizeof(exeDir), "%s", getenv("GBADS_HOME"));
+	if (getenv("SNESDS_HOME") && getenv("SNESDS_HOME")[0]) snprintf(exeDir, sizeof(exeDir), "%s", getenv("SNESDS_HOME"));
 #ifdef __ANDROID__
 	/* the executable is Android's app_process: use the app's own folder */
 	if (android_home()) snprintf(exeDir, sizeof(exeDir), "%s", android_home());
 #endif
 
-	/* defaults < gba-ds.cfg < states/prefs.cfg (choices made in the menu),
+	/* defaults < snes-ds.cfg < states/prefs.cfg (choices made in the menu),
 	 * library.cfg and hotkeys.cfg (the game list's Settings) < command line */
 	char path[1100];
-	if (getenv("GBADS_CONFIG")) {
-		config_load_file(&cfg, getenv("GBADS_CONFIG"));
+	if (getenv("SNESDS_CONFIG")) {
+		config_load_file(&cfg, getenv("SNESDS_CONFIG"));
 	} else {
-		snprintf(path, sizeof(path), "%s/gba-ds.cfg", exeDir);
+		snprintf(path, sizeof(path), "%s/snes-ds.cfg", exeDir);
 		config_load_file(&cfg, path);
 		if (getenv("HOME")) {
-			snprintf(path, sizeof(path), "%s/.config/gba-ds/gba-ds.cfg", getenv("HOME"));
+			snprintf(path, sizeof(path), "%s/.config/snes-ds/snes-ds.cfg", getenv("HOME"));
 			config_load_file(&cfg, path);
 		}
-#if !defined(__ANDROID__) && !defined(__wasi__)
-		/* data-folder.cfg: data_dir, where GBA DS keeps its own files (in a
+#if !defined(__ANDROID__)
+		/* data-folder.cfg: data_dir, where SNES DS keeps its own files (in a
 		 * file of its own, which neither the zip nor an update has) */
 		snprintf(path, sizeof(path), "%s/data-folder.cfg", exeDir);
 		config_load_file(&cfg, path);
@@ -146,13 +133,13 @@ int main(int argc, char** argv) {
 		config_usage(argv[0]);
 		return 1;
 	}
-	/* GBA DS's data folder (states/, cheats/, overlays/, logos/...): the
+	/* SNES DS's data folder (states/, cheats/, overlays/, logos/...): the
 	 * app's folder, or data_dir, moved there when that changes (paths.c) */
 	char dataDir[480];
 	snprintf(dataDir, sizeof(dataDir), "%s", exeDir);
-#if !defined(__ANDROID__) && !defined(__wasi__)
+#if !defined(__ANDROID__)
 	snprintf(path, sizeof(path), "%s/data-folder.cfg", exeDir);
-	data_dir_setup(exeDir, getenv("GBADS_CONFIG") ? NULL : path, cfg.dataDir, false, dataDir, sizeof(dataDir));
+	data_dir_setup(exeDir, getenv("SNESDS_CONFIG") ? NULL : path, cfg.dataDir, false, dataDir, sizeof(dataDir));
 #endif
 	if (strcmp(dataDir, exeDir) || data_dir_note()[0])
 		fprintf(stderr, "data folder: %s%s%s\n", dataDir, data_dir_note()[0] ? " - " : "", data_dir_note());
@@ -161,7 +148,7 @@ int main(int argc, char** argv) {
 	if (!cfg.stateDir[0]) snprintf(cfg.stateDir, sizeof(cfg.stateDir), "%s/states", dataDir);
 	mkdirs(cfg.stateDir);
 	snprintf(path, sizeof(path), "%s/prefs.cfg", cfg.stateDir);
-	/* (map_interval and show_fps were left to gba-ds.cfg until v1.5.4; the game list's Settings can change them now) */
+	/* (map_interval and show_fps were left to snes-ds.cfg until v1.5.4; the game list's Settings can change them now) */
 	config_load_file(&cfg, path);
 	/* the game list's Settings (Android: the ROM folder) */
 	snprintf(path, sizeof(path), "%s/library.cfg", cfg.stateDir);
@@ -179,12 +166,8 @@ int main(int argc, char** argv) {
 		cfg.overlayMode = dir_has_png(path) ? OVM_CUSTOM : OVM_GENERATED;
 	}
 
-#ifndef __ANDROID__
-	/* keep EmulationStation's entry for GBA DS current, if it's switched on */
-	es_integration_refresh(&cfg);
-	banana_integration_refresh();
-#else
-	/* and ES-DE's, on Android (ES-DE's RetroArch SAF mode may have changed) */
+#ifdef __ANDROID__
+	/* keep ES-DE's entry current (ES-DE's RetroArch SAF mode may have changed) */
 	esde_integration_refresh();
 #endif
 

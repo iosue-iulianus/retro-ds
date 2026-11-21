@@ -515,7 +515,7 @@ bool emu_state_save_file(Emu* e, const char* path) {
  * 4-character tag, a u32 size, the data, zeros to a multiple of 8) up to
  * "END ", MEM being the core's own bytes; usually compressed as "#RZIPv" 1
  * "#", u32 chunk size, u64 size, then each chunk as a u32 size and zlib's
- * data. Same format as GBA DS's src/emu.c reads for its mGBA core. */
+ * data. Same format as SNES DS's src/emu.c reads for its mGBA core. */
 int uncompress(unsigned char* dest, unsigned long* destLen, const unsigned char* source, unsigned long sourceLen); /* zlib */
 
 static uint32_t le32(const uint8_t* p) {
