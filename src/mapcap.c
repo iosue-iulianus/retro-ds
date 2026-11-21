@@ -56,6 +56,10 @@ struct MapCapture {
 	int curPage;
 	int workPage, workDx, workDy, workAskDx, workAskDy;
 	int pubPage, pubDx, pubDy, pubAskDx, pubAskDy;
+	/* the whole map (touch.bgW): made by stitch(), published with the rest */
+	uint32_t *big, *pubBig;
+	bool workBigOk, pubBigOk;
+	int workBigX, workBigY, pubBigX, pubBigY;
 };
 
 static int probe_count(const MapProfile* p) {
@@ -460,6 +464,37 @@ static int16_t view_pos(Emu* s, uint32_t addr) {
 	return (int16_t) emu_read16(s, addr);
 }
 
+/* The whole map (touch.bgW): the hidden copy's view set in turn over its
+ * map layer, each view's centre kept (clear of the scroll arrows at the
+ * frame's edges), then the view put back where the game had it. Only the
+ * hidden copy's RAM is written, never the game being played. */
+static void stitch(MapCapture* mc, Emu* s) {
+	const MapProfile* p = mc->prof;
+	const __typeof__(p->touch)* t = &p->touch;
+	int W = t->bgW, H = t->bgH;
+	int x0 = view_pos(s, t->scrollX), y0 = view_pos(s, t->scrollY);
+	for (int vy = -t->centre.y; vy < H - t->centre.y && !mc->cancel; vy += t->centre.h) {
+		for (int vx = -t->centre.x; vx < W - t->centre.x && !mc->cancel; vx += t->centre.w) {
+			emu_write16(s, t->scrollX, (uint16_t) vx);
+			emu_write16(s, t->scrollY, (uint16_t) vy);
+			for (int f = 0; f < 3; ++f) emu_frame(s, 0); /* (the view, then its sprites, drawn) */
+			const uint32_t* fb = snes_pic(mc, s);
+			for (int y = t->centre.y; y < t->centre.y + t->centre.h; ++y) {
+				int by = ((y + vy) % H + H) % H;
+				for (int x = t->centre.x; x < t->centre.x + t->centre.w; ++x) {
+					mc->big[by * W + ((x + vx) % W + W) % W] = fb[y * SNES_W + x];
+				}
+			}
+		}
+	}
+	emu_write16(s, t->scrollX, (uint16_t) x0);
+	emu_write16(s, t->scrollY, (uint16_t) y0);
+	for (int f = 0; f < 3; ++f) emu_frame(s, 0);
+	mc->workBigX = ((x0 + t->inner.x) % W + W) % W;
+	mc->workBigY = ((y0 + t->inner.y) % H + H) % H;
+	mc->workBigOk = !mc->cancel;
+}
+
 /* SM-7: with the map up, the view asked for: the second page (its
  * buttons), or the map scrolled (the D-pad held a frame a pixel; the game
  * moves it in steps of 8 and stops at its map's edges) */
@@ -475,6 +510,10 @@ static const char* apply_view(MapCapture* mc, Emu* s) {
 		mc->curPage = 1;
 		mc->workPage = 1;
 		return settle_again(mc, s);
+	}
+	if (p->touch.bgW && mc->big) {
+		stitch(mc, s);
+		return NULL;
 	}
 	if (!dx && !dy) return NULL;
 	int x0 = view_pos(s, p->touch.scrollX), y0 = view_pos(s, p->touch.scrollY);
@@ -509,6 +548,7 @@ static const char* do_capture_(MapCapture* mc, const void* state) {
 	mc->workFrames = 0;
 	mc->tileValid = false;
 	mc->curPage = 0;
+	mc->workBigOk = false;
 	if (p->composePages) {
 		int n = MAP_MAX_FRAMES, step = 1;
 		const char* err = p->composePages(s, state, mc->work, &n, &step, mc->cw, mc->ch);
@@ -675,6 +715,11 @@ static void publish(MapCapture* mc, const char* err) {
 	mc->pubStep = mc->workStep;
 	mc->pubPage = mc->workPage, mc->pubDx = mc->workDx, mc->pubDy = mc->workDy;
 	mc->pubAskDx = mc->workAskDx, mc->pubAskDy = mc->workAskDy;
+	mc->pubBigOk = mc->workBigOk;
+	if (mc->workBigOk) {
+		memcpy(mc->pubBig, mc->big, (size_t) mc->prof->touch.bgW * mc->prof->touch.bgH * sizeof(uint32_t));
+		mc->pubBigX = mc->workBigX, mc->pubBigY = mc->workBigY;
+	}
 	++mc->serial;
 }
 
@@ -705,6 +750,11 @@ MapCapture* mapcap_create(const char* romPath, const char* gameCode, bool tight)
 		mc->published[i] = calloc(mc->cropPixels, sizeof(uint32_t));
 	}
 	mc->prev = calloc(mc->cropPixels, sizeof(uint32_t));
+	if (p->touch.bgW > 0 && p->touch.bgH > 0) {
+		mc->big = calloc((size_t) p->touch.bgW * p->touch.bgH, sizeof(uint32_t));
+		mc->pubBig = calloc((size_t) p->touch.bgW * p->touch.bgH, sizeof(uint32_t));
+		if (!mc->big || !mc->pubBig) free(mc->big), free(mc->pubBig), mc->big = mc->pubBig = NULL;
+	}
 	pthread_mutex_init(&mc->lock, NULL);
 	pthread_cond_init(&mc->cond, NULL);
 	return mc;
@@ -740,6 +790,8 @@ void mapcap_destroy(MapCapture* mc) {
 		free(mc->published[i]);
 	}
 	free(mc->prev);
+	free(mc->big);
+	free(mc->pubBig);
 	free(mc->snapshot);
 	pthread_mutex_destroy(&mc->lock);
 	pthread_cond_destroy(&mc->cond);
@@ -773,6 +825,8 @@ MapResult mapcap_capture_sync(MapCapture* mc, Emu* live) {
 	}
 	r.pixels = r.frames[0];
 	r.page = mc->workPage, r.dx = mc->workDx, r.dy = mc->workDy, r.askedDx = mc->workAskDx, r.askedDy = mc->workAskDy;
+	r.bigOk = mc->workBigOk, r.big = mc->big, r.bigW = mc->prof->touch.bgW, r.bigH = mc->prof->touch.bgH;
+	r.bigX = mc->workBigX, r.bigY = mc->workBigY;
 	return r;
 }
 
@@ -847,6 +901,15 @@ bool mapcap_poll(MapCapture* mc, uint32_t lastSerial, MapResult* out) {
 		out->serial = mc->serial;
 		out->page = mc->pubPage, out->dx = mc->pubDx, out->dy = mc->pubDy;
 		out->askedDx = mc->pubAskDx, out->askedDy = mc->pubAskDy;
+		out->bigOk = mc->pubBigOk;
+		if (mc->pubBigOk) {
+			size_t bn = (size_t) mc->prof->touch.bgW * mc->prof->touch.bgH;
+			if (!out->big) out->big = malloc(bn * sizeof(uint32_t));
+			if (out->big) memcpy(out->big, mc->pubBig, bn * sizeof(uint32_t));
+			else out->bigOk = false;
+			out->bigW = mc->prof->touch.bgW, out->bigH = mc->prof->touch.bgH;
+			out->bigX = mc->pubBigX, out->bigY = mc->pubBigY;
+		}
 	}
 	pthread_mutex_unlock(&mc->lock);
 	return fresh;

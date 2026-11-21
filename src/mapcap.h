@@ -26,6 +26,12 @@ typedef struct MapResult {
 	/* the view it shows (SM-7): page, and the scroll it got (the game
 	 * stops at its map's edges) for the scroll asked for */
 	int page, dx, dy, askedDx, askedDy;
+	/* the whole map (profiles with touch.bgW, the map's page): bigW x
+	 * bigH, and where in it the frame's inside starts as captured (the
+	 * game's own view, centred on the player) */
+	bool bigOk;
+	uint32_t* big;
+	int bigW, bigH, bigX, bigY;
 } MapResult;
 
 /* Returns NULL when no profile matches gameCode. */

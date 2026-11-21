@@ -347,6 +347,9 @@ static int viewPage, viewDx, viewDy;
 static bool mapDrag;
 static int dragX0, dragY0, dragX, dragY;
 static uint32_t movedKey;
+static bool mapReupload; /* upload the shown map frame again (its window moved) */
+static void map_reshow(void);
+static bool stitch_on(void);
 /* logoIf just stopped matching: the logo still, until the second screen has
  * a new picture to show (a HUD picture drawn, a map picture taken), at
  * most a second; not the last picture from before for a frame (SM4-11) */
@@ -4006,10 +4009,11 @@ static const uint32_t* map_px(int idx) {
 }
 
 /* (set to upload the picture shown again: the textures were made again) */
-static bool mapReupload;
+static const uint32_t* stitch_compose(const uint32_t* px);
 static void upload_map_frame(int idx) {
 	const uint32_t* px = map_px(idx);
 	if ((idx == mapShownIdx && !mapReupload) || !px) return;
+	if (stitch_on()) px = stitch_compose(px);
 	mapReupload = false;
 	for (int i = 0; i < nViews; ++i) ui_update_texture(mapTex[i], px, mapW * 4);
 	mapShownIdx = idx;
@@ -4535,6 +4539,57 @@ static int round8(int v) {
 	return (v + (v >= 0 ? 4 : -4)) / 8 * 8;
 }
 
+/* SM-7 with the whole map (touch.bgW): the frame's inside shows a window
+ * of it, the game's own view moved by the drag */
+static bool stitch_on(void) {
+	const MapProfile* tp = touch_prof();
+	return tp && tp->touch.bgW && mapRes.bigOk && mapRes.big && mapRes.page == 0 && viewPage == 0;
+}
+
+/* the window's top left in the whole map: the committed scroll, and the
+ * drag under way; kept on the map (the game's own view always allowed) */
+static void stitch_window(int* ox, int* oy) {
+	const MapProfile* tp = touch_prof();
+	int dx = viewDx, dy = viewDy;
+	if (mapDrag) {
+		SDL_Rect img = ui_image_rect(1 - game_screen(), mapW, mapH, cfg->mapScale);
+		if (img.w > 0 && img.h > 0) dx -= (dragX - dragX0) * mapW / img.w, dy -= (dragY - dragY0) * mapH / img.h;
+	}
+	int bx = mapRes.bigX, by = mapRes.bigY;
+	*ox = SDL_clamp(bx + dx, SDL_min(0, bx), SDL_max(mapRes.bigW - tp->touch.inner.w, bx));
+	*oy = SDL_clamp(by + dy, SDL_min(0, by), SDL_max(mapRes.bigH - tp->touch.inner.h, by));
+}
+
+/* a captured frame with its inside from the whole map, at the window */
+static const uint32_t* stitch_compose(const uint32_t* px) {
+	static uint32_t* buf;
+	static size_t cap;
+	const MapProfile* tp = touch_prof();
+	size_t n = (size_t) mapW * mapH;
+	if (cap < n) {
+		uint32_t* b = realloc(buf, n * sizeof(uint32_t));
+		if (!b) return px;
+		buf = b, cap = n;
+	}
+	memcpy(buf, px, n * sizeof(uint32_t));
+	int ox, oy;
+	stitch_window(&ox, &oy);
+	int W = mapRes.bigW, H = mapRes.bigH;
+	int cx = tp->touch.inner.x - tp->crop_x, cy = tp->touch.inner.y - tp->crop_y;
+	for (int y = 0; y < tp->touch.inner.h && cy + y < mapH; ++y) {
+		const uint32_t* row = &mapRes.big[(((oy + y) % H + H) % H) * W];
+		for (int x = 0; x < tp->touch.inner.w && cx + x < mapW; ++x) buf[(cy + y) * mapW + cx + x] = row[((ox + x) % W + W) % W];
+	}
+	return buf;
+}
+
+/* the map shown again as it is (its window moved) */
+static void map_reshow(void) {
+	if (mapShownIdx < 0) return;
+	mapReupload = true;
+	upload_map_frame(mapShownIdx);
+}
+
 /* A touch on the second screen (SM-7): a drag scrolls the map, a tap on
  * the profile's plate switches the page; never the menu. 0: not the
  * second screen's; 1: taken; 2: taken, and the view changed (capture). */
@@ -4548,7 +4603,19 @@ static int map_touch(const Pointer* p) {
 	}
 	if (!mapDrag) return 1;
 	dragX = p->x, dragY = p->y;
-	if (p->kind != 2) return 1;
+	if (p->kind != 2) {
+		if (stitch_on()) map_reshow(); /* (the whole map: the window follows the finger) */
+		return 1;
+	}
+	if (stitch_on() && (abs(dragX - dragX0) > 8 || abs(dragY - dragY0) > 8)) {
+		/* the whole map: the drag kept where it ended, no capture */
+		int ox, oy;
+		stitch_window(&ox, &oy);
+		viewDx = ox - mapRes.bigX, viewDy = oy - mapRes.bigY;
+		mapDrag = false;
+		map_reshow();
+		return 1;
+	}
 	mapDrag = false;
 	int s = 1 - game_screen();
 	SDL_Rect img = ui_image_rect(s, mapW, mapH, cfg->mapScale);
@@ -4576,7 +4643,7 @@ static int map_touch(const Pointer* p) {
  * capture for where it ends replaces it) */
 static void draw_drag_preview(int s) {
 	const MapProfile* tp = touch_prof();
-	if (!mapDrag || viewPage != 0 || !tp) return;
+	if (!mapDrag || viewPage != 0 || !tp || stitch_on()) return;
 	SDL_Rect img = ui_image_rect(s, mapW, mapH, cfg->mapScale);
 	/* the frame's inside (crop coordinates): x 6 to 249, y 46 to 191 on screen */
 	int ix0 = 6, iy0 = 46 - tp->crop_y, ix1 = 250, iy1 = 192 - tp->crop_y;
@@ -6497,10 +6564,15 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 				if (mk != movedKey) {
 					movedKey = mk;
 					if ((viewPage || viewDx || viewDy) && !mapDrag) {
+						bool onlyScroll = viewPage == 0 && stitch_on();
 						viewPage = viewDx = viewDy = 0;
-						mapcap_set_view(mc, 0, 0, 0);
-						mapcap_cancel(mc);
-						forceMap = true;
+						if (onlyScroll) {
+							map_reshow(); /* (the whole map: back to the game's view, no capture) */
+						} else {
+							mapcap_set_view(mc, 0, 0, 0);
+							mapcap_cancel(mc);
+							forceMap = true;
+						}
 					}
 				}
 			}
@@ -6509,7 +6581,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 				/* a capture that finished after quitting to the title: drop it */
 			} else if (fresh) {
 				/* SM-7: the scroll the game allowed (stopped at its map's edges) */
-				if (mapRes.page == viewPage && mapRes.askedDx == viewDx && mapRes.askedDy == viewDy && (mapRes.dx != viewDx || mapRes.dy != viewDy)) {
+				if (!ip->touch.bgW && mapRes.page == viewPage && mapRes.askedDx == viewDx && mapRes.askedDy == viewDy && (mapRes.dx != viewDx || mapRes.dy != viewDy)) {
 					viewDx = mapRes.dx, viewDy = mapRes.dy;
 					mapcap_set_view(mc, viewPage, viewDx, viewDy);
 				}

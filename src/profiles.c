@@ -44,7 +44,9 @@ static const MapProfile profiles[] = {
 		           .page2Probes = { { 20, 43, 0xFFFFFF }, { 240, 43, 0xFFFFFF }, { 4, 100, 0xFFFFFF }, { 251, 100, 0xFFFFFF },
 		                            { 20, 194, 0xFFFFFF }, { 240, 194, 0xFFFFFF }, { 44, 206, 0xFFB500 } },
 		           .tap = { { 172, 196, 84, 22 }, { 0, 196, 84, 22 } },
-		           .moved = { 0x7E0AF6, 0x7E0AFA } },
+		           .moved = { 0x7E0AF6, 0x7E0AFA },
+		           /* the area's whole map: its 512 x 256 layer, nine views */
+		           .bgW = 512, .bgH = 256, .centre = { 30, 60, 196, 116 }, .inner = { 6, 46, 244, 146 } },
 		/* SM-7's plates: EXIT / START covered; arrows on the L and R pills
 		 * in place of the letters (the pill's grey and its letters' purple);
 		 * each page shows only the plate to the other one (the map:

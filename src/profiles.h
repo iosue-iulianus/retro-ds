@@ -141,6 +141,14 @@ typedef struct MapProfile {
 		/* live game: values that change as the player moves; a change puts
 		 * the second screen back on the map, centred (2 bytes each) */
 		uint32_t moved[2];
+		/* The whole map at once, so a drag only moves the picture: after
+		 * the map is up, the hidden copy's view (scrollX, scrollY) is set
+		 * in turn to cover its bgW x bgH map layer, and each view's
+		 * `centre` (screen coords, clear of the scroll arrows) is kept;
+		 * the frame's inside, `inner` (screen coords), shows a window of
+		 * it. Off while bgW is 0 (scrolled captures instead). */
+		int bgW, bgH;
+		struct { int x, y, w, h; } centre, inner;
 	} touch;
 	/* Painted over every capture (screen coords): with `filled`, the rect
 	 * in `fill` (0xRRGGBB), then `rows` from x, y: '#' in `ink`, '.' in
