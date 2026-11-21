@@ -29,6 +29,12 @@
  *   bench [FRAMES]         the M0 measurements (see docs/M0-results.md)
  *   context N              savestate context for both (0 normal,
  *                          1 runahead same instance, 2 same binary)
+ *   pattern N              bench's input: 0 none, 1 right/left/jump/stand
+ *                          30 frames each (default), 2 right held, 3 as 1
+ *                          but changing 15 frames off the serializes
+ *   keysfirst 0|1          bench serializes A with emu_state_save_live
+ *                          (the next frame's keys given first) or not (0,
+ *                          the default, shows the problem it fixes)
  */
 #include "../src/retro/emu.h"
 
@@ -229,8 +235,14 @@ static void* run_frames(void* p) {
 
 /* a fixed input pattern for the comparisons: run right, run left, jump,
  * stand, 30 frames each, so the game state actually moves */
+static bool keysFirst; /* script: keysfirst 1 */
+static int patternMode = 1; /* script: pattern 0 (no keys), 1 (the pattern), 2 (RIGHT held), 3 (the pattern 15 frames later) */
+
 static uint32_t pattern(int i) {
 	static const uint32_t keys[4] = { K_RIGHT, K_LEFT, K_A, 0 };
+	if (patternMode == 0) return 0;
+	if (patternMode == 2) return K_RIGHT;
+	if (patternMode == 3) return keys[((i + 15) / 30) % 4]; /* changes away from the serializes */
 	return keys[(i / 30) % 4];
 }
 
@@ -239,7 +251,12 @@ static bool same_machine(Emu* x, Emu* y, int* wramDiff, int* fbDiff) {
 	uint8_t* wx = emu_wram(x, &nx);
 	uint8_t* wy = emu_wram(y, &ny);
 	*wramDiff = 0;
-	for (size_t i = 0; wx && wy && i < nx && i < ny; ++i) *wramDiff += wx[i] != wy[i];
+	for (size_t i = 0; wx && wy && i < nx && i < ny; ++i) {
+		if (wx[i] == wy[i]) continue;
+		if (*wramDiff < 24) printf("%s%06zX:%02X/%02X", *wramDiff ? " " : "    differing (A/B): ", 0x7E0000 + i, wx[i], wy[i]);
+		++*wramDiff;
+	}
+	if (*wramDiff) printf("\n");
 	*fbDiff = x->w == y->w && x->h == y->h ? count_diff(x->fb, y->fb, (size_t) x->w * x->h) : -1;
 	return *wramDiff == 0 && *fbDiff == 0;
 }
@@ -308,7 +325,10 @@ static void bench(int frames) {
 	emu_state_load(a, start, n);
 	emu_state_load(b, start, n);
 	for (int i = 0; i < 600; ++i) {
-		if (i % 60 == 0) emu_state_save(a, tmp, n);
+		if (i % 60 == 0) {
+			if (keysFirst) emu_state_save_live(a, pattern(i), tmp, n);
+			else emu_state_save(a, tmp, n);
+		}
 		emu_frame(a, pattern(i));
 		emu_frame(b, pattern(i));
 	}
@@ -430,6 +450,10 @@ int main(int argc, char** argv) {
 			mapcap(p + strlen("mapcap"));
 		} else if (!strcmp(cmd, "bench")) {
 			bench(*s1 ? atoi(s1) : 600);
+		} else if (!strcmp(cmd, "keysfirst")) {
+			keysFirst = atoi(s1) != 0;
+		} else if (!strcmp(cmd, "pattern")) {
+			patternMode = atoi(s1);
 		} else if (!strcmp(cmd, "context")) {
 			inst[0].stateContext = inst[1].stateContext = atoi(s1);
 		} else {
