@@ -658,11 +658,11 @@ MapResult mapcap_capture_sync(MapCapture* mc, Emu* live) {
 	return r;
 }
 
-bool mapcap_request(MapCapture* mc, Emu* live) {
+bool mapcap_request(MapCapture* mc, Emu* live, uint32_t nextKeys) {
 	start_thread(mc);
 	if (mc->noThread) {
 		/* no threads: the capture now, the game waiting for it */
-		if (!emu_state_save(live, mc->snapshot)) return false;
+		if (!emu_state_save_live(live, nextKeys, mc->snapshot)) return false;
 		publish(mc, do_capture(mc, mc->snapshot));
 		return true;
 	}
@@ -672,7 +672,7 @@ bool mapcap_request(MapCapture* mc, Emu* live) {
 		return false;
 	}
 	/* The worker only reads the snapshot after `pending` is set. */
-	bool ok = emu_state_save(live, mc->snapshot);
+	bool ok = emu_state_save_live(live, nextKeys, mc->snapshot);
 	if (ok) {
 		mc->pending = true;
 		pthread_cond_signal(&mc->cond);

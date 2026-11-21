@@ -155,7 +155,7 @@ static void bug_reset(void) {
 }
 
 /* Between frames (the worker idle): a state a second for the bug log. */
-static void bug_tick(void) {
+static void bug_tick(uint32_t nextKeys) {
 	if (!emu.core) return;
 	int oldest = 0;
 	uint64_t newest = 0;
@@ -173,7 +173,7 @@ static void bug_tick(void) {
 	if (any && bugFrame == newest) return;
 	if (!bugSnap[oldest].st) bugSnap[oldest].st = malloc(emu_state_size(&emu));
 	if (!bugSnap[oldest].st) return;
-	bugSnap[oldest].have = emu_state_save(&emu, bugSnap[oldest].st);
+	bugSnap[oldest].have = emu_state_save_live(&emu, nextKeys, bugSnap[oldest].st);
 	bugSnap[oldest].frame = bugFrame;
 }
 
@@ -5423,6 +5423,8 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	uint32_t seenRoomKey = 0;
 	int seenRoomFor = 0;
 	int sinceMapRequest = 1 << 20;
+	bool mapWant = false; /* a capture is due: asked for before the next frame */
+	uint32_t mapWantKey = 0;
 	int lastFails = 0;
 	bool forceMap = true, wasDark = false;
 	long refreshAt = -1;
@@ -5489,7 +5491,6 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		ahead_sync(); /* the core is the loop's again */
 		loopCur.synced = SDL_GetPerformanceCounter();
 		screen_restore_apply();
-		bug_tick();
 		Uint64 workT0 = SDL_GetPerformanceCounter(); /* this frame's work, without the wait at the end */
 		long preempt0 = thread_preemptions();
 		double cpuMs0 = thread_cpu_ms();
@@ -6224,6 +6225,19 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			rewindBox = 0;
 			forceMap = true; /* the map, as of where the rewind stopped */
 		}
+		/* Snapshots of the game between frames are taken here, with the keys
+		 * the next frame runs with: bsnes runs the emulation to a sync point to
+		 * take a state, and the game may read the controller on the way
+		 * (emu_state_save_live). */
+		if (!rewinding && runs > 0) {
+			bug_tick(keys);
+			if (mapWant && mc && !mapcap_busy(mc) && mapcap_request(mc, &emu, keys)) {
+				sinceMapRequest = 0;
+				lastRoomKey = mapWantKey;
+				forceMap = false;
+			}
+			mapWant = false;
+		}
 		int ran = 0;
 		for (int i = 0; i < (rewinding ? 0 : runs); ++i) {
 			if (ffMax && i > 0 && (SDL_GetPerformanceCounter() - emuT0) / freq > frameSec * 0.7) break;
@@ -6365,13 +6379,8 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			 * often than the normal interval */
 			bool due = sinceMapRequest >= interval ||
 			           ((forceMap || roomChanged) && (!fails || sinceMapRequest >= every));
-			if (due && !mapcap_busy(mc) && mapcap_live_ok(mc, &emu)) {
-				if (mapcap_request(mc, &emu)) {
-					sinceMapRequest = 0;
-					lastRoomKey = rk;
-					forceMap = false;
-				}
-			}
+			/* (requested just before the next frame, when its keys are known) */
+			if (due && !mapcap_busy(mc) && mapcap_live_ok(mc, &emu)) mapWant = true, mapWantKey = rk;
 			bool fresh = mapcap_poll(mc, mapRes.serial, &mapRes);
 			if (fresh && mapcap_in_menu(mc, &emu)) {
 				/* a capture that finished after quitting to the title: drop it */
