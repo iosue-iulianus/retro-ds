@@ -3319,12 +3319,16 @@ static void screen_restore_apply(void) {
 	if ((d = blob_find(b, n, "MAP ", &sz)) && sz >= 16) {
 		int w = (int) rd32(d), h = (int) rd32(d + 4), nf = (int) rd32(d + 8), step = (int) rd32(d + 12);
 		size_t px = (size_t) w * h * 4;
-		/* (only at the size this game's captures are: frames are that big) */
-		if (mapRes.frames[0] && w == mapRes.w && h == mapRes.h && nf >= 1 && nf <= MAP_MAX_FRAMES && sz == 16 + px * nf) {
+		/* (only at the size this game's captures are now, its texture's: a
+		 * state saved before the profile's crop changed keeps a map of
+		 * another size, left out) */
+		bool sized = w == mapW && h == mapH;
+		if (!sized && debug) fprintf(stderr, "load state: its map is %dx%d, captures are %dx%d now: not used\n", w, h, mapW, mapH);
+		if (sized && mapRes.frames[0] && w == mapRes.w && h == mapRes.h && nf >= 1 && nf <= MAP_MAX_FRAMES && sz == 16 + px * nf) {
 			for (int i = 0; i < nf; ++i) memcpy(mapRes.frames[i], d + 16 + px * i, px);
 			mapRes.nFrames = nf, mapRes.frameStep = step, mapRes.ok = true, mapRes.pixels = mapRes.frames[0];
 			map_show_new(false);
-		} else if (!mapRes.frames[0] && w > 0 && h > 0 && nf >= 1 && nf <= MAP_MAX_FRAMES && sz == 16 + px * nf) {
+		} else if (sized && !mapRes.frames[0] && w > 0 && h > 0 && nf >= 1 && nf <= MAP_MAX_FRAMES && sz == 16 + px * nf) {
 			/* (no capture yet this session: the frames made here, as mapcap_poll does) */
 			for (int i = 0; i < MAP_MAX_FRAMES; ++i) mapRes.frames[i] = malloc(px);
 			bool ok = true;
