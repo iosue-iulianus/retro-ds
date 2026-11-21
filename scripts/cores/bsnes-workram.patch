@@ -1,0 +1,42 @@
+diff --git a/bsnes/sfc/cpu/cpu.cpp b/bsnes/sfc/cpu/cpu.cpp
+index b6fec16..4b57ead 100644
+--- a/bsnes/sfc/cpu/cpu.cpp
++++ b/bsnes/sfc/cpu/cpu.cpp
+@@ -121,3 +121,9 @@ auto CPU::power(bool reset) -> void {
+ }
+ 
+ }
++
++//SNES DS: the frontend reads work RAM through retro_get_memory_data
++namespace SuperFamicom {
++  auto snesdsWorkRAM() -> uint8* { return cpu.wram; }
++  auto snesdsWorkRAMSize() -> uint { return sizeof(cpu.wram); }
++}
+diff --git a/bsnes/target-libretro/libretro.cpp b/bsnes/target-libretro/libretro.cpp
+index 8010816..96f9b07 100644
+--- a/bsnes/target-libretro/libretro.cpp
++++ b/bsnes/target-libretro/libretro.cpp
+@@ -785,12 +785,23 @@ RETRO_API unsigned retro_get_region()
+ 
+ // Currently, there is no safe/sensible way to use the memory interface without severe hackery.
+ // Rely on higan to load and save SRAM until there is really compelling reason not to.
++// SNES DS: expose the CPU's work RAM ($7E0000-$7FFFFF) so the frontend can
++// read it. Save RAM is still loaded and saved by bsnes itself.
++namespace SuperFamicom {
++	auto snesdsWorkRAM() -> uint8*;
++	auto snesdsWorkRAMSize() -> uint;
++}
++
+ RETRO_API void *retro_get_memory_data(unsigned id)
+ {
++	if (id == RETRO_MEMORY_SYSTEM_RAM)
++		return SuperFamicom::snesdsWorkRAM();
+ 	return nullptr;
+ }
+ 
+ RETRO_API size_t retro_get_memory_size(unsigned id)
+ {
++	if (id == RETRO_MEMORY_SYSTEM_RAM)
++		return SuperFamicom::snesdsWorkRAMSize();
+ 	return 0;
+ }
