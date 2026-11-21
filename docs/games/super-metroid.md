@@ -37,6 +37,7 @@ Every game also follows the general rules GBA DS set out (`docs/reference/gba/RE
 
 - Game state, `$7E0998`: `08` playing, `09` to `0B` going through a door, `0C` to `0E` pausing, `0F` the pause screen up, `10` to `12` unpausing; `00` to `05` the title, file and options screens. Area, `$7E079F`: `00` Crateria to `05` Tourian, `06` Ceres Station. Room, `$7E079B` (2 bytes).
 - Start opens the pause screen in about 67 frames (the fade); it has settled by about 76.
+- Scrolling the pause map: the D-pad moves it a pixel a frame, in steps of 8 (a tap: 8; a 16-frame hold: 16), up to the edges of the area's map; the view's x grows in `$7E00B1`. Measured with the owner's state after the Map Station.
 - The mini-map: x 208 to 248, y 6 to 30 in the energy bar (covered: 206, 4, 46 x 28).
 - Pause screen page, `$7E0727` (2 bytes): `0000` the map, `0001` the equipment, other values while switching (R from the map: about 30 frames, fading).
 - The map screen is told by its frame and the SAMUS plate at the bottom right (the equipment page has MAP there). Not by the grid: it scrolls with the map.
