@@ -43,7 +43,7 @@ import java.io.OutputStream;
  * into.
  *
  * Intent extra "rom": a ROM path to play (e.g. adb shell am start -n
- * io.github.kyannon.gbads/.LauncherActivity --es rom /storage/emulated/0/ROMs/gba/x.gba).
+ * io.github.iosue_iulianus.snesds/io.github.kyannon.gbads.LauncherActivity --es rom /storage/emulated/0/ROMs/snes/x.sfc).
  */
 public class GbaDsActivity extends SDLActivity {
     private static final String TAG = "GBADS";
@@ -86,18 +86,18 @@ public class GbaDsActivity extends SDLActivity {
     }
 
     /**
-     * "GBA DS" on the internal storage, where people can reach it (cheats,
+     * "SNES DS" on the internal storage, where people can reach it (cheats,
      * overlays, screenshots, save states), laid out like the ROCKNIX install
      * folder. Needs All files access; without it, the app's own folder.
      * Data from builds that used the app's folder is copied over once.
      * This is the default: a folder the player chose instead (Settings >
      * Folders) is set up by the native side (android_data_setup), and then
-     * "GBA DS" isn't made.
+     * "SNES DS" isn't made.
      */
     private File dataFolder() {
         File appDir = getExternalFilesDir(null);
         if (appDir == null) appDir = getFilesDir();
-        File shared = new File(Environment.getExternalStorageDirectory(), "GBA DS");
+        File shared = new File(Environment.getExternalStorageDirectory(), "SNES DS");
         boolean canShare = Build.VERSION.SDK_INT < 30 || Environment.isExternalStorageManager();
         String now = LauncherActivity.dataFolderSetting(this, "data_dir_now");
         if (canShare && now != null && !new File(now).equals(shared) && !shared.isDirectory()) return shared;
@@ -363,7 +363,7 @@ public class GbaDsActivity extends SDLActivity {
 
     /* ------------------------------------------------------------ updates */
 
-    private static final String INSTALL_STATUS = "io.github.kyannon.gbads.INSTALL_STATUS";
+    private static final String INSTALL_STATUS = "io.github.iosue_iulianus.snesds.INSTALL_STATUS";
 
     /** 1 asking to confirm, 2 installed, -1 failed, -2 cancelled, -3 another key, -4 no room, -5 older build (android.h). */
     static native void nativeInstallResult(int state, String message);

@@ -60,7 +60,7 @@ public class LauncherActivity extends Activity {
         String now = dataFolderSetting(c, "data_dir_now");
         if (now != null && new File(now).isDirectory()) return new File(now);
         if (Build.VERSION.SDK_INT < 30 || Environment.isExternalStorageManager()) {
-            File shared = new File(Environment.getExternalStorageDirectory(), "GBA DS");
+            File shared = new File(Environment.getExternalStorageDirectory(), "SNES DS");
             if (shared.isDirectory() || shared.mkdirs()) return shared;
         }
         File app = c.getExternalFilesDir(null);

@@ -60,7 +60,7 @@
             android:name=".GbaDsActivity"
             android:exported="false"
             android:launchMode="singleTask"
-            android:taskAffinity="io.github.kyannon.gbads.game"
+            android:taskAffinity="io.github.iosue_iulianus.snesds.game"
             android:alwaysRetainTaskState="true"
             android:preferMinimalPostProcessing="true"
             android:configChanges="layoutDirection|locale|orientation|uiMode|screenLayout|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation|density" />

@@ -32,7 +32,9 @@ android {
     }
 
     defaultConfig {
-        applicationId "io.github.kyannon.gbads"
+        // SNES DS's own ID, so it installs beside GBA DS instead of replacing it.
+        // (namespace and the Java packages keep GBA DS's names until the port.)
+        applicationId "io.github.iosue_iulianus.snesds"
         minSdk 26
         targetSdk 34
         versionCode runNumber
