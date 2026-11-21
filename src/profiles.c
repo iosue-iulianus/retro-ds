@@ -34,6 +34,10 @@ static const MapProfile profiles[] = {
 		/* the title, file select and options screens (00 to 05) */
 		.menu = { { 0x7E0998, 0xFF, 0x00, 1, true, 0x05, true } },
 		.room = { { 0x7E079B, 0, 0, 2 } },
+		/* SM-6: the HUD's mini-map, while Samus is played, goes through a
+		 * door, pauses and unpauses (08 to 12), outside Ceres Station */
+		.hide = { { 206, 4, 46, 28 } },
+		.hideIf = { { 0x7E0998, 0xFF, 0x08, 1, true, 0x12, true }, { 0x7E079F, 0xFF, 0x00, 1, true, 0x05, true } },
 		/* the title screen, its lettering */
 		.logo = { .wait = 600, .pressStart = true, .wait2 = 126, .minX = 44, .minY = 17, .maxX = 224, .maxY = 80 },
 		.animFrames = 12, .animStep = 1,

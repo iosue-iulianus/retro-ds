@@ -339,6 +339,7 @@ static bool logoOnly; /* the game has a profile but no map: logo on the second s
 static const MapProfile* snapProf; /* logo-only game with screens copied to the second screen */
 /* the profile's logoIf probes match: the logo, the map picture and HUD kept */
 static bool logoForced;
+static bool hudHide; /* the profile's hide rectangles are covered now (SM-6) */
 /* logoIf just stopped matching: the logo still, until the second screen has
  * a new picture to show (a HUD picture drawn, a map picture taken), at
  * most a second; not the last picture from before for a frame (SM4-11) */
@@ -4513,6 +4514,18 @@ static void load_overlay(int s, int which) {
  * colour picker is open, its colour as it's picked), or in the defaults
  * (a screen without a PNG in Overlays: Custom). Nothing where the picture
  * fills the screen. */
+/* The profile's hide rectangles (SM-6), black over the game's picture */
+static void draw_hud_hide(int s) {
+	const MapProfile* p = mc ? mapcap_profile(mc) : NULL;
+	if (!hudHide || !p || picW <= 0 || picH <= 0) return;
+	SDL_Rect img = ui_image_rect(s, picW, picH, cfg->scale);
+	for (int i = 0; i < 2 && p->hide[i].w > 0; ++i) {
+		int x0 = img.x + p->hide[i].x * img.w / picW, x1 = img.x + (p->hide[i].x + p->hide[i].w) * img.w / picW;
+		int y0 = img.y + p->hide[i].y * img.h / picH, y1 = img.y + (p->hide[i].y + p->hide[i].h) * img.h / picH;
+		ui_fill(s, (SDL_Rect) { x0, y0, x1 - x0, y1 - y0 }, (SDL_Color) { 0, 0, 0, 255 });
+	}
+}
+
 /* w x h: the picture inside (the game's, the map's or the logo's) */
 static void draw_bezel(int s, const char* mode, bool defaults, int w, int h) {
 	SDL_Rect r = ui_image_rect(s, w, h, mode), sr = screens[s].rect;
@@ -4704,6 +4717,7 @@ static void draw_game(void) {
 				continue;
 			}
 			ui_image_pixels(s, gameTex, picW, picH, cfg->scale, SHADER_ON);
+			draw_hud_hide(s);
 			if (overlay_on(s)) draw_overlay(s, 0);
 			if (cfg->showFps) {
 				/* sized to sit in the empty band above the picture */
@@ -6392,6 +6406,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			           ((forceMap || roomChanged) && (!fails || sinceMapRequest >= every));
 			/* (requested just before the next frame, when its keys are known) */
 			if (due && !mapcap_busy(mc) && mapcap_live_ok(mc, &emu)) mapWant = true, mapWantKey = rk;
+			hudHide = ip && ip->hide[0].w > 0 && cfg->map && memprobes_match(ip->hideIf, 3, &emu);
 			bool fresh = mapcap_poll(mc, mapRes.serial, &mapRes);
 			if (fresh && mapcap_in_menu(mc, &emu)) {
 				/* a capture that finished after quitting to the title: drop it */

@@ -119,6 +119,14 @@ typedef struct MapProfile {
 	MemProbe logoIf[2];
 	MemProbe logoIfOr[2]; /* or while every one of these matches */
 
+	/* Parts of the game screen covered in black while every hideIf probe
+	 * matches (screen coords): a HUD piece the second screen makes
+	 * pointless, as Super Metroid's mini-map (SM-6). Only what's shown
+	 * changes: the game, its picture and screenshots are as the game
+	 * draws them. Only while the second screen shows the map. */
+	struct { int x, y, w, h; } hide[2];
+	MemProbe hideIf[3];
+
 	/* Values that change when the player enters a new room; a change
 	 * triggers an early capture. Only addr/size are used. */
 	MemProbe room[4];
