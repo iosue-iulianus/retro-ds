@@ -1,16 +1,40 @@
 /* SNES DS's game profiles (MapProfile, profiles.h) and what's known about
  * each release's dumps.
  *
- * Empty for now: GBA DS's 64 GBA profiles were removed with the GBA
- * emulator. SNES profiles come with the port (Super Metroid first, M2);
- * GBA DS's are in git history (git show 3b452dc:src/profiles.c). */
+ * GBA DS's 64 GBA profiles were removed with the GBA emulator; they're in
+ * git history (git show 3b452dc:src/profiles.c) as examples. Each game's
+ * rules are in docs/games/<game>.md. */
 #include "profiles.h"
 
 #include <stdio.h>
 #include <string.h>
 
 static const MapProfile profiles[] = {
-	{ .codes = { NULL } }, /* (an empty entry: C has no empty arrays) */
+	/* Super Metroid (docs/games/super-metroid.md): Start opens the pause
+	 * screen's map after a fade */
+	{
+		.codes = { "D63ED5F8" }, /* Japan and USA (one ROM) */
+		.title = "Super Metroid",
+		.open = { { K_START, 4 } },
+		.settleMax = 180, .openWithin = 120,
+		.stableFrames = 8, .maxDiff = 150, /* Samus's marker blinks */
+		/* SM-2: the frame and the area name; not the energy row (above)
+		 * or the button prompts (below) */
+		.crop_x = 0, .crop_y = 38, .crop_w = 256, .crop_h = 160,
+		/* the frame's sides and bottom edge, and the purple grid */
+		.probes = { { 3, 100, 0xBDBDBD }, { 4, 100, 0xFFFFFF }, { 252, 100, 0xBDBDBD }, { 251, 100, 0xFFFFFF },
+		            { 100, 194, 0xFFFFFF }, { 10, 54, 0x42008C }, { 128, 54, 0x42008C } },
+		.tolerance = 8,
+		.mem = { { 0x7E0998, 0xFF, 0x0F, 1 } },  /* the pause screen */
+		/* playing (08), anywhere but Ceres Station (area 06: no pausing) */
+		.live = { { 0x7E0998, 0xFF, 0x08, 1 }, { 0x7E079F, 0xFF, 0x00, 1, true, 0x05, true } },
+		/* the title, file select and options screens (00 to 05) */
+		.menu = { { 0x7E0998, 0xFF, 0x00, 1, true, 0x05, true } },
+		.room = { { 0x7E079B, 0, 0, 2 } },
+		/* the title screen, its lettering */
+		.logo = { .wait = 600, .pressStart = true, .wait2 = 126, .minX = 44, .minY = 17, .maxX = 224, .maxY = 80 },
+		.animFrames = 12, .animStep = 1,
+	},
 };
 
 const MapProfile* profile_find(const char* gameCode) {
