@@ -21,11 +21,14 @@ static const MapProfile profiles[] = {
 		/* SM-2: the frame and the area name; not the energy row (above)
 		 * or the button prompts (below) */
 		.crop_x = 0, .crop_y = 38, .crop_w = 256, .crop_h = 160,
-		/* the frame's sides and bottom edge, and the purple grid */
-		.probes = { { 3, 100, 0xBDBDBD }, { 4, 100, 0xFFFFFF }, { 252, 100, 0xBDBDBD }, { 251, 100, 0xFFFFFF },
-		            { 100, 194, 0xFFFFFF }, { 10, 54, 0x42008C }, { 128, 54, 0x42008C } },
+		/* the frame (top, sides, bottom) and the SAMUS plate (bottom right),
+		 * which only the map page has. Nothing on the grid: it scrolls with
+		 * the map, so its dots aren't anywhere fixed */
+		.probes = { { 20, 43, 0xFFFFFF }, { 240, 43, 0xFFFFFF }, { 4, 100, 0xFFFFFF }, { 251, 100, 0xFFFFFF },
+		            { 20, 194, 0xFFFFFF }, { 240, 194, 0xFFFFFF }, { 204, 202, 0xFFB500 } },
 		.tolerance = 8,
-		.mem = { { 0x7E0998, 0xFF, 0x0F, 1 } },  /* the pause screen */
+		/* the pause screen, on its map page (01: the equipment page) */
+		.mem = { { 0x7E0998, 0xFF, 0x0F, 1 }, { 0x7E0727, 0xFFFF, 0x0000, 2 } },
 		/* playing (08), anywhere but Ceres Station (area 06: no pausing) */
 		.live = { { 0x7E0998, 0xFF, 0x08, 1 }, { 0x7E079F, 0xFF, 0x00, 1, true, 0x05, true } },
 		/* the title, file select and options screens (00 to 05) */

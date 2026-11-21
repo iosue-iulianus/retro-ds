@@ -28,10 +28,11 @@ Every game also follows the general rules GBA DS set out (`docs/reference/gba/RE
 
 - Game state, `$7E0998`: `08` playing, `0F` the pause screen up; `00` to `05` the title, file and options screens. Area, `$7E079F`: `00` Crateria to `05` Tourian, `06` Ceres Station. Room, `$7E079B` (2 bytes).
 - Start opens the pause screen in about 67 frames (the fade); it has settled by about 76.
-- The map screen is told by its frame (grey and white at both sides) and the purple grid.
+- Pause screen page, `$7E0727` (2 bytes): `0000` the map, `0001` the equipment.
+- The map screen is told by its frame and the SAMUS plate at the bottom right (the equipment page has MAP there). Not by the grid: it scrolls with the map.
 
 ## Not covered yet
 
-- Only Crateria, at the start of a new game, has been run. Other areas, Ceres Station, bosses, the escape and the ending haven't.
+- Crateria and the first rooms of Brinstar have been played on the Duo (and the way back up, the owner's slot 0 state in the test data: the map once stuck on Brinstar there). Other areas, Ceres Station, bosses, the escape and the ending haven't.
 - Death and the game over screen: what the second screen shows there isn't checked.
 - The Europe release (its own ROM) has no profile yet.
