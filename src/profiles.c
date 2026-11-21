@@ -16,7 +16,7 @@ static const MapProfile profiles[] = {
 const MapProfile* profile_find(const char* gameCode) {
 	for (size_t i = 0; gameCode && i < sizeof(profiles) / sizeof(*profiles); ++i) {
 		for (int j = 0; j < 4 && profiles[i].codes[j]; ++j) {
-			if (!strncmp(profiles[i].codes[j], gameCode, 4)) return &profiles[i];
+			if (!strncmp(profiles[i].codes[j], gameCode, 8)) return &profiles[i];
 		}
 	}
 	return NULL;
@@ -24,7 +24,7 @@ const MapProfile* profile_find(const char* gameCode) {
 
 /* ---------------------------------------------------------- known dumps */
 typedef struct {
-	char code[5];
+	char code[9];
 	uint32_t crc;
 	bool tested;
 	bool mod; /* a romhack or patch (a Mods row), not one of No-Intro's dumps */
@@ -36,7 +36,7 @@ DumpKind profile_dump(const char* gameCode, uint32_t crc, const char** name) {
 	bool listed = false;
 	if (name) *name = NULL;
 	for (size_t i = 0; i < sizeof(knownDumps) / sizeof(knownDumps[0]); ++i) {
-		if (!knownDumps[i].code[0] || strncmp(knownDumps[i].code, gameCode, 4)) continue;
+		if (!knownDumps[i].code[0] || strncmp(knownDumps[i].code, gameCode, 8)) continue;
 		if (!knownDumps[i].mod) listed = true; /* (only patches known for it: not checked) */
 		if (knownDumps[i].crc != crc) continue;
 		if (name) *name = knownDumps[i].name;
@@ -46,10 +46,9 @@ DumpKind profile_dump(const char* gameCode, uint32_t crc, const char** name) {
 	return listed ? DUMP_MODIFIED : DUMP_UNLISTED;
 }
 
-uint32_t doCrc32(const void* buf, size_t size); /* (libmgba's: its header wants zlib.h) */
 const KnownPatch* profile_patch(const uint8_t* file, size_t size, int n) {
 	if (size <= 4) return NULL;
-	uint32_t id = doCrc32(file, size - 4);
+	uint32_t id = emu_crc32(0, file, size - 4);
 	for (size_t i = 0; i < sizeof(knownPatches) / sizeof(knownPatches[0]); ++i) {
 		if (!knownPatches[i].size || knownPatches[i].id != id || knownPatches[i].size != size) continue;
 		if (n-- == 0) return &knownPatches[i];
@@ -64,7 +63,7 @@ const KnownPatch* profile_patch(const uint8_t* file, size_t size, int n) {
 bool profile_release_name(const char* gameCode, char* out, size_t size) {
 	const char* name = NULL;
 	for (size_t i = 0; i < sizeof(knownDumps) / sizeof(knownDumps[0]); ++i) {
-		if (!knownDumps[i].code[0] || strncmp(knownDumps[i].code, gameCode, 4) || knownDumps[i].mod) continue;
+		if (!knownDumps[i].code[0] || strncmp(knownDumps[i].code, gameCode, 8) || knownDumps[i].mod) continue;
 		if (!name || knownDumps[i].tested) name = knownDumps[i].name;
 		if (knownDumps[i].tested) break;
 	}

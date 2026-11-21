@@ -16,7 +16,7 @@ static const char* const hotkeyDefaults[HK_COUNT] = { "start", "r", "l", "x", "y
 void config_defaults(Config* c) {
 	memset(c, 0, sizeof(*c));
 	strcpy(c->layout, "auto");
-	strcpy(c->saveExt, "sav");
+	strcpy(c->saveExt, "srm"); /* (the SNES convention, RetroArch's too: the same file for both) */
 	strcpy(c->stateFolder, "snesds");
 	strcpy(c->scale, "integer");
 	strcpy(c->mapScale, "integer");
@@ -46,7 +46,6 @@ void config_defaults(Config* c) {
 	strcpy(c->bezelInner, "1A1A1A");
 	strcpy(c->bezelOuter, "102060");
 	c->mapInterval = 60;
-	c->solarLevel = 6;
 	c->sway = true;
 	c->audioLatency = 64;
 	c->audioAuto = true;
@@ -163,7 +162,6 @@ static bool set_option(Config* c, const char* key, const char* val) {
 	BOOL("audio_auto", audioAuto)
 	INT("rewind_seconds", rewindSeconds)
 	INT("map_interval", mapInterval)
-	INT("solar_level", solarLevel)
 	BOOL("ab_swap", abSwap)
 	STR("hotkey", hotkey)
 	if (!strcmp(key, "hotkey_fps")) return true; /* (a test build's: the quick menu has the FPS counter) */
@@ -448,8 +446,8 @@ static const SettingChoice chOverlays[] = { { N_("off"), "Off", OVM_OFF }, { "ge
 static const SettingChoice chOvlScreens[] = { { "both", "Both screens", OVL_BOTH }, { "top", "Top screen", OVL_TOP }, { "bottom", "Bottom screen", OVL_BOTTOM } };
 static const SettingChoice chAB[] = { { "0", "Like a GBA", 0 }, { "1", "Swapped", 1 } };
 static const SettingChoice chFace[] = {
-	{ "a", "GBA A", 0 }, { "b", "GBA B", 0 }, { "l", "GBA L", 0 }, { "r", "GBA R", 0 },
-	{ "up", "GBA Up", 0 }, { "down", "GBA Down", 0 }, { "left", "GBA Left", 0 }, { "right", "GBA Right", 0 }, { "start", "Start", 0 },
+	{ "a", "SNES A", 0 }, { "b", "SNES B", 0 }, { "x", "SNES X", 0 }, { "y", "SNES Y", 0 }, { "l", "SNES L", 0 }, { "r", "SNES R", 0 },
+	{ "up", "SNES Up", 0 }, { "down", "SNES Down", 0 }, { "left", "SNES Left", 0 }, { "right", "SNES Right", 0 }, { "start", "Start", 0 },
 	{ "select", "Select", 0 }, { "turbo_a", "Turbo A", 0 }, { "turbo_b", "Turbo B", 0 }, { "none", "Nothing", 0 },
 };
 static const SettingChoice chTurbo[] = { { "10", "Slow (10 a second)", 10 }, { "15", "Medium (15 a second)", 15 }, { "20", "Fast (20 a second)", 20 } };

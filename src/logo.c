@@ -49,13 +49,13 @@ bool logo_extract(const char* romPath, const char* gameCode, const char* outPng)
 	bool ok = false;
 	if (!emu_cancelled(&e)) {
 		int x0 = p->logo.minX, y0 = p->logo.minY;
-		int x1 = p->logo.maxX > 0 ? p->logo.maxX : GBA_W, y1 = p->logo.maxY > 0 ? p->logo.maxY : GBA_H;
-		x1 = x1 > GBA_W ? GBA_W : x1, y1 = y1 > GBA_H ? GBA_H : y1;
+		int x1 = p->logo.maxX > 0 ? p->logo.maxX : e.w, y1 = p->logo.maxY > 0 ? p->logo.maxY : e.h;
+		x1 = x1 > e.w ? e.w : x1, y1 = y1 > e.h ? e.h : y1;
 		int w = x1 - x0, h = y1 - y0;
 		uint8_t* rgba = w > 0 && h > 0 ? malloc((size_t) w * h * 4) : NULL;
 		for (int y = 0; rgba && y < h; ++y) {
 			for (int x = 0; x < w; ++x) {
-				uint32_t c = e.fb[(y0 + y) * GBA_W + x0 + x];
+				uint32_t c = e.fb[(y0 + y) * e.w + x0 + x];
 				uint8_t* o = &rgba[(y * w + x) * 4];
 				o[0] = c & 0xFF, o[1] = (c >> 8) & 0xFF, o[2] = (c >> 16) & 0xFF, o[3] = 255;
 			}
@@ -73,7 +73,7 @@ bool logo_extract(const char* romPath, const char* gameCode, const char* outPng)
 /* ------------------------------------------------------------ queue */
 
 typedef struct Job {
-	char rom[1024], code[5], out[1024];
+	char rom[1024], code[9], out[1024];
 	bool urgent; /* runs while the queue's paused: the game being started or played */
 	struct Job* next;
 } Job;
@@ -169,7 +169,7 @@ static void enqueue(const char* romPath, const char* gameCode, const char* outPn
 	}
 	Job* j = calloc(1, sizeof(*j));
 	snprintf(j->rom, sizeof(j->rom), "%s", romPath);
-	snprintf(j->code, sizeof(j->code), "%.4s", gameCode);
+	snprintf(j->code, sizeof(j->code), "%.8s", gameCode);
 	snprintf(j->out, sizeof(j->out), "%s", outPng);
 	j->urgent = paused; /* (asked for by the game being played: its own logo) */
 	if (!pending) finished = 0;
@@ -212,7 +212,7 @@ void logo_front(const char* gameCode, bool urgent) {
 	Job *mine = NULL, **mineTail = &mine;
 	for (Job** at = &queue; *at;) {
 		Job* j = *at;
-		if (!strncmp(j->code, gameCode, 4)) {
+		if (!strncmp(j->code, gameCode, 8)) {
 			*at = j->next;
 			j->next = NULL;
 			j->urgent |= urgent;
@@ -231,8 +231,8 @@ void logo_front(const char* gameCode, bool urgent) {
 
 bool logo_busy(const char* gameCode) {
 	pthread_mutex_lock(&qlock);
-	bool busy = (gameCode && !strncmp(current, gameCode, 4)) || (!gameCode && current[0]);
-	for (Job* j = queue; j && gameCode && !busy; j = j->next) busy = !strncmp(j->code, gameCode, 4);
+	bool busy = (gameCode && !strncmp(current, gameCode, 8)) || (!gameCode && current[0]);
+	for (Job* j = queue; j && gameCode && !busy; j = j->next) busy = !strncmp(j->code, gameCode, 8);
 	pthread_mutex_unlock(&qlock);
 	return busy;
 }

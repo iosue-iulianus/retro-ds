@@ -2191,15 +2191,15 @@ static bool file_there(const char* p) {
 /* The extracted logo's file (whether it exists yet or not). */
 static void extracted_path(const Config* c, const char* code, char* path, size_t n) {
 	const MapProfile* prof = profile_find(code);
-	if (prof && prof->logo.rev) snprintf(path, n, "%s/logos/%.4s-r%d.png", c->stateDir, code, prof->logo.rev);
-	else snprintf(path, n, "%s/logos/%.4s.png", c->stateDir, code);
+	if (prof && prof->logo.rev) snprintf(path, n, "%s/logos/%.8s-r%d.png", c->stateDir, code, prof->logo.rev);
+	else snprintf(path, n, "%s/logos/%.8s.png", c->stateDir, code);
 }
 
 /* The player's own logo for the game: <asset_dir>/logos/<CODE>.png|.bmp|.jpg|.webp. */
 static bool own_logo(const Config* c, const char* code, char* path, size_t n) {
 	const char* exts[] = { "png", "bmp", "jpg", "jpeg", "webp" };
 	for (int i = 0; i < 5; ++i) {
-		snprintf(path, n, "%s/logos/%.4s.%s", c->assetDir, code, exts[i]);
+		snprintf(path, n, "%s/logos/%.8s.%s", c->assetDir, code, exts[i]);
 		if (file_there(path)) return true;
 	}
 	return false;
@@ -2409,11 +2409,11 @@ static SDL_Surface* sized_surface(const Config* c, const char* src, const char* 
 	}
 	const char* ext = strrchr(src, '.');
 	img = trim_alpha(img, ext && (!strcasecmp(ext, ".jpg") || !strcasecmp(ext, ".jpeg")));
-	float gw, gh; /* the size in GBA pixels */
+	float gw, gh; /* the size in SNES pixels */
 	if (refH > 0) {
-		gh = (float) SDL_min(refH, GBA_H);
+		gh = (float) SDL_min(refH, SNES_H);
 		gw = (float) img->w * gh / img->h;
-		if (gw > GBA_W) gw = GBA_W, gh = (float) img->h * GBA_W / img->w;
+		if (gw > SNES_W) gw = SNES_W, gh = (float) img->h * SNES_W / img->w;
 	} else {
 		float sc = SDL_min((float) LOGO_BOX_W / img->w, (float) LOGO_BOX_H / img->h);
 		gw = img->w * sc, gh = img->h * sc;
@@ -2465,9 +2465,9 @@ int ui_logo_source(const Config* c, const char* rom, const char* code, char* pat
 		if (stat(c->logoFolder, &st) != 0 || !S_ISDIR(st.st_mode))
 			logo_note("the game's own: logo_folder %s isn't a folder", c->logoFolder);
 		else
-			logo_note("the game's own: nothing in %s (%d images) named after %s, and no logos/%.4s.png", c->logoFolder,
+			logo_note("the game's own: nothing in %s (%d images) named after %s, and no logos/%.8s.png", c->logoFolder,
 			          logoDir.n, base ? base + 1 : rom ? rom : "?", code);
-	} else logo_note("the game's own (no logos/%.4s.png, logo_folder not set)", code);
+	} else logo_note("the game's own (no logos/%.8s.png, logo_folder not set)", code);
 	extracted_path(c, code, path, n);
 	return LOGO_EXTRACTED;
 }

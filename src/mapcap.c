@@ -23,6 +23,7 @@ struct MapCapture {
 	bool clean; /* map_crop: also erase button-prompt lettering (profile glyphs) */
 	int failures; /* consecutive failed captures (guarded by lock) */
 	uint32_t tile[16 * 16]; /* empty grid cell used to paint over masks */
+	uint32_t pic[SNES_W * SNES_H]; /* the shadow's picture as an SNES screen (snes_pic) */
 	bool tileValid;
 
 	/* scratch buffers used by the capture routine (worker thread only) */
@@ -64,13 +65,27 @@ static bool color_near(uint32_t c, uint32_t rgb, int tol) {
 	return abs(r - er) <= tol && abs(g - eg) <= tol && abs(b - eb) <= tol;
 }
 
+/* The shadow's picture as an SNES screen, SNES_W x SNES_H: a hi-res or
+ * interlaced picture halved, a shorter one with black below. Profiles give
+ * their probes and crops in these coordinates. */
+static const uint32_t* snes_pic(MapCapture* mc, const Emu* s) {
+	int sx = s->w > SNES_W ? s->w / SNES_W : 1, sy = s->h > 240 ? 2 : 1;
+	for (int y = 0; y < SNES_H; ++y) {
+		for (int x = 0; x < SNES_W; ++x) {
+			int fx = x * sx, fy = y * sy;
+			mc->pic[y * SNES_W + x] = fx < s->w && fy < s->h ? s->fb[fy * s->w + fx] : 0xFF000000u;
+		}
+	}
+	return mc->pic;
+}
+
 static bool screen_matches(const MapProfile* p, const uint32_t* fb) {
 	int n = probe_count(p);
 	int need = p->minProbes ? p->minProbes : n;
 	int hit = 0;
 	for (int i = 0; i < n; ++i) {
 		const Probe* pr = &p->probes[i];
-		if (color_near(fb[pr->y * GBA_W + pr->x], pr->rgb, p->tolerance)) {
+		if (color_near(fb[pr->y * SNES_W + pr->x], pr->rgb, p->tolerance)) {
 			++hit;
 		}
 	}
@@ -81,7 +96,7 @@ static bool screen_matches(const MapProfile* p, const uint32_t* fb) {
 		int fg = 0;
 		for (int y = p->crop_y; y < p->crop_y + p->crop_h && fg < p->minForeground; ++y) {
 			for (int x = p->crop_x; x < p->crop_x + p->crop_w; ++x) {
-				if (!color_near(fb[y * GBA_W + x], p->bgColor, p->tolerance) && ++fg >= p->minForeground) {
+				if (!color_near(fb[y * SNES_W + x], p->bgColor, p->tolerance) && ++fg >= p->minForeground) {
 					break;
 				}
 			}
@@ -124,7 +139,7 @@ static void find_tile(MapCapture* mc, const uint32_t* fb) {
 		for (int x = mc->cx + ((p->gridX - mc->cx) % k + k) % k; x + k <= mc->cx + mc->cw && n < MAXC; x += k) {
 			uint64_t h = 1469598103934665603ull;
 			for (int j = 0; j < k; ++j) {
-				for (int i = 0; i < k; ++i) h = (h ^ fb[(y + j) * GBA_W + x + i]) * 1099511628211ull;
+				for (int i = 0; i < k; ++i) h = (h ^ fb[(y + j) * SNES_W + x + i]) * 1099511628211ull;
 			}
 			hash[n] = h;
 			cellX[n] = x;
@@ -140,7 +155,7 @@ static void find_tile(MapCapture* mc, const uint32_t* fb) {
 	}
 	if (best < 0 || bestCount < 4) return;
 	for (int j = 0; j < k; ++j) {
-		for (int i = 0; i < k; ++i) mc->tile[j * k + i] = fb[(cellY[best] + j) * GBA_W + cellX[best] + i];
+		for (int i = 0; i < k; ++i) mc->tile[j * k + i] = fb[(cellY[best] + j) * SNES_W + cellX[best] + i];
 	}
 	mc->tileValid = true;
 }
@@ -317,7 +332,7 @@ static void recolor(MapCapture* mc, uint32_t* out) {
 static void crop(MapCapture* mc, const uint32_t* fb, uint32_t* out) {
 	const MapProfile* p = mc->prof;
 	for (int y = 0; y < mc->ch; ++y) {
-		memcpy(&out[y * mc->cw], &fb[(mc->cy + y) * GBA_W + mc->cx], mc->cw * sizeof(uint32_t));
+		memcpy(&out[y * mc->cw], &fb[(mc->cy + y) * SNES_W + mc->cx], mc->cw * sizeof(uint32_t));
 	}
 	if (mc->clean && p->glyphs[0].w) remove_glyphs(mc, out);
 	if (mc->clean && p->recolor[0].w) recolor(mc, out);
@@ -346,8 +361,8 @@ static int count_diff(const uint32_t* a, const uint32_t* b, size_t n, int limit)
 	return d;
 }
 
-static bool map_up(const MapProfile* p, Emu* s) {
-	return memprobes_match(p->mem, 4, s) && screen_matches(p, s->fb);
+static bool map_up(MapCapture* mc, Emu* s) {
+	return memprobes_match(mc->prof->mem, 4, s) && screen_matches(mc->prof, snes_pic(mc, s));
 }
 
 /* Runs the shadow core from `state`; returns NULL on success or a reason.
@@ -401,7 +416,7 @@ static const char* do_capture_(MapCapture* mc, const void* state) {
 	 * the probes can't tell it apart from whatever is showing (or the player
 	 * has the map open themselves). Either way, don't trust a capture. */
 	emu_frame(s, 0);
-	if (map_up(p, s)) {
+	if (map_up(mc, s)) {
 		return "screen already looks like the map";
 	}
 	/* (openAlt: the game's other way to the map, from where it's asked for) */
@@ -440,13 +455,13 @@ static const char* do_capture_(MapCapture* mc, const void* state) {
 			}
 			return "map button did nothing"; /* quick: no map available here */
 		}
-		if (!map_up(p, s)) {
+		if (!map_up(mc, s)) {
 			stable = 0;
 			havePrev = false;
 			continue;
 		}
 		everUp = true;
-		crop(mc, s->fb, mc->work[0]);
+		crop(mc, snes_pic(mc, s), mc->work[0]);
 		if (havePrev && count_diff(mc->prev, mc->work[0], n, p->maxDiff) <= p->maxDiff) {
 			if (++stable >= p->stableFrames) {
 				break;
@@ -473,10 +488,10 @@ static const char* do_capture_(MapCapture* mc, const void* state) {
 		for (int k = 0; k < step; ++k) {
 			emu_frame(s, 0);
 		}
-		if (!map_up(p, s)) {
+		if (!map_up(mc, s)) {
 			break;
 		}
-		crop(mc, s->fb, mc->work[i]);
+		crop(mc, snes_pic(mc, s), mc->work[i]);
 		if (memcmp(mc->work[i], mc->work[0], n * sizeof(uint32_t))) {
 			animated = true;
 		}

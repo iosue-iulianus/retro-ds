@@ -362,14 +362,9 @@ static void safe_name(char* s) {
 void patch_folder(const Config* cfg, const char* rom, const char* code, char* out, size_t size, bool make) {
 	char name[300];
 	if (!profile_release_name(code, name, sizeof(name))) {
-		uint8_t h[0xB0];
-		char title[13] = "";
-		if (emu_rom_header(rom, h, sizeof(h))) {
-			memcpy(title, h + 0xA0, 12);
-			title[12] = 0;
-		}
-		for (int i = (int) strlen(title) - 1; i >= 0 && (title[i] == ' ' || !title[i]); --i) title[i] = 0;
-		snprintf(name, sizeof(name), "%s (%.4s)", title[0] ? title : tr("GBA"), code);
+		char title[32] = "";
+		emu_rom_title(rom, title, sizeof(title));
+		snprintf(name, sizeof(name), "%s (%.8s)", title[0] ? title : tr("SNES"), code);
 	}
 	safe_name(name);
 	snprintf(out, size, "%s/%s", cfg->patchDir, name);

@@ -110,7 +110,7 @@ static struct {
 } ahead = { .lock = PTHREAD_MUTEX_INITIALIZER, .cond = PTHREAD_COND_INITIALIZER };
 static bool aheadInFlight; /* the worker is emulating the next frame */
 static bool aheadReady;    /* it has: that frame is emulated but not yet used */
-static uint32_t aheadFb[GBA_W * GBA_H]; /* the frame on screen, while the worker writes the next */
+static uint32_t aheadFb[EMU_MAX_W * EMU_MAX_H]; /* the frame on screen, while the worker writes the next */
 
 static bool debug; /* SNESDS_DEBUG (declared again below) */
 
@@ -138,8 +138,8 @@ static uint64_t frameCount;
 
 static void run_frame(uint32_t keys) {
 	frameKeys = keys;
-	bugKeys[bugFrame & (BUG_LOG - 1)] = keys & 0x3FF;
-	emu_frame(&emu, keys & 0x3FF);
+	bugKeys[bugFrame & (BUG_LOG - 1)] = keys & K_ALL;
+	emu_frame(&emu, keys & K_ALL);
 	++bugFrame;
 }
 
@@ -234,7 +234,7 @@ static void ahead_stop(void) {
 	ahead.started = false;
 }
 static MapCapture* mc;
-static char subCode[5];          /* the profile in use: the game's code */
+static char subCode[9];          /* the profile in use: the game's code */
 /* what the ROM is, by its CRC32 (the log, bug reports) */
 static const char* dump_text(char* buf, size_t n) {
 	const char* name;
@@ -244,10 +244,10 @@ static const char* dump_text(char* buf, size_t n) {
 	case DUMP_MOD_TESTED: snprintf(buf, n, "CRC32 %08x, a mod SNES DS is tested on (%s)", emu.romCrc, name); break;
 	case DUMP_MOD: snprintf(buf, n, "CRC32 %08x, a known mod SNES DS isn't tested on (%s)", emu.romCrc, name); break;
 	case DUMP_MODIFIED:
-		snprintf(buf, n, "CRC32 %08x, not a known dump of %.4s: modified (a patch or hack), trimmed or a bad dump", emu.romCrc,
+		snprintf(buf, n, "CRC32 %08x, not a known dump of %.8s: modified (a patch or hack), trimmed or a bad dump", emu.romCrc,
 		         emu.gameCode);
 		break;
-	default: snprintf(buf, n, "CRC32 %08x, not checked (no list of %.4s's dumps)", emu.romCrc, emu.gameCode); break;
+	default: snprintf(buf, n, "CRC32 %08x, not checked (no list of %.8s's dumps)", emu.romCrc, emu.gameCode); break;
 	}
 	/* a patch file beside the ROM (GEN-9): which, and what the file was before it */
 	size_t l = strlen(buf);
@@ -274,6 +274,33 @@ static const char* dump_text(char* buf, size_t n) {
 static GamePaths gp;
 
 static SDL_Texture* gameTex[2];
+/* The game's picture: texW x texH as the core draws it (made again when
+ * that changes), shown as picW x picH: the SNES screen, 256 wide (hi-res
+ * pictures are 512 wide) and 224 or 239 tall (interlaced ones twice that). */
+static int texW, texH, picW = SNES_W, picH = SNES_H;
+static void game_tex_fit(int w, int h) {
+	if (w <= 0 || h <= 0 || (w == texW && h == texH && gameTex[0])) return;
+	for (int i = 0; i < nViews; ++i) {
+		if (gameTex[i]) SDL_DestroyTexture(gameTex[i]);
+		gameTex[i] = SDL_CreateTexture(views[i].ren, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, w, h);
+		if (gameTex[i]) SDL_SetTextureBlendMode(gameTex[i], SDL_BLENDMODE_NONE);
+	}
+	texW = w, texH = h;
+	picW = SNES_W;
+	picH = h > 240 ? h / 2 : h;
+	if (debug) fprintf(stderr, "frame %llu: picture %dx%d, shown as %dx%d\n", (unsigned long long) frameCount, w, h, picW, picH);
+}
+/* A w x h picture into an SNES_W x SNES_H one: hi-res and interlaced
+ * pictures halved, a taller one cut, a smaller one black around */
+static void pic_copy(uint32_t* out, const uint32_t* fb, int w, int h) {
+	int sx = w > SNES_W ? w / SNES_W : 1, sy = h > 240 ? 2 : 1;
+	for (int y = 0; y < SNES_H; ++y) {
+		for (int x = 0; x < SNES_W; ++x) {
+			int fx = x * sx, fy = y * sy;
+			out[y * SNES_W + x] = fx < w && fy < h ? fb[fy * w + fx] : 0xFF000000u;
+		}
+	}
+}
 static SDL_Texture* mapTex[2];
 static SDL_Texture* logoTex[2];
 /* the logo centred in a GBA-sized picture, so it's scaled (and gridded)
@@ -293,7 +320,7 @@ static bool logoPixel;
 static int logoSub = 1; /* logoTex's pixels per GBA pixel (LOGO_SUB: a scraped logo at full resolution) */
 static bool logoProvisional; /* a scraped logo sized before the extracted one existed (GEN-11) */
 static MapResult mapRes;
-static int mapW = GBA_W, mapH = GBA_H;
+static int mapW = SNES_W, mapH = SNES_H;
 static int mapShownIdx = -1;
 /* "Map Animations: Off" shows this composed still instead of mapRes.frames[] */
 #define STILL_IDX MAP_MAX_FRAMES
@@ -316,7 +343,7 @@ static const uint32_t* map_px(int idx);
 static bool logo_draw(uint32_t* px, int cw, int ch, int k, int top, int alpha);
 static void logo_refresh(void);
 static int snapShow, snapRevert;   /* consecutive frames matching show / a revert screen */
-static uint32_t snapShown[GBA_W * GBA_H]; /* the copy on the second screen (kept with save states) */
+static uint32_t snapShown[SNES_W * SNES_H]; /* the copy on the second screen (kept with save states), SNES_W x SNES_H */
 
 static uint64_t mapAnimStart;
 /* which of the map's frames shows now (they turn every frameStep frames
@@ -837,7 +864,6 @@ static bool patchReloadNext;
  * the game reopens with it, and loaded straight back, so it carries on */
 static bool patchHandoffNext;
 static char patchHandoff[1100];
-uint32_t doCrc32(const void* buf, size_t size); /* (libmgba's: its header wants zlib.h) */
 enum { PR_RESTART, PR_SAVE, PR_STATES, PR_HEADER, PR_SUMMARY, PR_BESIDE, PR_PATCH, PR_EMPTY };
 /* what each file does to the ROM on its own (worked out as the list opens) */
 typedef struct {
@@ -958,7 +984,7 @@ static bool patch_overlap(const PatchInfo* a, const PatchInfo* b) {
 /* what a ROM the patches made is ("Tested romhack: ..." / "Untested ...") */
 static void patch_result_text(const uint8_t* out, size_t outN, char* note, size_t size) {
 	const char* name = NULL;
-	switch (profile_dump(emu.gameCode, doCrc32(out, outN), &name)) {
+	switch (profile_dump(emu.gameCode, emu_crc32(0, out, outN), &name)) {
 	case DUMP_MOD_TESTED: snprintf(note, size, tr("Tested romhack: %s"), name); break;
 	case DUMP_MOD: snprintf(note, size, tr("Known romhack: %s, untested"), name); break;
 	case DUMP_TESTED:
@@ -970,7 +996,7 @@ static void patch_result_text(const uint8_t* out, size_t outN, char* note, size_
 /* a known patch's note when it goes on the ROM it's made for */
 static void patch_known_text(const KnownPatch* k, const uint8_t* out, size_t outN, char* note, size_t size) {
 	const char* name = NULL;
-	DumpKind d = out ? profile_dump(emu.gameCode, doCrc32(out, outN), &name) : DUMP_MODIFIED;
+	DumpKind d = out ? profile_dump(emu.gameCode, emu_crc32(0, out, outN), &name) : DUMP_MODIFIED;
 	if (d == DUMP_MOD_TESTED) snprintf(note, size, tr("Known %s patch, tested: %s"), k->kind, k->name);
 	else snprintf(note, size, tr("Known %s patch, untested: %s. The second screen may not work with it"), k->kind, k->name);
 }
@@ -988,7 +1014,7 @@ static void patch_describe(const uint8_t* rom, size_t romN, uint32_t romCrc, con
 	pi->baseOk = false;
 	const KnownPatch* k;
 	for (int i = 0; pn && (k = profile_patch(p, pn, i)); ++i) {
-		if (strncmp(k->code, emu.gameCode, 4) && k->code[0]) continue; /* (another game's, with the same file) */
+		if (strncmp(k->code, emu.gameCode, 8) && k->code[0]) continue; /* (another game's, with the same file) */
 		if (!pi->known) pi->known = k;
 		if (!k->base || k->base == romCrc) pi->baseOk = true, pi->known = k;
 		else if (pi->nBases < 8) pi->bases[pi->nBases++] = k->base;
@@ -1113,7 +1139,7 @@ static void patch_rebuild(void) {
 			free(p);
 			/* a known patch made for another patch's result (an optional one, after its main patch): fine here */
 			if (r == PATCH_APPLIED && row && pi && pi->known && !pi->baseOk) {
-				uint32_t here = doCrc32(rom, romN);
+				uint32_t here = emu_crc32(0, rom, romN);
 				for (int b = 0; b < pi->nBases; ++b)
 					if (pi->bases[b] == here) snprintf(row->note, sizeof(row->note), "%s", pi->okNote);
 			}
@@ -1170,7 +1196,7 @@ static void open_patches(void) {
 	patchPressRow = -1;
 	size_t romN = 0;
 	uint8_t* rom = emu_rom_read_all(romPath, &romN);
-	uint32_t romCrc = rom ? doCrc32(rom, romN) : 0;
+	uint32_t romCrc = rom ? emu_crc32(0, rom, romN) : 0;
 	char beside[1024];
 	patchBesideAt0 = patch_find(romPath, beside, sizeof(beside));
 	if (patchBesideAt0) {
@@ -1281,9 +1307,8 @@ static void patch_pick_up(void) {
  * The patched ROM the same size as the one playing, and the battery save and
  * save states the same files. */
 static bool patch_live_ok(void) {
-	uint8_t h[0xB0];
-	char code[5] = "????";
-	if (emu_rom_header(romPath, h, sizeof(h))) memcpy(code, h + 0xAC, 4);
+	char code[9] = "????????";
+	emu_rom_code(romPath, code);
 	size_t nowN = 0, newN = 0;
 	int nowR = PATCH_NONE, newR = PATCH_NONE;
 	free(emu_rom_read_played(romPath, &nowN, &nowR, NULL, NULL));
@@ -2196,18 +2221,19 @@ static const char* shader_label(int sh) {
 }
 /* Display > LCD Ghosting: the game's last frame (as the emulator drew it),
  * to show each frame half and half with it */
-static uint32_t ghostPrev[GBA_W * GBA_H], ghostOut[GBA_W * GBA_H];
+static uint32_t ghostPrev[EMU_MAX_W * EMU_MAX_H], ghostOut[EMU_MAX_W * EMU_MAX_H];
 static bool ghostHave;
+static int ghostW, ghostH;
 static uint64_t ghostFrame;
-static const uint32_t* ghost_frame(const uint32_t* fb) {
-	if (ghostHave && frameCount == ghostFrame) return ghostOut; /* (the same frame drawn again) */
-	if (!ghostHave) {
-		memcpy(ghostPrev, fb, sizeof(ghostPrev));
-		ghostHave = true;
+static const uint32_t* ghost_frame(const uint32_t* fb, int w, int h) {
+	if (ghostHave && frameCount == ghostFrame && w == ghostW && h == ghostH) return ghostOut; /* (the same frame drawn again) */
+	if (!ghostHave || w != ghostW || h != ghostH) {
+		memcpy(ghostPrev, fb, (size_t) w * h * sizeof(uint32_t));
+		ghostHave = true, ghostW = w, ghostH = h;
 	}
 	/* half this frame, half the one before: a sprite the game flickers
-	 * every other frame shows half see-through, as on the GBA's slow LCD */
-	for (int i = 0; i < GBA_W * GBA_H; ++i) {
+	 * every other frame shows half see-through, as on a slow LCD */
+	for (int i = 0; i < w * h; ++i) {
 		uint32_t a = fb[i], b = ghostPrev[i];
 		ghostOut[i] = (a | b) - (((a ^ b) & 0xFEFEFEFEu) >> 1); /* the rounded-up average of each byte */
 		ghostPrev[i] = a;
@@ -2643,18 +2669,21 @@ static void ovl_close_all(void) {
  * In games with a layout picker (profile `controls`), the SNES / four-button
  * layout decides the face buttons wherever it's in use. */
 enum { FB_RIGHT, FB_BOTTOM, FB_TOP, FB_LEFT, FB_FACES, FB_L = FB_FACES, FB_R, FB_UP, FB_DOWN, FB_PADLEFT, FB_PADRIGHT, FB_COUNT };
-enum { FG_A, FG_B, FG_L, FG_R, FG_UP, FG_DOWN, FG_LEFT, FG_RIGHT, FG_START, FG_SELECT, FG_TURBO_A, FG_TURBO_B, FG_NONE, FG_COUNT };
+enum { FG_A, FG_B, FG_X, FG_Y, FG_L, FG_R, FG_UP, FG_DOWN, FG_LEFT, FG_RIGHT, FG_START, FG_SELECT, FG_TURBO_A, FG_TURBO_B, FG_NONE, FG_COUNT };
 static const char* const fbNames[FB_COUNT] = { "right", "bottom", "top", "left", "l", "r", "dpad_up", "dpad_down", "dpad_left", "dpad_right" };
-static const char* const fgNames[FG_COUNT] = { "a", "b", "l", "r", "up", "down", "left", "right", "start", "select", "turbo_a", "turbo_b", "none" };
-static const char* const fgLabels[FG_COUNT] = { "GBA A", "GBA B", "GBA L", "GBA R", "GBA Up", "GBA Down", "GBA Left", "GBA Right", "Start", "Select", "Turbo A", "Turbo B", "Nothing" };
+static const char* const fgNames[FG_COUNT] = { "a", "b", "x", "y", "l", "r", "up", "down", "left", "right", "start", "select", "turbo_a", "turbo_b", "none" };
+static const char* const fgLabels[FG_COUNT] = { "SNES A", "SNES B", "SNES X", "SNES Y", "SNES L", "SNES R", "SNES Up", "SNES Down", "SNES Left", "SNES Right", "Start", "Select", "Turbo A", "Turbo B", "Nothing" };
 static int fbMap[FB_COUNT]; /* each face button's FG_ */
 static bool fbSet;          /* a choice in force (else ab_swap's) */
 
 /* from the settings in force (called again whenever one changes) */
 static void fb_default(void) {
+	/* the SNES pad's layout by position: A right, B bottom, X top, Y left
+	 * (ab_swap: A and B swapped, and X and Y) */
 	fbMap[FB_RIGHT] = cfg->abSwap ? FG_B : FG_A;
 	fbMap[FB_BOTTOM] = cfg->abSwap ? FG_A : FG_B;
-	fbMap[FB_TOP] = fbMap[FB_LEFT] = FG_NONE;
+	fbMap[FB_TOP] = cfg->abSwap ? FG_Y : FG_X;
+	fbMap[FB_LEFT] = cfg->abSwap ? FG_X : FG_Y;
 	fbMap[FB_L] = FG_L, fbMap[FB_R] = FG_R, fbMap[FB_UP] = FG_UP, fbMap[FB_DOWN] = FG_DOWN, fbMap[FB_PADLEFT] = FG_LEFT, fbMap[FB_PADRIGHT] = FG_RIGHT;
 	fbSet = false;
 	for (int i = 0; i < FB_COUNT; ++i)
@@ -2703,9 +2732,9 @@ static void fb_load(void) {
 	if (fbSet) fprintf(stderr, "buttons: %s\n", fb_describe());
 }
 
-/* the GBA keys the face buttons give the game (the GBA layout) */
+/* the SNES keys the buttons give the game */
 static uint32_t fb_keys(bool faces) {
-	static const uint32_t key[FG_COUNT] = { K_A, K_B, K_L, K_R, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_START, K_SELECT, K_A, K_B, 0 };
+	static const uint32_t key[FG_COUNT] = { K_A, K_B, K_X, K_Y, K_L, K_R, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_START, K_SELECT, K_A, K_B, 0 };
 	/* Turbo A / B (#55): the key goes down and up turbo_rate times a second (60 frames a second) */
 	int period = SDL_clamp(60 / SDL_max(1, cfg->turboRate), 2, 12);
 	bool turboOn = (frameCount % (uint64_t) period) < (uint64_t) (period / 2);
@@ -3108,7 +3137,7 @@ static void draw_menu(void) {
 static int probes_hit(const uint32_t* fb, const Probe* p, int tol) {
 	int n = 0;
 	for (int i = 0; i < 8 && (p[i].x || p[i].y || p[i].rgb); ++i) {
-		uint32_t c = fb[p[i].y * GBA_W + p[i].x];
+		uint32_t c = p[i].x < emu.w && p[i].y < emu.h ? fb[p[i].y * emu.w + p[i].x] : 0;
 		int dr = (int) (c & 0xFF) - (int) ((p[i].rgb >> 16) & 0xFF);
 		int dg = (int) ((c >> 8) & 0xFF) - (int) ((p[i].rgb >> 8) & 0xFF);
 		int db = (int) ((c >> 16) & 0xFF) - (int) (p[i].rgb & 0xFF);
@@ -3135,8 +3164,8 @@ static void update_snapshot(void) {
 	if (probes_hit(emu.fb, sn->show, tol) >= sn->showMin) {
 		snapRevert = 0;
 		if (++snapShow >= SDL_max(1, sn->stable)) {
-			memcpy(snapShown, emu.fb, sizeof(snapShown));
-			for (int i = 0; i < nViews; ++i) ui_update_texture(mapTex[i], emu.fb, GBA_W * 4);
+			pic_copy(snapShown, emu.fb, emu.w, emu.h);
+			for (int i = 0; i < nViews; ++i) ui_update_texture(mapTex[i], snapShown, SNES_W * 4);
 			if (mapShownIdx < 0 && debug) fprintf(stderr, "frame %llu: screen copied to the second screen\n", (unsigned long long) frameCount);
 			mapShownIdx = 0;
 		}
@@ -3160,7 +3189,7 @@ static void update_snapshot(void) {
 static int game_screen(void);
 
 static void save_thumbs(void) {
-	SDL_Surface* s = SDL_CreateRGBSurfaceWithFormatFrom(emu.fb, GBA_W, GBA_H, 32, GBA_W * 4, SDL_PIXELFORMAT_XBGR8888);
+	SDL_Surface* s = SDL_CreateRGBSurfaceWithFormatFrom(emu.fb, emu.w, emu.h, 32, emu.w * 4, SDL_PIXELFORMAT_XBGR8888);
 	if (s) {
 		SDL_SaveBMP(s, gp.thumb);
 		SDL_FreeSurface(s);
@@ -3223,16 +3252,17 @@ static bool state_is_retroarch(const char* path) {
 	return n && !strncmp(path, gp.raDir, n) && path[n] == '/';
 }
 /* RetroArch's thumbnail beside a state (<state>.png, for its menu): the
- * game's picture as it is now, at the GBA's size */
+ * game's picture as it is now, as the core drew it */
 static void state_thumbnail(const char* path) {
-	uint8_t* px = malloc((size_t) GBA_W * GBA_H * 4);
+	size_t n = (size_t) emu.w * emu.h;
+	uint8_t* px = malloc(n * 4);
 	if (!px) return;
-	memcpy(px, emu.fb, (size_t) GBA_W * GBA_H * 4); /* (bytes R, G, B, X) */
-	for (size_t i = 0; i < (size_t) GBA_W * GBA_H; ++i) px[i * 4 + 3] = 255;
+	memcpy(px, emu.fb, n * 4); /* (bytes R, G, B, X) */
+	for (size_t i = 0; i < n; ++i) px[i * 4 + 3] = 255;
 	char png[1100], tmp[1110];
 	snprintf(png, sizeof(png), "%s.png", path);
 	snprintf(tmp, sizeof(tmp), "%s.tmp.png", path);
-	if (!stbi_write_png(tmp, GBA_W, GBA_H, 4, px, GBA_W * 4) || rename(tmp, png) != 0) {
+	if (!stbi_write_png(tmp, emu.w, emu.h, 4, px, emu.w * 4) || rename(tmp, png) != 0) {
 		remove(tmp);
 		fprintf(stderr, "save state: no thumbnail %s\n", png);
 	}
@@ -3242,7 +3272,7 @@ static bool state_file_save(const char* path) {
 	size_t n;
 	void* blob = screen_blob(&n);
 	bool ra = state_is_retroarch(path);
-	StateFormat fmt = !ra ? STATE_FORMAT_MGBA : gp.raCompress ? STATE_FORMAT_RETROARCH_RZIP : STATE_FORMAT_RETROARCH;
+	StateFormat fmt = !ra ? STATE_FORMAT_OWN : gp.raCompress ? STATE_FORMAT_RETROARCH_RZIP : STATE_FORMAT_RETROARCH;
 	if (ra) mkdirs(gp.raDir);
 	bool ok = emu_state_save_file_as(&emu, path, blob, blob ? n : 0, fmt);
 	free(blob);
@@ -3299,7 +3329,7 @@ static void screen_restore_apply(void) {
 	}
 	if (snapProf && (d = blob_find(b, n, "SNAP", &sz)) && sz == sizeof(snapShown)) {
 		memcpy(snapShown, d, sz);
-		for (int i = 0; i < nViews; ++i) ui_update_texture(mapTex[i], snapShown, GBA_W * 4);
+		for (int i = 0; i < nViews; ++i) ui_update_texture(mapTex[i], snapShown, SNES_W * 4);
 		mapShownIdx = 0;
 	}
 	if (debug) fprintf(stderr, "load state: the second screen from it (%s%s)\n", blob_find(b, n, "MAP ", &sz) ? " map" : "",
@@ -3540,9 +3570,10 @@ static uint8_t* read_whole(const char* path, size_t* size) {
 }
 
 static void keys_name(char* out, size_t size, unsigned k) {
-	static const char* const names[10] = { "A", "B", "SELECT", "START", "RIGHT", "LEFT", "UP", "DOWN", "R", "L" };
+	/* (emu.h's bit order; the names tools/snes-harness.c reads) */
+	static const char* const names[12] = { "B", "Y", "SELECT", "START", "UP", "DOWN", "LEFT", "RIGHT", "A", "X", "L", "R" };
 	out[0] = 0;
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 12; ++i) {
 		if (k & (1u << i)) snprintf(out + strlen(out), size - strlen(out), "%s%s", out[0] ? "+" : "", names[i]);
 	}
 	if (!out[0]) snprintf(out, size, "-");
@@ -3777,18 +3808,18 @@ static bool bug_report(char* out, size_t outSize) {
 	text_add(&t, "# The keys the game got from then on (after SNES DS's button layouts), by frame:\n#\n");
 	text_add(&t, "#  frame    time  event\n");
 	unsigned prev = 0;
-	uint64_t since[10] = { 0 };
+	uint64_t since[12] = { 0 };
 	for (uint64_t f = from; f <= to; ++f) {
 		unsigned cur = f < to ? bugKeys[f & (BUG_LOG - 1)] : prev; /* (at the end: the keys still held) */
 		unsigned on = cur & ~prev, off = prev & ~cur;
-		for (int b = 0; b < 10; ++b) {
+		for (int b = 0; b < 12; ++b) {
 			keys_name(k, sizeof(k), 1u << b);
 			if (off & (1u << b)) {
 				text_add(&t, "# %6llu %6.2fs  lift %s (held %llu frames)\n", (unsigned long long) (f - from), (f - from) / fps60, k,
 				         (unsigned long long) (f - since[b]));
 			}
 		}
-		for (int b = 0; b < 10; ++b) {
+		for (int b = 0; b < 12; ++b) {
 			keys_name(k, sizeof(k), 1u << b);
 			if (on & (1u << b)) {
 				text_add(&t, "# %6llu %6.2fs  %s %s\n", (unsigned long long) (f - from), (f - from) / fps60, f == from ? "already holding" : "press", k);
@@ -3797,14 +3828,14 @@ static bool bug_report(char* out, size_t outSize) {
 		}
 		prev = cur;
 	}
-	for (int b = 0; b < 10; ++b) {
+	for (int b = 0; b < 12; ++b) {
 		if (prev & (1u << b)) {
 			keys_name(k, sizeof(k), 1u << b);
 			text_add(&t, "# %6llu %6.2fs  still holding %s (for %llu frames)\n", (unsigned long long) (to - from), (to - from) / fps60, k,
 			         (unsigned long long) (to - since[b]));
 		}
 	}
-	text_add(&t, "#\n# To play it back: build/host/harness ROM OUTDIR %s, run in the folder this\n", name[2]);
+	text_add(&t, "#\n# To play it back: build/host/snes-harness CORE ROM OUTDIR %s, run in the folder this\n", name[2]);
 	text_add(&t, "# report was unzipped to; it ends where %s is.\n", name[0]);
 	text_add(&t, "load ./%s\n", name[1]);
 	for (uint64_t f = from; f < to;) {
@@ -4136,7 +4167,7 @@ static void map_show_new(bool fresh) {
 
 static bool frame_is_dark(const uint32_t* fb) {
 	int bright = 0, total = 0;
-	for (int i = 0; i < GBA_W * GBA_H; i += 7) {
+	for (int i = 0; i < emu.w * emu.h; i += 7) {
 		uint32_t c = fb[i];
 		int lum = ((c & 0xFF) + ((c >> 8) & 0xFF) * 2 + ((c >> 16) & 0xFF)) >> 2;
 		bright += lum > 40;
@@ -4372,7 +4403,8 @@ static void swap_screens(void) {
 	/* the game moves to the other view, whose copy of the frame may be old
 	 * (frames go only where the game is shown; the menu uploads none) */
 	if (emu.fb) {
-		for (int i = 0; i < nViews; ++i) ui_update_texture(gameTex[i], emu.fb, GBA_W * 4);
+		game_tex_fit(emu.w, emu.h);
+		for (int i = 0; i < nViews; ++i) ui_update_texture(gameTex[i], emu.fb, emu.w * 4);
 	}
 	if (nScreens < 2) {
 		singleShowsMap = !singleShowsMap;
@@ -4447,14 +4479,14 @@ static void load_overlay(int s, int which) {
 	int n = 0;
 	for (int g = 0; g < 2; ++g) { /* this game's, then every game's */
 		char code[8] = "";
-		if (!g) snprintf(code, sizeof(code), "%.4s-", emu.gameCode);
+		if (!g) snprintf(code, sizeof(code), "%.8s-", emu.gameCode);
 		for (int k = 0; k < 2; ++k) if (match) snprintf(names[n++], 64, "%s%s-%s-%s", code, sides[k], scale, match);
 		for (int k = 0; k < 2; ++k) if (match) snprintf(names[n++], 64, "%s%s-%s", code, sides[k], match);
 		for (int k = 0; k < 2; ++k) snprintf(names[n++], 64, "%s%s-%s", code, sides[k], scale);
 		for (int k = 0; k < 2; ++k) snprintf(names[n++], 64, "%s%s", code, sides[k]);
 		if (!g && which) {
-			snprintf(names[n++], 64, "%.4s-%s", emu.gameCode, scale); /* older names */
-			snprintf(names[n++], 64, "%.4s", emu.gameCode);
+			snprintf(names[n++], 64, "%.8s-%s", emu.gameCode, scale); /* older names */
+			snprintf(names[n++], 64, "%.8s", emu.gameCode);
 		}
 	}
 	char path[1200];
@@ -4473,7 +4505,7 @@ static void load_overlay(int s, int which) {
  * (a screen without a PNG in Overlays: Custom). Nothing where the picture
  * fills the screen. */
 static void draw_bezel(int s, const char* mode, bool defaults) {
-	SDL_Rect r = ui_image_rect(s, GBA_W, GBA_H, mode), sr = screens[s].rect;
+	SDL_Rect r = ui_image_rect(s, picW, picH, mode), sr = screens[s].rect;
 	/* (Zoom: the part on the screen) */
 	int x0 = SDL_max(r.x, 0), y0 = SDL_max(r.y, 0), x1 = SDL_min(r.x + r.w, sr.w), y1 = SDL_min(r.y + r.h, sr.h);
 	if (x0 <= 0 && y0 <= 0 && x1 >= sr.w && y1 >= sr.h) return;
@@ -4541,7 +4573,7 @@ static void draw_osd(void) {
 	int s = ui_touch_screen();
 	SDL_Rect r = screens[s].rect;
 	bool gameHere = nScreens == 1 || s == game_screen() || !((mc || logoOnly) && cfg->map);
-	SDL_Rect img = ui_image_rect(s, GBA_W, GBA_H, gameHere ? cfg->scale : cfg->mapScale);
+	SDL_Rect img = ui_image_rect(s, picW, picH, gameHere ? cfg->scale : cfg->mapScale);
 	int gap = r.h - (img.y + img.h);
 	int fpx = small_text_px(s, img.y < gap ? img.y : gap);
 	int fy = gap >= 7 * fpx + 2 ? img.y + img.h + (gap - 7 * fpx) / 2 : r.h - fpx * 9;
@@ -4564,8 +4596,7 @@ static bool logo_draw(uint32_t* px, int cw, int ch, int k, int top, int alpha) {
 	if (!lg) return false;
 	int room = ch - top;
 	if (room <= 0) {
-		/* (no room below a HUD that fills the screen: Mega Man Battle
-		 * Network's custom screen, hud.rows GBA_H) */
+		/* (no room below what fills the screen) */
 		SDL_FreeSurface(lg);
 		return false;
 	}
@@ -4614,13 +4645,13 @@ static void make_logo_canvas(void) {
 	SDL_Surface* lg = ui_logo_surface(cfg, romPath, emu.gameCode, &pixelArt, &sub);
 	if (!lg) return;
 	logoSub = sub;
-	bool big = lg->w > GBA_W * sub || lg->h > GBA_H * sub;
+	bool big = lg->w > SNES_W * sub || lg->h > SNES_H * sub;
 	SDL_FreeSurface(lg);
 	if (big) return;
 	if (sub > 1) {
 		/* a scraped logo at full resolution (GEN-11): the same picture at
 		 * sub pixels per GBA pixel, smoothly scaled to the GBA picture's place */
-		int cw = GBA_W * sub, ch = GBA_H * sub;
+		int cw = SNES_W * sub, ch = SNES_H * sub;
 		uint32_t* big4 = malloc((size_t) cw * ch * 4);
 		if (!big4) return;
 		for (int i = 0; i < cw * ch; ++i) big4[i] = SCREEN_GREY;
@@ -4635,14 +4666,14 @@ static void make_logo_canvas(void) {
 		free(big4);
 		return;
 	}
-	static uint32_t px[GBA_W * GBA_H];
-	for (int i = 0; i < GBA_W * GBA_H; ++i) px[i] = SCREEN_GREY;
-	logo_draw(px, GBA_W, GBA_H, 1, 0, LOGO_IDLE);
+	static uint32_t px[SNES_W * SNES_H];
+	for (int i = 0; i < SNES_W * SNES_H; ++i) px[i] = SCREEN_GREY;
+	logo_draw(px, SNES_W, SNES_H, 1, 0, LOGO_IDLE);
 	for (int i = 0; i < nViews; ++i) {
-		logoCanvasTex[i] = SDL_CreateTexture(views[i].ren, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, GBA_W, GBA_H);
+		logoCanvasTex[i] = SDL_CreateTexture(views[i].ren, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, SNES_W, SNES_H);
 		if (!logoCanvasTex[i]) continue;
 		SDL_SetTextureBlendMode(logoCanvasTex[i], SDL_BLENDMODE_NONE);
-		ui_update_texture(logoCanvasTex[i], px, GBA_W * 4);
+		ui_update_texture(logoCanvasTex[i], px, SNES_W * 4);
 	}
 }
 
@@ -4657,13 +4688,13 @@ static void draw_game(void) {
 				if (overlay_on(s)) draw_overlay(s, 1);
 				continue;
 			}
-			ui_image_pixels(s, gameTex, GBA_W, GBA_H, cfg->scale, SHADER_ON);
+			ui_image_pixels(s, gameTex, picW, picH, cfg->scale, SHADER_ON);
 			if (overlay_on(s)) draw_overlay(s, 0);
 			if (cfg->showFps) {
 				/* sized to sit in the empty band above the picture */
 				char buf[48];
 				snprintf(buf, sizeof(buf), "%.1f FPS  %d%%", fps, (int) (speedPct + 0.5));
-				SDL_Rect img = ui_image_rect(s, GBA_W, GBA_H, cfg->scale);
+				SDL_Rect img = ui_image_rect(s, picW, picH, cfg->scale);
 				int gap = img.y;
 				int fpx = small_text_px(s, gap);
 				int fy = gap >= 7 * fpx + 2 ? (gap - 7 * fpx) / 2 : fpx * 2;
@@ -4680,20 +4711,20 @@ static void draw_game(void) {
 		} else if ((logoCanvasTex[0] || logoCanvasTex[1]) && logoSub > 1) {
 			/* a scraped logo at full resolution (GEN-11): its picture made at
 			 * LOGO_SUB pixels per GBA pixel, onto where the GBA picture goes */
-			SDL_Rect area = ui_image_rect(s, GBA_W, GBA_H, cfg->mapScale);
-			ui_image(s, logoCanvasTex, GBA_W * logoSub, GBA_H * logoSub, "stretch", &area);
+			SDL_Rect area = ui_image_rect(s, SNES_W, SNES_H, cfg->mapScale);
+			ui_image(s, logoCanvasTex, SNES_W * logoSub, SNES_H * logoSub, "stretch", &area);
 		} else if (logoCanvasTex[0] || logoCanvasTex[1]) {
 			/* no map yet (title screen, intro...): the game's logo, as if the
 			 * game drew it on a second GBA screen */
-			ui_image_pixels(s, logoCanvasTex, GBA_W, GBA_H, cfg->mapScale, SHADER_ON);
+			ui_image_pixels(s, logoCanvasTex, SNES_W, SNES_H, cfg->mapScale, SHADER_ON);
 		} else if (logoTex[0] || logoTex[1]) {
 			/* a user's high-resolution logo: fitted to where the picture goes */
-			SDL_Rect area = ui_image_rect(s, GBA_W, GBA_H, cfg->mapScale);
+			SDL_Rect area = ui_image_rect(s, SNES_W, SNES_H, cfg->mapScale);
 			ui_image(s, logoTex, logoW, logoH, logoPixel ? "integer" : "fit", &area);
 		} else if (logoOnly) {
 			/* no logo to show (none extracted for this game yet): its name */
 			const MapProfile* tp = profile_find(emu.gameCode);
-			SDL_Rect area = ui_image_rect(s, GBA_W, GBA_H, cfg->mapScale);
+			SDL_Rect area = ui_image_rect(s, SNES_W, SNES_H, cfg->mapScale);
 			int in = area.w / 10;
 			area = (SDL_Rect) { area.x + in, area.y + in, area.w - in * 2, area.h - in * 2 };
 			if (tp) ui_title_block(s, area, tp->title, (int) (ui_px(s) * 14), (SDL_Color) { 236, 236, 244, 255 });
@@ -4786,7 +4817,8 @@ static void setting_applied(const Setting* st) {
 		ghostHave = false;
 	} else if (!strcmp(k, "swap")) {
 		if (emu.fb) {
-			for (int i = 0; i < nViews; ++i) ui_update_texture(gameTex[i], emu.fb, GBA_W * 4);
+			game_tex_fit(emu.w, emu.h);
+			for (int i = 0; i < nViews; ++i) ui_update_texture(gameTex[i], emu.fb, emu.w * 4);
 		}
 	} else if (!strcmp(k, "screen_match") || !strcmp(k, "screen_placement")) {
 		ui_layout_pictures();
@@ -5054,8 +5086,8 @@ static void take_screenshot(void) {
  * or for a compilation the game running in it: subCode): the map capture,
  * the HUD split, the fights' picture. */
 static void ss_setup(const char* rom, const char* code) {
-	mapW = GBA_W;
-	mapH = GBA_H;
+	mapW = SNES_W;
+	mapH = SNES_H;
 	memset(&mapRes, 0, sizeof(mapRes));
 	mapShownIdx = -1;
 	stillValid = false;
@@ -5099,13 +5131,12 @@ static void ss_textures(void) {
 static const char* romPath;
 static Uint32 lastLoop; /* the last pass of the play loop (SDL_GetTicks) */
 static void rebuild_textures(void) {
-	for (int i = 0; i < nViews; ++i) {
-		if (gameTex[i]) SDL_DestroyTexture(gameTex[i]);
-		gameTex[i] = SDL_CreateTexture(views[i].ren, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, GBA_W, GBA_H);
-		if (gameTex[i]) SDL_SetTextureBlendMode(gameTex[i], SDL_BLENDMODE_NONE);
+	texW = texH = 0; /* (made again) */
+	if (emu.fb) {
+		game_tex_fit(emu.w, emu.h);
+		for (int i = 0; i < nViews; ++i) ui_update_texture(gameTex[i], emu.fb, emu.w * 4);
 	}
 	ss_textures();
-	if (emu.fb) for (int i = 0; i < nViews; ++i) ui_update_texture(gameTex[i], emu.fb, GBA_W * 4);
 	if (mapShownIdx >= 0) mapReupload = true, upload_map_frame(mapShownIdx);
 	ui_free_image(logoTex);
 	if (romPath && ui_load_logo(cfg, romPath, emu.gameCode, logoTex, &logoW, &logoH, &logoPixel)) make_logo_canvas();
@@ -5121,9 +5152,8 @@ static void rebuild_textures(void) {
  * say. */
 
 static void patches_setup(const char* rom) {
-	uint8_t h[0xB0];
-	char code[5] = "????";
-	if (emu_rom_header(rom, h, sizeof(h))) memcpy(code, h + 0xAC, 4);
+	char code[9] = "????????";
+	emu_rom_code(rom, code);
 	patch_folder(cfg, rom, code, patchDir, sizeof(patchDir), true);
 	patch_choice_load(gp.patches, &patchChoice);
 	patchStarted = patchChoice;
@@ -5227,12 +5257,10 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	frameCount = 0;
 	mapAnimStart = 0; /* (the last game's count was further on) */
 	menuOpen = false;
-	snprintf(subCode, sizeof(subCode), "%.4s", emu.gameCode);
+	snprintf(subCode, sizeof(subCode), "%.8s", emu.gameCode);
 	ss_setup(rom, subCode);
-	for (int i = 0; i < nViews; ++i) {
-		gameTex[i] = SDL_CreateTexture(views[i].ren, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, GBA_W, GBA_H);
-		SDL_SetTextureBlendMode(gameTex[i], SDL_BLENDMODE_NONE);
-	}
+	texW = texH = 0;
+	game_tex_fit(emu.w, emu.h);
 	ss_textures();
 	unsigned bc = (unsigned) strtoul(cfg->borderColor, NULL, 16);
 	borderColor = (SDL_Color) { (bc >> 16) & 0xFF, (bc >> 8) & 0xFF, bc & 0xFF, 255 };
@@ -6356,15 +6384,17 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		double drawCpu0 = thread_cpu_ms();
 		/* frame buffer: start the next frame now; this one is drawn from a copy */
 		const uint32_t* shownFb = emu.fb;
+		int shownW = emu.w, shownH = emu.h;
 		if (cfg->frameBuffer && !ff && !rewinding) {
-			memcpy(aheadFb, emu.fb, sizeof(aheadFb));
+			memcpy(aheadFb, emu.fb, (size_t) emu.w * emu.h * sizeof(uint32_t));
 			if (ahead_start(keys)) aheadInFlight = true, shownFb = aheadFb;
 		}
-		if (cfg->ghosting) shownFb = ghost_frame(shownFb);
+		if (cfg->ghosting) shownFb = ghost_frame(shownFb, shownW, shownH);
 		/* only the view the game is on needs it (all of them right after a swap,
 		 * since the menu draws the game without uploading) */
+		game_tex_fit(shownW, shownH);
 		for (int i = 0; i < nViews; ++i) {
-			if (gameTexAll || i == screens[game_screen()].view) ui_update_texture(gameTex[i], shownFb, GBA_W * 4);
+			if (gameTexAll || i == screens[game_screen()].view) ui_update_texture(gameTex[i], shownFb, shownW * 4);
 		}
 		gameTexAll = false;
 		/* (tests, SNESDS_DRAW_SHOTS_ONLY: only the frames a screenshot or a

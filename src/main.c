@@ -74,9 +74,8 @@ int main(int argc, char** argv) {
 		/* --supported ROM: exit 0 if SNES DS has second-screen support for the
 		 * game (a profile for its code), 1 if not, 2 if it can't be read */
 		if (!strcmp(argv[i], "--supported") && i + 1 < argc) {
-			uint8_t h[0xC0];
-			if (!emu_rom_header(argv[i + 1], h, sizeof(h))) return 2;
-			char code[5] = { (char) h[0xAC], (char) h[0xAD], (char) h[0xAE], (char) h[0xAF], 0 };
+			char code[9];
+			if (!emu_rom_code(argv[i + 1], code)) return 2;
 			bool yes = profile_find(code) != NULL;
 			printf("%s: %s\n", code, yes ? "supported" : "not supported");
 			return yes ? 0 : 1;
@@ -102,6 +101,8 @@ int main(int argc, char** argv) {
 		exe[n] = 0;
 		snprintf(exeDir, sizeof(exeDir), "%s", dirname(exe));
 	}
+	char binDir[1024]; /* (where the program is, whatever SNESDS_HOME says) */
+	snprintf(binDir, sizeof(binDir), "%s", exeDir);
 	/* SNESDS_HOME: the app's folder when the executable runs from a copy
 	 * elsewhere (launch.sh, where the card won't run programs) */
 	if (getenv("SNESDS_HOME") && getenv("SNESDS_HOME")[0]) snprintf(exeDir, sizeof(exeDir), "%s", getenv("SNESDS_HOME"));
@@ -147,6 +148,30 @@ int main(int argc, char** argv) {
 	if (!cfg.patchDir[0]) snprintf(cfg.patchDir, sizeof(cfg.patchDir), "%s/patches", cfg.assetDir); /* GEN-9 */
 	if (!cfg.stateDir[0]) snprintf(cfg.stateDir, sizeof(cfg.stateDir), "%s/states", dataDir);
 	mkdirs(cfg.stateDir);
+	{
+		/* The emulator's core copies (emu.h), and a cache for them and the
+		 * ROMs as played. Android: the core built under several sonames into
+		 * the app's native libraries (SNESDS_CORE_DIR, from the Java side).
+		 * The desktop: SNESDS_CORE, else bsnes_libretro.so beside the
+		 * program, copied into the cache once for each copy. */
+		char cache[1100];
+		snprintf(cache, sizeof(cache), "%s/cache", cfg.stateDir);
+#ifdef __ANDROID__
+		const char* dir = getenv("SNESDS_CORE_DIR");
+		char paths[EMU_CORES][1100];
+		const char* list[EMU_CORES];
+		for (int i = 0; i < EMU_CORES; ++i) {
+			snprintf(paths[i], sizeof(paths[i]), "%s/libsnes_%c.so", dir ? dir : ".", 'a' + i);
+			list[i] = paths[i];
+		}
+		emu_set_cores(list, EMU_CORES, cache);
+#else
+		char core[1100];
+		if (getenv("SNESDS_CORE") && getenv("SNESDS_CORE")[0]) snprintf(core, sizeof(core), "%s", getenv("SNESDS_CORE"));
+		else snprintf(core, sizeof(core), "%s/bsnes_libretro.so", binDir);
+		if (!emu_set_core_copies(core, cache)) fprintf(stderr, "no emulator core: games won't start (SNESDS_CORE, or %s/bsnes_libretro.so)\n", binDir);
+#endif
+	}
 	snprintf(path, sizeof(path), "%s/prefs.cfg", cfg.stateDir);
 	/* (map_interval and show_fps were left to snes-ds.cfg until v1.5.4; the game list's Settings can change them now) */
 	config_load_file(&cfg, path);
@@ -157,7 +182,6 @@ int main(int argc, char** argv) {
 	snprintf(path, sizeof(path), "%s/hotkeys.cfg", cfg.stateDir);
 	config_load_file(&cfg, path);
 	config_parse_args(&cfg, argc, argv);
-	emu_solar_level = cfg.solarLevel; /* (the sun sensor's reading, Boktai) */
 	if (cfg.overlayMode == OVM_LEGACY) {
 		/* overlays = top / both... from before v1.5 (the player's PNGs, which
 		 * had no bezel to fall back on): Custom if overlays/ has any, else
