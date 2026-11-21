@@ -2035,7 +2035,7 @@ static void states_text(const Config* cfg, char* out, size_t n) {
 	else if (strcmp(cfg->stateFolder, "retroarch"))
 		snprintf(out, n, tr("Slots 0-9 and the resume point are SNES DS's own. Shared, they're RetroArch's: %s."), path_tail(dir));
 	else
-		snprintf(out, n, tr("Slots 0-9 and the resume point are RetroArch's (its GBA core set to mGBA): %s."), path_tail(dir));
+		snprintf(out, n, tr("Slots 0-9 and the resume point are RetroArch's (its SNES core set to bsnes): %s."), path_tail(dir));
 }
 /* Settings > RetroArch's Folder: its state folder chosen by hand (kept as
  * retroarch_state_dir in library.cfg), or found from its settings again

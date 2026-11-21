@@ -2214,11 +2214,11 @@ static const char* const shaderLabels[SH_COUNT] = {
 };
 static const char* const shaderNotes[SH_COUNT] = {
 	N_("The game's pixels as they are"),
-	N_("Lines between the pixels, like a GBA's screen"),
+	N_("Lines between the pixels, like a handheld's LCD"),
 	N_("A dark line under each row of pixels"),
 	N_("Each pixel a little darker toward its edges"),
 	N_("Red, green and blue stripes, gentle: for dim screens"),
-	N_("Red, green and blue stripes, like a GBA's screen"),
+	N_("Red, green and blue stripes, like a handheld's LCD"),
 	N_("Red, green and blue stripes, strong: for bright screens"),
 };
 static const char* shader_label(int sh) {
@@ -5351,7 +5351,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			if (!stateWarned) ui_osd("Resumed. Tap or HOME for the menu");
 		} else if (stateLoadKind == STATE_FILE_OTHER_CORE) {
 			/* (RetroArch's automatic state, from another of its GBA cores) */
-			ui_osd_long("Not resumed: RetroArch's automatic state is from another of its GBA cores. To share states, set RetroArch's GBA core to mGBA.");
+			ui_osd_long("Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.");
 		}
 	} else {
 		ui_osd("Tap the screen or press HOME for the menu");

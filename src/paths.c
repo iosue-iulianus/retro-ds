@@ -306,7 +306,7 @@ bool retroarch_state_dir(const Config* cfg, const char* rom, char* out, size_t n
 	while (l > 1 && dir[l - 1] == '/') dir[--l] = 0;
 	if (ra_cfg_bool(text, "sort_savestates_by_content_enable", false) && romFolder[0])
 		l += snprintf(dir + l, sizeof(dir) - l, "/%s", romFolder);
-	if (ra_cfg_bool(text, "sort_savestates_enable", true) && l < sizeof(dir)) snprintf(dir + l, sizeof(dir) - l, "/mGBA");
+	if (ra_cfg_bool(text, "sort_savestates_enable", true) && l < sizeof(dir)) snprintf(dir + l, sizeof(dir) - l, "/bsnes");
 	snprintf(out, n, "%s", dir);
 	return true;
 }

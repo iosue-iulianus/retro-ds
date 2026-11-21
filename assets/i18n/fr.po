@@ -680,17 +680,17 @@ msgstr "Les jeux sans prise en charge du deuxième écran se jouent sur un seul 
 msgid "GBA"
 msgstr "GBA"
 
-msgid "GBA A"
-msgstr "GBA A"
+msgid "SNES A"
+msgstr "SNES A"
 
-msgid "GBA A on the right button, or on the bottom one."
-msgstr "GBA A sur le bouton de droite, ou sur celui du bas."
+msgid "SNES A on the right button, or on the bottom one."
+msgstr "SNES A sur le bouton de droite, ou sur celui du bas."
 
-msgid "GBA B"
-msgstr "GBA B"
+msgid "SNES B"
+msgstr "SNES B"
 
-msgid "GBA Down"
-msgstr "GBA Bas"
+msgid "SNES Down"
+msgstr "SNES Bas"
 
 msgid "SNES DS can't save files there: allow it All files access in Android's settings, or choose another folder."
 msgstr "SNES DS ne peut pas enregistrer de fichiers là : autorisez-lui l'accès à tous les fichiers dans les réglages d'Android, ou choisissez un autre dossier."
@@ -749,20 +749,20 @@ msgstr "Les fichiers propres à SNES DS (états, réglages, codes de triche, sur
 msgid "SNES DS's own files (states, settings, cheats, overlays) are in %s."
 msgstr "Les fichiers propres à SNES DS (états, réglages, codes de triche, surcouches) sont dans %s."
 
-msgid "GBA L"
-msgstr "GBA L"
+msgid "SNES L"
+msgstr "SNES L"
 
-msgid "GBA Left"
-msgstr "GBA Gauche"
+msgid "SNES Left"
+msgstr "SNES Gauche"
 
-msgid "GBA R"
-msgstr "GBA R"
+msgid "SNES R"
+msgstr "SNES R"
 
-msgid "GBA Right"
-msgstr "GBA Droite"
+msgid "SNES Right"
+msgstr "SNES Droite"
 
-msgid "GBA Up"
-msgstr "GBA Haut"
+msgid "SNES Up"
+msgstr "SNES Haut"
 
 msgid "Generated"
 msgstr "Généré"
@@ -917,10 +917,11 @@ msgstr "Clair"
 msgid "Light/dark mode"
 msgstr "Mode clair/sombre"
 
-msgid "Like a GBA"
-msgstr "Comme une GBA"
+msgid "Like an SNES"
+msgstr "Comme une SNES"
 
-msgid "Lines between the pixels, like a GBA's screen"
+#, fuzzy
+msgid "Lines between the pixels, like a handheld's LCD"
 msgstr "Des lignes entre les pixels, comme sur l'écran d'une GBA"
 
 msgid "Load failed"
@@ -1010,7 +1011,8 @@ msgstr "Déplacer"
 msgid "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later"
 msgstr "Déplacement : Haut / Bas ou touchez l'endroit voulu, puis A (ou touchez-le à nouveau). Celui qui est plus bas dans la liste est appliqué après"
 
-msgid "Moving things leave a short trail, as on a GBA."
+#, fuzzy
+msgid "Moving things leave a short trail, as on an old handheld's LCD."
 msgstr "Ce qui bouge laisse une courte traînée, comme sur une GBA."
 
 msgid "New"
@@ -1061,8 +1063,8 @@ msgstr "Aucun"
 msgid "Not in the folder any more: it's left out"
 msgstr "Plus dans le dossier : il est laissé de côté"
 
-msgid "Not resumed: RetroArch's automatic state is from another of its GBA cores. To share states, set RetroArch's GBA core to mGBA."
-msgstr "Non repris : l'état automatique de RetroArch provient d'un autre de ses cœurs GBA. Pour partager les états, réglez le cœur GBA de RetroArch sur mGBA."
+msgid "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes."
+msgstr "Non repris : l'état automatique de RetroArch provient d'un autre de ses cœurs SNES. Pour partager les états, réglez le cœur SNES de RetroArch sur bsnes."
 
 msgid "Not used"
 msgstr "Non utilisé"
@@ -1112,8 +1114,8 @@ msgstr "Non. Redémarrez BananaOS (Réglages > Système) pour que son menu l'uti
 msgid "Off. Restart EmulationStation to apply."
 msgstr "Non. Redémarrez EmulationStation pour l'appliquer."
 
-msgid "Off: every game plays like an ordinary GBA game."
-msgstr "Non : tous les jeux se jouent comme un jeu GBA ordinaire."
+msgid "Off: every game plays like an ordinary SNES game."
+msgstr "Non : tous les jeux se jouent comme un jeu SNES ordinaire."
 
 msgid "Off: the left stick does nothing in games."
 msgstr "Non : le stick gauche ne fait rien dans les jeux."
@@ -1322,7 +1324,8 @@ msgstr "Rouge"
 msgid "Red, green and blue stripes, gentle: for dim screens"
 msgstr "Bandes rouges, vertes et bleues, douces : pour les écrans sombres"
 
-msgid "Red, green and blue stripes, like a GBA's screen"
+#, fuzzy
+msgid "Red, green and blue stripes, like a handheld's LCD"
 msgstr "Bandes rouges, vertes et bleues, comme l'écran d'une GBA"
 
 msgid "Red, green and blue stripes, strong: for bright screens"
@@ -1661,8 +1664,8 @@ msgstr "Les emplacements 0-9 et le point de reprise sont propres à SNES DS. Par
 msgid "Slots 0-9 and the resume point are SNES DS's own. To share them, choose RetroArch's state folder."
 msgstr "Les emplacements 0-9 et le point de reprise sont propres à SNES DS. Pour les partager, choisissez le dossier des états de RetroArch."
 
-msgid "Slots 0-9 and the resume point are RetroArch's (its GBA core set to mGBA): %s."
-msgstr "Les emplacements 0-9 et le point de reprise sont ceux de RetroArch (son cœur GBA réglé sur mGBA) : %s."
+msgid "Slots 0-9 and the resume point are RetroArch's (its SNES core set to bsnes): %s."
+msgstr "Les emplacements 0-9 et le point de reprise sont ceux de RetroArch (son cœur SNES réglé sur bsnes) : %s."
 
 msgid "Slow (10 a second)"
 msgstr "Lente (10 par seconde)"
@@ -2081,3 +2084,9 @@ msgstr "›"
 #, c-format
 msgid "Sound delay raised to %d ms: the sound kept breaking up"
 msgstr "Délai du son porté à %d ms : le son saccadait"
+
+msgid "SNES X"
+msgstr "SNES X"
+
+msgid "SNES Y"
+msgstr "SNES Y"

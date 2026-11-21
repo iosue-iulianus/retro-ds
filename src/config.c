@@ -392,12 +392,12 @@ void config_usage(const char* argv0) {
 	        "  --shader=NAME          a pattern over every pixel: off, grid, scanlines, soft,\n"
 	        "                         subpixels-light, subpixels, subpixels-strong\n"
 	        "                         (--lcd-strength=0..100 for the first three)\n"
-	        "  --lcd-ghosting         each frame blended with the one before, as on a GBA's LCD\n"
+	        "  --lcd-ghosting         each frame blended with the one before, as on an old LCD\n"
 	        "  --smooth               plain linear filtering\n"
 	        "  --vsync                sync presentation to the display\n"
 	        "  --no-map               disable the map screen\n"
 	        "  --map-interval=N       frames between map refreshes (90)\n"
-	        "  --ab-swap              GBA A on the bottom face button\n"
+	        "  --ab-swap              SNES A on the bottom face button (and X on the left)\n"
 	        "  --hotkey=home|select|start|l3   the hotkey button, held with another for a shortcut\n"
 	        "  --hotkey-quit=BUTTON (and -save-state, -load-state, -quick-menu, -swap-screens, -shader)\n"
 	        "                         each shortcut's button (a, b, x, y, l, r, l2, r2, select,\n"
@@ -444,7 +444,7 @@ static const SettingChoice chMatch[] = { { "keep", "Keep device shapes", 0 }, { 
 static const SettingChoice chPlace[] = { { "center", "Centered", 0 }, { "no_gap", "Closest to gap", 0 } };
 static const SettingChoice chOverlays[] = { { N_("off"), "Off", OVM_OFF }, { "generated", "Generated", OVM_GENERATED }, { "custom", "Custom", OVM_CUSTOM } };
 static const SettingChoice chOvlScreens[] = { { "both", "Both screens", OVL_BOTH }, { "top", "Top screen", OVL_TOP }, { "bottom", "Bottom screen", OVL_BOTTOM } };
-static const SettingChoice chAB[] = { { "0", "Like a GBA", 0 }, { "1", "Swapped", 1 } };
+static const SettingChoice chAB[] = { { "0", "Like an SNES", 0 }, { "1", "Swapped", 1 } };
 static const SettingChoice chFace[] = {
 	{ "a", "SNES A", 0 }, { "b", "SNES B", 0 }, { "x", "SNES X", 0 }, { "y", "SNES Y", 0 }, { "l", "SNES L", 0 }, { "r", "SNES R", 0 },
 	{ "up", "SNES Up", 0 }, { "down", "SNES Down", 0 }, { "left", "SNES Left", 0 }, { "right", "SNES Right", 0 }, { "start", "Start", 0 },
@@ -473,7 +473,7 @@ static const Setting settingsTable[] = {
 	{ "shader", "Shader", SF_INT, OFFB(shader), ARR(chShader), 0, 0, 0, NULL, "A pattern over every pixel, on both screens." },
 	{ "lcd_strength", "Pattern strength", SF_INT, OFFB(lcdStrength), NULL, 0, 0, 100, 5, "%", "How dark the grid, scanlines and soft cells are." },
 	{ "color_correction", "Color correction", SF_BOOL, OFFB(colorCorrection), ARR(chOnOff), 0, 0, 0, NULL, "Colors as a Game Boy Advance's screen showed them." },
-	{ "lcd_ghosting", "LCD ghosting", SF_BOOL, OFFB(ghosting), ARR(chOnOff), 0, 0, 0, NULL, "Moving things leave a short trail, as on a GBA." },
+	{ "lcd_ghosting", "LCD ghosting", SF_BOOL, OFFB(ghosting), ARR(chOnOff), 0, 0, 0, NULL, "Moving things leave a short trail, as on an old handheld's LCD." },
 	{ "smooth", "Smooth scaling", SF_BOOL, OFFB(smooth), ARR(chOnOff), 0, 0, 0, NULL, "Blurry instead of sharp: usually leave off." },
 
 	{ "swap", "Screens", SF_BOOL, OFFB(swap), ARR(chSwap), 0, 0, 0, NULL, "Which screen the game is on." },
@@ -489,7 +489,7 @@ static const Setting settingsTable[] = {
 	{ "brightness_top", "Top screen brightness", SF_INT, OFFB(brightTop), NULL, 0, 20, 100, 10, "%", "Darkens the top screen, in this app only: the device's own brightness is left alone (and this can't go above it)." },
 	{ "brightness_bottom", "Bottom screen brightness", SF_INT, OFFB(brightBottom), NULL, 0, 20, 100, 10, "%", "Darkens the bottom screen, in this app only: the device's own brightness is left alone (and this can't go above it)." },
 	{ "left_stick_dpad", "Left stick as D-pad", SF_BOOL, OFFB(leftStickDpad), ARR(chOnOff), 0, 0, 0, NULL, "Off: the left stick does nothing in games." },
-	{ "ab_swap", "A and B buttons", SF_BOOL, OFFB(abSwap), ARR(chAB), 0, 0, 0, NULL, "GBA A on the right button, or on the bottom one." },
+	{ "ab_swap", "A and B buttons", SF_BOOL, OFFB(abSwap), ARR(chAB), 0, 0, 0, NULL, "SNES A on the right button, or on the bottom one." },
 	{ "button_right", "A (right) button", SF_STR, OFFB(faceBtn[0]), ARR(chFace), 0, 0, 0, NULL, "What the right face button gives the game." },
 	{ "button_bottom", "B (bottom) button", SF_STR, OFFB(faceBtn[1]), ARR(chFace), 0, 0, 0, NULL, "What the bottom face button gives the game." },
 	{ "button_top", "X (top) button", SF_STR, OFFB(faceBtn[2]), ARR(chFace), 0, 0, 0, NULL, "What the top face button gives the game." },
@@ -510,7 +510,7 @@ static const Setting settingsTable[] = {
 	{ "audio_latency", "Sound delay", SF_INT, OFFB(audioLatency), ARR(chLatency), 0, 0, 0, N_(" ms"), "Raise it if the sound crackles." },
 	{ "performance", "Performance", SF_BOOL, OFFB(perfMax), ARR(chPerf), 0, 0, 0, NULL, "Max: full speed, a warmer device and a shorter battery." },
 
-	{ "map", "Second screen", SF_BOOL, OFFB(map), ARR(chOnOff), 0, 0, 0, NULL, "Off: every game plays like an ordinary GBA game." },
+	{ "map", "Second screen", SF_BOOL, OFFB(map), ARR(chOnOff), 0, 0, 0, NULL, "Off: every game plays like an ordinary SNES game." },
 	{ "map_interval", "Map refresh", SF_INT, OFFB(mapInterval), ARR(chInterval), 0, 0, 0, NULL, "Shorter can make the sound crackle on a slow device." },
 };
 

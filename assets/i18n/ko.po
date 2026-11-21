@@ -676,17 +676,17 @@ msgstr "두 번째 화면을 지원하지 않는 게임은 한 화면으로 실�
 msgid "GBA"
 msgstr "GBA"
 
-msgid "GBA A"
-msgstr "GBA A"
+msgid "SNES A"
+msgstr "SNES A"
 
-msgid "GBA A on the right button, or on the bottom one."
-msgstr "GBA A를 오른쪽 버튼에 또는 아래쪽 버튼에."
+msgid "SNES A on the right button, or on the bottom one."
+msgstr "SNES A를 오른쪽 버튼에 또는 아래쪽 버튼에."
 
-msgid "GBA B"
-msgstr "GBA B"
+msgid "SNES B"
+msgstr "SNES B"
 
-msgid "GBA Down"
-msgstr "GBA 아래"
+msgid "SNES Down"
+msgstr "SNES 아래"
 
 msgid "SNES DS can't save files there: allow it All files access in Android's settings, or choose another folder."
 msgstr "SNES DS가 그곳에 파일을 저장할 수 없습니다. Android 설정에서 모든 파일 접근을 허용하거나 다른 폴더를 선택하세요."
@@ -745,20 +745,20 @@ msgstr "SNES DS 자체 파일(상태, 설정, 치트, 오버레이)은 %s에 있
 msgid "SNES DS's own files (states, settings, cheats, overlays) are in %s."
 msgstr "SNES DS 자체 파일(상태, 설정, 치트, 오버레이)은 %s에 있습니다."
 
-msgid "GBA L"
-msgstr "GBA L"
+msgid "SNES L"
+msgstr "SNES L"
 
-msgid "GBA Left"
-msgstr "GBA 왼쪽"
+msgid "SNES Left"
+msgstr "SNES 왼쪽"
 
-msgid "GBA R"
-msgstr "GBA R"
+msgid "SNES R"
+msgstr "SNES R"
 
-msgid "GBA Right"
-msgstr "GBA 오른쪽"
+msgid "SNES Right"
+msgstr "SNES 오른쪽"
 
-msgid "GBA Up"
-msgstr "GBA 위"
+msgid "SNES Up"
+msgstr "SNES 위"
 
 msgid "Generated"
 msgstr "생성됨"
@@ -913,10 +913,11 @@ msgstr "밝음"
 msgid "Light/dark mode"
 msgstr "밝은/어두운 모드"
 
-msgid "Like a GBA"
-msgstr "GBA처럼"
+msgid "Like an SNES"
+msgstr "SNES처럼"
 
-msgid "Lines between the pixels, like a GBA's screen"
+#, fuzzy
+msgid "Lines between the pixels, like a handheld's LCD"
 msgstr "GBA 화면처럼 픽셀 사이에 선"
 
 msgid "Load failed"
@@ -1006,7 +1007,8 @@ msgstr "이동"
 msgid "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later"
 msgstr "이동 중: 위 / 아래 또는 갈 위치를 누른 뒤 A (또는 다시 누르기). 목록에서 아래에 있는 것이 나중에 적용됩니다"
 
-msgid "Moving things leave a short trail, as on a GBA."
+#, fuzzy
+msgid "Moving things leave a short trail, as on an old handheld's LCD."
 msgstr "움직이는 것이 GBA처럼 짧은 잔상을 남깁니다."
 
 msgid "New"
@@ -1057,8 +1059,8 @@ msgstr "없음"
 msgid "Not in the folder any more: it's left out"
 msgstr "더 이상 폴더에 없음: 제외됩니다"
 
-msgid "Not resumed: RetroArch's automatic state is from another of its GBA cores. To share states, set RetroArch's GBA core to mGBA."
-msgstr "이어하지 않음: RetroArch의 자동 상태는 RetroArch의 다른 GBA 코어에서 온 것입니다. 상태를 공유하려면 RetroArch의 GBA 코어를 mGBA로 설정하세요."
+msgid "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes."
+msgstr "이어하지 않음: RetroArch의 자동 상태는 RetroArch의 다른 SNES 코어에서 온 것입니다. 상태를 공유하려면 RetroArch의 SNES 코어를 bsnes로 설정하세요."
 
 msgid "Not used"
 msgstr "사용 안 함"
@@ -1108,8 +1110,8 @@ msgstr "아니요. 메뉴에 반영하려면 BananaOS(설정 > 시스템)를 다
 msgid "Off. Restart EmulationStation to apply."
 msgstr "아니요. 적용하려면 EmulationStation을 다시 시작하세요."
 
-msgid "Off: every game plays like an ordinary GBA game."
-msgstr "아니요: 모든 게임이 일반 GBA 게임처럼 실행됩니다."
+msgid "Off: every game plays like an ordinary SNES game."
+msgstr "아니요: 모든 게임이 일반 SNES 게임처럼 실행됩니다."
 
 msgid "Off: the left stick does nothing in games."
 msgstr "아니요: 왼쪽 스틱은 게임에서 아무 일도 하지 않습니다."
@@ -1318,7 +1320,8 @@ msgstr "빨강"
 msgid "Red, green and blue stripes, gentle: for dim screens"
 msgstr "빨강, 초록, 파랑 줄무늬, 부드럽게: 어두운 화면용"
 
-msgid "Red, green and blue stripes, like a GBA's screen"
+#, fuzzy
+msgid "Red, green and blue stripes, like a handheld's LCD"
 msgstr "GBA 화면처럼 빨강, 초록, 파랑 줄무늬"
 
 msgid "Red, green and blue stripes, strong: for bright screens"
@@ -1657,8 +1660,8 @@ msgstr "슬롯 0-9와 이어하기 지점은 SNES DS 자체 것입니다. 공유
 msgid "Slots 0-9 and the resume point are SNES DS's own. To share them, choose RetroArch's state folder."
 msgstr "슬롯 0-9와 이어하기 지점은 SNES DS 자체 것입니다. 공유하려면 RetroArch의 상태 폴더를 선택하세요."
 
-msgid "Slots 0-9 and the resume point are RetroArch's (its GBA core set to mGBA): %s."
-msgstr "슬롯 0-9와 이어하기 지점은 RetroArch 것입니다 (RetroArch의 GBA 코어를 mGBA로 설정): %s."
+msgid "Slots 0-9 and the resume point are RetroArch's (its SNES core set to bsnes): %s."
+msgstr "슬롯 0-9와 이어하기 지점은 RetroArch 것입니다 (RetroArch의 SNES 코어를 bsnes로 설정): %s."
 
 msgid "Slow (10 a second)"
 msgstr "느림 (초당 10회)"
@@ -2077,3 +2080,9 @@ msgstr "›"
 #, c-format
 msgid "Sound delay raised to %d ms: the sound kept breaking up"
 msgstr "소리 지연을 %d ms로 올렸습니다: 소리가 계속 끊겼습니다"
+
+msgid "SNES X"
+msgstr "SNES X"
+
+msgid "SNES Y"
+msgstr "SNES Y"

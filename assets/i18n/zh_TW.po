@@ -676,17 +676,17 @@ msgstr "沒有副屏支援的遊戲只在單屏上玩。"
 msgid "GBA"
 msgstr "GBA"
 
-msgid "GBA A"
-msgstr "GBA A"
+msgid "SNES A"
+msgstr "SNES A"
 
-msgid "GBA A on the right button, or on the bottom one."
-msgstr "GBA 的 A 在右鍵，還是在下鍵。"
+msgid "SNES A on the right button, or on the bottom one."
+msgstr "SNES 的 A 在右鍵，還是在下鍵。"
 
-msgid "GBA B"
-msgstr "GBA B"
+msgid "SNES B"
+msgstr "SNES B"
 
-msgid "GBA Down"
-msgstr "GBA 下"
+msgid "SNES Down"
+msgstr "SNES 下"
 
 msgid "SNES DS can't save files there: allow it All files access in Android's settings, or choose another folder."
 msgstr "SNES DS 無法在那裡儲存檔案：在 Android 設定裡給它“所有檔案訪問許可權”，或者另選一個資料夾。"
@@ -745,20 +745,20 @@ msgstr "SNES DS 自己的檔案（即時存檔、設定、金手指、覆蓋層�
 msgid "SNES DS's own files (states, settings, cheats, overlays) are in %s."
 msgstr "SNES DS 自己的檔案（即時存檔、設定、金手指、覆蓋層）在 %s。"
 
-msgid "GBA L"
-msgstr "GBA L"
+msgid "SNES L"
+msgstr "SNES L"
 
-msgid "GBA Left"
-msgstr "GBA 左"
+msgid "SNES Left"
+msgstr "SNES 左"
 
-msgid "GBA R"
-msgstr "GBA R"
+msgid "SNES R"
+msgstr "SNES R"
 
-msgid "GBA Right"
-msgstr "GBA 右"
+msgid "SNES Right"
+msgstr "SNES 右"
 
-msgid "GBA Up"
-msgstr "GBA 上"
+msgid "SNES Up"
+msgstr "SNES 上"
 
 msgid "Generated"
 msgstr "生成"
@@ -913,10 +913,11 @@ msgstr "淺色"
 msgid "Light/dark mode"
 msgstr "淺色/深色模式"
 
-msgid "Like a GBA"
-msgstr "像 GBA"
+msgid "Like an SNES"
+msgstr "像 SNES"
 
-msgid "Lines between the pixels, like a GBA's screen"
+#, fuzzy
+msgid "Lines between the pixels, like a handheld's LCD"
 msgstr "畫素之間有線條，像 GBA 的螢幕"
 
 msgid "Load failed"
@@ -1003,7 +1004,8 @@ msgstr "移動"
 msgid "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later"
 msgstr "移動：上/下或點它要去的位置，然後按 A（或再點一次）。列表裡靠下的補丁後應用"
 
-msgid "Moving things leave a short trail, as on a GBA."
+#, fuzzy
+msgid "Moving things leave a short trail, as on an old handheld's LCD."
 msgstr "移動的東西留下短拖影，像 GBA 螢幕那樣。"
 
 msgid "New"
@@ -1054,8 +1056,8 @@ msgstr "無"
 msgid "Not in the folder any more: it's left out"
 msgstr "已不在資料夾裡：會被跳過"
 
-msgid "Not resumed: RetroArch's automatic state is from another of its GBA cores. To share states, set RetroArch's GBA core to mGBA."
-msgstr "未繼續：RetroArch 的自動狀態來自它的另一個 GBA 核心。要共享狀態，請把 RetroArch 的 GBA 核心設為 mGBA。"
+msgid "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes."
+msgstr "未繼續：RetroArch 的自動狀態來自它的另一個 SNES 核心。要共享狀態，請把 RetroArch 的 SNES 核心設為 bsnes。"
 
 msgid "Not used"
 msgstr "不使用"
@@ -1105,8 +1107,8 @@ msgstr "已關閉。重啟 BananaOS（設定 > 系統）後它的選單才會用
 msgid "Off. Restart EmulationStation to apply."
 msgstr "已關閉。重啟 EmulationStation 後生效。"
 
-msgid "Off: every game plays like an ordinary GBA game."
-msgstr "關：所有遊戲都像普通 GBA 遊戲一樣玩。"
+msgid "Off: every game plays like an ordinary SNES game."
+msgstr "關：所有遊戲都像普通 SNES 遊戲一樣玩。"
 
 msgid "Off: the left stick does nothing in games."
 msgstr "關：遊戲中左搖桿不起作用。"
@@ -1315,7 +1317,8 @@ msgstr "紅"
 msgid "Red, green and blue stripes, gentle: for dim screens"
 msgstr "紅綠藍條紋，輕微：適合暗的螢幕"
 
-msgid "Red, green and blue stripes, like a GBA's screen"
+#, fuzzy
+msgid "Red, green and blue stripes, like a handheld's LCD"
 msgstr "紅綠藍條紋，像 GBA 的螢幕"
 
 msgid "Red, green and blue stripes, strong: for bright screens"
@@ -1654,8 +1657,8 @@ msgstr "0-9 號位和繼續點是 SNES DS 自己的。共享時用 RetroArch 的
 msgid "Slots 0-9 and the resume point are SNES DS's own. To share them, choose RetroArch's state folder."
 msgstr "0-9 號位和繼續點都是 SNES DS 自己的。要共享它們，請選擇 RetroArch 的即時存檔資料夾。"
 
-msgid "Slots 0-9 and the resume point are RetroArch's (its GBA core set to mGBA): %s."
-msgstr "0-9 號位和繼續點是 RetroArch 的（它的 GBA 核心設為 mGBA）：%s。"
+msgid "Slots 0-9 and the resume point are RetroArch's (its SNES core set to bsnes): %s."
+msgstr "0-9 號位和繼續點是 RetroArch 的（它的 SNES 核心設為 bsnes）：%s。"
 
 msgid "Slow (10 a second)"
 msgstr "慢（每秒 10 次）"
@@ -2077,3 +2080,9 @@ msgstr "機器翻譯"
 #, c-format
 msgid "Sound delay raised to %d ms: the sound kept breaking up"
 msgstr "聲音延遲已提高到 %d 毫秒：聲音一直斷斷續續"
+
+msgid "SNES X"
+msgstr "SNES X"
+
+msgid "SNES Y"
+msgstr "SNES Y"
