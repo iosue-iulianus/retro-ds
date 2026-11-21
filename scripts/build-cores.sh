@@ -7,8 +7,11 @@
 #                                     its licence is not GPL-compatible, so
 #                                     it is never distributed)
 #
-# bsnes gets scripts/cores/bsnes-workram.patch: libretro's bsnes exposes no
-# memory at all through retro_get_memory_data, and SNES DS reads work RAM.
+# bsnes gets scripts/cores/bsnes-memory.patch: libretro's bsnes exposes no
+# memory through retro_get_memory_data, and SNES DS reads work RAM and loads
+# and saves cartridge RAM itself (bsnes writes it only when the game is
+# unloaded). It also takes states for the same instance (rewind) without
+# synchronizing, so they never move the emulation forward.
 set -eu
 
 BSNES_URL=https://github.com/libretro/bsnes.git
@@ -31,7 +34,7 @@ fetch() { # dir url rev
 
 fetch bsnes "$BSNES_URL" "$BSNES_REV"
 git -C "$CORES/bsnes" checkout -q -- .
-git -C "$CORES/bsnes" apply "$HERE/scripts/cores/bsnes-workram.patch"
+git -C "$CORES/bsnes" apply "$HERE/scripts/cores/bsnes-memory.patch"
 make -C "$CORES/bsnes" -j"$JOBS" target=libretro binary=library
 echo "bsnes: $CORES/bsnes/bsnes_libretro.so"
 
