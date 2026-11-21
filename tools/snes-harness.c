@@ -26,6 +26,7 @@
  *                          until=ADDR:VAL[:MASK] (up to 4, all must hold)
  *                          stable=8 maxdiff=64 max=600 blind=1 (frames
  *                          before `until` holds run without drawing)
+ *                          verbose=1 (pixels changed, frame by frame)
  *   bench [FRAMES]         the M0 measurements (see docs/M0-results.md)
  *   context N              savestate context for both (0 normal,
  *                          1 runahead same instance, 2 same binary)
@@ -149,7 +150,7 @@ static void mapcap(char* args) {
 	char name[256] = "map";
 	uint32_t press = K_START;
 	int hold = 4, stable = 8, maxdiff = 64, maxFrames = 600;
-	bool blind = true;
+	bool blind = true, verbose = false;
 	Cond conds[4];
 	int nConds = 0;
 	char* save = NULL;
@@ -167,6 +168,7 @@ static void mapcap(char* args) {
 		else if (!strcmp(tok, "maxdiff")) maxdiff = atoi(v);
 		else if (!strcmp(tok, "max")) maxFrames = atoi(v);
 		else if (!strcmp(tok, "blind")) blind = atoi(v) != 0;
+		else if (!strcmp(tok, "verbose")) verbose = atoi(v) != 0;
 		else if (!strcmp(tok, "until") && nConds < 4) {
 			unsigned a = 0, val = 0, mask = 0xFF;
 			if (sscanf(v, "%x:%x:%x", &a, &val, &mask) >= 2) conds[nConds++] = (Cond) { a, val, mask };
@@ -200,8 +202,10 @@ static void mapcap(char* args) {
 		emu_frame(b, 0);
 		++f;
 		size_t n = (size_t) b->w * b->h;
+		int diff = prev && n == cap ? count_diff(prev, b->fb, n) : -1;
+		if (verbose) printf("  frame %d: %d pixels changed%s\n", f, diff, all_black(b) ? " (black)" : "");
 		if (nConds && !conds_hold(b, conds, nConds)) quiet = 0;
-		else if (prev && n == cap && !all_black(b) && count_diff(prev, b->fb, n) <= maxdiff) ++quiet;
+		else if (diff >= 0 && !all_black(b) && diff <= maxdiff) ++quiet;
 		else quiet = 0;
 		if (n != cap) {
 			free(prev);
