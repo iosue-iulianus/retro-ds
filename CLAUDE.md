@@ -222,9 +222,7 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   4:3, a better fit for an SNES picture) and the second screen on the top
   one. `top_screen = auto` currently puts the game on the larger display
   (the top), as GBA DS does (seen on the device Nov 21, 2026).
-- For the port, left by the rename: the default ROM folder on Android is
-  still `ROMs/gba` (`android.c`; GBA DS's, shared on purpose while the app
-  still plays GBA games), to become `ROMs/snes`; ES-DE's integration (`esde.c`) still
+- For the port, left by the rename: ES-DE's integration (`esde.c`) still
   adds SNES DS to ES-DE's `gba` system; links in `android.c` point at
   wiki pages SNES DS doesn't have yet (Playing, Overlays); the Display
   theme's hint mentions the web player (a translated string: change it with

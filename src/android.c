@@ -112,8 +112,8 @@ void android_data_setup(void) {
 /* ------------------------------------------------------------- defaults */
 
 void android_config_defaults(Config* c) {
-	/* shared storage ignores case: this is also a folder called GBA */
-	snprintf(c->romDir, sizeof(c->romDir), "/storage/emulated/0/ROMs/gba");
+	/* shared storage ignores case: this is also a folder called SNES */
+	snprintf(c->romDir, sizeof(c->romDir), "/storage/emulated/0/ROMs/snes");
 	/* SNESDS_HOME is "SNES DS" on the internal storage (or, without All files
 	 * access, the app's folder), laid out like the ROCKNIX install folder:
 	 * states/ (the default state_dir), logos/ and overlays/ (asset_dir),

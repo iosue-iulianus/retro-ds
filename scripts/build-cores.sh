@@ -6,6 +6,8 @@
 #   scripts/build-cores.sh snes9x     also snes9x (local prototyping only:
 #                                     its licence is not GPL-compatible, so
 #                                     it is never distributed)
+#   scripts/build-cores.sh android    bsnes for Android (arm64-v8a, with the NDK
+#                                     in ANDROID_NDK_HOME): ../cores/bsnes/android/libretro.so
 #
 # bsnes gets scripts/cores/bsnes-memory.patch: libretro's bsnes exposes no
 # memory through retro_get_memory_data, and SNES DS reads work RAM and loads
@@ -35,6 +37,15 @@ fetch() { # dir url rev
 fetch bsnes "$BSNES_URL" "$BSNES_REV"
 git -C "$CORES/bsnes" checkout -q -- .
 git -C "$CORES/bsnes" apply "$HERE/scripts/cores/bsnes-memory.patch"
+if [ "${1:-}" = android ]; then
+	NDK="${ANDROID_NDK_HOME:?set ANDROID_NDK_HOME to an Android NDK}"
+	J="$CORES/bsnes/bsnes/target-libretro"
+	"$NDK/ndk-build" -C "$J/jni" -j"$JOBS" APP_ABI=arm64-v8a APP_PLATFORM=android-26 NDK_PROJECT_PATH="$J"
+	mkdir -p "$CORES/bsnes/android"
+	cp "$J/libs/arm64-v8a/libretro.so" "$CORES/bsnes/android/libretro.so"
+	echo "bsnes (Android, arm64-v8a): $CORES/bsnes/android/libretro.so"
+	exit 0
+fi
 make -C "$CORES/bsnes" -j"$JOBS" target=libretro binary=library
 echo "bsnes: $CORES/bsnes/bsnes_libretro.so"
 
