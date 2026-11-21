@@ -43,6 +43,16 @@ Every game also follows the general rules GBA DS set out (`docs/reference/gba/RE
 - Pause screen page, `$7E0727` (2 bytes): `0000` the map, `0001` the equipment, other values while switching (R from the map: about 30 frames, fading).
 - The map screen is told by its frame and the SAMUS plate at the bottom right (the equipment page has MAP there). Not by the grid: it scrolls with the map.
 
+## The map's data (for drawing it natively, SM-8 planned)
+
+From P.JBoy's bank logs (github.com/insanefirebat/sm_disassembly), checked against the game's own screen with `tools/sm_map.py`:
+
+- The pause map is BG1, a 64 x 32 tilemap (two 32 x 32 screens, left then right), 4 bits a pixel. Its tiles: `$B6:8000` (0x4000 bytes, uncompressed); palettes `$B6:F000` (256 colours); menu sprites' tiles `$B6:C000`.
+- Each area's map: 2048 tilemap words through `AreaMapPointers` (`$82:964A`, 3 bytes an area; Crateria `$B5:9000`, Brinstar `$B5:8000`...). The map station's reveal mask: `MapData_pointers` (`$82:9717`, 2 bytes an area, bank `$82`), a bit a tile.
+- RAM: `AreaIndex` `$079F`; the area's explored tiles `$7E:07F7` (256 bytes, a bit a tile, the high bit first); every area's `$7E:CD52` (256 bytes each); map stations `$7E:D908` (a byte an area); the room's map position `$07A1` / `$07A3`; Samus `$0AF6` / `$0AFA`; equipment `$09A2` (equipped items), `$09A4` (collected), `$09A6` / `$09A8` (beams), `$09C0` (reserve mode).
+- A tile is drawn (`LoadPauseMenuMapTilemap`, `$82:943D`): explored: its word with bit 10 cleared (pink); else, with the area's map station, its word as it is (blue) where the reveal mask has it; else tile `$1F` (empty).
+- Drawn on top as sprites: the gunship, Samus's position (`MapScreen_DrawSamusPositionIndicator`, `$82:B9C8`), map icons by type (`Draw_MapIcons_ofGivenType`, `$82:B81C`, positions from `MapIcon_PositionTablePointers_*` at `$82:C7CB`...), elevator destinations (`MenuSpritemap_59`... `5E`), the scroll arrows.
+
 ## Not covered yet
 
 - Crateria and the first rooms of Brinstar have been played on the Duo (and the way back up, the owner's slot 0 state in the test data: the map once stuck on Brinstar there). Other areas, Ceres Station, bosses, the escape and the ending haven't.
