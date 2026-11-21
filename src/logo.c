@@ -356,9 +356,7 @@ static void do_job(Job* j) {
 static void* worker(void* arg) {
 	(void) arg;
 	/* background work: let the game (and its audio) have the CPU first */
-#ifndef __wasi__
 	setpriority(PRIO_PROCESS, (id_t) syscall(SYS_gettid), 19);
-#endif
 #ifdef __ANDROID__
 	android_pin_worker_thread("logo extraction");
 #endif
@@ -436,30 +434,10 @@ static void enqueue(const char* romPath, const char* gameCode, const char* outPn
 		while (*tail) tail = &(*tail)->next;
 	}
 	*tail = j;
-	/* (GBADS_SYNC=1, regression tests: inline too, like the web build) */
+	/* (GBADS_SYNC=1, regression tests: inline) */
 	if (!running && !(getenv("GBADS_SYNC") && atoi(getenv("GBADS_SYNC")))) running = pthread_create(&thread, NULL, worker, NULL) == 0;
 	if (!running) {
-		/* no threads (the web build), or GBADS_SYNC: the work now */
-#ifdef __wasi__
-		/* (the web build: only a game's own logo, asked for while it's
-		 * played; the rest one a frame, logo_step, so the game list shows
-		 * at once and the logos fill in, as a thread's would) */
-		if (!j->urgent) {
-			pthread_mutex_unlock(&qlock);
-			return;
-		}
-		for (Job** at = &queue; *at;) {
-			Job* q = *at;
-			if (!q->urgent) {
-				at = &q->next;
-				continue;
-			}
-			*at = q->next;
-			do_job(q);
-			--pending;
-			++finished;
-		}
-#else
+		/* no thread (GBADS_SYNC, or it couldn't start): the work now */
 		while (queue) {
 			Job* q = queue;
 			queue = q->next;
@@ -467,36 +445,12 @@ static void enqueue(const char* romPath, const char* gameCode, const char* outPn
 			--pending;
 			++finished;
 		}
-#endif
 		pthread_mutex_unlock(&qlock);
 		return;
 	}
 	pthread_cond_signal(&qcond);
 	pthread_mutex_unlock(&qlock);
 }
-
-/* The web build (no threads): the next job, as the worker would take it (while
- * a game's played, only urgent ones), once a frame: the game list and the
- * game call it before each frame they draw. Elsewhere a thread does them. */
-#ifdef __wasi__
-void logo_step(void) {
-	pthread_mutex_lock(&qlock);
-	Job** at = &queue;
-	while (*at && paused && !(*at)->urgent) at = &(*at)->next;
-	Job* j = *at;
-	if (j) {
-		*at = j->next;
-		snprintf(current, sizeof(current), "%s", j->code);
-		pthread_mutex_unlock(&qlock);
-		do_job(j);
-		pthread_mutex_lock(&qlock);
-		current[0] = 0;
-		--pending;
-		++finished;
-	}
-	pthread_mutex_unlock(&qlock);
-}
-#endif
 
 void logo_request(const char* romPath, const char* gameCode, const char* outPng) {
 	if (exists(outPng)) return;

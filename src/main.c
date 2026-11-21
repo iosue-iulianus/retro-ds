@@ -9,7 +9,6 @@
 #include "android.h"
 #include "config.h"
 #include "esde.h"
-#include "esinteg.h"
 #include "game.h"
 #include "library.h"
 #include "logo.h"
@@ -19,9 +18,6 @@
 #include "update.h"
 #include "clocks.h"
 #include "i18n.h"
-#ifdef __wasi__
-#include "mapcap.h"
-#endif
 #include "emu.h"
 #include "profiles.h"
 
@@ -70,22 +66,13 @@ static void on_crash(int sig) {
 #endif
 
 int main(int argc, char** argv) {
-#ifdef __wasi__
-	/* the web player's capture worker: GBADS_CAPTURE_SERVE=CODE, the ROM last,
-	 * GBADS_CAPTURE_TIGHT=1 for the tight crop (mapcap.c) */
-	if (getenv("GBADS_CAPTURE_SERVE") && argc > 1) {
-		const char* t = getenv("GBADS_CAPTURE_TIGHT");
-		return mapcap_web_serve(argv[argc - 1], getenv("GBADS_CAPTURE_SERVE"), t && *t == '1');
-	}
-#endif
 	for (int i = 1; i < argc; ++i) {
 		if (!strcmp(argv[i], "--version")) {
 			printf("GBA DS %s\n", GBADS_VERSION);
 			return 0;
 		}
 		/* --supported ROM: exit 0 if GBA DS has second-screen support for the
-		 * game (a profile for its code), 1 if not, 2 if it can't be read
-		 * (BananaOS's banana-play.sh: other games go to RetroArch) */
+		 * game (a profile for its code), 1 if not, 2 if it can't be read */
 		if (!strcmp(argv[i], "--supported") && i + 1 < argc) {
 			uint8_t h[0xC0];
 			if (!emu_rom_header(argv[i + 1], h, sizeof(h))) return 2;
@@ -135,7 +122,7 @@ int main(int argc, char** argv) {
 			snprintf(path, sizeof(path), "%s/.config/gba-ds/gba-ds.cfg", getenv("HOME"));
 			config_load_file(&cfg, path);
 		}
-#if !defined(__ANDROID__) && !defined(__wasi__)
+#if !defined(__ANDROID__)
 		/* data-folder.cfg: data_dir, where GBA DS keeps its own files (in a
 		 * file of its own, which neither the zip nor an update has) */
 		snprintf(path, sizeof(path), "%s/data-folder.cfg", exeDir);
@@ -150,7 +137,7 @@ int main(int argc, char** argv) {
 	 * app's folder, or data_dir, moved there when that changes (paths.c) */
 	char dataDir[480];
 	snprintf(dataDir, sizeof(dataDir), "%s", exeDir);
-#if !defined(__ANDROID__) && !defined(__wasi__)
+#if !defined(__ANDROID__)
 	snprintf(path, sizeof(path), "%s/data-folder.cfg", exeDir);
 	data_dir_setup(exeDir, getenv("GBADS_CONFIG") ? NULL : path, cfg.dataDir, false, dataDir, sizeof(dataDir));
 #endif
@@ -179,12 +166,8 @@ int main(int argc, char** argv) {
 		cfg.overlayMode = dir_has_png(path) ? OVM_CUSTOM : OVM_GENERATED;
 	}
 
-#ifndef __ANDROID__
-	/* keep EmulationStation's entry for GBA DS current, if it's switched on */
-	es_integration_refresh(&cfg);
-	banana_integration_refresh();
-#else
-	/* and ES-DE's, on Android (ES-DE's RetroArch SAF mode may have changed) */
+#ifdef __ANDROID__
+	/* keep ES-DE's entry current (ES-DE's RetroArch SAF mode may have changed) */
 	esde_integration_refresh();
 #endif
 

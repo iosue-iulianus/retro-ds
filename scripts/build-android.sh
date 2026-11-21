@@ -66,6 +66,7 @@ rm -rf android/app/src/main/assets/overlays
 gradle -p android --no-daemon assembleRelease \
 	-PsdlDir="$DEPS/SDL2" -PmgbaSrc="$DEPS/mgba" -PmgbaBuild="$MGBA_BUILD" -PcpuFlags="$CPU_FLAGS"
 
+mkdir -p dist
 APK="dist/gba-ds-v$VERSION-android.apk"
 rm -f dist/gba-ds-*-android.apk
 cp android/app/build/outputs/apk/release/app-release.apk "$APK"

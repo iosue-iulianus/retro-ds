@@ -10,7 +10,7 @@
  * being killed). Only the governors GBA DS changed are ever put back. */
 #include "clocks.h"
 
-#if defined(__linux__) && !defined(__ANDROID__) && !defined(__wasi__)
+#if defined(__linux__) && !defined(__ANDROID__)
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>

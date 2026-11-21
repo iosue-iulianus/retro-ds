@@ -1,6 +1,6 @@
 #include "http.h"
 
-#if !defined(__ANDROID__) && !defined(__wasi__)
+#if !defined(__ANDROID__)
 
 #include <SDL.h>
 #include <errno.h>

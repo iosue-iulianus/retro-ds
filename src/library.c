@@ -9,7 +9,6 @@
 #include "brand.h"
 #include "emu.h"
 #include "esde.h"
-#include "esinteg.h"
 #include "hotkeys.h"
 #include "folderpick.h"
 #include "mapper.h"
@@ -29,10 +28,8 @@
 #include <strings.h>
 #include <sys/stat.h>
 #include <time.h>
-#ifndef __wasi__
 #include <sys/resource.h>
 #include <sys/syscall.h>
-#endif
 
 typedef struct {
 	char path[1024];
@@ -212,7 +209,7 @@ static bool seenOverflow; /* (more folders than that: always scanned again) */
 
 static void dir_time(const struct stat* st, long long* s, long long* ns) {
 	*s = (long long) st->st_mtime;
-#if defined(__linux__) || defined(__ANDROID__) || defined(__wasi__)
+#if defined(__linux__) || defined(__ANDROID__)
 	*ns = (long long) st->st_mtim.tv_nsec;
 #else
 	*ns = 0;
@@ -419,8 +416,8 @@ static int region_flag(char c) {
 /* Is the selected game's ROM the game as released, a romhack GBA DS knows,
  * or modified? Its CRC32 against the known dumps and mods (profile_dump).
  * Reading a whole ROM takes a moment, so it's done once per file, for the
- * selected game only, on a worker thread (inline with GBADS_SYNC=1 and in
- * the web build, which has no threads), and remembered in
+ * selected game only, on a worker thread (inline with GBADS_SYNC=1), and
+ * remembered in
  * <state_dir>/roms.cache, lines "size mtime crc32 patch path" (crc32 0:
  * unreadable; the ROM as played: patched when a patch file beside it fits,
  * patch its PatchResult, GEN-9). */
@@ -477,9 +474,7 @@ static uint32_t rom_crc_read(const char* path, char files[][1024], int nFiles, i
 
 static void* rom_crc_worker(void* arg) {
 	(void) arg;
-#ifndef __wasi__
 	setpriority(PRIO_PROCESS, (id_t) syscall(SYS_gettid), 19); /* (background work: the game first) */
-#endif
 	pthread_mutex_lock(&crcLock);
 	for (;;) {
 		while (!crcWant.path[0]) pthread_cond_wait(&crcWake, &crcLock);
@@ -1137,7 +1132,7 @@ static int updatesSel;
 #define SETTINGS_MAX 8
 static int nRows = 1; /* rows shown (Back is row nRows) */
 /* (Hotkeys shares Map Buttons' line: the right half of it, under one text) */
-enum { ROW_BANANA, ROW_ES, ROW_MAP, ROW_HOTKEYS, ROW_UPDATES, ROW_FOLDERS, ROW_RA, ROW_ESDE, ROW_PERF, ROW_STATES, ROW_STATES_DIR, ROW_RESET, ROW_DELCFG, ROW_ROTATION, ROW_LANGUAGE };
+enum { ROW_MAP, ROW_HOTKEYS, ROW_UPDATES, ROW_FOLDERS, ROW_RA, ROW_ESDE, ROW_PERF, ROW_STATES, ROW_STATES_DIR, ROW_RESET, ROW_DELCFG, ROW_ROTATION, ROW_LANGUAGE };
 static int rowKind[SETTINGS_MAX];
 
 /* System's top row: the interface's language, stepped on each press (the setting is the one in config.c's table) */
@@ -1184,11 +1179,6 @@ static void settings_rows(const Config* cfg) {
 #endif
 	rowKind[nRows++] = ROW_STATES; /* (save states shared with RetroArch: issue #39) */
 	rowKind[nRows++] = ROW_STATES_DIR;
-#ifndef GBADS_SIDE
-	/* (not in a side build: the system's GBA games would start it) */
-	if (banana_present()) rowKind[nRows++] = ROW_BANANA;
-	else if (es_present(cfg)) rowKind[nRows++] = ROW_ES;
-#endif
 	rowKind[nRows++] = ROW_RESET;
 	rowKind[nRows++] = ROW_DELCFG;
 #endif
@@ -1246,9 +1236,6 @@ static SettingsGeom settings_geom(int scr) {
 		}
 	}
 	g.back = set_row_gaps(scr, slots, slots, gaps);
-	/* BananaOS's note is long (and its NOTE under it): Back sits a little higher so the text, centred on it, stays in the panel */
-	for (int i = 0; i < nRows; ++i)
-		if (rowKind[i] == ROW_BANANA) g.back.y -= g.px * 12;
 	return g;
 }
 
@@ -2144,8 +2131,6 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 	states_dir_text(cfg, statesDirText, sizeof(statesDirText));
 	for (int i = 0; i < nRows; ++i) {
 		labels[i] = rowKind[i] == ROW_LANGUAGE ? lang_label(cfg)
-		          : rowKind[i] == ROW_BANANA ? (banana_integration_on() ? N_("GBA DS in BananaOS's GBA list: On"): N_("GBA DS in BananaOS's GBA list: Off"))
-		          : rowKind[i] == ROW_ES     ? (es_integration_on(cfg) ? N_("GBA DS in EmulationStation: On"): N_("GBA DS in EmulationStation: Off"))
 		          : rowKind[i] == ROW_RESET  ? (confirmRow == i ? N_("Are you sure? Reset settings"): N_("Reset settings to defaults"))
 		          : rowKind[i] == ROW_DELCFG ? (confirmRow == i ? N_("Are you sure? Delete them"): N_("Delete per-game settings"))
 		          : rowKind[i] == ROW_STATES ? (shared ? N_("Save States: Shared with RetroArch"): N_("Save States: GBA DS's Own"))
@@ -2157,12 +2142,7 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 	if (sel >= nRows) return;
 	int i = sel;
 	const char* text = rowKind[i] == ROW_LANGUAGE ? N_("Automatic follows the system. Text that isn't translated yet stays in English.")
-	                   : rowKind[i] == ROW_BANANA
-	                       ? N_("Games picked in BananaOS's own Game Boy Advance list start in GBA DS when it has "
-	                         "second-screen support for them. Restart BananaOS after switching this."): rowKind[i] == ROW_ES
-	                       ? N_("Adds GBA DS to the emulators for Game Boy Advance games in EmulationStation. Pick it for one game "
-	                         "(its Advanced Game Options > Emulator) or for all of them (the system's advanced settings). "
-	                         "The other emulators keep working as before."): rowKind[i] == ROW_RESET || rowKind[i] == ROW_DELCFG ? NULL
+	                   : rowKind[i] == ROW_RESET || rowKind[i] == ROW_DELCFG ? NULL
 	                   : rowKind[i] == ROW_STATES ? statesText
 	                   : rowKind[i] == ROW_STATES_DIR ? statesDirText
 	                   : rowKind[i] == ROW_PERF
@@ -2173,13 +2153,7 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 	/* a message from switching a row (settings_activate): in place of its text */
 	bool msg = settingsMsg[0] && settingsMsgRow == i;
 	if (msg) text = settingsMsg;
-	/* (BananaOS: the trade-off set apart and in bold so it isn't missed) */
-	if (rowKind[i] == ROW_BANANA && !msg)
-		set_notes(scr, g.panel, g.back, text, C_DIM, TF_BODY,
-		          "NOTE: Unsupported games will play in RetroArch, but without BananaOS's own "
-		          "second screen (its game panel and companions).", C_TEXT, TF_BOLD);
-	else
-		draw_system_note(scr, &g, text, msg ? C_GOLD : C_DIM);
+	draw_system_note(scr, &g, text, msg ? C_GOLD : C_DIM);
 }
 
 static void settings_activate(Config* cfg, int row) {
@@ -2193,8 +2167,6 @@ static void settings_activate(Config* cfg, int row) {
 	if (rowKind[row] == ROW_LANGUAGE) {
 		if (config_setting_step(cfg, lang_setting(), 1)) setting_changed(cfg, lang_setting());
 	} else if (rowKind[row] == ROW_UPDATES) updatesOpen = true, updatesNotice = false, updatesSel = 0;
-	else if (rowKind[row] == ROW_BANANA) banana_integration_set(!banana_integration_on(), settingsMsg, sizeof(settingsMsg));
-	else if (rowKind[row] == ROW_ES) es_integration_set(cfg, !es_integration_on(cfg), settingsMsg, sizeof(settingsMsg));
 	else if (rowKind[row] == ROW_STATES) states_switch(cfg);
 	else if (rowKind[row] == ROW_STATES_DIR) states_dir_pick(cfg);
 	else if (rowKind[row] == ROW_PERF) {
@@ -2501,13 +2473,7 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 	int restartIn = -1; /* frames until the restart into an installed update */
 #endif
 
-#ifdef __wasi__
-	int listFrames = 0;
-#endif
 	while (!quit && chosen < 0) {
-#ifdef __wasi__
-		if (listFrames++) logo_step(); /* (the web build: a logo a frame, from the list's second) */
-#endif
 		{
 			static unsigned crcSeen;
 			unsigned cg = rom_crc_generation();

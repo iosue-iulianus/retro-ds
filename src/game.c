@@ -1,9 +1,6 @@
 /* One play session: the emulator, the second-screen map, and the pause menu. */
 #include "game.h"
 #include "i18n.h"
-#ifdef __wasi__
-extern void web_sleep(unsigned ms) __attribute__((import_module("env"), import_name("web_sleep")));
-#endif
 #include "android.h"
 #include "brand.h"
 #include "emu.h"
@@ -52,11 +49,7 @@ static long thread_preemptions(void) {
 }
 static double thread_cpu_ms(void) {
 	struct timespec t;
-#ifdef __wasi__
-	if (clock_gettime(CLOCK_MONOTONIC, &t) != 0) return 0;
-#else
 	if (clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t) != 0) return 0;
-#endif
 	return t.tv_sec * 1000.0 + t.tv_nsec / 1e6;
 }
 /* CLOCK_MONOTONIC in seconds: the time the kernel log and the journal's
@@ -233,7 +226,7 @@ static void* twin_worker(void* arg) {
 	pthread_mutex_unlock(&w->lock);
 	return NULL;
 }
-/* fn(arg) on worker i; no thread (the web build): here, now */
+/* fn(arg) on worker i; no thread: here, now */
 static void twin_work_start(int i, void (*fn)(void*), void* arg) {
 	typeof(twinWork[0])* w = &twinWork[i];
 	pthread_mutex_lock(&w->lock);
@@ -5820,17 +5813,6 @@ static bool state_load(const char* path) {
 	return ok;
 }
 
-#ifdef __wasi__
-/* State Saver's GBA DS tab: states saved and loaded from the page, between frames */
-static bool webPlaying;
-__attribute__((export_name("web_save_state"))) int web_save_state(const char* path) {
-	return webPlaying && state_save(path);
-}
-__attribute__((export_name("web_load_state"))) int web_load_state(const char* path) {
-	return webPlaying && state_load(path);
-}
-#endif
-
 /* ---------------------------------------------------------------- bug reports
  *
  * The quick bar's bug button: <asset_dir>/bug-reports/GAME-DATE_TIME.zip
@@ -6802,7 +6784,6 @@ static double audioSpeed = 1.0; /* emulated time per real time */
  * break and the game doesn't fall behind. Not run: RetroAchievements'
  * frame check (main thread only), the rewind buffer's states, the map's
  * room checks; those carry on with the next frame. keep_sound = 0: off. */
-#ifndef __wasi__
 static struct {
 	pthread_t thread;
 	pthread_mutex_t lock;
@@ -6932,13 +6913,6 @@ static void keeper_stop(void) {
 	if (keeper.conv) SDL_FreeAudioStream(keeper.conv);
 	keeper.conv = NULL, keeper.convFrom = 0;
 }
-#else
-static void keeper_arm(uint32_t keys, SDL_AudioDeviceID audio, int outRate, int maxQueued, int ahead) {
-	(void) keys, (void) audio, (void) outRate, (void) maxQueued, (void) ahead;
-}
-static int keeper_disarm(void) { return 0; }
-static void keeper_stop(void) {}
-#endif
 /* Matched, a frame that misses its refresh waits for the next one, and the
  * time is never made up: the game slows down (the GBA's rate catches up
  * after a slow frame). A game that keeps missing (three seconds in a row
@@ -7983,9 +7957,6 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		char d[640];
 		fprintf(stderr, "ROM: %s\n", dump_text(d, sizeof(d)));
 	}
-#ifdef __wasi__
-	webPlaying = true;
-#endif
 	if (emu.patch != PATCH_NONE) {
 		ra_game_patched(); /* (RetroAchievements doesn't allow patched games) */
 	} else {
@@ -8122,7 +8093,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	 * only when the buffer is a whole number of milliseconds, e.g. 480) */
 	want.samples = getenv("GBADS_AUDIO_SAMPLES") ? atoi(getenv("GBADS_AUDIO_SAMPLES")) : 512;
 	SDL_AudioDeviceID audio = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
-#if !defined(__wasi__) && !defined(__ANDROID__)
+#if !defined(__ANDROID__)
 	if (!audio && getenv("AUDIODEV")) {
 		/* the device launch.sh asked for (the RG DS Plus's Stock Linux OS: ALSA's pulse)
 		 * won't open: the driver's own default instead */
@@ -8133,7 +8104,6 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		audio = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
 	}
 #endif
-#ifndef __wasi__
 	if (!audio) {
 		/* (a player on ROCKNIXDS heard nothing: the driver SDL picked may
 		 * not reach the sound server; the others, in turn) */
@@ -8149,7 +8119,6 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		}
 		if (!audio) SDL_AudioQuit(), SDL_AudioInit(NULL);
 	}
-#endif
 	if (audio) {
 		SDL_PauseAudioDevice(audio, 0);
 		fprintf(stderr, "audio: %s%s%s, %d Hz, %d channels, %d samples\n", SDL_GetCurrentAudioDriver(), getenv("AUDIODEV") ? " on " : "",
@@ -9386,16 +9355,10 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		double wait = next - now;
 		loopCur.sleep0 = SDL_GetPerformanceCounter();
 		loopCur.sleepWant = wait > 0 ? wait : 0;
-#ifdef __wasi__
-		/* the web build: back to the page every frame, for the wait or not */
-		web_sleep(wait > 0 ? (unsigned) (wait * 1000) : 0);
-		logo_step(); /* (a logo a frame: the game's own, started without the game list) */
-#else
 		if (wait > 0) {
 			struct timespec ts = { 0, (long) (wait * 1e9) };
 			nanosleep(&ts, NULL);
 		}
-#endif
 		loopCur.end = SDL_GetPerformanceCounter();
 	}
 
@@ -9418,9 +9381,6 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	mapcap_destroy(mc);
 	mc = NULL;
 	emu_rewind_deinit();
-#ifdef __wasi__
-	webPlaying = false;
-#endif
 	twin_close();
 	emu_close(&emu); /* flushes the battery save */
 	for (int i = 0; i < MAP_MAX_FRAMES; ++i) {

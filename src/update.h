@@ -1,8 +1,7 @@
 /* Updates: asks GitHub for the latest stable release, and on a yes
  * downloads it and checks it. Linux: the zip, installed over the app's
  * folder, then a restart. Android: the APK, handed to Android's package
- * installer, which asks the player to confirm. The web build gets no-op
- * stubs. */
+ * installer, which asks the player to confirm. */
 #ifndef GBADS_UPDATE_H
 #define GBADS_UPDATE_H
 
@@ -34,7 +33,7 @@ typedef struct {
 } UpdateInfo;
 
 /* (not in a side build, GBADS_SIDE: it would replace itself with the release) */
-#if !defined(__wasi__) && !defined(GBADS_SIDE)
+#if !defined(GBADS_SIDE)
 #define GBADS_UPDATES 1
 /* exeDir: the app's folder; argv: for the restart */
 void update_init(const Config* cfg, const char* exeDir, int argc, char** argv);

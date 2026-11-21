@@ -94,14 +94,6 @@ typedef struct {
 static ScriptLine* script;
 static int scriptLen, scriptPos;
 static uint32_t scriptBtns;
-#ifdef __wasi__
-/* The web player's buttons, held now: bit i is button i of ui.h's list
- * (B_A, B_B, B_X...), whatever key or controller the player mapped to it */
-static uint32_t webBtns;
-__attribute__((export_name("web_buttons"))) void web_buttons(uint32_t held) {
-	webBtns = held;
-}
-#endif
 static long scriptTapUp = -1;
 static float tapX, tapY;
 /* SWIPE:x0,y0,x1,y1 (fractions of the window): down, 4 moves a tick apart, up */
@@ -193,13 +185,6 @@ static void push_finger(Uint32 type, float x, float y) {
 	ev.tfinger.windowID = SDL_GetWindowID(views[0].win);
 	SDL_PushEvent(&ev);
 }
-
-#ifdef __wasi__
-/* State Saver's GBA DS tab: a touch on the page (x, y fractions of the window) */
-__attribute__((export_name("web_touch"))) void web_touch(int type, float x, float y) {
-	push_finger(type == 1 ? SDL_FINGERDOWN : type == 2 ? SDL_FINGERUP : SDL_FINGERMOTION, x, y);
-}
-#endif
 
 static void run_script(void) {
 	while (scriptPos < scriptLen && script[scriptPos].tick <= (long) ticks) {
@@ -416,7 +401,6 @@ bool ui_init(Config* c, bool wantDual) {
 	SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 #endif
 	setenv("SDL_VIDEO_WAYLAND_WMCLASS", "gba-ds", 0);
-	/* (the web build's sound too: web/sdl_audio_web.c, pulled by the page) */
 	const Uint32 audioInit = SDL_INIT_AUDIO;
 	if (SDL_Init(SDL_INIT_VIDEO | audioInit | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) != 0) {
 		fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
@@ -862,7 +846,7 @@ void ui_on_foreground(void (*fn)(void)) {
 	foregroundFn = fn;
 }
 
-#if defined(__linux__) && !defined(__ANDROID__) && !defined(__wasi__)
+#if defined(__linux__) && !defined(__ANDROID__)
 #include <fcntl.h>
 #include <linux/input.h>
 #include <sys/ioctl.h>
@@ -1111,7 +1095,7 @@ bool ui_events(void) {
 			if (!ev.key.repeat) raw_push('k', -1, ev.key.keysym.scancode, 1);
 			static int keysLogged;
 			if (debug || keysLogged++ < 6) fprintf(stderr, "key %s\n", SDL_GetKeyName(ev.key.keysym.sym));
-#if defined(__linux__) && !defined(__ANDROID__) && !defined(__wasi__)
+#if defined(__linux__) && !defined(__ANDROID__)
 			/* the volume keys, where the system leaves them to us */
 			SDL_Scancode sc = ev.key.keysym.scancode;
 			if ((sc == SDL_SCANCODE_VOLUMEUP || sc == SDL_SCANCODE_VOLUMEDOWN) && evVolFd < 0) volume_key(sc == SDL_SCANCODE_VOLUMEUP);
@@ -1121,7 +1105,7 @@ bool ui_events(void) {
 		case SDL_FINGERDOWN:
 		case SDL_FINGERUP:
 		case SDL_FINGERMOTION:
-#if defined(__linux__) && !defined(__ANDROID__) && !defined(__wasi__)
+#if defined(__linux__) && !defined(__ANDROID__)
 			if (evTouchFd >= 0) break; /* (touch_device: read there) */
 #endif
 			static int touchesLogged;
@@ -1249,9 +1233,6 @@ void ui_read_buttons(void) {
 
 	for (int i = 0; i < B_COUNT; ++i) {
 		if (scriptBtns & (1u << i)) btnNow[i] = true;
-#ifdef __wasi__
-		if (webBtns & (1u << i)) btnNow[i] = true;
-#endif
 	}
 }
 
@@ -1636,7 +1617,6 @@ double ui_display_hz(int view) {
 	double hz = 0;
 #ifndef __ANDROID__
 	if (cached >= 0) return cached;
-#ifndef __wasi__
 	if (getenv("SWAYSOCK")) {
 		FILE* f = popen("swaymsg -r -t get_outputs 2>/dev/null", "r");
 		if (f) {
@@ -1656,7 +1636,6 @@ double ui_display_hz(int view) {
 			}
 		}
 	}
-#endif /* __wasi__ */
 #endif
 	if (hz <= 0) {
 		SDL_DisplayMode m;
@@ -2689,7 +2668,7 @@ void ui_fill_round(int screen, SDL_Rect r, SDL_Color c, int radius) {
 /* ---------------------------------------------------------- keys and the theme
  * The menus' buttons look like a GBA's: a raised key with an edge under it.
  * Dark (the default): dark grey keys with a light rim and a heavy dark edge.
- * Light: the web player's pale grey keys. Text on a plain key in the light
+ * Light: pale grey keys. Text on a plain key in the light
  * theme is drawn in dark ink: ui_key notes where the keys are, and
  * ui_font_text turns light colours inside one into ink. */
 static int themeLight;

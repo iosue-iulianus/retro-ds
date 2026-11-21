@@ -5,7 +5,7 @@
 #   make CROSS=aarch64-linux-gnu- MGBA_BUILD=../mgba/build-aarch64 SDL_PREFIX=../sdl-aarch64
 #
 # MGBA_SRC   mGBA source tree (headers)
-# MGBA_BUILD a cmake build dir of mGBA (see scripts/build-rocknix.sh for the options), targets mgba and zlibstatic built
+# MGBA_BUILD a cmake build dir of mGBA (see scripts/mgba-options.sh for the options), targets mgba and zlibstatic built
 # SDL_PREFIX an SDL2 install prefix (include/SDL2, lib/libSDL2.so)
 
 CROSS      ?=
@@ -18,7 +18,7 @@ OUT        ?= build/$(if $(CROSS),$(patsubst %-,%,$(CROSS)),host)
 MGBA_DEFS  := $(shell sed -n 's/^C_DEFINES = //p' $(MGBA_BUILD)/CMakeFiles/mgba.dir/flags.make)
 VERSION    := $(shell cat VERSION 2>/dev/null || echo dev)
 # SIDE=name: a side build, installed beside the main one to try a branch's
-# work (scripts/build-rocknix.sh GBADS_SIDE): its version is VERSION+name,
+# work: its version is VERSION+name,
 # with no updates and no EmulationStation / BananaOS integration
 # SIDE_CODES: the game codes its game list shows (space-separated; the
 # others aren't listed: only the game being worked on and its releases)
@@ -50,7 +50,7 @@ WEBP_DIR   := third_party/libwebp
 WEBP_SRC   := $(wildcard $(WEBP_DIR)/src/dec/*.c $(WEBP_DIR)/src/dsp/*.c $(WEBP_DIR)/src/utils/*.c)
 WEBP_OBJ   := $(patsubst $(WEBP_DIR)/src/%.c,$(OUT)/libwebp/%.o,$(WEBP_SRC))
 
-APP_SRC    := src/main.c src/config.c src/i18n.c src/i18n_data.c src/font.c src/ui.c src/library.c src/mapper.c src/hotkeys.c src/folderpick.c src/game.c src/paths.c src/image.c src/brand_data.c src/bezel.c src/bezel_logo.c src/logo.c src/cheats.c src/esinteg.c src/textfont.c src/fonts_data.c src/ra.c src/http.c src/sha256.c src/update.c src/clocks.c $(CORE_SRC)
+APP_SRC    := src/main.c src/config.c src/i18n.c src/i18n_data.c src/font.c src/ui.c src/library.c src/mapper.c src/hotkeys.c src/folderpick.c src/game.c src/paths.c src/image.c src/brand_data.c src/bezel.c src/bezel_logo.c src/logo.c src/cheats.c src/textfont.c src/fonts_data.c src/ra.c src/http.c src/sha256.c src/update.c src/clocks.c $(CORE_SRC)
 
 all: $(OUT)/gba-ds
 

@@ -39,7 +39,6 @@ static void quiet_log(struct mLogger* l, int cat, enum mLogLevel level, const ch
 }
 static struct mLogger quietLogger = { .log = quiet_log };
 
-#ifndef __wasi__ /* (the web build has no threads) */
 /* ------------------------------------------------- battery saves, async
  * When a game writes its save, mGBA flushes it from the emulation thread a
  * few frames later: futimens + msync + fsync. On Android's shared storage
@@ -141,7 +140,6 @@ static struct VFile* async_save_open(const char* path) {
 	a->d = (struct VFile) { as_close, as_seek, as_read, as_readline, as_write, as_map, as_unmap, as_truncate, as_size, as_sync };
 	return &a->d;
 }
-#endif
 
 static void split_resync(Emu* e);
 static void split_release(Emu* e);
@@ -375,11 +373,7 @@ bool emu_open(Emu* e, const char* romPath, const char* savePath, bool audio) {
 		return false;
 	}
 	if (savePath) {
-#ifndef __wasi__
 		struct VFile* vf = async_save_open(savePath);
-#else
-		struct VFile* vf = VFileOpen(savePath, O_CREAT | O_RDWR);
-#endif
 		if (vf) {
 			e->core->loadSave(e->core, vf);
 		} else {

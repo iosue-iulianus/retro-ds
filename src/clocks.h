@@ -4,7 +4,7 @@
 #define GBADS_CLOCKS_H
 #include <stdbool.h>
 
-#if defined(__linux__) && !defined(__ANDROID__) && !defined(__wasi__)
+#if defined(__linux__) && !defined(__ANDROID__)
 /* the setting means something here: a governor GBA DS can change (not on
  * BananaOS, whose banana-play.sh holds them at performance itself) */
 bool clocks_available(void);
