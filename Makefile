@@ -73,10 +73,20 @@ $(OUT)/harness: tools/harness.c tools/png.c $(CORE_SRC) src/logo.c src/*.h
 	@mkdir -p $(OUT)
 	$(CC) $(CFLAGS) -o $@ tools/harness.c tools/png.c $(CORE_SRC) src/logo.c $(MGBA_BUILD)/libmgba.a $(ZLIB_A) -lpng -lpthread -lm
 
+# SNES DS milestone M0 (host only): the libretro loader and its harness.
+# Needs no mGBA or SDL: make m0 -> build/host/snes-harness
+M0_CFLAGS  := $(OPTFLAGS) -std=gnu11 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -D_REENTRANT
+
+m0: build/host/snes-harness
+
+build/host/snes-harness: tools/snes-harness.c tools/png.c src/retro/emu.c src/retro/emu.h src/retro/libretro.h
+	@mkdir -p build/host
+	$(CC) $(M0_CFLAGS) -o $@ tools/snes-harness.c tools/png.c src/retro/emu.c -ldl -lpng -lz -lpthread -lm
+
 clean:
 	rm -rf build
 
-.PHONY: all tools clean
+.PHONY: all tools m0 clean
 
 # tests for the interface's language and its fonts (tools/test_i18n.c); DejaVu Sans is
 # only the stand-in fallback face for the font part
