@@ -3236,9 +3236,12 @@ static void blob_u32(Blob* b, uint32_t v) { blob_add(b, &v, 4); }
 static void blob_section(Blob* b, const char* tag, const void* d, size_t n) {
 	blob_add(b, tag, 4), blob_u32(b, (uint32_t) n), blob_add(b, d, n);
 }
+/* The second screen's block in a state: "SDS2", version 1, the game's
+ * 8-character code, then tagged sections (blob_find) */
+#define SCREEN_BLOB_HEAD 16
 static void* screen_blob(size_t* n) {
 	Blob b = { 0 };
-	blob_add(&b, "GDS2", 4), blob_u32(&b, 1), blob_add(&b, subCode, 4);
+	blob_add(&b, "SDS2", 4), blob_u32(&b, 1), blob_add(&b, subCode, 8);
 	if (mapShownIdx >= 0 && !snapProf && mapRes.ok && mapRes.frames[0] && mapRes.nFrames > 0 && mapRes.w > 0 && mapRes.h > 0) {
 		Blob m = { 0 };
 		size_t px = (size_t) mapRes.w * mapRes.h * 4;
@@ -3288,7 +3291,7 @@ static uint8_t* screenRestore; /* a loaded state's block, put back at the next f
 static size_t screenRestoreN;
 static bool screenRestorePending;
 static const uint8_t* blob_find(const uint8_t* b, size_t n, const char* tag, uint32_t* size) {
-	for (size_t at = 12; at + 8 <= n;) {
+	for (size_t at = SCREEN_BLOB_HEAD; at + 8 <= n;) {
 		uint32_t sz;
 		memcpy(&sz, b + at + 4, 4);
 		if (at + 8 + sz > n) break;
@@ -3304,7 +3307,7 @@ static void screen_restore_apply(void) {
 	screenRestorePending = false;
 	const uint8_t* b = screenRestore;
 	size_t n = screenRestoreN;
-	bool ours = b && n >= 12 && !memcmp(b, "GDS2", 4) && rd32(b + 4) == 1 && !memcmp(b + 8, subCode, 4);
+	bool ours = b && n >= SCREEN_BLOB_HEAD && !memcmp(b, "SDS2", 4) && rd32(b + 4) == 1 && !memcmp(b + 8, subCode, 8);
 	logoForced = false, logoHolding = 0;
 	if (!ours) {
 		if (b && debug) fprintf(stderr, "load state: its second screen is for another game or version: not used\n");
