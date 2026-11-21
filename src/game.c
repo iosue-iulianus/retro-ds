@@ -86,11 +86,16 @@ static int current_cpu(void) {
 #endif
 }
 
-#define GBA_FPS (16777216.0 / 280896.0)
+/* the game's frame rate, as the core gives it (an NTSC SNES: 60.0988) */
+#define SNES_FPS_NTSC 60.0988
+static double game_fps(void);
 #define FF_MAX_RUNS 30 /* fast-forward at Max: at most this many frames a display frame */
 
 static Config* cfg;
 static Emu emu;
+static double game_fps(void) {
+	return emu.fps > 0 ? emu.fps : SNES_FPS_NTSC;
+}
 
 /* ------------------------------------------------- frame buffer (option)
  * With frame_buffer on, the next frame is emulated on this thread while the
@@ -515,7 +520,7 @@ static int menuSel;
 static int menuPressed = -1;      /* item under a finger that went down in the menu */
 static bool ignorePointerUp;      /* the tap that opened the menu */
 static char menuNote[64];
-static bool pacedFallback; /* Match Display Rate fell back to the GBA's rate (pacing_update) */
+static bool pacedFallback; /* Match Display Rate fell back to the game's rate (pacing_update) */
 
 #define C_BTN ui_accent_color(AC_BTN)
 #define C_BTN_SEL ui_accent_color(AC_BTN_SEL)
@@ -3383,7 +3388,7 @@ static bool state_load(const char* path) {
 	stateLoadKind = emu_state_file_kind(&emu, path, &fromSnesds);
 	bool ok = emu_state_load_file(&emu, path);
 	{
-		static const char* const kinds[] = { "no file", "SNES DS's / mGBA's", "RetroArch's", "another emulator's", "unreadable" };
+		static const char* const kinds[] = { "no file", "SNES DS's", "RetroArch's", "another emulator's", "unreadable" };
 		fprintf(stderr, "load state: %s: %s (%s%s)\n", path, ok ? "loaded" : "not loaded", kinds[stateLoadKind],
 		        stateLoadKind == STATE_FILE_RETROARCH ? (fromSnesds ? ", saved by SNES DS" : ", saved by RetroArch") : "");
 	}
@@ -3791,7 +3796,7 @@ static bool bug_report(char* out, size_t outSize) {
 
 	/* the keys: presses and lifts to read, then the frames to play back */
 	Text t = { 0 };
-	double fps60 = GBA_FPS;
+	double fps60 = game_fps();
 	char date[64], k[64];
 	strftime(date, sizeof(date), "%Y-%m-%d %H:%M:%S", &tm);
 #ifdef SNESDS_VERSION
@@ -4187,7 +4192,7 @@ static int game_screen(void) {
  * within 1.5% (60 Hz: 0.46% faster, sound resampled to match, a pitch change
  * nobody hears), and presents the game's screen in step with the display
  * (vsync), so each frame gets exactly one refresh. */
-static double frameSec = 1.0 / GBA_FPS;
+static double frameSec = 1.0 / SNES_FPS_NTSC;
 static double pacedHz;    /* the display's rate when matched, else 0 */
 static double audioSpeed = 1.0; /* emulated time per real time */
 
@@ -4344,12 +4349,12 @@ static void pacing_update(void) {
 	double hz = nScreens > 0 ? ui_display_hz(screens[game_screen()].view) : 0;
 	pacedHz = 0;
 	pacedMisses = pacedMissSecs = 0;
-	if (cfg->matchDisplay && !pacedFallback && hz > 0 && fabs(hz / GBA_FPS - 1) <= 0.015) pacedHz = hz;
-	frameSec = 1.0 / (pacedHz > 0 ? pacedHz : GBA_FPS);
-	audioSpeed = pacedHz > 0 ? pacedHz / GBA_FPS : 1.0;
+	if (cfg->matchDisplay && !pacedFallback && hz > 0 && fabs(hz / game_fps() - 1) <= 0.015) pacedHz = hz;
+	frameSec = 1.0 / (pacedHz > 0 ? pacedHz : game_fps());
+	audioSpeed = pacedHz > 0 ? pacedHz / game_fps() : 1.0;
 	fprintf(stderr, "frame pacing: display %.3f Hz, game %.3f frames a second (%s)\n", hz, 1.0 / frameSec,
-	        pacedHz > 0 ? "matched to the display" : cfg->matchDisplay && pacedFallback ? "the GBA's rate: frames kept missing the display's refresh" :
-	        cfg->matchDisplay ? "display too far off to match" : "the GBA's rate");
+	        pacedHz > 0 ? "matched to the display" : cfg->matchDisplay && pacedFallback ? "the game's rate: frames kept missing the display's refresh" :
+	        cfg->matchDisplay ? "display too far off to match" : "the game's rate");
 }
 
 /* Rewind (hold L2): mGBA's rewind buffer, a state every second frame,
@@ -6488,7 +6493,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		fpsFrames += runs; /* emulated frames */
 		if (now - fpsT0 >= 1.0) {
 			fps = fpsFrames / (now - fpsT0);
-			speedPct = fps / GBA_FPS * 100.0;
+			speedPct = fps / game_fps() * 100.0;
 			if (debug) fprintf(stderr, "speed %.1f fps (%.0f%%)\n", fps, speedPct);
 			fpsFrames = 0;
 			fpsT0 = now;
