@@ -17,3 +17,5 @@ swapped. What has changed from GBA DS v1.5.6 so far:
   Stock Linux OS packages, the web player and State Saver are gone, and so
   is GBA DS's EmulationStation and BananaOS integration.
 - GBA DS's per-game pages, test cases and wiki guides are gone.
+- A new SNES DS logo, at the top of the game list and printed on the
+  generated bezel.
