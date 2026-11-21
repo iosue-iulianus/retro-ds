@@ -123,8 +123,19 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   branches cut from it (`m0-libretro`, `game/super-metroid`), merged back
   when built and tried. `main` and `dev` mirror upstream and are never
   committed to.
-- **Remotes:** `origin` is upstream (kyannon/gba-ds). Never push there.
-  Push only to the owner's own fork, and only when asked.
+- **Remotes:** `origin` is SNES DS's own repo (iosue-iulianus/snes-ds,
+  private, a standalone copy with GBA DS's history, not a GitHub fork);
+  `snes` is its default branch. `upstream` is GBA DS (kyannon/gba-ds):
+  fetch from it to pick up fixes to shared code, never push there.
+- **Renaming:** stage 1 is done (repo, README, the Android application ID
+  `io.github.iosue_iulianus.snesds`, its task affinity and install action,
+  the "SNES DS" storage folder and app label), so SNES DS installs beside
+  GBA DS without sharing anything. Stage 2 happens with the port, as the
+  files are rewritten: the binary, `gba-ds.cfg`, `GBADS_*` variables,
+  folder names, the Java namespace and packages (and the JNI names in
+  `android.c` with them), ES-DE's integration (`esde.c`, which edits ES-DE's
+  `gba` system and an emulator rule named GBA-DS) and Cocoon's player entry
+  (`android/cocoon/`).
 - **Commits:** small, one idea each, with the session's attribution
   trailers. Write long messages to a file and `git commit -F`. Never
   force-push, never rewrite pushed history.
