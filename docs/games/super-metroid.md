@@ -26,7 +26,7 @@ Every game also follows the general rules GBA DS set out (`docs/reference/gba/RE
 
 **SM-6. No mini-map on the game screen.** While the second screen shows the map and Samus is played (going through doors and pausing included), the mini-map in the energy bar's top right corner is covered in black: the second screen's map makes it pointless. Ceres Station, which has no map on the second screen, keeps it. Only what's shown changes: the game, its screenshots and states are as the game draws them. *Exception to "the live game's picture isn't changed" (the owner's choice, Nov 21, 2026).*
 
-**SM-7. Touch on the map (planned).** The second screen's map scrolls with a drag, and a tap switches it between the map and Samus's equipment page, both opened on the hidden copy with the game's own buttons. Tapping the second screen doesn't open the pause menu. The L and R pictures on the plates are changed so they don't read as the handheld's shoulder buttons. *Exception to "nothing on the second screen needs a tap" (the owner's choice, Nov 21, 2026).*
+**SM-7. Touch on the map (planned).** The map is centred on Samus, as the game centres its pause map. A drag on the second screen scrolls it; it stays where it was dragged until Samus moves again, then it's centred on her again. A tap switches the second screen between the map and Samus's equipment page. Both are opened on the hidden copy with the game's own buttons (the D-pad to scroll, R for the equipment page), never on the game being played. Tapping the second screen doesn't open the pause menu. The L and R pictures on the plates are changed so they don't read as the handheld's shoulder buttons. *Exception to "nothing on the second screen needs a tap" (the owner's choice, Nov 21, 2026).*
 
 ## Exceptions
 
@@ -38,7 +38,7 @@ Every game also follows the general rules GBA DS set out (`docs/reference/gba/RE
 - Game state, `$7E0998`: `08` playing, `09` to `0B` going through a door, `0C` to `0E` pausing, `0F` the pause screen up, `10` to `12` unpausing; `00` to `05` the title, file and options screens. Area, `$7E079F`: `00` Crateria to `05` Tourian, `06` Ceres Station. Room, `$7E079B` (2 bytes).
 - Start opens the pause screen in about 67 frames (the fade); it has settled by about 76.
 - The mini-map: x 208 to 248, y 6 to 30 in the energy bar (covered: 206, 4, 46 x 28).
-- Pause screen page, `$7E0727` (2 bytes): `0000` the map, `0001` the equipment.
+- Pause screen page, `$7E0727` (2 bytes): `0000` the map, `0001` the equipment, other values while switching (R from the map: about 30 frames, fading).
 - The map screen is told by its frame and the SAMUS plate at the bottom right (the equipment page has MAP there). Not by the grid: it scrolls with the map.
 
 ## Not covered yet
