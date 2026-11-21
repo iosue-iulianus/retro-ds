@@ -18,8 +18,10 @@ review).
 | A Link to the Past | (USA), CRC32 `777AAC2F` (no copier header) |
 
 States used: Super Metroid on Ceres Station just after the intro (made in
-the harness, see below), and A Link to the Past just outside Link's house
-in the rain. States are per core (a bsnes state doesn't load in snes9x).
+the harness), Super Metroid at the ship in Crateria (from the owner's
+`.srm`, file A, loaded in the harness), and A Link to the Past just outside
+Link's house in the rain. States are per core (a bsnes state doesn't load
+in snes9x).
 
 ## Answers
 
@@ -27,14 +29,14 @@ in the rain. States are per core (a bsnes state doesn't load in snes9x).
 
 **host**, `bench 1200`, drawn frames:
 
-| | Super Metroid (Ceres) | ALttP (outdoors, rain) |
-|---|---|---|
-| bsnes | 1.60 ms (623 fps) | 2.54 ms (394 fps) |
-| snes9x | 0.53 ms (1904 fps) | 0.44 ms (2291 fps) |
+| | Super Metroid (Ceres) | Super Metroid (Crateria, rain) | ALttP (outdoors, rain) |
+|---|---|---|---|
+| bsnes | 1.60 ms (623 fps) | 2.65 ms (378 fps) | 2.54 ms (394 fps) |
+| snes9x | 0.53 ms (1904 fps) | 0.43 ms (2342 fps) | 0.44 ms (2291 fps) |
 
 Both instances at once on two threads (the live game plus the hidden copy
-working), per frame pair: bsnes 1.87 ms / 2.86 ms, snes9x 0.66 ms /
-0.56 ms (**host**). bsnes is 3 to 6 times slower than snes9x, as expected
+working), per frame pair: bsnes 1.87 / 3.04 / 2.86 ms, snes9x 0.66 /
+0.58 / 0.56 ms (**host**). bsnes is 3 to 6 times slower than snes9x, as expected
 for its accuracy.
 
 **device:** not measured yet.
@@ -75,17 +77,19 @@ SNES DS.
 **What it does to the live game**, and the fix. While `runToSave` runs, the
 game may read the controller, and it gets the keys the core was last given
 (the previous frame's). With a key change on exactly the next frame, the
-live game sees it a frame late. Measured on ALttP (**host**): serializing
-the live game every 60 frames while the input changes on those frames left
-it 18 work RAM bytes apart from an untouched copy after 600 frames (Link 6
-pixels off). With no input, a held key, or key changes 15 frames away from
-the serializes, it stayed byte-identical. Super Metroid on Ceres stayed
-identical in every case.
+live game sees it a frame late. Measured (**host**), serializing the live
+game every 60 frames while the input changes on those frames, compared
+with an untouched copy after 600 frames: ALttP 18 work RAM bytes apart
+(Link 6 pixels off), Super Metroid in Crateria 222 bytes apart. With no
+input, a held key, or key changes 15 frames away from the serializes, ALttP
+stayed byte-identical. Super Metroid on Ceres happened to stay identical
+(the read falls elsewhere in its frame there).
 
 The fix is `emu_state_save_live(e, nextKeys, ...)`: give the core the
-coming frame's keys before serializing. With it, the same ALttP test and
-the Super Metroid test stay byte-identical (work RAM and picture) after
-600 frames. **The app must snapshot the live game only this way.**
+coming frame's keys before serializing. With it, all three tests (ALttP,
+Super Metroid on Ceres and in Crateria) stay byte-identical, work RAM and
+picture, after 600 frames. **The app must snapshot the live game only this
+way.**
 
 snes9x's serialize doesn't run the core (two serializes are identical) and
 the live game stays identical either way.
@@ -108,11 +112,13 @@ snes9x's fast path). Two copies of the core don't share anything.
   instance without audio. Blind frames are 2 to 2.7 times faster (0.19 vs
   0.53 ms on Super Metroid, 0.21 vs 0.44 ms on ALttP).
 
-A bsnes patch to skip PPU rendering on blind frames is possible (its fast
-PPU renders per line), but for map capture only the frames before the map
-is up could be blind, so it saves little: on ALttP the map is up 4 frames
-after the button and the remaining 45 frames need drawing anyway to see
-the picture settle.
+A bsnes patch to skip PPU rendering on blind frames is worth measuring.
+Only the frames before the screen is up can be blind, and that depends on
+the game: on ALttP the map is up 4 frames after the button (45 more are
+drawn to see it settle), but Super Metroid's pause fades out and loads for
+67 to 68 of its 76 to 77 frames. On snes9x, running those blind cut the
+Super Metroid capture from 28 to 17 ms. How much of bsnes's frame time is
+rendering hasn't been measured.
 
 ### Time from state copy to a settled map
 
@@ -124,21 +130,30 @@ pixels changing) for 8 frames, not black. A is never touched.
 |---|---|---|
 | ALttP overworld map (X; module `$10 = 0E`, submodule `$11 = 07`), bsnes | 49 | 90 (5.7 of it the state copy) |
 | ALttP, snes9x | 48 | 21 |
-| Super Metroid pause map, bsnes | **pending** | **pending** |
-| Super Metroid, snes9x | **pending** | **pending** |
+| Super Metroid pause map (Start; `$0998 = 0F`), bsnes | 76 to 77 | 183 to 193 (6 of it the state copy) |
+| Super Metroid, snes9x | 76 | 28 (17 with the frames before `0F` blind) |
 
-**Super Metroid is pending a Zebes save.** The game doesn't pause on Ceres
-Station (area index `$7E079F` = 6): Start does nothing there, so the map
-can't be opened from the only state the harness can reach on its own
-(Ceres ends in a timed escape). With a Zebes `.srm` from any emulator, or a
-state from these core versions, the same command answers it:
-`mapcap smmap press=START hold=4 until=7E0998:0F` (game state `0x0F` is
-the pause screen; to be confirmed with `peek` when the save arrives).
+Super Metroid's pause screen never holds perfectly still: the map marker's
+brackets and the L / R button prompts blink, changing 428 to 538 pixels
+every third frame. It counts as settled with `maxdiff=600` (GBA DS's
+profiles have the same `maxDiff` for blinking markers; the prompts are the
+kind of thing a profile crops or covers). The pause is reached in 67 to 68
+frames (`0C` fade out, `0D` / `0E` loading the pause screen, `0F` paused),
+then 9 more to settle.
 
-**device:** at the host's 1.6 to 2.5 ms per bsnes frame, a 49-frame
-capture is 80 to 125 ms of one core's time. If the Duo is 3 to 5 times
-slower per core (a guess until measured), that's well under the
-once-a-second capture interval GBA DS uses.
+Super Metroid can't be paused on Ceres Station (area index `$7E079F` = 6),
+nor for a few seconds after a save is loaded (Samus faces the screen and
+ignores input). A capture tried then fails, as it should; the profile's
+`live` check needs to cover that.
+
+**device:** at the host's 1.6 to 2.7 ms per bsnes frame, a Super Metroid
+capture is about 190 ms of one core's time, ALttP's 90 ms. If the Duo is 3
+to 5 times slower per core (a guess until measured), a Super Metroid
+capture takes 0.6 to 1 s: close to the once-a-second interval GBA DS
+uses, so the map would trail the game by up to a second or two. It runs on
+its own core and never slows the live game, but it's the first number to
+measure on the device, and the reason the bsnes blind-frame patch is worth
+trying.
 
 ## Observations along the way
 
@@ -160,8 +175,13 @@ once-a-second capture interval GBA DS uses.
   asset mode is still the better fit for a whole-world view, for those
   reasons.
 - Super Metroid's game state `$7E0998`: `01` title, `04` file select (SAMUS
-  DATA), `02` OPTION MODE (start game, language), `1E` intro text (Start turns the pages), `1F` then `07` on the way
-  in, `08` gameplay.
+  DATA), `02` OPTION MODE (start game, language), `1E` intro text (Start
+  turns the pages), `1F` then `07` on the way in, `05` / `06` / `07`
+  loading a save (the planet map, then the room), `08` gameplay, `0C` /
+  `0D` / `0E` pausing, `0F` paused. `$0A1C` is Samus's pose (`00` facing
+  the screen, as after loading).
+- Super Metroid's controller: `$8B` held, `$8F` newly pressed (Start is
+  `0x1000`).
 - ALttP's module `$7E0010`: `00` title, `01` file select, `04` name entry,
   `05` loading, `07` indoors, `09` overworld, `0E` text and menus
   (submodule `$11` = `02` text box, `07` the overworld map).
@@ -183,6 +203,13 @@ times 90 frames apart, `save ztitle`; Start, Start, A (a letter), Down x3,
 Right x2, A (END), A; tap A 60 times 48 frames apart (the opening text);
 hold Right 20, hold Down 150, wait 120, hold Down 30, wait 30, `save zout`.
 
-Then `load ceres` or `load zout`, and `bench 1200` or the `mapcap` lines
-above. `pattern N` and `keysfirst 0|1` before `bench` reproduce the
+Super Metroid in Crateria: copy the `.srm` to `OUT/a/<ROM name>.srm`;
+wait 600, tap Start twice 120 frames apart (`save filesel`), tap Start five
+times 120 frames apart (file A, the planet map, into the room), wait 300,
+`save zebes`; then wait 200, hold Left 30, wait 30, `save zebes2` (Samus
+controllable).
+
+Then `load ceres`, `load zebes2` or `load zout`, and `bench 1200` or the
+`mapcap` lines above (Super Metroid: `mapcap smmap press=START hold=4
+until=7E0998:0F stable=8 maxdiff=600`). `pattern N` and `keysfirst 0|1` before `bench` reproduce the
 determinism checks.
