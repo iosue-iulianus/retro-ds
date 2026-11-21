@@ -11,10 +11,11 @@ marker (custom asset mode), or the game's logo.
 The owner (Joshua) decides what gets built and tests on the device.
 Nothing counts as working until it has run on the Duo.
 
-**Status:** milestone M0 (host only). Most of `src/` is still GBA DS's
-code, built around libmgba; this file describes where it is going, and says
-"(GBA DS)" where it describes code that hasn't been ported yet. Upstream's
-own session notes, with the detail on every inherited subsystem, are
+**Status:** M1 (SNES games on one screen), on branch `m1-port`: the
+emulator is the libretro bsnes core, GBA DS's GBA-only features are gone,
+and no game has a profile yet (M2: Super Metroid). Much of `src/` is
+GBA DS's (the game list, menus, settings, Android glue); upstream's session
+notes, with the detail on every inherited subsystem, are
 `git show 3b452dc:CLAUDE.md` (GBA DS v1.5.6, the commit this fork starts
 from).
 
@@ -159,31 +160,45 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
 
 ## Building
 
-- Cores (host): `../cores/bsnes` (libretro/bsnes, `make target=libretro
-  binary=library`) and `../cores/snes9x` (`make` in `libretro/`).
-- The app (still GBA DS's emulator until the core swap): `scripts/setup-host.sh`
-  once (mGBA and SDL2 into `deps/`), then `make` (`build/host/snes-ds`) and
-  `make tools` (the GBA harness). Host builds run with the SDL in `deps/`
-  (rpath). Android: `scripts/build-android.sh`, which needs the Android SDK
-  and NDK, so it runs on GitHub Actions (`.github/workflows/android.yml`,
-  on pushes to `android` and `dev`, or "Run workflow"; debug-signed without
-  the signing secrets). Platforms: Android and the Linux desktop only;
-  GBA DS's ROCKNIX, BananaOS, Stock Linux OS and web builds were removed.
+- Cores: `scripts/build-cores.sh` (bsnes at a pinned commit with
+  `scripts/cores/bsnes-memory.patch`, into `../cores`; `snes9x` also builds
+  snes9x for local experiments; `android` builds bsnes with the NDK).
+- Desktop: `scripts/setup-host.sh` once (SDL2 into `deps/`, the cores, the
+  app, the harness, and `build/host/bsnes_libretro.so` linked to the core),
+  then `make` (`build/host/snes-ds`) and `make tools`
+  (`build/host/snes-harness`). Host builds run with the SDL in `deps/`
+  (rpath). The app finds its core in `SNESDS_CORE`, else
+  `bsnes_libretro.so` beside the program, and copies it into
+  `<state_dir>/cache/core-{a,b,c}.so`.
+- Android: `scripts/build-android.sh` (SDL2, the core with the NDK, packed
+  three times as `libsnes_{a,b,c}.so` with their own sonames by patchelf,
+  extracted to `nativeLibraryDir`, passed as `SNESDS_CORE_DIR`). It needs
+  the SDK and NDK, so it runs on GitHub Actions
+  (`.github/workflows/android.yml`: pushes to `snes`, pull requests into
+  it, "Run workflow"); release-signed with the repo's secrets (the key is
+  in the owner's `~/.config/snes-ds-signing/`). Install on the Duo over
+  wireless adb: `adb.exe -s IP:PORT install "$(wslpath -w APK)"` (Windows'
+  adb; the port from `adb.exe mdns services`).
+- Platforms: Android and the Linux desktop only.
 
 ## Testing without the device
 
-- The harness (`build/host/harness ROM OUTDIR SCRIPT`) drives a core frame
-  by frame: `load/save NAME`, `wait N`, `hold BUTTONS N`, `shot NAME`,
-  `peek ADDR LEN`, `poke ADDR LEN VAL`, `dumpram NAME`, `map NAME`. SNES
-  addresses are written as the CPU sees them (`7E0020`); WRAM ($7E0000 to
-  $7FFFFF) comes from `RETRO_MEMORY_SYSTEM_RAM`.
-- `tools/ramdiff.py` (RAM dumps with a screen open vs closed) and
-  `tools/scout/bench.c` carry over from GBA DS.
+- The harness (`build/host/snes-harness CORE ROM OUTDIR SCRIPT`, commands
+  at the top of `tools/snes-harness.c`) runs two copies of the core frame
+  by frame: `load/save`, `wait`, `hold`, `tap`, `shot`, `peek`, `poke`,
+  `dumpram`, `copy`, `mapcap` (a capture on copy B, timed), `bench`. SNES
+  addresses are written as the CPU sees them (`7E0998`). `SNESDS_SAVE`
+  gives copy A a battery save.
+- `tools/ramdiff.py` (RAM dumps with a screen open vs closed) carries over.
 - The app runs headless: `SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy
   SDL_RENDER_DRIVER=software SNESDS_WINDOW=1024x1536 build/host/snes-ds
-  --rom-dir=DIR --state-dir=DIR --quick_bar_hint=0 --input-script=SCRIPT`
-  (script lines `TICK BUTTONS`, `TICK SHOT:file.bmp`, `TICK TAP:x,y` as
-  fractions of the window, `TICK QUIT`).
+  --rom-dir=DIR --state-dir=DIR --save_dir=DIR --quick_bar_hint=0
+  --input-script=SCRIPT [ROM]` (script lines `TICK BUTTONS`, buttons `A B X
+  Y START SELECT HOME L R L2 R2 L3`, `HOME+R` save state, `HOME+L` load,
+  `L2` held rewinds; `TICK SHOT:file.bmp`, `TICK TAP:x,y` as fractions of
+  the window, `TICK QUIT`). **Always pass `--save_dir` in a scratch folder:**
+  by default battery saves go beside the ROM, and a test once created a
+  save file in the owner's ROM folder.
 - Verify visual changes by rendering screenshots and looking at them before
   sending a build.
 - Results that depend on where they were measured (fps, timings) are
@@ -191,18 +206,29 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
 
 ## Architecture (src/)
 
-- `emu.c` / `emu.h`: the core wrapper. Becomes a libretro loader: `dlopen`
-  of a core path, the `retro_*` symbols, video / audio / input callbacks,
-  states via `retro_serialize`, WRAM via `RETRO_MEMORY_SYSTEM_RAM`. Each
-  `Emu` owns one loaded core, so two `Emu`s need two core paths.
-- `mapcap.c`: map capture on the hidden copy in a background thread. Uses
-  only the `emu_*` API, so it survives the core swap nearly unchanged.
-- `profiles.c/.h`: everything game-specific (`MapProfile`). Today GBA DS's
-  64 games; SNES profiles replace them.
-- `game.c`: a play session (input, the second screen, pause menu). About
-  20 GBA-specific references to port.
-- `logo.c`: (GBA DS) logo from the title screen's BG layers. For v1, replaced
-  by a title-screen snapshot.
+- `emu.c` / `emu.h`: the libretro loader. A pool of core copies
+  (`EMU_CORES` = 3: the game, the map's hidden copy, the logo's); each
+  `emu_open` takes a free one. The ROM as played (copier header stripped,
+  patches applied, from a `.zip` too) is cached by CRC32 and loaded from
+  there. Game codes are that ROM file's CRC32 as 8 hex digits. Battery saves
+  through `RETRO_MEMORY_SAVE_RAM`, written in the background as they
+  change. States in RetroArch's RASTATE format with SNES DS's blocks (SDSC:
+  ROM CRC, SDSX: the second screen). Rewind keeps XOR deltas of
+  same-instance states (taken without disturbing the game). Snapshots of
+  the live game for other copies must use `emu_state_save_live` with the
+  next frame's keys (the loop takes map and bug-report snapshots just
+  before a frame for that).
+- `mapcap.c`: map capture on the hidden copy in a background thread, on a
+  normalized 256x224 picture (hi-res and interlaced ones halved): profiles
+  give coordinates on the SNES screen.
+- `profiles.c/.h`: everything game-specific (`MapProfile`), keyed by game
+  code (CRC32). Empty until M2.
+- `game.c`: a play session (input, the second screen, pause menu). The
+  game's picture is `texW` x `texH` as the core draws it, shown as `picW` x
+  `picH` (256 x 224 or 239). The second screen is an SNES-sized picture
+  (`SNES_W` x `SNES_H`).
+- `logo.c`: the logo as a title-screen snapshot (the profile's `logo`
+  steps and box), made on the third core copy.
 - `android.c`: Android glue; already knows the Duo (`top_screen` picks the
   larger display; `screen_ppi` knows both panels).
 - `library.c`, `ui.c`, `config.c`, `paths.c`, `ra.c`, `patch.c`: the game
@@ -217,7 +243,13 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   writes both framebuffers to PNG; bench numbers (fps, serialize cost and
   size, settle time, whether blind frames skip rendering) for bsnes and
   snes9x in `docs/M0-results.md`. Stop after M0 for review.
-- After review: Android (two sonames), profiles, custom asset mode.
+- **M1 (agreed Nov 21):** SNES games on one screen, desktop and Android:
+  GBA-only features removed first, then the core swap, then Android (the
+  core three times), with logos from a third core copy. Stop for review.
+- **M2:** Super Metroid's map on the second screen; the game on the
+  Duo's bottom screen by default.
+- **M3:** Chrono Trigger and the FF status screens, logos, custom asset
+  mode (ALttP's overworld).
 - For the port, on the Duo: the game goes on the bottom screen (1280x960,
   4:3, a better fit for an SNES picture) and the second screen on the top
   one. `top_screen = auto` currently puts the game on the larger display
@@ -227,5 +259,7 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   wiki pages SNES DS doesn't have yet (Playing, Overlays); the Display
   theme's hint mentions the web player (a translated string: change it with
   its translations); the .po files keep translations of removed strings
-  (obsolete, warnings only); Linux features with ROCKNIX roots (CPU clocks,
-  the volume file, RetroArch's state folder, the updater's zip install).
+  (obsolete, warnings only); three display hints are fuzzy (shown in
+  English) until retranslated; Linux features with ROCKNIX roots (CPU
+  clocks, the volume file); region flags in the game list (SNES game codes
+  carry no region: perhaps from the ROM header's destination code).
