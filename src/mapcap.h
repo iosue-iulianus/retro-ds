@@ -23,6 +23,9 @@ typedef struct MapResult {
 	uint32_t* pixels;            /* == frames[0] */
 	uint32_t* frames[MAP_MAX_FRAMES];
 	uint32_t serial;             /* increments with each successful capture */
+	/* the view it shows (SM-7): page, and the scroll it got (the game
+	 * stops at its map's edges) for the scroll asked for */
+	int page, dx, dy, askedDx, askedDy;
 } MapResult;
 
 /* Returns NULL when no profile matches gameCode. */
@@ -46,6 +49,10 @@ bool mapcap_busy(MapCapture* mc);
  * wanted): it stops at once and publishes nothing; mapcap_busy is false
  * again as soon as it has. */
 void mapcap_cancel(MapCapture* mc);
+/* The view later captures show (profiles with touch, SM-7): page 0 the
+ * map, 1 the second page; dx, dy the map scrolled from where the game
+ * centres it (SNES pixels, + right / down). */
+void mapcap_set_view(MapCapture* mc, int page, int dx, int dy);
 /* "Map Animations: Off": later captures record the profile's whole marker loop. */
 void mapcap_set_still(MapCapture* mc, bool still);
 const struct MapProfile* mapcap_profile(MapCapture* mc);

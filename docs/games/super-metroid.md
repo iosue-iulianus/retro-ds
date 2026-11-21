@@ -16,7 +16,7 @@ Every game also follows the general rules GBA DS set out (`docs/reference/gba/RE
 
 **SM-1. Map during play.** While Samus is being played anywhere but Ceres Station, the second screen shows the pause screen's map, captured on the hidden copy every `map_interval` frames (60: every second) and soon after each new room.
 
-**SM-2. Just the map.** What's shown is the map in its frame, with the area's name above it. The energy row above the frame and the button prompts below it (L, R, EXIT, START, SAMUS) are left out.
+**SM-2. The map and its plates.** What's shown is the map in its frame, with the area's name above it and the row of plates below it, changed for touch (SM-7). The energy row above the frame is left out.
 
 **SM-3. Last good map stays.** Where the pause screen can't be opened (going through a door, riding an elevator, Ceres Station, a cutscene), the last good map stays up.
 
@@ -26,12 +26,12 @@ Every game also follows the general rules GBA DS set out (`docs/reference/gba/RE
 
 **SM-6. No mini-map on the game screen.** While the second screen shows the map and Samus is played (going through doors and pausing included), the mini-map in the energy bar's top right corner is covered in black: the second screen's map makes it pointless. Ceres Station, which has no map on the second screen, keeps it. Only what's shown changes: the game, its screenshots and states are as the game draws them. *Exception to "the live game's picture isn't changed" (the owner's choice, Nov 21, 2026).*
 
-**SM-7. Touch on the map (planned).** The map is centred on Samus, as the game centres its pause map. A drag on the second screen scrolls it; it stays where it was dragged until Samus moves again, then it's centred on her again. A tap switches the second screen between the map and Samus's equipment page. Both are opened on the hidden copy with the game's own buttons (the D-pad to scroll, R for the equipment page), never on the game being played. Tapping the second screen doesn't open the pause menu. The second screen then shows the pause screen's bottom row of plates too: tapping SAMUS opens the equipment page, tapping MAP on it goes back. On the L and R pills a small arrow takes the place of the letter, so they don't read as the handheld's shoulder buttons, and the EXIT / START plate is covered. *Exception to "nothing on the second screen needs a tap" (the owner's choice, Nov 21, 2026).*
+**SM-7. Touch on the map.** The map is centred on Samus, as the game centres its pause map. A drag on the second screen scrolls it; it stays where it was dragged until Samus moves again, then it's centred on her again. A tap switches the second screen between the map and Samus's equipment page. Both are opened on the hidden copy with the game's own buttons (the D-pad to scroll, R for the equipment page), never on the game being played. Tapping the second screen doesn't open the pause menu. The second screen then shows the pause screen's bottom row of plates too: tapping SAMUS opens the equipment page, tapping MAP on it goes back. On the L and R pills a small arrow takes the place of the letter, so they don't read as the handheld's shoulder buttons, and the EXIT / START plate is covered. *Exception to "nothing on the second screen needs a tap" (the owner's choice, Nov 21, 2026).*
 
 ## Exceptions
 
 - SM-6: the mini-map is covered (the game's picture changed).
-- SM-7: touch on the second screen (planned).
+- SM-7: touch on the second screen, and arrows drawn on the plates.
 
 ## How it's found
 

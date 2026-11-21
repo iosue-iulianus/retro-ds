@@ -18,9 +18,9 @@ static const MapProfile profiles[] = {
 		.open = { { K_START, 4 } },
 		.settleMax = 180, .openWithin = 120,
 		.stableFrames = 8, .maxDiff = 150, /* Samus's marker blinks */
-		/* SM-2: the frame and the area name; not the energy row (above)
-		 * or the button prompts (below) */
-		.crop_x = 0, .crop_y = 38, .crop_w = 256, .crop_h = 160,
+		/* SM-2: the frame and the area name, and the row of plates below
+		 * it (SM-7's taps); not the energy row above */
+		.crop_x = 0, .crop_y = 38, .crop_w = 256, .crop_h = 178,
 		/* the frame (top, sides, bottom) and the SAMUS plate (bottom right),
 		 * which only the map page has. Nothing on the grid: it scrolls with
 		 * the map, so its dots aren't anywhere fixed */
@@ -34,6 +34,22 @@ static const MapProfile profiles[] = {
 		/* the title, file select and options screens (00 to 05) */
 		.menu = { { 0x7E0998, 0xFF, 0x00, 1, true, 0x05, true } },
 		.room = { { 0x7E079B, 0, 0, 2 } },
+		/* SM-7: a drag scrolls the map (its view at $7E00B1, $7E00B3); a tap
+		 * on SAMUS (or the R pill) opens the equipment page with R, on MAP
+		 * (or the L pill) goes back; Samus moving ($7E0AF6, $7E0AFA) puts
+		 * the map back, centred */
+		.touch = { .scrollX = 0x7E00B1, .scrollY = 0x7E00B3,
+		           .page2 = { { K_R, 6 } },
+		           .page2Mem = { { 0x7E0727, 0xFFFF, 0x0001, 2 } },
+		           .page2Probes = { { 20, 43, 0xFFFFFF }, { 240, 43, 0xFFFFFF }, { 4, 100, 0xFFFFFF }, { 251, 100, 0xFFFFFF },
+		                            { 20, 194, 0xFFFFFF }, { 240, 194, 0xFFFFFF }, { 44, 206, 0xFFB500 } },
+		           .tap = { { 172, 196, 84, 22 }, { 0, 196, 84, 22 } },
+		           .moved = { 0x7E0AF6, 0x7E0AFA } },
+		/* SM-7's plates: EXIT / START covered; arrows on the L and R pills
+		 * in place of the letters (the pill's grey and its letters' purple) */
+		.paint = { { 96, 199, 64, 16, true, 0x000000 },
+		           { 20, 205, 9, 5, true, 0xBDBDBD, 0x42008C, { "...#.....", "..#......", ".######..", "..#......", "...#....." } },
+		           { 228, 205, 9, 5, true, 0xBDBDBD, 0x42008C, { "....#....", ".....#...", ".######..", ".....#...", "....#...." } } },
 		/* SM-6: the HUD's mini-map, while Samus is played, goes through a
 		 * door, pauses and unpauses (08 to 12), outside Ceres Station */
 		.hide = { { 206, 4, 46, 28 } },

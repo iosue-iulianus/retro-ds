@@ -127,6 +127,26 @@ typedef struct MapProfile {
 	struct { int x, y, w, h; } hide[2];
 	MemProbe hideIf[3];
 
+	/* Touch on the second screen (SM-7): a drag scrolls the map, a tap on
+	 * a plate switches to a second page; both done on the hidden copy with
+	 * the game's own buttons, after the map is up. Off while scrollX is 0. */
+	struct {
+		uint32_t scrollX, scrollY; /* the hidden copy's view position (2 bytes each) */
+		MacroStep page2[2];        /* from the map to the second page */
+		MemProbe page2Mem[2];      /* the second page is up (with mem[0]) */
+		Probe page2Probes[8];      /* the second page's own fixed pixels (all must match) */
+		/* a tap in here switches: [0] on the map, [1] on the second page
+		 * (screen coords) */
+		struct { int x, y, w, h; } tap[2];
+		/* live game: values that change as the player moves; a change puts
+		 * the second screen back on the map, centred (2 bytes each) */
+		uint32_t moved[2];
+	} touch;
+	/* Painted over every capture (screen coords): with `filled`, the rect
+	 * in `fill` (0xRRGGBB), then `rows` from x, y: '#' in `ink`, '.' in
+	 * `fill`, anything else left as it is. */
+	struct { int x, y, w, h; bool filled; uint32_t fill, ink; const char* rows[8]; } paint[4];
+
 	/* Values that change when the player enters a new room; a change
 	 * triggers an early capture. Only addr/size are used. */
 	MemProbe room[4];

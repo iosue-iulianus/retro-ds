@@ -49,6 +49,13 @@ struct MapCapture {
 	int pubStep;
 	uint32_t serial;
 	const char* lastError;
+
+	/* SM-7's view: asked for (mapcap_set_view), the page the shadow is on
+	 * (worker), and what a capture got */
+	volatile int wantPage, wantDx, wantDy;
+	int curPage;
+	int workPage, workDx, workDy, workAskDx, workAskDy;
+	int pubPage, pubDx, pubDy, pubAskDx, pubAskDy;
 };
 
 static int probe_count(const MapProfile* p) {
@@ -329,11 +336,34 @@ static void recolor(MapCapture* mc, uint32_t* out) {
 	}
 }
 
+/* The profile's paint (SM-7's plates), onto a cropped picture */
+static void paint(MapCapture* mc, uint32_t* out) {
+	const MapProfile* p = mc->prof;
+	for (int i = 0; i < 4; ++i) {
+		const __typeof__(p->paint[0])* pt = &p->paint[i];
+		if (!pt->filled && !pt->rows[0]) continue;
+		for (int y = pt->y; pt->filled && y < pt->y + pt->h; ++y) {
+			for (int x = pt->x; x < pt->x + pt->w; ++x) {
+				if (x >= mc->cx && y >= mc->cy && x < mc->cx + mc->cw && y < mc->cy + mc->ch) out[(y - mc->cy) * mc->cw + (x - mc->cx)] = to_fb(pt->fill);
+			}
+		}
+		for (int r = 0; r < 8 && pt->rows[r]; ++r) {
+			for (int c = 0; pt->rows[r][c]; ++c) {
+				int x = pt->x + c, y = pt->y + r;
+				char ch = pt->rows[r][c];
+				if ((ch != '#' && ch != '.') || x < mc->cx || y < mc->cy || x >= mc->cx + mc->cw || y >= mc->cy + mc->ch) continue;
+				out[(y - mc->cy) * mc->cw + (x - mc->cx)] = to_fb(ch == '#' ? pt->ink : pt->fill);
+			}
+		}
+	}
+}
+
 static void crop(MapCapture* mc, const uint32_t* fb, uint32_t* out) {
 	const MapProfile* p = mc->prof;
 	for (int y = 0; y < mc->ch; ++y) {
 		memcpy(&out[y * mc->cw], &fb[(mc->cy + y) * SNES_W + mc->cx], mc->cw * sizeof(uint32_t));
 	}
+	paint(mc, out);
 	if (mc->clean && p->glyphs[0].w) remove_glyphs(mc, out);
 	if (mc->clean && p->recolor[0].w) recolor(mc, out);
 	if (!mc->tight || !p->masks[0].w) return;
@@ -361,7 +391,21 @@ static int count_diff(const uint32_t* a, const uint32_t* b, size_t n, int limit)
 	return d;
 }
 
+/* the second page (SM-7): the profile's first memory check (the pause
+ * screen) with the page's own, and every one of the page's pixels */
+static bool page2_up(MapCapture* mc, Emu* s) {
+	const MapProfile* p = mc->prof;
+	if (!memprobes_match(p->mem, 1, s) || !memprobes_match(p->touch.page2Mem, 2, s)) return false;
+	const uint32_t* fb = snes_pic(mc, s);
+	for (int i = 0; i < 8 && (p->touch.page2Probes[i].x || p->touch.page2Probes[i].y); ++i) {
+		const Probe* pr = &p->touch.page2Probes[i];
+		if (!color_near(fb[pr->y * SNES_W + pr->x], pr->rgb, p->tolerance)) return false;
+	}
+	return true;
+}
+
 static bool map_up(MapCapture* mc, Emu* s) {
+	if (mc->curPage == 1) return page2_up(mc, s);
 	return memprobes_match(mc->prof->mem, 4, s) && screen_matches(mc->prof, snes_pic(mc, s));
 }
 
@@ -373,6 +417,62 @@ static long frame_luma(const uint32_t* px, size_t n) {
 	long sum = 0;
 	for (size_t i = 0; i < n; i += 3) sum += (px[i] & 0xFF) + ((px[i] >> 8) & 0xFF) * 2 + ((px[i] >> 16) & 0xFF);
 	return sum + 1;
+}
+
+/* Waits for the map (or the second page) to hold still again, its last
+ * picture in work[0] */
+static const char* settle_again(MapCapture* mc, Emu* s) {
+	const MapProfile* p = mc->prof;
+	size_t n = mc->cropPixels;
+	int stable = 0;
+	bool havePrev = false;
+	for (int f = 0; f < p->settleMax; ++f) {
+		emu_frame(s, 0);
+		if (!map_up(mc, s)) {
+			stable = 0, havePrev = false;
+			continue;
+		}
+		crop(mc, snes_pic(mc, s), mc->work[0]);
+		if (havePrev && count_diff(mc->prev, mc->work[0], n, p->maxDiff) <= p->maxDiff) {
+			if (++stable >= p->stableFrames) return NULL;
+		} else {
+			stable = 0;
+		}
+		memcpy(mc->prev, mc->work[0], n * sizeof(uint32_t));
+		havePrev = true;
+	}
+	return mc->curPage ? "second page never came up" : "scrolled map never settled";
+}
+
+static int16_t view_pos(Emu* s, uint32_t addr) {
+	return (int16_t) emu_read16(s, addr);
+}
+
+/* SM-7: with the map up, the view asked for: the second page (its
+ * buttons), or the map scrolled (the D-pad held a frame a pixel; the game
+ * moves it in steps of 8 and stops at its map's edges) */
+static const char* apply_view(MapCapture* mc, Emu* s) {
+	const MapProfile* p = mc->prof;
+	int page = mc->wantPage, dx = mc->wantDx, dy = mc->wantDy;
+	mc->workPage = 0, mc->workDx = mc->workDy = 0, mc->workAskDx = dx, mc->workAskDy = dy;
+	if (!p->touch.scrollX) return NULL;
+	if (page == 1) {
+		for (int i = 0; i < 2 && p->touch.page2[i].frames; ++i) {
+			for (int f = 0; f < p->touch.page2[i].frames; ++f) emu_frame(s, p->touch.page2[i].keys);
+		}
+		mc->curPage = 1;
+		mc->workPage = 1;
+		return settle_again(mc, s);
+	}
+	if (!dx && !dy) return NULL;
+	int x0 = view_pos(s, p->touch.scrollX), y0 = view_pos(s, p->touch.scrollY);
+	for (int f = 0; f < abs(dx); ++f) emu_frame(s, dx > 0 ? K_RIGHT : K_LEFT);
+	if (dx && dy) for (int f = 0; f < 8; ++f) emu_frame(s, 0); /* (the step finished first) */
+	for (int f = 0; f < abs(dy); ++f) emu_frame(s, dy > 0 ? K_DOWN : K_UP);
+	const char* err = settle_again(mc, s);
+	mc->workDx = view_pos(s, p->touch.scrollX) - x0;
+	mc->workDy = view_pos(s, p->touch.scrollY) - y0;
+	return err;
 }
 
 static const char* do_capture_(MapCapture* mc, const void* state);
@@ -396,6 +496,7 @@ static const char* do_capture_(MapCapture* mc, const void* state) {
 	size_t n = mc->cropPixels;
 	mc->workFrames = 0;
 	mc->tileValid = false;
+	mc->curPage = 0;
 	if (p->composePages) {
 		int n = MAP_MAX_FRAMES, step = 1;
 		const char* err = p->composePages(s, state, mc->work, &n, &step, mc->cw, mc->ch);
@@ -475,6 +576,8 @@ static const char* do_capture_(MapCapture* mc, const void* state) {
 	if (f >= p->settleMax) {
 		return everUp ? "map screen never settled" : "map screen did not appear";
 	}
+	const char* verr = apply_view(mc, s);
+	if (verr) return verr;
 	mc->workFrames = 1;
 	int want = p->animFrames > MAP_MAX_FRAMES ? MAP_MAX_FRAMES : p->animFrames;
 	int step = p->animStep;
@@ -558,6 +661,8 @@ static void publish(MapCapture* mc, const char* err) {
 	}
 	mc->pubFrames = mc->workFrames;
 	mc->pubStep = mc->workStep;
+	mc->pubPage = mc->workPage, mc->pubDx = mc->workDx, mc->pubDy = mc->workDy;
+	mc->pubAskDx = mc->workAskDx, mc->pubAskDy = mc->workAskDy;
 	++mc->serial;
 }
 
@@ -655,6 +760,7 @@ MapResult mapcap_capture_sync(MapCapture* mc, Emu* live) {
 		r.frames[i] = mc->work[i];
 	}
 	r.pixels = r.frames[0];
+	r.page = mc->workPage, r.dx = mc->workDx, r.dy = mc->workDy, r.askedDx = mc->workAskDx, r.askedDy = mc->workAskDy;
 	return r;
 }
 
@@ -679,6 +785,10 @@ bool mapcap_request(MapCapture* mc, Emu* live, uint32_t nextKeys) {
 	}
 	pthread_mutex_unlock(&mc->lock);
 	return ok;
+}
+
+void mapcap_set_view(MapCapture* mc, int page, int dx, int dy) {
+	mc->wantPage = page, mc->wantDx = dx, mc->wantDy = dy;
 }
 
 void mapcap_set_still(MapCapture* mc, bool still) {
@@ -723,6 +833,8 @@ bool mapcap_poll(MapCapture* mc, uint32_t lastSerial, MapResult* out) {
 		}
 		out->pixels = out->frames[0];
 		out->serial = mc->serial;
+		out->page = mc->pubPage, out->dx = mc->pubDx, out->dy = mc->pubDy;
+		out->askedDx = mc->pubAskDx, out->askedDy = mc->pubAskDy;
 	}
 	pthread_mutex_unlock(&mc->lock);
 	return fresh;

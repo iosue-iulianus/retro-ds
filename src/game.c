@@ -340,6 +340,13 @@ static const MapProfile* snapProf; /* logo-only game with screens copied to the 
 /* the profile's logoIf probes match: the logo, the map picture and HUD kept */
 static bool logoForced;
 static bool hudHide; /* the profile's hide rectangles are covered now (SM-6) */
+/* SM-7, touch on the second screen's map: the view asked for (page 0 the
+ * map, 1 the second page; the map scrolled dx, dy SNES pixels from where
+ * the game centres it), and a drag under way (screen pixels) */
+static int viewPage, viewDx, viewDy;
+static bool mapDrag;
+static int dragX0, dragY0, dragX, dragY;
+static uint32_t movedKey;
 /* logoIf just stopped matching: the logo still, until the second screen has
  * a new picture to show (a HUD picture drawn, a map picture taken), at
  * most a second; not the last picture from before for a frame (SM4-11) */
@@ -4518,6 +4525,71 @@ static void load_overlay(int s, int which) {
  * colour picker is open, its colour as it's picked), or in the defaults
  * (a screen without a PNG in Overlays: Custom). Nothing where the picture
  * fills the screen. */
+/* The profile, when the second screen takes touch (SM-7) */
+static const MapProfile* touch_prof(void) {
+	const MapProfile* p = mc ? mapcap_profile(mc) : NULL;
+	return p && p->touch.scrollX && cfg->map && nScreens == 2 ? p : NULL;
+}
+
+static int round8(int v) {
+	return (v + (v >= 0 ? 4 : -4)) / 8 * 8;
+}
+
+/* A touch on the second screen (SM-7): a drag scrolls the map, a tap on
+ * the profile's plate switches the page; never the menu. 0: not the
+ * second screen's; 1: taken; 2: taken, and the view changed (capture). */
+static int map_touch(const Pointer* p) {
+	const MapProfile* tp = touch_prof();
+	if (!tp || (p->screen == game_screen() && !(mapDrag && p->kind != 1))) return 0;
+	if (p->kind == 1) {
+		mapDrag = mapShownIdx >= 0 && !logoForced;
+		dragX0 = dragX = p->x, dragY0 = dragY = p->y;
+		return 1;
+	}
+	if (!mapDrag) return 1;
+	dragX = p->x, dragY = p->y;
+	if (p->kind != 2) return 1;
+	mapDrag = false;
+	int s = 1 - game_screen();
+	SDL_Rect img = ui_image_rect(s, mapW, mapH, cfg->mapScale);
+	if (img.w <= 0 || img.h <= 0) return 1;
+	/* (SNES pixels) */
+	int ddx = (dragX - dragX0) * mapW / img.w, ddy = (dragY - dragY0) * mapH / img.h;
+	if (abs(ddx) < 4 && abs(ddy) < 4) {
+		int sx = (dragX - img.x) * mapW / img.w + tp->crop_x, sy = (dragY - img.y) * mapH / img.h + tp->crop_y;
+		const __typeof__(tp->touch.tap[0])* t = &tp->touch.tap[viewPage & 1];
+		if (sx < t->x || sy < t->y || sx >= t->x + t->w || sy >= t->y + t->h) return 1;
+		viewPage ^= 1, viewDx = viewDy = 0;
+	} else if (viewPage == 0) {
+		/* (the map follows the finger: the view goes the other way) */
+		viewDx -= round8(ddx), viewDy -= round8(ddy);
+	} else {
+		return 1;
+	}
+	if (debug) fprintf(stderr, "map view: page %d, scrolled %d,%d\n", viewPage, viewDx, viewDy);
+	mapcap_set_view(mc, viewPage, viewDx, viewDy);
+	mapcap_cancel(mc);
+	return 2;
+}
+
+/* While a drag is under way: the map's inside follows the finger (the
+ * capture for where it ends replaces it) */
+static void draw_drag_preview(int s) {
+	const MapProfile* tp = touch_prof();
+	if (!mapDrag || viewPage != 0 || !tp) return;
+	SDL_Rect img = ui_image_rect(s, mapW, mapH, cfg->mapScale);
+	/* the frame's inside (crop coordinates): x 6 to 249, y 46 to 191 on screen */
+	int ix0 = 6, iy0 = 46 - tp->crop_y, ix1 = 250, iy1 = 192 - tp->crop_y;
+	SDL_Rect in = { img.x + ix0 * img.w / mapW, img.y + iy0 * img.h / mapH, 0, 0 };
+	in.w = img.x + ix1 * img.w / mapW - in.x, in.h = img.y + iy1 * img.h / mapH - in.y;
+	ui_fill(s, in, (SDL_Color) { 0, 0, 0, 255 });
+	SDL_Rect clip = { in.x + screens[s].rect.x, in.y + screens[s].rect.y, in.w, in.h };
+	ui_clip(s, &clip);
+	SDL_Rect moved = { img.x + dragX - dragX0, img.y + dragY - dragY0, img.w, img.h };
+	ui_image(s, mapTex, mapW, mapH, "stretch", &moved);
+	ui_clip(s, NULL);
+}
+
 /* The profile's hide rectangles (SM-6), black over the game's picture */
 static void draw_hud_hide(int s) {
 	const MapProfile* p = mc ? mapcap_profile(mc) : NULL;
@@ -4741,6 +4813,7 @@ static void draw_game(void) {
 		if (mapShownIdx >= 0 && !logoForced) {
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			ui_image_pixels(s, mapTex, mapW, mapH, cfg->mapScale, SHADER_ON);
+			draw_drag_preview(s);
 		} else if ((logoCanvasTex[0] || logoCanvasTex[1]) && logoSub > 1) {
 			/* a scraped logo at full resolution (GEN-11): its picture made at
 			 * LOGO_SUB pixels per GBA pixel, onto where the GBA picture goes */
@@ -5120,6 +5193,7 @@ static void take_screenshot(void) {
  * or for a compilation the game running in it: subCode): the map capture,
  * the HUD split, the fights' picture. */
 static void ss_setup(const char* rom, const char* code) {
+	viewPage = viewDx = viewDy = 0, mapDrag = false, movedKey = 0;
 	mapW = SNES_W;
 	mapH = SNES_H;
 	memset(&mapRes, 0, sizeof(mapRes));
@@ -5557,6 +5631,9 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		Pointer p;
 		while (ui_next_pointer(&p)) {
 			if (p.kind == 1) hint_dismiss(); /* (any touch puts the hint away) */
+			int mt = menuOpen ? 0 : map_touch(&p);
+			if (mt == 2) forceMap = true;
+			if (mt) continue;
 			if (!menuOpen) {
 				/* the quick bar: up from the bottom edge of the touchscreen
 				 * brings it up, down puts it away; a tap still opens the
@@ -6411,10 +6488,28 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			/* (requested just before the next frame, when its keys are known) */
 			if (due && !mapcap_busy(mc) && mapcap_live_ok(mc, &emu)) mapWant = true, mapWantKey = rk;
 			hudHide = ip && ip->hide[0].w > 0 && cfg->map && memprobes_match(ip->hideIf, 3, &emu);
+			/* SM-7: the player moving puts the map back, centred */
+			if (ip && ip->touch.scrollX) {
+				uint32_t mk = (uint32_t) emu_read16(&emu, ip->touch.moved[0]) | (uint32_t) emu_read16(&emu, ip->touch.moved[1]) << 16;
+				if (mk != movedKey) {
+					movedKey = mk;
+					if ((viewPage || viewDx || viewDy) && !mapDrag) {
+						viewPage = viewDx = viewDy = 0;
+						mapcap_set_view(mc, 0, 0, 0);
+						mapcap_cancel(mc);
+						forceMap = true;
+					}
+				}
+			}
 			bool fresh = mapcap_poll(mc, mapRes.serial, &mapRes);
 			if (fresh && mapcap_in_menu(mc, &emu)) {
 				/* a capture that finished after quitting to the title: drop it */
 			} else if (fresh) {
+				/* SM-7: the scroll the game allowed (stopped at its map's edges) */
+				if (mapRes.page == viewPage && mapRes.askedDx == viewDx && mapRes.askedDy == viewDy && (mapRes.dx != viewDx || mapRes.dy != viewDy)) {
+					viewDx = mapRes.dx, viewDy = mapRes.dy;
+					mapcap_set_view(mc, viewPage, viewDx, viewDy);
+				}
 				map_show_new(true);
 			} else if (map_anim() && mapRes.nFrames > 1 && mapShownIdx >= 0) {
 				int idx = map_anim_index();
