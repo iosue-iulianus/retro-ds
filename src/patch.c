@@ -8,9 +8,9 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#define PATCH_MAX_ROM (32u * 1024 * 1024) /* the GBA's largest */
+#define PATCH_MAX_ROM (32u * 1024 * 1024) /* (an SNES ROM is at most 12 MB with its expansions) */
 
-uint32_t doCrc32(const void* buf, size_t size); /* (libmgba's: its header wants zlib.h) */
+#include "emu.h" /* (emu_crc32) */
 
 bool patch_find(const char* romPath, char* out, size_t outSize) {
 	static const char* const exts[] = { ".ips", ".ups", ".bps", ".xdelta", ".vcdiff",
@@ -114,8 +114,8 @@ static PatchResult apply_ups(const uint8_t* p, size_t n, const uint8_t* rom, siz
 	size_t end = n - 12, i = 4;
 	uint64_t srcSize, dstSize;
 	if (!vlq(p, end, &i, &srcSize) || !vlq(p, end, &i, &dstSize)) return PATCH_UNREADABLE;
-	if (doCrc32(p, n - 4) != le32(p + n - 4)) return PATCH_UNREADABLE;
-	if (srcSize != romSize || doCrc32(rom, romSize) != le32(p + n - 12)) return PATCH_WRONG_ROM;
+	if (emu_crc32(0, p, n - 4) != le32(p + n - 4)) return PATCH_UNREADABLE;
+	if (srcSize != romSize || emu_crc32(0, rom, romSize) != le32(p + n - 12)) return PATCH_WRONG_ROM;
 	if (dstSize == 0 || dstSize > PATCH_MAX_ROM) return PATCH_UNREADABLE;
 	uint8_t* o = calloc(1, (size_t) dstSize);
 	if (!o) return PATCH_UNREADABLE;
@@ -133,7 +133,7 @@ static PatchResult apply_ups(const uint8_t* p, size_t n, const uint8_t* rom, siz
 			if (!x) break;
 		}
 	}
-	if (doCrc32(o, (size_t) dstSize) != le32(p + n - 8)) goto bad;
+	if (emu_crc32(0, o, (size_t) dstSize) != le32(p + n - 8)) goto bad;
 	*out = o;
 	*outSize = (size_t) dstSize;
 	return PATCH_APPLIED;
@@ -150,8 +150,8 @@ static PatchResult apply_bps(const uint8_t* p, size_t n, const uint8_t* rom, siz
 	if (!vlq(p, end, &i, &srcSize) || !vlq(p, end, &i, &dstSize) || !vlq(p, end, &i, &meta)) return PATCH_UNREADABLE;
 	if (meta > end - i) return PATCH_UNREADABLE;
 	i += (size_t) meta;
-	if (doCrc32(p, n - 4) != le32(p + n - 4)) return PATCH_UNREADABLE;
-	if (srcSize != romSize || doCrc32(rom, romSize) != le32(p + n - 12)) return PATCH_WRONG_ROM;
+	if (emu_crc32(0, p, n - 4) != le32(p + n - 4)) return PATCH_UNREADABLE;
+	if (srcSize != romSize || emu_crc32(0, rom, romSize) != le32(p + n - 12)) return PATCH_WRONG_ROM;
 	if (dstSize == 0 || dstSize > PATCH_MAX_ROM) return PATCH_UNREADABLE;
 	uint8_t* o = calloc(1, (size_t) dstSize);
 	if (!o) return PATCH_UNREADABLE;
@@ -185,7 +185,7 @@ static PatchResult apply_bps(const uint8_t* p, size_t n, const uint8_t* rom, siz
 		}
 		at += len;
 	}
-	if (at != dstSize || doCrc32(o, (size_t) dstSize) != le32(p + n - 8)) goto bad;
+	if (at != dstSize || emu_crc32(0, o, (size_t) dstSize) != le32(p + n - 8)) goto bad;
 	*out = o;
 	*outSize = (size_t) dstSize;
 	return PATCH_APPLIED;

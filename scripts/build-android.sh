@@ -3,9 +3,15 @@
 #
 # Needs: the Android SDK (ANDROID_HOME or ANDROID_SDK_ROOT) with an NDK
 # (ANDROID_NDK_HOME, or ANDROID_NDK_LATEST_HOME as on GitHub's runners),
-# Gradle 8.7+ and JDK 17, git, cmake. mGBA and SDL2 are fetched into ./deps
-# (the same versions as the ROCKNIX build). The Claude workspace can't
-# download the SDK, so this runs on GitHub Actions (.github/workflows/android.yml).
+# Gradle 8.7+ and JDK 17, git, cmake, and patchelf (installed with pip if
+# it's missing). SDL2 is fetched into ./deps, the bsnes core into ../cores
+# (scripts/build-cores.sh android). This runs on GitHub Actions
+# (.github/workflows/android.yml).
+#
+# The core goes into the APK three times, as libsnes_a.so, libsnes_b.so and
+# libsnes_c.so, each with its own soname: libretro cores keep their state in
+# globals, so the game, the map's hidden copy and the logo's each load their
+# own copy (src/emu.h).
 #
 # Release signing: set SNESDS_KEYSTORE (path), SNESDS_KEYSTORE_PASSWORD,
 # SNESDS_KEY_ALIAS, SNESDS_KEY_PASSWORD; without them the APK is debug-signed.
@@ -14,7 +20,8 @@ cd "$(dirname "$0")/.."
 ROOT="$PWD"
 DEPS="$ROOT/deps"
 mkdir -p "$DEPS"
-. scripts/mgba-options.sh   # MGBA_OPTS, MGBA_COMMIT, SDL_BRANCH
+SDL_BRANCH=${SDL_BRANCH:-release-2.30.x}
+CORES=${SNESDS_CORES:-$ROOT/../cores}
 
 NDK="${ANDROID_NDK_HOME:-${ANDROID_NDK_LATEST_HOME:-}}"
 if [ -z "$NDK" ] || [ ! -f "$NDK/build/cmake/android.toolchain.cmake" ]; then
@@ -22,49 +29,44 @@ if [ -z "$NDK" ] || [ ! -f "$NDK/build/cmake/android.toolchain.cmake" ]; then
 	exit 1
 fi
 export ANDROID_NDK_HOME="$NDK"
-ABI=arm64-v8a
-API=26
-# Any arm64 (ARMv8.0), tuned for the RG DS's Cortex-A55 cores. Not
-# -mcpu=cortex-a55: that allows ARMv8.2 instructions, and the app died at
-# once on ARMv8.0 chips (Cortex-A73 / A53: Retroid Pocket Duo Lite, issue #4).
-CPU_FLAGS="-march=armv8-a -mtune=cortex-a55"
+# Any arm64 (ARMv8.0): not -mcpu for a newer core, which allows
+# instructions older chips don't have.
+CPU_FLAGS="-march=armv8-a"
 
-# --- sources ---------------------------------------------------------------
-if [ ! -d "$DEPS/mgba" ]; then
-	git clone https://github.com/mgba-emu/mgba.git "$DEPS/mgba"
-	git -C "$DEPS/mgba" checkout "$MGBA_COMMIT"
-fi
+# --- sources -----------------------------------------------------------------
 if [ ! -d "$DEPS/SDL2" ]; then
 	git clone --depth 1 -b "$SDL_BRANCH" https://github.com/libsdl-org/SDL.git "$DEPS/SDL2"
 fi
 
-# --- libmgba for Android ----------------------------------------------------
-MGBA_BUILD="$DEPS/mgba/build-android-$ABI"
-cmake -S "$DEPS/mgba" -B "$MGBA_BUILD" -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.toolchain.cmake" \
-	-DANDROID_ABI=$ABI -DANDROID_PLATFORM=android-$API "${MGBA_OPTS[@]}" \
-	-DCMAKE_C_FLAGS="$CPU_FLAGS"
-cmake --build "$MGBA_BUILD" -j"$(nproc)" --target mgba zlibstatic
+# --- the core, three times ----------------------------------------------------
+SNESDS_CORES="$CORES" scripts/build-cores.sh android
+if ! command -v patchelf > /dev/null; then
+	python3 -m pip install --quiet --user patchelf
+	export PATH="$HOME/.local/bin:$PATH"
+fi
+JNI=android/app/src/main/jniLibs/arm64-v8a
+rm -rf android/app/src/main/jniLibs && mkdir -p "$JNI"
+for c in a b c; do
+	cp "$CORES/bsnes/android/libretro.so" "$JNI/libsnes_$c.so"
+	patchelf --set-soname "libsnes_$c.so" "$JNI/libsnes_$c.so"
+done
 
 # --- APK ---------------------------------------------------------------------
-# licences, inside the APK (assets/licenses): mGBA is statically linked (MPL-2.0), SDL2 is zlib-licensed
+# licences, inside the APK (assets/licenses)
 VERSION=$(cat VERSION)
 LIC=android/app/src/main/assets/licenses
 rm -rf "$LIC" && mkdir -p "$LIC"
 cp LICENSE "$LIC/SNES-DS-LICENSE.txt"
-cp "$DEPS/mgba/LICENSE" "$LIC/mGBA-LICENSE.txt"
+cp "$CORES/bsnes/GPLv3.txt" "$LIC/bsnes-GPLv3.txt"
 cp "$DEPS/SDL2/LICENSE.txt" "$LIC/SDL2-LICENSE.txt"
 cp assets/fonts/Jost-OFL.txt "$LIC/Jost-OFL.txt"
 cp third_party/rcheevos/LICENSE "$LIC/rcheevos-LICENSE.txt"
 cp third_party/libwebp/COPYING "$LIC/libwebp-COPYING.txt"
 cp third_party/libwebp/PATENTS "$LIC/libwebp-PATENTS.txt"
-printf "SNES DS %s is free software under the GNU General Public License, version 3 only (SNES-DS-LICENSE.txt).\nIt statically links libmgba (c) Jeffrey Pfau, MPL-2.0.\nmGBA source: https://github.com/mgba-emu/mgba (commit %s)\nSDL2 (c) Sam Lantinga, zlib licence: https://github.com/libsdl-org/SDL (%s)\nIts text is set in Jost (c) The Jost Project Authors, SIL Open Font License 1.1 (Jost-OFL.txt).\nRetroAchievements support: rcheevos (c) RetroAchievements, MIT (rcheevos-LICENSE.txt), %s.\nWebP images: libwebp (c) Google Inc., BSD 3-clause (libwebp-COPYING.txt, libwebp-PATENTS.txt), v1.6.0.\nSNES DS source: https://github.com/iosue-iulianus/snes-ds\nBased on GBA DS by kyannon (GPLv3): https://github.com/kyannon/gba-ds\n" \
-	"$VERSION" "$(git -C "$DEPS/mgba" rev-parse --short HEAD)" "$SDL_BRANCH" "$(tail -1 third_party/rcheevos/VERSION)" > "$LIC/README.txt"
+printf "SNES DS %s is free software under the GNU General Public License, version 3 only (SNES-DS-LICENSE.txt).\nIts emulator is bsnes (c) byuu and contributors, GPLv3 (bsnes-GPLv3.txt), libretro's port with SNES DS's changes:\nhttps://github.com/libretro/bsnes (commit %s; the changes in SNES DS's scripts/cores/)\nSDL2 (c) Sam Lantinga, zlib licence: https://github.com/libsdl-org/SDL (%s)\nIts text is set in Jost (c) The Jost Project Authors, SIL Open Font License 1.1 (Jost-OFL.txt).\nRetroAchievements support: rcheevos (c) RetroAchievements, MIT (rcheevos-LICENSE.txt), %s.\nWebP images: libwebp (c) Google Inc., BSD 3-clause (libwebp-COPYING.txt, libwebp-PATENTS.txt), v1.6.0.\nSNES DS source: https://github.com/iosue-iulianus/snes-ds\nBased on GBA DS by kyannon (GPLv3): https://github.com/kyannon/gba-ds\n" \
+	"$VERSION" "$(git -C "$CORES/bsnes" rev-parse --short HEAD)" "$SDL_BRANCH" "$(tail -1 third_party/rcheevos/VERSION)" > "$LIC/README.txt"
 
-# (no longer packed: the default overlays the APK carried before the bezel was drawn by the app)
-rm -rf android/app/src/main/assets/overlays
-
-gradle -p android --no-daemon assembleRelease \
-	-PsdlDir="$DEPS/SDL2" -PmgbaSrc="$DEPS/mgba" -PmgbaBuild="$MGBA_BUILD" -PcpuFlags="$CPU_FLAGS"
+gradle -p android --no-daemon assembleRelease -PsdlDir="$DEPS/SDL2" -PcpuFlags="$CPU_FLAGS"
 
 mkdir -p dist
 APK="dist/snes-ds-v$VERSION-android.apk"

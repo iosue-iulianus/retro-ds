@@ -59,15 +59,6 @@ static void title_of(const char* file, char* title, size_t tsize, char tags[][48
 	title[o] = 0;
 }
 
-static int region_of(char codeLetter) {
-	switch (codeLetter) {
-	case 'E': return 1; /* USA */
-	case 'J': return 2; /* Japan */
-	case 'P': case 'D': case 'F': case 'S': case 'I': case 'H': case 'X': case 'Y': case 'Z': case 'U': return 3;
-	default: return 0;
-	}
-}
-
 /* Does a tag like "usa", "usa, europe", "world" fit region r (0 = any)? */
 static int tag_region_match(const char* tag, int r) {
 	static const char* const names[4][3] = { { 0 }, { "usa", "us", 0 }, { "japan", "jp", 0 }, { "europe", "eu", 0 } };
@@ -88,23 +79,21 @@ static int tag_region_match(const char* tag, int r) {
 	return isRegion ? -1 : 0; /* -1: a region, but not ours; 0: not a region tag */
 }
 
+/* The file's kind of codes, from its name's tags, for its label (the core
+ * reads the codes themselves: Game Genie, Pro Action Replay, raw) */
 static int type_of(char tags[][48], int n, char* label, size_t lsize) {
 	snprintf(label, lsize, "Cheats");
 	for (int i = 0; i < n; ++i) {
-		if (strstr(tags[i], "code breaker") || strstr(tags[i], "codebreaker")) {
-			snprintf(label, lsize, "Code Breaker");
-			return EMU_CHEAT_CODEBREAKER;
+		if (strstr(tags[i], "game genie") || strstr(tags[i], "gamegenie")) {
+			snprintf(label, lsize, "Game Genie");
+			return 0;
 		}
-		if (strstr(tags[i], "gameshark") || strstr(tags[i], "game shark")) {
-			snprintf(label, lsize, "GameShark");
-			return EMU_CHEAT_GAMESHARK;
-		}
-		if (strstr(tags[i], "action replay")) {
-			snprintf(label, lsize, "Action Replay");
-			return EMU_CHEAT_ACTION_REPLAY;
+		if (strstr(tags[i], "action replay") || strstr(tags[i], "par")) {
+			snprintf(label, lsize, "Pro Action Replay");
+			return 0;
 		}
 	}
-	return EMU_CHEAT_DETECT;
+	return 0;
 }
 
 /* ---------------------------------------------------------------- search */
@@ -281,8 +270,7 @@ void cheats_load(Cheats* c, const Config* cfg, const char* romPath, const char* 
 	snprintf(c->prefs, sizeof(c->prefs), "%s", prefsPath ? prefsPath : "");
 	Search s = { .out = c };
 	title_of(romPath, s.romTitle, sizeof(s.romTitle), NULL, NULL, 0);
-	s.region = gameCode ? region_of(gameCode[3]) : 0;
-	s.strict = gameCode && profile_ram_moved(gameCode);
+	s.region = 0; /* (SNES game codes are checksums: no region letter) */
 	char dirs[2200];
 #ifdef __ANDROID__
 	snprintf(dirs, sizeof(dirs), "%s", cfg->cheatDir);
@@ -307,8 +295,8 @@ void cheats_apply(const Cheats* c, Emu* e) {
 			if (c->items[i].file == f && c->items[i].on) codes[n++] = c->items[i].code;
 		}
 		if (n) {
-			int lines = emu_cheats_add(e, c->files[f].label, codes, n, c->files[f].type);
-			fprintf(stderr, "cheats: %d on from %s (%d code lines)\n", n, file_name(c->files[f].path), lines);
+			emu_cheats_add(e, c->files[f].label, codes, n);
+			fprintf(stderr, "cheats: %d on from %s\n", n, file_name(c->files[f].path));
 		}
 	}
 }

@@ -37,7 +37,7 @@
  *                          (the next frame's keys given first) or not (0,
  *                          the default, shows the problem it fixes)
  */
-#include "../src/retro/emu.h"
+#include "../src/emu.h"
 
 #include <pthread.h>
 #include <stdio.h>
@@ -45,8 +45,6 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
-
-bool write_png(const char* path, const uint32_t* px, int w, int h, int stride); /* tools/png.c */
 
 static const char* outDir;
 static Emu inst[2];
@@ -60,18 +58,6 @@ static double now_ms(void) {
 static void out_path(char* buf, size_t n, const char* name, const char* ext) {
 	if (strchr(name, '/')) snprintf(buf, n, "%s", name);
 	else snprintf(buf, n, "%s/%s%s", outDir, name, ext);
-}
-
-static bool copy_file(const char* from, const char* to) {
-	FILE* in = fopen(from, "rb");
-	FILE* out = in ? fopen(to, "wb") : NULL;
-	bool ok = in && out;
-	char buf[1 << 16];
-	size_t n;
-	while (ok && (n = fread(buf, 1, sizeof buf, in)) > 0) ok = fwrite(buf, 1, n, out) == n;
-	if (in) fclose(in);
-	if (out && fclose(out)) ok = false;
-	return ok;
 }
 
 static uint32_t parse_keys(const char* s) {
@@ -116,7 +102,7 @@ static double copy_state(Emu* from, Emu* to, size_t* sizeOut) {
 		stateBuf = malloc(n);
 		stateCap = n;
 	}
-	if (!emu_state_save(from, stateBuf, n) || !emu_state_load(to, stateBuf, n)) return -1;
+	if (!emu_state_save(from, stateBuf) || !emu_state_load(to, stateBuf)) return -1;
 	if (sizeOut) *sizeOut = n;
 	return now_ms() - t0;
 }
@@ -252,8 +238,8 @@ static uint32_t pattern(int i) {
 
 static bool same_machine(Emu* x, Emu* y, int* wramDiff, int* fbDiff) {
 	size_t nx, ny;
-	uint8_t* wx = emu_wram(x, &nx);
-	uint8_t* wy = emu_wram(y, &ny);
+	uint8_t* wx = emu_memory(x, EMU_MEM_WRAM, &nx);
+	uint8_t* wy = emu_memory(y, EMU_MEM_WRAM, &ny);
 	*wramDiff = 0;
 	for (size_t i = 0; wx && wy && i < nx && i < ny; ++i) {
 		if (wx[i] == wy[i]) continue;
@@ -268,26 +254,26 @@ static bool same_machine(Emu* x, Emu* y, int* wramDiff, int* fbDiff) {
 static void bench(int frames) {
 	Emu* a = &inst[0];
 	Emu* b = &inst[1];
-	printf("bench: core %s, ROM CRC32 %08X, %d frames per run, state context %d\n", a->coreName, a->romCrc, frames, a->stateContext);
+	printf("bench: ROM %s, %d frames per run, state context %d\n", a->gameCode, frames, a->stateContext);
 
 	/* keep a starting point so every test starts from the same moment */
 	size_t n = emu_state_size(a);
 	uint8_t* start = malloc(n);
 	uint8_t* tmp = malloc(n);
 	uint8_t* tmp2 = malloc(n);
-	emu_state_save(a, start, n);
-	emu_state_load(b, start, n);
+	emu_state_save(a, start);
+	emu_state_load(b, start);
 
 	double t0 = now_ms();
 	for (int i = 0; i < frames; ++i) emu_frame(a, 0);
 	double vis = (now_ms() - t0) / frames;
-	emu_state_load(a, start, n);
+	emu_state_load(a, start);
 	t0 = now_ms();
 	for (int i = 0; i < frames; ++i) emu_frame_blind(a, 0);
 	double blind = (now_ms() - t0) / frames;
 	printf("  one instance: %.3f ms/frame drawn (%.0f fps), %.3f ms/frame blind (%.0f fps)\n", vis, 1000 / vis, blind, 1000 / blind);
 
-	emu_state_load(a, start, n);
+	emu_state_load(a, start);
 	t0 = now_ms();
 	for (int i = 0; i < frames; ++i) {
 		pthread_t t;
@@ -299,39 +285,39 @@ static void bench(int frames) {
 	printf("  A and B at once on two threads: %.3f ms per frame pair (%.0f fps)\n", par, 1000 / par);
 
 	int reps = 200;
-	emu_state_load(a, start, n);
+	emu_state_load(a, start);
 	t0 = now_ms();
 	size_t sz = 0;
 	for (int i = 0; i < reps; ++i) sz = emu_state_size(a);
 	double sizeMs = (now_ms() - t0) / reps;
 	t0 = now_ms();
-	for (int i = 0; i < reps; ++i) emu_state_save(a, tmp, n);
+	for (int i = 0; i < reps; ++i) emu_state_save(a, tmp);
 	double saveMs = (now_ms() - t0) / reps;
 	t0 = now_ms();
-	for (int i = 0; i < reps; ++i) emu_state_load(a, tmp, n);
+	for (int i = 0; i < reps; ++i) emu_state_load(a, tmp);
 	double loadMs = (now_ms() - t0) / reps;
 	t0 = now_ms();
-	for (int i = 0; i < reps; ++i) emu_state_load(b, tmp, n);
+	for (int i = 0; i < reps; ++i) emu_state_load(b, tmp);
 	double loadBMs = (now_ms() - t0) / reps;
 	printf("  state: %zu bytes; serialize_size %.3f ms, serialize %.3f ms, unserialize %.3f ms (same instance), %.3f ms (into B)\n", sz, sizeMs, saveMs, loadMs, loadBMs);
 
 	/* does serializing run the core? two saves in a row with no frame between */
-	emu_state_load(a, start, n);
+	emu_state_load(a, start);
 	emu_frame(a, 0);
-	emu_state_save(a, tmp, n);
-	emu_state_save(a, tmp2, n);
+	emu_state_save(a, tmp);
+	emu_state_save(a, tmp2);
 	size_t diffBytes = 0;
 	for (size_t i = 0; i < n; ++i) diffBytes += tmp[i] != tmp2[i];
 	printf("  two serializes in a row differ in %zu bytes (%s)\n", diffBytes, diffBytes ? "the core ran between them: serialize advances it" : "serialize doesn't run the core");
 
 	/* does serializing the live game every second change where it goes?
 	 * A: serialize every 60 frames; B: never; same start, same (no) input */
-	emu_state_load(a, start, n);
-	emu_state_load(b, start, n);
+	emu_state_load(a, start);
+	emu_state_load(b, start);
 	for (int i = 0; i < 600; ++i) {
 		if (i % 60 == 0) {
-			if (keysFirst) emu_state_save_live(a, pattern(i), tmp, n);
-			else emu_state_save(a, tmp, n);
+			if (keysFirst) emu_state_save_live(a, pattern(i), tmp);
+			else emu_state_save(a, tmp);
 		}
 		emu_frame(a, pattern(i));
 		emu_frame(b, pattern(i));
@@ -341,7 +327,7 @@ static void bench(int frames) {
 	printf("  600 frames with input, A serialized every 60, B never: %s (WRAM bytes differing %d, pixels differing %d)\n", same ? "identical" : "DIFFERENT", wd, fd);
 
 	/* is a state copied from A into B faithful? both run 120 frames after */
-	emu_state_load(a, start, n);
+	emu_state_load(a, start);
 	for (int i = 0; i < 30; ++i) emu_frame(a, pattern(i));
 	copy_state(a, b, NULL);
 	for (int i = 0; i < 240; ++i) {
@@ -351,8 +337,8 @@ static void bench(int frames) {
 	same = same_machine(a, b, &wd, &fd);
 	printf("  copied A into B, 240 frames with input on both: %s (WRAM bytes differing %d, pixels differing %d)\n", same ? "identical" : "DIFFERENT", wd, fd);
 
-	emu_state_load(a, start, n);
-	emu_state_load(b, start, n);
+	emu_state_load(a, start);
+	emu_state_load(b, start);
 	free(start);
 	free(tmp);
 	free(tmp2);
@@ -370,20 +356,17 @@ int main(int argc, char** argv) {
 	outDir = argv[3];
 	mkdir(outDir, 0755);
 
-	char corePath[2][1200], dataDir[2][1200];
+	/* the core copied to OUTDIR/core-a.so and core-b.so: one copy per instance.
+	 * SNESDS_SAVE: a battery save for instance A */
+	if (!emu_set_core_copies(core, outDir)) return 1;
 	for (int i = 0; i < 2; ++i) {
-		snprintf(corePath[i], sizeof corePath[i], "%s/core-%c.so", outDir, 'a' + i);
-		snprintf(dataDir[i], sizeof dataDir[i], "%s/%c", outDir, 'a' + i);
-		if (!copy_file(core, corePath[i])) {
-			fprintf(stderr, "can't copy %s to %s\n", core, corePath[i]);
-			return 1;
-		}
-		if (!emu_open(&inst[i], corePath[i], rom, dataDir[i], false)) return 1;
+		if (!emu_open(&inst[i], rom, i == 0 ? getenv("SNESDS_SAVE") : NULL, false)) return 1;
 	}
-	size_t wn = 0;
-	emu_wram(&inst[0], &wn);
-	printf("core %s, ROM CRC32 %08X (without copier header), %dx%d at %.3f fps, work RAM %zu bytes\n",
-	       inst[0].coreName, inst[0].romCrc, inst[0].w, inst[0].h, inst[0].fps, wn);
+	size_t wn = 0, sn = 0;
+	emu_memory(&inst[0], EMU_MEM_WRAM, &wn);
+	emu_memory(&inst[0], EMU_MEM_SRAM, &sn);
+	printf("ROM %s (as played %08X), %dx%d at %.3f fps, work RAM %zu bytes, save RAM %zu bytes, state %zu bytes\n",
+	       inst[0].gameCode, inst[0].romCrc, inst[0].w, inst[0].h, inst[0].fps, wn, sn, emu_state_size(&inst[0]));
 
 	FILE* f = fopen(argv[4], "r");
 	if (!f) {
@@ -437,7 +420,7 @@ int main(int argc, char** argv) {
 			char path[1200];
 			out_path(path, sizeof path, s1, ".ram");
 			size_t n;
-			uint8_t* w = emu_wram(e, &n);
+			uint8_t* w = emu_memory(e, EMU_MEM_WRAM, &n);
 			FILE* o = w ? fopen(path, "wb") : NULL;
 			if (o) {
 				fwrite(w, 1, n, o);

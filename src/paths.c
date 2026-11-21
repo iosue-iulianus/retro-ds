@@ -306,7 +306,7 @@ bool retroarch_state_dir(const Config* cfg, const char* rom, char* out, size_t n
 	while (l > 1 && dir[l - 1] == '/') dir[--l] = 0;
 	if (ra_cfg_bool(text, "sort_savestates_by_content_enable", false) && romFolder[0])
 		l += snprintf(dir + l, sizeof(dir) - l, "/%s", romFolder);
-	if (ra_cfg_bool(text, "sort_savestates_enable", true) && l < sizeof(dir)) snprintf(dir + l, sizeof(dir) - l, "/mGBA");
+	if (ra_cfg_bool(text, "sort_savestates_enable", true) && l < sizeof(dir)) snprintf(dir + l, sizeof(dir) - l, "/bsnes");
 	snprintf(out, n, "%s", dir);
 	return true;
 }
@@ -362,14 +362,9 @@ static void safe_name(char* s) {
 void patch_folder(const Config* cfg, const char* rom, const char* code, char* out, size_t size, bool make) {
 	char name[300];
 	if (!profile_release_name(code, name, sizeof(name))) {
-		uint8_t h[0xB0];
-		char title[13] = "";
-		if (emu_rom_header(rom, h, sizeof(h))) {
-			memcpy(title, h + 0xA0, 12);
-			title[12] = 0;
-		}
-		for (int i = (int) strlen(title) - 1; i >= 0 && (title[i] == ' ' || !title[i]); --i) title[i] = 0;
-		snprintf(name, sizeof(name), "%s (%.4s)", title[0] ? title : tr("GBA"), code);
+		char title[32] = "";
+		emu_rom_title(rom, title, sizeof(title));
+		snprintf(name, sizeof(name), "%s (%.8s)", title[0] ? title : tr("SNES"), code);
 	}
 	safe_name(name);
 	snprintf(out, size, "%s/%s", cfg->patchDir, name);

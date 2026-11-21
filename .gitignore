@@ -15,6 +15,7 @@ android/local.properties
 *.jks
 *.keystore
 android/app/src/main/assets/
+android/app/src/main/jniLibs/
 __pycache__/
 
 # the Chinese fonts' variable sources (tools/make_zh_font.py): only the subsets are kept

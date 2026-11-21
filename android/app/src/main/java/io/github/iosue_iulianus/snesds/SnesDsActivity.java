@@ -63,6 +63,8 @@ public class SnesDsActivity extends SDLActivity {
             Os.setenv("SNESDS_HOME", home.getAbsolutePath(), true);
             /* data-folder.cfg there: the folder the player chose instead (android.c android_data_setup) */
             Os.setenv("SNESDS_APP_FILES", getFilesDir().getAbsolutePath(), true);
+            /* the emulator's core copies (libsnes_a.so ...: src/emu.h) */
+            Os.setenv("SNESDS_CORE_DIR", getApplicationInfo().nativeLibraryDir, true);
         } catch (ErrnoException e) {
             Log.e(TAG, "setenv: " + e);
         }

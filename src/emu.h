@@ -1,4 +1,12 @@
-/* Thin wrapper around a libmgba core. */
+/* SNES DS's emulator: a libretro core (bsnes) loaded from a .so.
+ *
+ * Each open Emu has a core of its own: libretro cores keep their state in
+ * globals, so every Emu open at once (the game, the hidden copy that takes
+ * map pictures, the logo's) loads its own copy of the core library. The
+ * copies are given once with emu_set_cores: on Android the core built under
+ * several sonames (libsnes_a.so, ...), on the desktop the same .so copied
+ * to several paths. An Emu runs on one thread at a time; two Emus can run
+ * on two threads at once. */
 #ifndef SNESDS_EMU_H
 #define SNESDS_EMU_H
 
@@ -6,125 +14,162 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define GBA_W 240
-#define GBA_H 160
+/* The SNES screen, as the player sees it: 256 x 224 (239 with overscan).
+ * Hi-res pictures are 512 wide and interlaced ones twice as tall, but show
+ * at the same size on screen. */
+#define SNES_W 256
+#define SNES_H 224
+/* The largest picture a core draws (hi-res and interlace: 512 x 478). */
+#define EMU_MAX_W 512
+#define EMU_MAX_H 480
+/* Emus open at once (core copies): the game, the map's hidden copy, the logo's. */
+#define EMU_CORES 3
 
-/* GBA key bits as used by mCore::setKeys */
+/* SNES pad buttons: bit n is libretro's RETRO_DEVICE_ID_JOYPAD_n, so a key
+ * mask is also the core's input bitmask. */
 enum {
-	K_A = 1 << 0,
-	K_B = 1 << 1,
+	K_B = 1 << 0,
+	K_Y = 1 << 1,
 	K_SELECT = 1 << 2,
 	K_START = 1 << 3,
-	K_RIGHT = 1 << 4,
-	K_LEFT = 1 << 5,
-	K_UP = 1 << 6,
-	K_DOWN = 1 << 7,
-	K_R = 1 << 8,
-	K_L = 1 << 9,
+	K_UP = 1 << 4,
+	K_DOWN = 1 << 5,
+	K_LEFT = 1 << 6,
+	K_RIGHT = 1 << 7,
+	K_A = 1 << 8,
+	K_X = 1 << 9,
+	K_L = 1 << 10,
+	K_R = 1 << 11,
 };
+#define K_ALL 0xFFFu
 
-struct mCore;
-
-/* the sunlight a cartridge's sun sensor reads (0-10; Boktai) */
-extern int emu_solar_level;
-
-/* A sprite to leave out when drawing (e.g. a HUD mini-map): matches when its
- * top-left corner is inside x0..x1 / y0..y1 (y may be negative), its tile
- * number is within tileMin..tileMax and its priority equals prio. */
-typedef struct SpriteRule {
-	int x0, y0, x1, y1;
-	int tileMin, tileMax;
-	int prio; /* -1: any */
-	unsigned palMask; /* the palettes it applies to (bit n: palette n); 0: any */
-	unsigned tagged; /* only sprites (not rotated ones) with one of these
-	                  * attr1 bits (9-11, unused there) set: tags a ROM patch
-	                  * adds (profiles.h romPatch) */
-	unsigned shapes; /* the shapes and sizes it applies to (bit shape * 4 +
-	                  * size, as in the sprite's attributes: bit 2 is 32x32,
-	                  * bit 8 8x16); 0: any (Lady Sia: its HUD pieces, not
-	                  * the level's things that pass the same places) */
-} SpriteRule;
+struct EmuCore;
+struct EmuSave;
 
 typedef struct Emu {
-	struct mCore* core;
-	uint32_t* fb; /* GBA_W * GBA_H, mGBA native 32-bit color (XBGR8888, i.e. bytes R,G,B,X) */
-	char gameCode[5];
-	uint32_t romCrc; /* the ROM's CRC32, as loaded, patched if it was (profile_dump) */
-	int patch; /* PatchResult (patch.h): a patch file beside the ROM, and whether it was applied (GEN-9) */
+	struct EmuCore* core; /* NULL while closed */
+
+	/* The last picture, w x h as the core drew it (256 x 224 in most games,
+	 * 512 wide in hi-res, 448 or 478 tall interlaced), w wide in memory.
+	 * Each pixel is bytes R, G, B, 255. */
+	uint32_t* fb;
+	int w, h;
+
+	/* The game: the CRC32 of its ROM file (the ROM inside a .zip), without
+	 * a 512-byte copier header, as 8 hex digits. Profiles, logos and the
+	 * game's own settings go by it. */
+	char gameCode[9];
+	uint32_t fileCrc; /* the same, as a number */
+	uint32_t romCrc;  /* CRC32 of the ROM as played: patched if it was (profile_dump) */
+	int patch; /* PatchResult (patch.h): the patches planned for it, and whether they went in (GEN-9) */
 	char patchName[256]; /* the applied patches' file names, " + " between (or the one that wasn't) */
-	char patchSkipped[256]; /* (PATCH_PARTIAL) the ones left out, " + " between */
-	uint32_t fileCrc; /* the ROM file's own CRC32, before the patch */
-	bool audio;
-	unsigned long frames; /* frames run (emu_frame), for timing the captures */
-	/* a hidden copy's capture called off (mapcap_cancel): while it's set,
-	 * frames don't run, so whatever the capture waits for gives up at
-	 * once; emu_cancelled says so, so it keeps nothing of that run */
+	char patchSkipped[256]; /* (PATCH_PARTIAL) the ones left out */
+
+	bool audio; /* keep the samples (emu_audio_read); off for a hidden copy */
+	unsigned long frames; /* frames run */
+	double fps, sampleRate;
+	/* Set while a capture is called off: frames don't run, so whatever the
+	 * capture waits for gives up at once; emu_cancelled says so. */
 	volatile bool* cancel;
+
+	/* (internal) */
+	uint32_t keys;
+	bool blind;
+	int stateContext; /* the RETRO_SAVESTATE_CONTEXT the core is told */
+	size_t stateSize;
+	int16_t* ring;
+	size_t ringHead, ringTail;
+	struct EmuSave* save;
 } Emu;
 
-/* savePath may be NULL (no battery save attached). */
+/* The core copies (up to EMU_CORES paths, each a separate file) and a
+ * folder for the ROMs as played and the cores' own files. Call once,
+ * before any emu_open. */
+void emu_set_cores(const char* const* paths, int n, const char* cacheDir);
+/* The desktop's way: copies the core at `core` to cacheDir/core-a.so,
+ * core-b.so... (unless they're there already, the same size and age) and
+ * sets them up as above. */
+bool emu_set_core_copies(const char* core, const char* cacheDir);
+
+/* Loads the game: the ROM as played (patches applied, GEN-9) on a free
+ * core copy. savePath (NULL: none): the battery save, loaded now and
+ * written as it changes; the hidden copies get none. */
 bool emu_open(Emu* e, const char* romPath, const char* savePath, bool audio);
-/* ROMs may also be in a .zip or .7z (the first GBA ROM inside is used). */
-bool emu_is_rom_name(const char* name);   /* .gba, .zip, .7z */
-bool emu_is_archive_name(const char* name); /* .zip, .7z */
-/* Reads the first n bytes of the ROM header (n <= 0xC0), from inside an
- * archive if need be. */
-bool emu_rom_header(const char* path, uint8_t* out, size_t n);
 void emu_close(Emu* e);
+/* ROM files the game list takes: .sfc, .smc, .swc, .fig, and .zip */
+bool emu_is_rom_name(const char* name);
+bool emu_is_archive_name(const char* name); /* .zip */
+
+/* One frame with these keys held. */
 void emu_frame(Emu* e, uint32_t keys);
-/* The same without drawing it (e->fb keeps the last picture): for waits on
- * a hidden copy. */
+/* The same, the picture not wanted (e->fb keeps the last one; a core that
+ * doesn't honour GET_AUDIO_VIDEO_ENABLE draws anyway). */
 void emu_frame_blind(Emu* e, uint32_t keys);
-/* true while this core's capture has been called off (Emu.cancel) */
 bool emu_cancelled(const Emu* e);
 void emu_reset(Emu* e);
 
+/* States, the core's own bytes. They can go to another Emu of the same
+ * game (the hidden copy) and into files. */
 size_t emu_state_size(Emu* e);
 bool emu_state_save(Emu* e, void* buf);
+/* A state of the game being played, taken between frames when the next
+ * frame will run with nextKeys. bsnes runs the emulation forward to a sync
+ * point to take a state, and if the game reads the controller on the way it
+ * reads the keys the core was last given: given the next frame's keys, the
+ * state leaves the game exactly where it would have been
+ * (docs/M0-results.md). */
+bool emu_state_save_live(Emu* e, uint32_t nextKeys, void* buf);
 bool emu_state_load(Emu* e, const void* buf);
-/* Rewind (mGBA's, one buffer of `entries` states for one core): append a
- * state now and then while playing; each step goes back one of them
- * (false when there are none left). */
+
+/* Rewind: states appended now and then while playing (in this Emu only,
+ * taken without disturbing the game), kept as differences from the next
+ * one; each step goes back one (false: none left). */
 void emu_rewind_init(Emu* e, size_t entries);
 void emu_rewind_deinit(void);
 void emu_rewind_append(Emu* e);
 bool emu_rewind_step(Emu* e);
 size_t emu_rewind_count(void);
 
-/* Full savestates (including battery data) on disk. Loading (and the
- * functions below) take SNES DS's / mGBA's own files and RetroArch's (and
- * BananaFront's: RASTATE, compressed or not) with its mGBA core's state. */
+/* State files: RetroArch's format (RASTATE, blocks up to "END "), so
+ * RetroArch's bsnes core of the same version loads SNES DS's states and the
+ * other way round. MEM holds the core's bytes; SNES DS adds SDSC (the ROM's
+ * CRC32 as played) and SDSX (its second screen, `extra`), which RetroArch
+ * skips. RetroArch usually compresses its files (RZIP, zlib chunks). */
 typedef enum {
-	STATE_FORMAT_MGBA,           /* mGBA's own (SNES DS's states) */
+	STATE_FORMAT_OWN,            /* SNES DS's own states: RASTATE, uncompressed */
 	STATE_FORMAT_RETROARCH,      /* RetroArch's, uncompressed */
 	STATE_FORMAT_RETROARCH_RZIP, /* RetroArch's, compressed (its savestate_file_compression) */
 } StateFormat;
 typedef enum {
 	STATE_FILE_NONE,       /* no such file */
-	STATE_FILE_MGBA,       /* mGBA's own */
-	STATE_FILE_RETROARCH,  /* RetroArch's, with its mGBA core's state */
-	STATE_FILE_OTHER_CORE, /* another emulator's (RetroArch's gpSP, VBA-M...): not loadable */
-	STATE_FILE_UNREADABLE, /* compressed in a way SNES DS can't read, or damaged */
+	STATE_FILE_OWN,        /* saved by SNES DS */
+	STATE_FILE_RETROARCH,  /* RetroArch's (or SNES DS's, saved into RetroArch's folder) */
+	STATE_FILE_OTHER_CORE, /* another core's or another version's: not loadable */
+	STATE_FILE_UNREADABLE, /* damaged, or compressed in a way SNES DS can't read */
 } StateFileKind;
-bool emu_state_save_file(Emu* e, const char* path); /* (mGBA's format, nothing of SNES DS's own) */
-/* extra: SNES DS's own data kept inside it (mGBA's extra data, a tag of
- * its own: other emulators skip it), or NULL */
+bool emu_state_save_file(Emu* e, const char* path);
 bool emu_state_save_file_as(Emu* e, const char* path, const void* extra, size_t extraN, StateFormat fmt);
 bool emu_state_load_file(Emu* e, const char* path);
-/* what's in a state file; *fromSnesds (may be NULL): it has SNES DS's own data (saved by SNES DS) */
+/* *fromSnesds (may be NULL): saved by SNES DS (it has SNES DS's blocks) */
 StateFileKind emu_state_file_kind(Emu* e, const char* path, bool* fromSnesds);
-/* The CRC32 of the ROM a state file was saved with (mGBA keeps it in the
- * state's header); false if it isn't a GBA state */
+/* The CRC32 of the ROM (as played) a state was saved with; false if the
+ * file doesn't say (not SNES DS's) */
 bool emu_state_file_rom_crc(const char* path, uint32_t* crc);
-/* SNES DS's own data kept inside a state file, as a malloc'd copy (NULL: none) */
+/* SNES DS's second-screen data in a state file, malloc'd (NULL: none) */
 void* emu_state_file_get_extra(Emu* e, const char* path, size_t* n);
 
-/* The whole ROM file (inside a .zip / .7z too), malloc'd; NULL on failure. */
+/* ROMs. emu_rom_read_all: the ROM file (inside a .zip too) without a
+ * copier header, malloc'd; NULL if it can't be read. */
 uint8_t* emu_rom_read_all(const char* path, size_t* size);
-/* The ROM as it's played: patched when a patch file beside it fits (GEN-9).
- * *patch: PatchResult; patchName (if not NULL, 256 bytes): the patch file's
- * name; *fileCrc (if not NULL): the ROM file's CRC32 before any patch.
- * malloc'd, NULL if the ROM can't be read. */
+/* The game's code (Emu.gameCode) for a ROM file; false if unreadable. */
+bool emu_rom_code(const char* path, char code[9]);
+/* The title in the ROM's internal header (21 characters, trailing spaces
+ * cut), or false. */
+bool emu_rom_title(const char* path, char* out, size_t n);
+/* The ROM as it's played: patched when patches are planned for it (or a
+ * patch file is beside it, GEN-9). *patch: PatchResult; patchName (if not
+ * NULL, 256 bytes): the patch files' names; *fileCrc (if not NULL): the
+ * ROM's CRC32 before any patch. malloc'd, NULL if the ROM can't be read. */
 uint8_t* emu_rom_read_played(const char* path, size_t* size, int* patch, char* patchName, uint32_t* fileCrc);
 /* The patches a game is played with (GEN-9), in order: whatever opens that
  * ROM from now on gets them; a NULL rom or no files: none planned (then the
@@ -133,110 +178,34 @@ void emu_patch_plan(const char* rom, char files[][1024], int n);
 /* The ROM with the patches given applied, in order (the game list's
  * checksum of each game as it would be played) */
 uint8_t* emu_rom_read_patched(const char* path, char files[][1024], int n, size_t* size, int* patch, char* patchName);
-/* A memory region of the running game (GBA address >> 24: 2 EWRAM, 3 IWRAM,
- * 0xE save RAM), or NULL. */
+
+/* Memory. Work RAM ($7E0000-$7FFFFF, 128 KB) and the cartridge's battery
+ * RAM, or NULL. */
+enum { EMU_MEM_WRAM, EMU_MEM_SRAM };
 uint8_t* emu_memory(Emu* e, int region, size_t* size);
+/* By SNES address as the CPU sees it: banks $7E/$7F, and the low 8 KB
+ * mirror at $0000-$1FFF of banks $00-$3F and $80-$BF. Anything else reads
+ * 0 and ignores writes. Little-endian. */
 uint8_t emu_read8(Emu* e, uint32_t addr);
 uint16_t emu_read16(Emu* e, uint32_t addr);
+uint32_t emu_read24(Emu* e, uint32_t addr);
 uint32_t emu_read32(Emu* e, uint32_t addr);
 void emu_write8(Emu* e, uint32_t addr, uint8_t value);
 void emu_write16(Emu* e, uint32_t addr, uint16_t value);
-void emu_write32(Emu* e, uint32_t addr, uint32_t value);
 
-/* Pull up to maxFrames stereo frames of audio; returns frames read. */
+/* Up to maxFrames stereo frames of audio; returns frames read. */
 size_t emu_audio_read(Emu* e, int16_t* out, size_t maxFrames);
 unsigned emu_audio_rate(Emu* e);
 
+/* Cheats, through the core (Game Genie, Pro Action Replay and raw codes,
+ * as the core reads them). emu_cheats_add adds one set: its codes joined
+ * with '+'. Returns the number of codes given to the core. */
+void emu_cheats_clear(Emu* e);
+int emu_cheats_add(Emu* e, const char* name, const char* const* codes, int n);
+
+uint32_t emu_crc32(uint32_t crc, const void* data, size_t n);
+
 /* tools/png.c (host tools only) */
 bool write_png(const char* path, const uint32_t* px, int w, int h, int stride);
-
-/* Hide sprites matching any of the n rules (n = 0 turns it off). Display only:
- * the game's memory and state are untouched. One emulator at a time. */
-void emu_hide_sprites(Emu* e, const SpriteRule* rules, int n);
-void emu_keep_sprites(Emu* e, const SpriteRule* rules, int n);
-void emu_hide_grouped(Emu* e, bool on);
-/* Also hide the sprites whose attributes 0-2 are exactly one of these
- * (Pokemon Pinball's live view: what the other copy draws on its screen). */
-void emu_hide_exact(Emu* e, const uint16_t (*attrs)[3], int n);
-/* Which layers are drawn: bits 0-3 BG0-3, bit 4 sprites (0x1F = all). Takes
- * effect when the display registers are next written (e.g. a state load). */
-void emu_layers(Emu* e, unsigned mask);
-/* HUD split (Mario Kart): while on, the BG layers in bgMask (bit 0 = BG0)
- * and the sprites matching any of objs are left out of the game picture and
- * drawn alone into hud (GBA_W x GBA_H, kept by the caller while the core is
- * open; emu_hud_clear where there's nothing). Can be called again while on
- * to change what moves. Renders nothing extra while off. */
-bool emu_hud_split(Emu* e, bool on, unsigned bgMask, const SpriteRule* objs, int nObjs, uint32_t* hud);
-/* The HUD picture's 'no pixel here' colour (the parts of the screen the
- * HUD doesn't cover), low 24 bits: compare with (pixel & 0xFFFFFF). */
-uint32_t emu_hud_clear(void);
-/* While split: render the next frame's BG layers in bgMask (no sprites)
- * into buf instead of the HUD (the HUD buffer keeps the last frame).
- * emu_hud_grabbed says, once, that it's done. */
-void emu_hud_grab(Emu* e, unsigned bgMask, uint32_t* buf);
-/* the same, the BG layer whose BGxCNT is cnt as that frame starts */
-void emu_hud_grab_cnt(Emu* e, uint16_t cnt, uint32_t* buf);
-/* While split: the HUD is the BG layers at a priority below p as each frame
- * is drawn, instead of bgMask (0: bgMask again; -1: no layer). */
-void emu_hud_by_priority(int prioBelow);
-/* While split by priority: these BG layers (bit 0 = BG0) stay out of the
- * HUD whatever their priority (from the next frame). */
-void emu_hud_keep_bgs(unsigned mask);
-/* While every one of these (n, up to 2) holds as a frame starts drawing (the
- * game's vblank code done), these BG layers go into the HUD too, for that
- * frame (Dragon Ball Z: the counter's box, drawn the same vblank its flag
- * is set); addresses in EWRAM, IWRAM, the I/O registers or VRAM. n 0: off.
- * any: while any one of them holds instead (Mario & Luigi: either box's
- * tile map entry). */
-/* (gamePal: palette + 1; on a line where one of those layers has a tile
- * in it, the layer stays on the game there instead; 0: none) */
-void emu_hud_mem_layers(const uint32_t addr[2], const uint32_t mask[2], const uint32_t value[2], const int size[2], int n, bool any, unsigned layers, int gamePal);
-/* While split: both renderers see these bits of the video register at
- * addr (offset from 0x04000000) cleared, the game's register untouched
- * (Advance Wars: WININ's window 0 effects, the darkened box behind the
- * terrain info, which moves to the second screen). bits 0: none. */
-void emu_hud_game_reg(uint32_t addr, uint16_t bits);
-/* While split: on the lines where sprites are off (and on elsewhere: a box
- * across part of the screen, Advance Wars' conversations), the BG layers
- * set up differently from the other lines (BGxCNT) go to the HUD too;
- * with copy, they stay in the game picture as well; with watch, nothing
- * moves, the band's lines are only found (emu_hud_band_rows). Kept across
- * splits. */
-void emu_hud_band(bool on, bool copy, bool watch);
-/* While split: the HUD's BG layers and sprites also stay in the game
- * picture (copy) or leave it again; the HUD picture is drawn either way. */
-void emu_hud_copy(Emu* e, bool copy);
-/* While split: the HUD's BG layers also stay in the game picture above
- * this row (0: not at all; from the next line drawn). */
-void emu_hud_copy_above(int row);
-/* The split's layers leave the game only on lines above this row (0: all
- * lines); below it the game draws them where they are, at their own
- * priority (profile hud.rows: Super Mario Advance 2's status bar, its
- * layer the scenery further down in some levels). */
-void emu_hud_rows(int rows);
-/* The HUD split also draws the sprites with exactly these attributes 0-2
- * (the game's picture keeps them); n = 0: none. */
-void emu_hud_keep_exact(const uint16_t (*attrs)[3], int n);
-/* The lines the band was on in the last frame drawn split; false if none. */
-bool emu_hud_band_rows(int* y0, int* y1);
-/* An I/O register as last written (also the write-only ones: MOSAIC). */
-uint16_t emu_io16(Emu* e, uint32_t offset);
-/* VRAM (96 KB), for reading tile maps. */
-const uint16_t* emu_vram(Emu* e);
-/* n bytes into VRAM at offset off at once (the renderer told once) */
-void emu_vram_write(Emu* e, uint32_t off, const void* src, size_t n);
-/* The sprite table as drawn (OAM, 1 KB): read, or written with the renderer told */
-void emu_oam_read(Emu* e, uint16_t* out);
-void emu_oam_write(Emu* e, const uint16_t* src);
-bool emu_hud_grabbed(void);
-
-/* Cheats. emu_cheats_clear removes them all; emu_cheats_add adds one set
- * (applied every frame) from codes in RetroArch's .cht form: hex words
- * joined with '+', paired up into "XXXXXXXX YYYY" (Code Breaker) or
- * "XXXXXXXX YYYYYYYY" (GameShark / Action Replay) lines. type: 0 = detect,
- * else EMU_CHEAT_*. Returns the number of lines mGBA accepted. */
-enum { EMU_CHEAT_DETECT = 0, EMU_CHEAT_CODEBREAKER, EMU_CHEAT_GAMESHARK, EMU_CHEAT_ACTION_REPLAY };
-void emu_cheats_clear(Emu* e);
-int emu_cheats_add(Emu* e, const char* name, const char* const* codes, int n, int type);
 
 #endif

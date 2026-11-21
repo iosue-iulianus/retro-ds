@@ -1,25 +1,21 @@
 # SNES DS build
 #
-#   scripts/setup-host.sh     first time: fetches and builds mGBA and SDL2 into deps/, then builds
-#   make / make tools         host build (build/host/snes-ds, build/host/harness)
-#   make CROSS=aarch64-linux-gnu- MGBA_BUILD=../mgba/build-aarch64 SDL_PREFIX=../sdl-aarch64
+#   scripts/setup-host.sh     first time: SDL2 into deps/, the cores into ../cores, then builds
+#   make / make tools         host build (build/host/snes-ds, build/host/snes-harness)
+#   make CROSS=aarch64-linux-gnu- SDL_PREFIX=../sdl-aarch64
 #
-# MGBA_SRC   mGBA source tree (headers)
-# MGBA_BUILD a cmake build dir of mGBA (see scripts/mgba-options.sh for the options), targets mgba and zlibstatic built
 # SDL_PREFIX an SDL2 install prefix (include/SDL2, lib/libSDL2.so)
+# The emulator is a libretro core loaded at run time (scripts/build-cores.sh):
+# nothing of it is linked in.
 
 CROSS      ?=
 CC         := $(CROSS)gcc
-MGBA_SRC   ?= deps/mgba
-MGBA_BUILD ?= $(MGBA_SRC)/build-host
 SDL_PREFIX ?= deps/sdl-host
 OUT        ?= build/$(if $(CROSS),$(patsubst %-,%,$(CROSS)),host)
 
-MGBA_DEFS  := $(shell sed -n 's/^C_DEFINES = //p' $(MGBA_BUILD)/CMakeFiles/mgba.dir/flags.make)
 VERSION    := $(shell cat VERSION 2>/dev/null || echo dev)
 # SIDE=name: a side build, installed beside the main one to try a branch's
-# work: its version is VERSION+name,
-# with no updates and no EmulationStation / BananaOS integration
+# work: its version is VERSION+name, with no updates
 # SIDE_CODES: the game codes its game list shows (space-separated; the
 # others aren't listed: only the game being worked on and its releases)
 SIDE       ?=
@@ -34,18 +30,16 @@ endif
 OPTFLAGS   ?= -O2 -g
 
 override CFLAGS := $(OPTFLAGS) -std=gnu11 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers \
-              -DSNESDS_VERSION='"$(VERSION)"' $(SIDE_DEF) $(MGBA_DEFS) -I$(MGBA_SRC)/include -I$(MGBA_BUILD)/include -I$(SDL_PREFIX)/include/SDL2 -D_REENTRANT
+              -DSNESDS_VERSION='"$(VERSION)"' $(SIDE_DEF) -I$(SDL_PREFIX)/include/SDL2 -D_REENTRANT
 LDFLAGS    += -L$(SDL_PREFIX)/lib -Wl,-rpath-link,$(SDL_PREFIX)/lib
 # desktop builds: run with the SDL built into deps/, not an older system one
 # (which may lack the offscreen driver the headless runs use)
 ifeq ($(CROSS),)
 LDFLAGS    += -Wl,-rpath,$(abspath $(SDL_PREFIX)/lib)
 endif
-# mGBA's bundled zlib (for .zip ROMs), when it was built with it
-ZLIB_A     := $(wildcard $(MGBA_BUILD)/zlib/libz.a)
-LIBS       := $(MGBA_BUILD)/libmgba.a $(ZLIB_A) -lSDL2 -lpthread -lm
+LIBS       := -lSDL2 -lz -ldl -lpthread -lm
 
-CORE_SRC   := src/emu.c src/patch.c src/mapcap.c src/profiles.c src/logo_masks.c
+CORE_SRC   := src/emu.c src/patch.c src/mapcap.c src/profiles.c
 # RetroAchievements: rcheevos (MIT), vendored in third_party/rcheevos
 RC_DIR     := third_party/rcheevos
 RC_SRC     := $(wildcard $(RC_DIR)/src/*.c $(RC_DIR)/src/rapi/*.c $(RC_DIR)/src/rcheevos/*.c) $(RC_DIR)/src/rhash/md5.c
@@ -59,7 +53,7 @@ APP_SRC    := src/main.c src/config.c src/i18n.c src/i18n_data.c src/font.c src/
 
 all: $(OUT)/snes-ds
 
-$(OUT)/snes-ds: $(APP_SRC) src/*.h VERSION $(MGBA_BUILD)/libmgba.a $(RC_OBJ) $(WEBP_OBJ)
+$(OUT)/snes-ds: $(APP_SRC) src/*.h VERSION $(RC_OBJ) $(WEBP_OBJ)
 	@mkdir -p $(OUT)
 	$(CC) $(CFLAGS) -DSNESDS_RA -I$(RC_DIR)/include -I$(RC_DIR)/src -I$(WEBP_DIR) -o $@ $(APP_SRC) $(RC_OBJ) $(WEBP_OBJ) $(LDFLAGS) $(LIBS)
 
@@ -71,22 +65,16 @@ $(OUT)/libwebp/%.o: $(WEBP_DIR)/src/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(OPTFLAGS) -std=gnu11 -I$(WEBP_DIR) -c $< -o $@
 
-# development tools (host only; need libpng)
-tools: $(OUT)/harness
+# development tools (host only; need libpng): the harness (tools/snes-harness.c)
+tools: build/host/snes-harness
 
-$(OUT)/harness: tools/harness.c tools/png.c $(CORE_SRC) src/logo.c src/*.h
-	@mkdir -p $(OUT)
-	$(CC) $(CFLAGS) -o $@ tools/harness.c tools/png.c $(CORE_SRC) src/logo.c $(MGBA_BUILD)/libmgba.a $(ZLIB_A) -lpng -lpthread -lm
-
-# SNES DS milestone M0 (host only): the libretro loader and its harness.
-# Needs no mGBA or SDL: make m0 -> build/host/snes-harness
-M0_CFLAGS  := $(OPTFLAGS) -std=gnu11 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -D_REENTRANT
+# The harness (tools/snes-harness.c): two copies of the core driven by a
+# script, for finding a game's addresses and timing captures. Needs libpng.
+build/host/snes-harness: tools/snes-harness.c tools/png.c src/emu.c src/emu.h src/libretro.h src/patch.c
+	@mkdir -p build/host
+	$(CC) $(CFLAGS) -o $@ tools/snes-harness.c tools/png.c src/emu.c src/patch.c -lpng -lz -ldl -lpthread -lm
 
 m0: build/host/snes-harness
-
-build/host/snes-harness: tools/snes-harness.c tools/png.c src/retro/emu.c src/retro/emu.h src/retro/libretro.h
-	@mkdir -p build/host
-	$(CC) $(M0_CFLAGS) -o $@ tools/snes-harness.c tools/png.c src/retro/emu.c -ldl -lpng -lz -lpthread -lm
 
 clean:
 	rm -rf build

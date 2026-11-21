@@ -1,6 +1,6 @@
-// Built by scripts/build-android.sh, which fetches SDL2 and mGBA, builds
-// libmgba with the NDK and passes their paths as Gradle properties:
-//   -PsdlDir=...  -PmgbaSrc=...  -PmgbaBuild=...
+// Built by scripts/build-android.sh, which fetches SDL2, builds the bsnes
+// core into src/main/jniLibs (libsnes_a.so ...) and passes SDL's path:
+//   -PsdlDir=...
 // Release signing (optional; debug-signed otherwise) from the environment:
 //   SNESDS_KEYSTORE, SNESDS_KEYSTORE_PASSWORD, SNESDS_KEY_ALIAS, SNESDS_KEY_PASSWORD
 plugins {
@@ -12,8 +12,6 @@ def need = { String name ->
     return file(project.property(name)).absolutePath
 }
 def sdlDir = need("sdlDir")
-def mgbaSrc = need("mgbaSrc")
-def mgbaBuild = need("mgbaBuild")
 def cpuFlags = project.hasProperty("cpuFlags") ? project.property("cpuFlags") : ""
 def appVersion = rootProject.file("../VERSION").text.trim()
 def runNumber = (System.getenv("GITHUB_RUN_NUMBER") ?: "1") as int
@@ -45,8 +43,6 @@ android {
             cmake {
                 arguments "-DANDROID_STL=c++_static",
                         "-DSNESDS_SDL_SRC=${sdlDir}",
-                        "-DSNESDS_MGBA_SRC=${mgbaSrc}",
-                        "-DSNESDS_MGBA_BUILD=${mgbaBuild}",
                         "-DSNESDS_VERSION=${appVersion}"
             }
         }
@@ -78,6 +74,15 @@ android {
 
     buildFeatures {
         buildConfig true
+    }
+
+    // The native libraries as files in the app's folder (nativeLibraryDir),
+    // not only inside the APK: SNES DS loads its core copies by path
+    // (src/emu.c, SNESDS_CORE_DIR).
+    packaging {
+        jniLibs {
+            useLegacyPackaging true
+        }
     }
 
     sourceSets {

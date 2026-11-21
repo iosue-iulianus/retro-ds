@@ -5,9 +5,6 @@
 #include "android.h"
 #endif
 
-#include <mgba/flags.h>
-#include <mgba/core/core.h>
-
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,306 +23,57 @@
 #include "stb_image_write.h"
 #pragma GCC diagnostic pop
 
-enum { NLAYERS = 5 }; /* bg0-3, obj */
 static volatile bool cancelAll;
 
-static void layers(Emu* e, int only) {
-	for (int i = 0; i < NLAYERS; ++i) e->core->enableVideoLayer(e->core, i, only == -2 || i == only);
-}
-
-/* several layers at once (bit i: BG i, bit 4: sprites) */
-static void layer_set(Emu* e, unsigned mask) {
-	for (int i = 0; i < NLAYERS; ++i) e->core->enableVideoLayer(e->core, i, (mask >> i) & 1);
-}
-
+/* The logo from the game's own title screen: the ROM booted on a silent
+ * core and run to its title (the profile's logo.wait, pressStart and wait2,
+ * or its steps); the picture inside the profile's box is kept as a PNG. */
 bool logo_extract(const char* romPath, const char* gameCode, const char* outPng) {
 	const MapProfile* p = profile_find(gameCode);
 	if (!p || (!p->logo.wait && !p->logo.steps[0].frames)) return false;
-	Emu e;
+	Emu e = { 0 };
 	if (!emu_open(&e, romPath, NULL, false)) return false;
-	/* the profile's patches for this copy only, all or none (another
-	 * revision of the ROM is left alone) */
-	bool patchOk = true;
-	for (int k = 0; k < 2 && p->logo.patch[k].addr; ++k) {
-		const RomPatch* r = &p->logo.patch[k];
-		for (int i = 0; i < r->len; ++i) patchOk &= emu_read8(&e, r->addr + i) == (r->orig ? r->orig[i] : 0xFF);
-	}
-	for (int k = 0; k < 2 && patchOk && p->logo.patch[k].addr; ++k) {
-		const RomPatch* r = &p->logo.patch[k];
-		for (int i = 0; i < r->len; ++i) e.core->rawWrite8(e.core, r->addr + i, -1, r->bytes[i]);
-	}
-
-	for (int i = 0; i < 24 && p->logo.steps[i].frames && !cancelAll; ++i) {
-		for (int f = 0; f < p->logo.steps[i].frames && !cancelAll; ++f) emu_frame(&e, p->logo.steps[i].keys);
-	}
-	for (int f = 0; f < p->logo.wait && !cancelAll; ++f) emu_frame(&e, 0);
-	if (p->logo.pressStart) {
-		for (int f = 0; f < 4; ++f) emu_frame(&e, K_START);
-		for (int f = 0; f < p->logo.wait2 && !cancelAll; ++f) emu_frame(&e, 0);
-	}
-	if (cancelAll) {
-		emu_close(&e);
-		return false;
-	}
-
-	size_t sz = emu_state_size(&e);
-	void* st = malloc(sz);
-	uint32_t* back = malloc(GBA_W * GBA_H * 4);
-	uint32_t* fg = malloc(GBA_W * GBA_H * 4);
-	uint8_t* opaque = calloc(GBA_W * GBA_H, 1);
-	emu_state_save(&e, st);
-	/* Layer switches only take effect when the display registers are
-	 * written; loading the state after setting them rewrites the registers
-	 * (some titles, e.g. Circle of the Moon JP, never rewrite them). */
-	layers(&e, -1); /* backdrop only */
-	emu_state_load(&e, st);
-	emu_frame(&e, 0);
-	memcpy(back, e.fb, GBA_W * GBA_H * 4);
-	if (p->logo.mask) layers(&e, -2); /* a mask cuts the logo out of the whole picture */
-	else if (p->logo.layers) layer_set(&e, p->logo.layers); /* a logo over several layers (FFTA: its shadow) */
-	else layers(&e, p->logo.layer);
-	emu_state_load(&e, st);
-	emu_frame(&e, 0);
-	memcpy(fg, e.fb, GBA_W * GBA_H * 4);
-	if (!p->logo.mask && p->logo.layers && p->logo.objMaxY > 0 && p->logo.objMaxY < GBA_H) {
-		/* below objMaxY, the BG layers without the sprites (Summon Night:
-		 * its PRESS START BUTTON is a sprite across the sword's hilt) */
-		layer_set(&e, p->logo.layers & ~0x10u);
-		emu_state_load(&e, st);
-		emu_frame(&e, 0);
-		memcpy(fg + p->logo.objMaxY * GBA_W, e.fb + p->logo.objMaxY * GBA_W, (size_t) (GBA_H - p->logo.objMaxY) * GBA_W * 4);
-	}
-	if (!p->logo.mask && p->logo.layers && p->logo.lowFrom > 0 && p->logo.lowFrom < GBA_H) {
-		/* from lowFrom down, only lowLayers (Sonic Pinball Party: its
-		 * badge's lowest rows beside the copyright line's) */
-		layer_set(&e, p->logo.lowLayers);
-		emu_state_load(&e, st);
-		emu_frame(&e, 0);
-		memcpy(fg + p->logo.lowFrom * GBA_W, e.fb + p->logo.lowFrom * GBA_W, (size_t) (GBA_H - p->logo.lowFrom) * GBA_W * 4);
-	}
-	layers(&e, -2);
-	emu_close(&e);
-	free(st);
-
-	if (getenv("SNESDS_LOGO_DEBUG")) {
-		char dbg[1200];
-		snprintf(dbg, sizeof(dbg), "%s.fg.png", outPng);
-		stbi_write_png(dbg, GBA_W, GBA_H, 4, fg, GBA_W * 4);
-		snprintf(dbg, sizeof(dbg), "%s.back.png", outPng);
-		stbi_write_png(dbg, GBA_W, GBA_H, 4, back, GBA_W * 4);
-	}
-	uint8_t* inMask = NULL;
-	if (p->logo.mask) {
-		const LogoMask* m = p->logo.mask;
-		inMask = calloc(GBA_W * GBA_H, 1);
-		int pos = 0;
-		for (int r = 0; r < m->nRuns; ++r) {
-			for (int k = 0; k < m->runs[r] && pos < m->w * m->h; ++k, ++pos) {
-				int x = m->x + pos % m->w, y = m->y + pos / m->w;
-				if ((r & 1) && x < GBA_W && y < GBA_H) inMask[y * GBA_W + x] = 1;
-			}
+	e.cancel = &cancelAll;
+	if (p->logo.steps[0].frames) {
+		for (const MacroStep* s = p->logo.steps; s < p->logo.steps + 24 && s->frames; ++s) {
+			for (int f = 0; f < s->frames; ++f) emu_frame_blind(&e, s->keys);
 		}
-		for (int i = 0; i < m->nPatch; ++i) {
-			int at = m->patchAt[i];
-			if (at >= GBA_W * GBA_H) continue;
-			uint32_t c = m->patchRgb[i];
-			inMask[at] = 1;
-			fg[at] = 0xFF000000u | (c & 0xFF) << 16 | (c & 0xFF00) | (c >> 16 & 0xFF);
+	} else {
+		for (int f = 0; f < p->logo.wait; ++f) emu_frame_blind(&e, 0);
+		if (p->logo.pressStart) {
+			for (int f = 0; f < 4; ++f) emu_frame_blind(&e, K_START);
+			for (int f = 0; f < p->logo.wait2; ++f) emu_frame_blind(&e, 0);
 		}
 	}
-	/* opaque mask and bounding box above maxY */
-	int x0 = GBA_W, y0 = GBA_H, x1 = -1, y1 = -1, count = 0;
-	int maxY = p->logo.maxY ? p->logo.maxY : GBA_H;
-	int maxX = p->logo.maxX ? p->logo.maxX : GBA_W;
-	for (int y = p->logo.minY; y < maxY; ++y) {
-		for (int x = p->logo.minX; x < maxX; ++x) {
-			uint32_t c = fg[y * GBA_W + x];
-			bool clear = inMask ? !inMask[y * GBA_W + x] : c == back[y * GBA_W + x];
-			if (p->logo.blackIsClear && (c & 0xFF) < 24 && ((c >> 8) & 0xFF) < 24 && ((c >> 16) & 0xFF) < 24) clear = true;
-			if (!clear) opaque[y * GBA_W + x] = 1;
-		}
-	}
-	if (p->logo.lightEdgeClear) {
-		/* the layer's light background (Pokemon Pinball's white, striped):
-		 * light grey to white pixels reached from the picture's edges
-		 * through others like them, not the logo's own white inside it */
-		int* stack = malloc(sizeof(int) * GBA_W * GBA_H);
-		uint8_t* seen = calloc(GBA_W * GBA_H, 1);
-		int n = 0;
-		for (int y = 0; y < maxY; ++y) {
-			for (int x = 0; x < GBA_W; ++x) {
-				if (x == 0 || y == 0 || x == GBA_W - 1 || y == maxY - 1) stack[n++] = y * GBA_W + x, seen[y * GBA_W + x] = 1;
-			}
-		}
-		while (n) {
-			int i = stack[--n], x = i % GBA_W, y = i / GBA_W;
-			uint32_t c = fg[i];
-			int r = c & 0xFF, g = (c >> 8) & 0xFF, b = (c >> 16) & 0xFF;
-			int hi = r > g ? (r > b ? r : b) : (g > b ? g : b), lo = r < g ? (r < b ? r : b) : (g < b ? g : b);
-			if (opaque[i] && !(lo >= 190 && hi - lo <= 40)) continue;
-			opaque[i] = 0;
-			const int nb[4] = { x > 0 ? i - 1 : -1, x < GBA_W - 1 ? i + 1 : -1, y > 0 ? i - GBA_W : -1, y < maxY - 1 ? i + GBA_W : -1 };
-			for (int k = 0; k < 4; ++k) {
-				if (nb[k] >= 0 && !seen[nb[k]]) seen[nb[k]] = 1, stack[n++] = nb[k];
-			}
-		}
-		free(stack);
-		free(seen);
-		/* and its white outline back: two pixels around what's left */
-		for (int pass = 0; pass < 2; ++pass) {
-			memcpy(back, opaque, GBA_W * GBA_H); /* (back's done with: a scratch copy) */
-			const uint8_t* was = (const uint8_t*) back;
-			for (int y = 0; y < maxY; ++y) {
-				for (int x = 0; x < GBA_W; ++x) {
-					int i = y * GBA_W + x;
-					if (was[i]) continue;
-					if ((x > 0 && was[i - 1]) || (x < GBA_W - 1 && was[i + 1]) || (y > 0 && was[i - GBA_W]) || (y < maxY - 1 && was[i + GBA_W])) opaque[i] = 1;
-				}
-			}
-		}
-	}
-	if (p->logo.edgeClear[0]) {
-		int* stack = malloc(sizeof(int) * GBA_W * GBA_H);
-		uint8_t* seen = calloc(GBA_W * GBA_H, 1);
-		int n = 0;
-		/* (from outside the logo, and from the picture's edges: a layer
-		 * that fills the screen with the background, Battle Network
-		 * Rockman EXE's blue) */
-		for (int i = 0; stack && seen && i < GBA_W * maxY; ++i) {
-			int x = i % GBA_W, y = i / GBA_W;
-			if (!opaque[i] || x == 0 || x == GBA_W - 1 || y == 0 || y == maxY - 1) stack[n++] = i, seen[i] = 1;
-		}
-		while (stack && seen && n) {
-			int i = stack[--n], x = i % GBA_W, y = i / GBA_W;
-			if (opaque[i]) {
-				uint32_t c = fg[i];
-				int r = c & 0xFF, g = (c >> 8) & 0xFF, b = (c >> 16) & 0xFF;
-				bool clearIt = false;
-				for (int k = 0; k < 4 && p->logo.edgeClear[k] && !clearIt; ++k) {
-					uint32_t e = p->logo.edgeClear[k];
-					clearIt = abs(r - (int) (e >> 16 & 0xFF)) + abs(g - (int) (e >> 8 & 0xFF)) + abs(b - (int) (e & 0xFF)) < 20;
-				}
-				if (!clearIt) continue;
-				opaque[i] = 0;
-			}
-			const int nb[4] = { x > 0 ? i - 1 : -1, x < GBA_W - 1 ? i + 1 : -1, y > 0 ? i - GBA_W : -1, y < maxY - 1 ? i + GBA_W : -1 };
-			for (int k = 0; k < 4; ++k) {
-				if (nb[k] >= 0 && !seen[nb[k]]) seen[nb[k]] = 1, stack[n++] = nb[k];
-			}
-		}
-		free(stack);
-		free(seen);
-		/* (and what's left alone: at most one opaque neighbour) */
-		memcpy(back, opaque, GBA_W * GBA_H); /* (back's done with: a scratch copy) */
-		const uint8_t* was = (const uint8_t*) back;
-		for (int y = 0; y < maxY; ++y) {
-			for (int x = 0; x < GBA_W; ++x) {
-				int i = y * GBA_W + x;
-				if (!was[i]) continue;
-				int nb = (x > 0 && was[i - 1]) + (x < GBA_W - 1 && was[i + 1]) + (y > 0 && was[i - GBA_W]) + (y < maxY - 1 && was[i + GBA_W]);
-				if (nb <= 1) opaque[i] = 0;
-			}
-		}
-		/* (and specks: pieces under 16 pixels, 8-connected) */
-		int* q = malloc(sizeof(int) * GBA_W * GBA_H);
-		uint8_t* done = calloc(GBA_W * GBA_H, 1);
-		for (int s0 = 0; q && done && s0 < GBA_W * maxY; ++s0) {
-			if (!opaque[s0] || done[s0]) continue;
-			int head = 0, tail = 0;
-			q[tail++] = s0;
-			done[s0] = 1;
-			while (head < tail) {
-				int i = q[head++], x = i % GBA_W, y = i / GBA_W;
-				for (int dy = -1; dy <= 1; ++dy) {
-					for (int dx = -1; dx <= 1; ++dx) {
-						int nx = x + dx, ny = y + dy, j = ny * GBA_W + nx;
-						if (nx < 0 || nx >= GBA_W || ny < 0 || ny >= maxY || !opaque[j] || done[j]) continue;
-						done[j] = 1;
-						q[tail++] = j;
-					}
-				}
-			}
-			if (tail < 16) {
-				for (int k = 0; k < tail; ++k) opaque[q[k]] = 0;
-			}
-		}
-		free(q);
-		free(done);
-	}
-	if (p->logo.shadow[0] && p->logo.shadowReach > 0) {
-		/* (logo.shadow: row by row, each shadow pixel kept or not) */
-		int reach = p->logo.shadowReach;
-		uint8_t* shade = calloc(GBA_W * GBA_H, 1); /* 1 shadow, 2 shadow kept */
-		for (int i = 0; shade && i < GBA_W * maxY; ++i) {
-			if (!opaque[i]) continue;
-			uint32_t c = fg[i];
-			int r = c & 0xFF, g = (c >> 8) & 0xFF, b = (c >> 16) & 0xFF;
-			for (int k = 0; k < 2 && p->logo.shadow[k]; ++k) {
-				uint32_t e = p->logo.shadow[k];
-				if (abs(r - (int) (e >> 16 & 0xFF)) + abs(g - (int) (e >> 8 & 0xFF)) + abs(b - (int) (e & 0xFF)) < 12) shade[i] = 1;
-			}
-		}
-		for (int y = 0; shade && y < maxY; ++y) {
-			for (int x = 0; x < GBA_W; ++x) {
-				int i = y * GBA_W + x;
-				if (shade[i] != 1) continue;
-				bool keep = false;
-				for (int dy = 1; dy <= reach && !keep; ++dy) {
-					for (int dx = 0; dx <= reach && !keep; ++dx) {
-						int X = x - dx, Y = y - dy, j = Y * GBA_W + X;
-						if (X >= 0 && Y >= 0 && opaque[j] && shade[j] != 1) keep = true;
-					}
-				}
-				if (keep) shade[i] = 2;
-				else opaque[i] = 0;
-			}
-		}
-		free(shade);
-	}
-	for (int y = 0; y < maxY; ++y) {
-		for (int x = 0; x < GBA_W; ++x) {
-			if (!opaque[y * GBA_W + x]) continue;
-			++count;
-			if (x < x0) x0 = x;
-			if (x > x1) x1 = x;
-			if (y < y0) y0 = y;
-			if (y > y1) y1 = y;
-		}
-	}
+	emu_frame(&e, 0); /* (drawn: the picture taken) */
 	bool ok = false;
-	if (count >= 400) {
-		int w = x1 - x0 + 1, h = y1 - y0 + 1;
-		uint8_t* rgba = malloc((size_t) w * h * 4);
-		for (int y = 0; y < h; ++y) {
+	if (!emu_cancelled(&e)) {
+		int x0 = p->logo.minX, y0 = p->logo.minY;
+		int x1 = p->logo.maxX > 0 ? p->logo.maxX : e.w, y1 = p->logo.maxY > 0 ? p->logo.maxY : e.h;
+		x1 = x1 > e.w ? e.w : x1, y1 = y1 > e.h ? e.h : y1;
+		int w = x1 - x0, h = y1 - y0;
+		uint8_t* rgba = w > 0 && h > 0 ? malloc((size_t) w * h * 4) : NULL;
+		for (int y = 0; rgba && y < h; ++y) {
 			for (int x = 0; x < w; ++x) {
-				int i = (y0 + y) * GBA_W + x0 + x;
-				uint32_t c = fg[i];
+				uint32_t c = e.fb[(y0 + y) * e.w + x0 + x];
 				uint8_t* o = &rgba[(y * w + x) * 4];
-				o[0] = c & 0xFF;
-				o[1] = (c >> 8) & 0xFF;
-				o[2] = (c >> 16) & 0xFF;
-				o[3] = opaque[i] ? 255 : 0;
+				o[0] = c & 0xFF, o[1] = (c >> 8) & 0xFF, o[2] = (c >> 16) & 0xFF, o[3] = 255;
 			}
 		}
 		char tmp[1100];
 		snprintf(tmp, sizeof(tmp), "%s.tmp", outPng);
-		ok = stbi_write_png(tmp, w, h, 4, rgba, w * 4) && rename(tmp, outPng) == 0;
+		ok = rgba && stbi_write_png(tmp, w, h, 4, rgba, w * 4) && rename(tmp, outPng) == 0;
 		free(rgba);
 		fprintf(stderr, "logo: %s %dx%d -> %s\n", gameCode, w, h, ok ? outPng : "write failed");
-	} else {
-		fprintf(stderr, "logo: %s not found on the title screen (%d px)\n", gameCode, count);
 	}
-	free(back);
-	free(fg);
-	free(opaque);
-	free(inMask);
+	emu_close(&e);
 	return ok;
 }
 
 /* ------------------------------------------------------------ queue */
 
 typedef struct Job {
-	char rom[1024], code[5], out[1024];
+	char rom[1024], code[9], out[1024];
 	bool urgent; /* runs while the queue's paused: the game being started or played */
 	struct Job* next;
 } Job;
@@ -421,7 +169,7 @@ static void enqueue(const char* romPath, const char* gameCode, const char* outPn
 	}
 	Job* j = calloc(1, sizeof(*j));
 	snprintf(j->rom, sizeof(j->rom), "%s", romPath);
-	snprintf(j->code, sizeof(j->code), "%.4s", gameCode);
+	snprintf(j->code, sizeof(j->code), "%.8s", gameCode);
 	snprintf(j->out, sizeof(j->out), "%s", outPng);
 	j->urgent = paused; /* (asked for by the game being played: its own logo) */
 	if (!pending) finished = 0;
@@ -464,7 +212,7 @@ void logo_front(const char* gameCode, bool urgent) {
 	Job *mine = NULL, **mineTail = &mine;
 	for (Job** at = &queue; *at;) {
 		Job* j = *at;
-		if (!strncmp(j->code, gameCode, 4)) {
+		if (!strncmp(j->code, gameCode, 8)) {
 			*at = j->next;
 			j->next = NULL;
 			j->urgent |= urgent;
@@ -483,8 +231,8 @@ void logo_front(const char* gameCode, bool urgent) {
 
 bool logo_busy(const char* gameCode) {
 	pthread_mutex_lock(&qlock);
-	bool busy = (gameCode && !strncmp(current, gameCode, 4)) || (!gameCode && current[0]);
-	for (Job* j = queue; j && gameCode && !busy; j = j->next) busy = !strncmp(j->code, gameCode, 4);
+	bool busy = (gameCode && !strncmp(current, gameCode, 8)) || (!gameCode && current[0]);
+	for (Job* j = queue; j && gameCode && !busy; j = j->next) busy = !strncmp(j->code, gameCode, 8);
 	pthread_mutex_unlock(&qlock);
 	return busy;
 }

@@ -38,7 +38,9 @@ MapResult mapcap_capture_sync(MapCapture* mc, Emu* live);
  * the worker is idle and returns true if a capture was started. poll() copies
  * the newest successful result into *out (caller-owned buffers are managed
  * internally) and returns true if it is newer than lastSerial. */
-bool mapcap_request(MapCapture* mc, Emu* live);
+/* (taken just before the game's next frame, which runs with nextKeys:
+ * emu_state_save_live, so the snapshot leaves the game where it was) */
+bool mapcap_request(MapCapture* mc, Emu* live, uint32_t nextKeys);
 bool mapcap_busy(MapCapture* mc);
 /* Calls off the capture running, if any (the game moved on: a newer one's
  * wanted): it stops at once and publishes nothing; mapcap_busy is false

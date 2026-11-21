@@ -9,7 +9,7 @@
 #include "android.h"
 #endif
 
-#include <mgba-util/vfs.h>
+#include <dirent.h>
 
 #include <SDL.h>
 #include <errno.h>
@@ -332,138 +332,11 @@ static bool ends_with(const char* s, const char* end) {
 }
 
 #ifndef __ANDROID__
-
-static bool mkdir_for(const char* path) {
-	char d[1100];
-	snprintf(d, sizeof(d), "%s", path);
-	char* slash = strrchr(d, '/');
-	if (!slash) return true;
-	*slash = 0;
-	mkdirs(d);
-	return true;
-}
-
-static bool path_exists(const char* p) {
-	struct stat st;
-	return stat(p, &st) == 0;
-}
-
-/* Write vf's contents to dest (0755 if exec). */
-static bool write_file(struct VFile* vf, const char* dest, bool exec) {
-	mkdir_for(dest);
-	int fd = open(dest, O_WRONLY | O_CREAT | O_TRUNC, exec ? 0755 : 0644);
-	if (fd < 0) return false;
-	char buf[65536];
-	ssize_t n;
-	bool ok = true;
-	vf->seek(vf, 0, SEEK_SET);
-	while ((n = vf->read(vf, buf, sizeof(buf))) > 0) {
-		if (write(fd, buf, (size_t) n) != n) {
-			ok = false;
-			break;
-		}
-	}
-	if (n < 0) ok = false;
-	if (fsync(fd) != 0 && errno != EINVAL) { /* (a filesystem without fsync is fine) */ }
-	if (close(fd) != 0) ok = false;
-	if (exec) chmod(dest, 0755);
-	return ok;
-}
-
-typedef struct { char from[1100], to[1100]; } Move;
-
-/* Unpack the release zip: snes-ds/... into the app's folder, the other
- * top-level files (SNES DS.sh, images/) beside it if they're there already.
- * Everything is written as name.new first, then renamed over the old files
- * (a running program or script keeps its old copy). The player's
- * snes-ds.cfg is kept. */
+/* SNES DS is released for Android only: the desktop build (development)
+ * can check for a release but not install one. */
 static bool install_zip(const char* zip, char* err, size_t errSize) {
-	struct VDir* d = VDirOpenArchive(zip);
-	if (!d) {
-		snprintf(err, errSize, "the download isn't a zip");
-		return false;
-	}
-	char tmp[1024], parent[1024];
-	snprintf(tmp, sizeof(tmp), "%s", U.installDir);
-	snprintf(parent, sizeof(parent), "%s", dirname(tmp));
-	Move* moves = NULL;
-	int nMoves = 0, cap = 0;
-	bool ok = true, sawBinary = false;
-	char newBinary[1100] = "";
-	d->rewind(d);
-	struct VDirEntry* e;
-	while (ok && (e = d->listNext(d))) {
-		const char* name = e->name(e);
-		if (!name || !name[0] || ends_with(name, "/") || e->type(e) == VFS_DIRECTORY) continue;
-		if (strstr(name, "..") || name[0] == '/') continue;
-		char dest[1100];
-		bool app = !strncmp(name, "snes-ds/", 7);
-		if (app) {
-			const char* rel = name + 7;
-			if (!strcmp(rel, "snes-ds.cfg") && path_exists(U.installDir)) {
-				char p[1100];
-				snprintf(p, sizeof(p), "%s/snes-ds.cfg", U.installDir);
-				if (path_exists(p)) continue; /* the player's settings */
-			}
-			snprintf(dest, sizeof(dest), "%s/%s", U.installDir, rel);
-		} else {
-			char top[256];
-			snprintf(top, sizeof(top), "%s", name);
-			char* slash = strchr(top, '/');
-			if (slash) *slash = 0;
-			char p[1100];
-			snprintf(p, sizeof(p), "%s/%s", parent, top);
-			if (!path_exists(p)) continue; /* not part of this install */
-			snprintf(dest, sizeof(dest), "%s/%s", parent, name);
-		}
-		bool exec = !strcmp(name, "snes-ds/snes-ds") || ends_with(name, ".sh");
-		if (!strcmp(name, "snes-ds/snes-ds")) sawBinary = true;
-		struct VFile* vf = d->openFile(d, name, O_RDONLY);
-		if (!vf) {
-			snprintf(err, errSize, "couldn't read %s in the download", name);
-			ok = false;
-			break;
-		}
-		if (nMoves == cap) {
-			cap = cap ? cap * 2 : 64;
-			moves = realloc(moves, sizeof(Move) * (size_t) cap);
-		}
-		Move* m = &moves[nMoves++];
-		snprintf(m->to, sizeof(m->to), "%s", dest);
-		snprintf(m->from, sizeof(m->from), "%.1090s.new", dest);
-		if (!write_file(vf, m->from, exec)) {
-			snprintf(err, errSize, "couldn't write %s: %s", dest, strerror(errno));
-			ok = false;
-		}
-		/* a copy run from elsewhere (launch.sh's, when the card won't run
-		 * programs): the new program goes there too */
-		if (ok && !strcmp(name, "snes-ds/snes-ds") && U.exePath[0] && strncmp(U.exePath, U.installDir, strlen(U.installDir)) != 0) {
-			snprintf(newBinary, sizeof(newBinary), "%.1090s.new", U.exePath);
-			if (!write_file(vf, newBinary, true)) newBinary[0] = 0;
-		}
-		vf->close(vf);
-	}
-	d->close(d);
-	if (ok && !sawBinary) {
-		snprintf(err, errSize, "the download has no snes-ds program in it");
-		ok = false;
-	}
-	for (int i = 0; i < nMoves; ++i) {
-		if (!ok) {
-			unlink(moves[i].from);
-		} else if (rename(moves[i].from, moves[i].to) != 0) {
-			snprintf(err, errSize, "couldn't replace %s: %s", moves[i].to, strerror(errno));
-			ok = false;
-			unlink(moves[i].from);
-		}
-	}
-	if (newBinary[0]) {
-		if (ok && rename(newBinary, U.exePath) != 0) unlink(newBinary);
-		else if (!ok) unlink(newBinary);
-	}
-	fprintf(stderr, "update: %s %d files into %s\n", ok ? "installed" : "failed after", nMoves, U.installDir);
-	free(moves);
-	return ok;
+	snprintf(err, errSize, "updates install on Android only");
+	return false;
 }
 #endif
 
@@ -595,18 +468,18 @@ void update_init(const Config* cfg, const char* exeDir, int argc, char** argv) {
 	load_state_file();
 	U.info.autoOn = U.autoCfg >= 0 ? U.autoCfg : U.autoDefault;
 	/* leftovers of a download cut short */
-	struct VDir* d = VDirOpen(U.workDir);
+	DIR* d = opendir(U.workDir);
 	if (d) {
-		struct VDirEntry* e;
-		while ((e = d->listNext(d))) {
-			const char* nm = e->name(e);
+		struct dirent* e;
+		while ((e = readdir(d))) {
+			const char* nm = e->d_name;
 			if (ends_with(nm, ".part") || ends_with(nm, ".zip") || ends_with(nm, ".apk")) {
 				char p[1400];
 				snprintf(p, sizeof(p), "%s/%s", U.workDir, nm);
 				unlink(p);
 			}
 		}
-		d->close(d);
+		closedir(d);
 	}
 }
 

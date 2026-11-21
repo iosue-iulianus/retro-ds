@@ -12,7 +12,7 @@
 typedef struct {
 	char path[1024];
 	char label[64]; /* "Code Breaker", "GameShark", ... (from the file name) */
-	int type;       /* EMU_CHEAT_* */
+	int type;       /* (unused: the core reads the codes) */
 } CheatFile;
 
 typedef struct {

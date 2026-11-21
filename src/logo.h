@@ -1,9 +1,8 @@
 /* Title-screen logos pulled out of the game itself (no image files needed).
  *
- * The ROM is booted in a silent emulator core, run to its title screen, and
- * the background layer holding the logo is rendered on its own; pixels that
- * match a backdrop-only render are transparent. The result is cropped and
- * cached as a PNG, so this only happens once per game. */
+ * The ROM is booted in a silent emulator core and run to its title screen;
+ * the part of the picture the profile names is cached as a PNG, so this
+ * only happens once per game. */
 #ifndef SNESDS_LOGO_H
 #define SNESDS_LOGO_H
 

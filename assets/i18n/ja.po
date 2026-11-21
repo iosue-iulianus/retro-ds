@@ -676,17 +676,17 @@ msgstr "2 画面に対応していないゲームは 1 画面で動作します�
 msgid "GBA"
 msgstr "GBA"
 
-msgid "GBA A"
-msgstr "GBA A"
+msgid "SNES A"
+msgstr "SNES A"
 
-msgid "GBA A on the right button, or on the bottom one."
-msgstr "GBA の A を右ボタンに、または下ボタンに。"
+msgid "SNES A on the right button, or on the bottom one."
+msgstr "SNES の A を右ボタンに、または下ボタンに。"
 
-msgid "GBA B"
-msgstr "GBA B"
+msgid "SNES B"
+msgstr "SNES B"
 
-msgid "GBA Down"
-msgstr "GBA 下"
+msgid "SNES Down"
+msgstr "SNES 下"
 
 msgid "SNES DS can't save files there: allow it All files access in Android's settings, or choose another folder."
 msgstr "SNES DS はそこにファイルを保存できません。Android の設定ですべてのファイルへのアクセスを許可するか、別のフォルダを選んでください。"
@@ -745,20 +745,20 @@ msgstr "SNES DS 自身のファイル (ステート、設定、チート、オ�
 msgid "SNES DS's own files (states, settings, cheats, overlays) are in %s."
 msgstr "SNES DS 自身のファイル (ステート、設定、チート、オーバーレイ) は %s にあります。"
 
-msgid "GBA L"
-msgstr "GBA L"
+msgid "SNES L"
+msgstr "SNES L"
 
-msgid "GBA Left"
-msgstr "GBA 左"
+msgid "SNES Left"
+msgstr "SNES 左"
 
-msgid "GBA R"
-msgstr "GBA R"
+msgid "SNES R"
+msgstr "SNES R"
 
-msgid "GBA Right"
-msgstr "GBA 右"
+msgid "SNES Right"
+msgstr "SNES 右"
 
-msgid "GBA Up"
-msgstr "GBA 上"
+msgid "SNES Up"
+msgstr "SNES 上"
 
 msgid "Generated"
 msgstr "自動生成"
@@ -913,10 +913,11 @@ msgstr "ライト"
 msgid "Light/dark mode"
 msgstr "ライト / ダークモード"
 
-msgid "Like a GBA"
-msgstr "GBA 風"
+msgid "Like an SNES"
+msgstr "SNES 風"
 
-msgid "Lines between the pixels, like a GBA's screen"
+#, fuzzy
+msgid "Lines between the pixels, like a handheld's LCD"
 msgstr "ピクセルの間に線を入れ、GBA の画面のように"
 
 msgid "Load failed"
@@ -1006,7 +1007,8 @@ msgstr "移動"
 msgid "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later"
 msgstr "移動中: 上 / 下 または移動先をタップし、A (もう一度タップでも可)。リストで下にあるものが後から適用されます"
 
-msgid "Moving things leave a short trail, as on a GBA."
+#, fuzzy
+msgid "Moving things leave a short trail, as on an old handheld's LCD."
 msgstr "動くものが GBA のように短い残像を残します。"
 
 msgid "New"
@@ -1057,8 +1059,8 @@ msgstr "なし"
 msgid "Not in the folder any more: it's left out"
 msgstr "フォルダ内にもうありません。外しています"
 
-msgid "Not resumed: RetroArch's automatic state is from another of its GBA cores. To share states, set RetroArch's GBA core to mGBA."
-msgstr "再開しませんでした。RetroArch のオートステートは別の GBA コアのものです。ステートを共有するには、RetroArch の GBA コアを mGBA にしてください。"
+msgid "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes."
+msgstr "再開しませんでした。RetroArch のオートステートは別の SNES コアのものです。ステートを共有するには、RetroArch の SNES コアを bsnes にしてください。"
 
 msgid "Not used"
 msgstr "未使用"
@@ -1108,8 +1110,8 @@ msgstr "オフ。BananaOS のメニューに反映するには再起動してく
 msgid "Off. Restart EmulationStation to apply."
 msgstr "オフ。反映するには EmulationStation を再起動してください。"
 
-msgid "Off: every game plays like an ordinary GBA game."
-msgstr "オフ: すべてのゲームが通常の GBA ゲームとして動作します。"
+msgid "Off: every game plays like an ordinary SNES game."
+msgstr "オフ: すべてのゲームが通常の SNES ゲームとして動作します。"
 
 msgid "Off: the left stick does nothing in games."
 msgstr "オフ: ゲーム中、左スティックは何もしません。"
@@ -1318,7 +1320,8 @@ msgstr "赤"
 msgid "Red, green and blue stripes, gentle: for dim screens"
 msgstr "赤・緑・青のストライプ (弱め): 暗い画面向け"
 
-msgid "Red, green and blue stripes, like a GBA's screen"
+#, fuzzy
+msgid "Red, green and blue stripes, like a handheld's LCD"
 msgstr "赤・緑・青のストライプ: GBA の画面のように"
 
 msgid "Red, green and blue stripes, strong: for bright screens"
@@ -1657,8 +1660,8 @@ msgstr "スロット 0〜9 と再開ポイントは SNES DS 独自のもので�
 msgid "Slots 0-9 and the resume point are SNES DS's own. To share them, choose RetroArch's state folder."
 msgstr "スロット 0〜9 と再開ポイントは SNES DS 独自のものです。共有するには RetroArch のステートフォルダを選んでください。"
 
-msgid "Slots 0-9 and the resume point are RetroArch's (its GBA core set to mGBA): %s."
-msgstr "スロット 0〜9 と再開ポイントは RetroArch のもの (GBA コアは mGBA) です: %s。"
+msgid "Slots 0-9 and the resume point are RetroArch's (its SNES core set to bsnes): %s."
+msgstr "スロット 0〜9 と再開ポイントは RetroArch のもの (SNES コアは bsnes) です: %s。"
 
 msgid "Slow (10 a second)"
 msgstr "遅い (毎秒 10 回)"
@@ -2077,3 +2080,9 @@ msgstr "›"
 #, c-format
 msgid "Sound delay raised to %d ms: the sound kept breaking up"
 msgstr "音の遅延を %d ms に上げました：音が途切れ続けたためです"
+
+msgid "SNES X"
+msgstr "SNES X"
+
+msgid "SNES Y"
+msgstr "SNES Y"

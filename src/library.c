@@ -34,7 +34,7 @@
 typedef struct {
 	char path[1024];
 	char name[160];
-	char code[5];
+	char code[9];
 	bool supported;
 	int flag; /* BRAND_FLAG_* shown on the tile, or -1 (only one region of this game) */
 	long long size, mtime; /* the file's, from the scan (its ROM checksum's cache key; with a patch
@@ -67,7 +67,7 @@ static int cmp_games(const void* a, const void* b) {
  * v1.5.3: archives.cache, archives only, read when codes.cache isn't there). */
 typedef struct {
 	long long size, mtime;
-	char code[5];
+	char code[9];
 	char path[1024];
 	bool used;
 } CodeCache;
@@ -123,7 +123,7 @@ static bool code_cache_read(const char* path) {
 	while (fgets(line, sizeof(line), f)) {
 		CodeCache c = { 0 };
 		int off = 0;
-		if (sscanf(line, "%lld %lld %4s %n", &c.size, &c.mtime, c.code, &off) < 3 || !off) continue;
+		if (sscanf(line, "%lld %lld %8s %n", &c.size, &c.mtime, c.code, &off) < 3 || !off || strlen(c.code) != 8) continue;
 		line[strcspn(line, "\n")] = 0;
 		snprintf(c.path, sizeof(c.path), "%s", line + off);
 		if (!code_cache_find(c.path)) code_cache_add(&c);
@@ -161,30 +161,24 @@ static void code_cache_save(const Config* cfg) {
 	fclose(f);
 }
 
-/* The 4-letter game code from the ROM header (offset 0xAC). */
-static bool game_code(const char* path, const struct stat* st, char code[5]) {
+/* The game code (emu.h gameCode: the ROM's CRC32), read once per file. */
+static bool game_code(const char* path, const struct stat* st, char code[9]) {
 	CodeCache* c = code_cache_find(path);
 	if (c && c->size == (long long) st->st_size && c->mtime == (long long) st->st_mtime) {
 		c->used = true;
-		memcpy(code, c->code, 5);
+		memcpy(code, c->code, 9);
 		return true;
 	}
-	uint8_t hdr[0xB0];
-	if (!emu_rom_header(path, hdr, sizeof(hdr))) {
-		if (emu_is_archive_name(path)) fprintf(stderr, "library: no GBA ROM in %s\n", path);
+	if (!emu_rom_code(path, code)) {
+		if (emu_is_archive_name(path)) fprintf(stderr, "library: no SNES ROM in %s\n", path);
 		return false;
-	}
-	memcpy(code, hdr + 0xAC, 4);
-	code[4] = 0;
-	for (int i = 0; i < 4; ++i) {
-		if (!code[i] || !isprint((unsigned char) code[i])) code[i] = '_';
 	}
 	if (c) { /* (the file changed) */
 		c->size = st->st_size, c->mtime = st->st_mtime, c->used = true;
-		memcpy(c->code, code, 5);
+		memcpy(c->code, code, 9);
 	} else {
 		CodeCache n = { st->st_size, st->st_mtime, "", "", true };
-		memcpy(n.code, code, 5);
+		memcpy(n.code, code, 9);
 		snprintf(n.path, sizeof(n.path), "%s", path);
 		code_cache_add(&n);
 	}
@@ -401,16 +395,6 @@ static void scan_dir(Config* cfg, const char* d, int depth) {
 	closedir(dir);
 }
 
-/* The region letter that ends a game code: E USA, J Japan, F France,
- * D Germany; P and the other European letters Europe. */
-static int region_flag(char c) {
-	if (c == 'E') return BRAND_FLAG_US;
-	if (c == 'J') return BRAND_FLAG_JP;
-	if (c == 'F') return BRAND_FLAG_FR;
-	if (c == 'D') return BRAND_FLAG_DE;
-	if (strchr("PDFSIHXYZU", c) && c) return BRAND_FLAG_EU;
-	return -1;
-}
 
 /* ------------------------------------------- ROM checksums (GEN-8) */
 /* Is the selected game's ROM the game as released, a romhack SNES DS knows,
@@ -462,12 +446,11 @@ static void rom_crc_put(const RomCrc* c) {
 
 /* (libmgba's; its header, mgba-util/crc32.h, wants zlib.h, which isn't on
  * every build's include path) */
-uint32_t doCrc32(const void* buf, size_t size);
 
 static uint32_t rom_crc_read(const char* path, char files[][1024], int nFiles, int* patch) {
 	size_t n = 0;
 	uint8_t* buf = emu_rom_read_patched(path, files, nFiles, &n, patch, NULL);
-	uint32_t crc = buf ? doCrc32(buf, n) : 0;
+	uint32_t crc = buf ? emu_crc32(0, buf, n) : 0;
 	free(buf);
 	return crc;
 }
@@ -612,20 +595,9 @@ static void scan(Config* cfg) {
 	for (char* d = strtok_r(dirs, ":", &save); d; d = strtok_r(NULL, ":", &save)) scan_dir(cfg, d, 0);
 	code_cache_save(cfg);
 	qsort(games, nGames, sizeof(*games), cmp_games);
-	/* Region flags, only where the library holds the same game from more
-	 * than one region: same first three code letters, different last one. */
-	for (int i = 0; i < nGames; ++i) {
-		games[i].flag = -1;
-		int mine = region_flag(games[i].code[3]);
-		if (mine < 0) continue;
-		for (int j = 0; j < nGames; ++j) {
-			if (j != i && !strncmp(games[i].code, games[j].code, 3) && region_flag(games[j].code[3]) >= 0 &&
-			    region_flag(games[j].code[3]) != mine) {
-				games[i].flag = mine;
-				break;
-			}
-		}
-	}
+	/* (no region flags yet: SNES game codes are checksums, with no region
+	 * letter to tell one release of a game from another's) */
+	for (int i = 0; i < nGames; ++i) games[i].flag = -1;
 	for (int i = 0; i < nGames; ++i) ui_logo_queue(cfg, games[i].path, games[i].code);
 	scanned = true;
 	snprintf(scannedRomDir, sizeof(scannedRomDir), "%s", cfg->romDir);
@@ -795,7 +767,7 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 	int y = m + headH * 2 + px * 16;
 	SDL_Rect area = { m, y, r.w - m * 2, gy - px * 14 - y };
 	if (thumbTex[0] || thumbTex[1]) {
-		ui_image(scr, thumbTex, GBA_W, GBA_H, "fit", &area);
+		ui_image(scr, thumbTex, SNES_W, SNES_H, "fit", &area);
 	} else {
 		ui_label(scr, r.w / 2, area.y + area.h / 2, px * 7, "no save state yet!", C_TEXT);
 	}
@@ -1322,7 +1294,7 @@ static const SetPage setPages[SP_SYSTEM] = {
 	{ "Screens", N_("Placement, overlays"), { "swap", "screen_match", "screen_placement", "overlays", "overlay_screens", "bezel_logo", "brightness_top", "brightness_bottom" } },
 	{ "Controls", N_("Stick, buttons, hotkeys"), { "left_stick_dpad", "ab_swap", "button_right", "button_bottom", "button_top", "button_left", "button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right", "turbo_rate", "@map", "@hotkeys" } },
 	{ N_("Speed and sound"), N_("Rewind, fast forward"), { "show_fps", "match_display", "frame_buffer", "rewind", "rewind_seconds", "fast_forward", "audio_latency", "performance" } },
-	{ "Second screen", N_("The map and the logo"), { "map", "map_interval", "pinball_live" } },
+	{ "Second screen", N_("The map and the logo"), { "map", "map_interval" } },
 };
 static int setPage = SP_HOME; /* SP_HOME, a category, or SP_SYSTEM (the older panel) */
 static int setSel;
@@ -2063,7 +2035,7 @@ static void states_text(const Config* cfg, char* out, size_t n) {
 	else if (strcmp(cfg->stateFolder, "retroarch"))
 		snprintf(out, n, tr("Slots 0-9 and the resume point are SNES DS's own. Shared, they're RetroArch's: %s."), path_tail(dir));
 	else
-		snprintf(out, n, tr("Slots 0-9 and the resume point are RetroArch's (its GBA core set to mGBA): %s."), path_tail(dir));
+		snprintf(out, n, tr("Slots 0-9 and the resume point are RetroArch's (its SNES core set to bsnes): %s."), path_tail(dir));
 }
 /* Settings > RetroArch's Folder: its state folder chosen by hand (kept as
  * retroarch_state_dir in library.cfg), or found from its settings again

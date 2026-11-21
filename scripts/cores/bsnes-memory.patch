@@ -1,0 +1,97 @@
+diff --git a/bsnes/sfc/cartridge/cartridge.cpp b/bsnes/sfc/cartridge/cartridge.cpp
+index b39ceb6..1616073 100644
+--- a/bsnes/sfc/cartridge/cartridge.cpp
++++ b/bsnes/sfc/cartridge/cartridge.cpp
+@@ -159,3 +159,9 @@ auto Cartridge::unload() -> void {
+ }
+ 
+ }
++
++//SNES DS: the frontend loads and saves cartridge RAM through retro_get_memory_data
++namespace SuperFamicom {
++  auto snesdsSaveRAM() -> uint8* { return cartridge.ram.size() ? cartridge.ram.data() : nullptr; }
++  auto snesdsSaveRAMSize() -> uint { return cartridge.ram.size(); }
++}
+diff --git a/bsnes/sfc/cpu/cpu.cpp b/bsnes/sfc/cpu/cpu.cpp
+index b6fec16..4b57ead 100644
+--- a/bsnes/sfc/cpu/cpu.cpp
++++ b/bsnes/sfc/cpu/cpu.cpp
+@@ -121,3 +121,9 @@ auto CPU::power(bool reset) -> void {
+ }
+ 
+ }
++
++//SNES DS: the frontend reads work RAM through retro_get_memory_data
++namespace SuperFamicom {
++  auto snesdsWorkRAM() -> uint8* { return cpu.wram; }
++  auto snesdsWorkRAMSize() -> uint { return sizeof(cpu.wram); }
++}
+diff --git a/bsnes/target-libretro/libretro.cpp b/bsnes/target-libretro/libretro.cpp
+index 8010816..c717d64 100644
+--- a/bsnes/target-libretro/libretro.cpp
++++ b/bsnes/target-libretro/libretro.cpp
+@@ -637,14 +637,31 @@ RETRO_API void retro_run()
+ 		run_with_runahead(run_ahead_frames);
+ }
+ 
++// SNES DS: a state that stays in this instance (RetroArch's run-ahead
++// contexts, SNES DS's rewind) is taken without synchronizing, as run-ahead
++// does: synchronizing runs the emulation forward to a sync point, which can
++// cross the game's controller read. A state for another instance or a file
++// (the normal context) synchronizes, since an unsynchronized one holds this
++// instance's thread stacks.
++#define SNESDS_GET_SAVESTATE_CONTEXT (72 | RETRO_ENVIRONMENT_EXPERIMENTAL)
++static bool serialize_synchronized()
++{
++	int context = 0; // RETRO_SAVESTATE_CONTEXT_NORMAL
++	if (environ_cb && environ_cb(SNESDS_GET_SAVESTATE_CONTEXT, &context))
++		return context == 0 || context == 3; // normal, rollback netplay: synchronize
++	return true;
++}
++
+ RETRO_API size_t retro_serialize_size()
+ {
+-	return emulator->serialize().size();
++	return emulator->serialize(serialize_synchronized()).size();
+ }
+ 
+ RETRO_API bool retro_serialize(void *data, size_t size)
+ {
+-	memcpy(data, emulator->serialize().data(), size);
++	serializer s = emulator->serialize(serialize_synchronized());
++	if (s.size() > size) return false;
++	memcpy(data, s.data(), s.size());
+ 	return true;
+ }
+ 
+@@ -785,12 +802,30 @@ RETRO_API unsigned retro_get_region()
+ 
+ // Currently, there is no safe/sensible way to use the memory interface without severe hackery.
+ // Rely on higan to load and save SRAM until there is really compelling reason not to.
++// SNES DS: expose the CPU's work RAM ($7E0000-$7FFFFF) so the frontend can
++// read it, and the cartridge's battery-backed RAM so the frontend loads and
++// saves it (bsnes itself only writes it when the game is unloaded).
++namespace SuperFamicom {
++	auto snesdsWorkRAM() -> uint8*;
++	auto snesdsWorkRAMSize() -> uint;
++	auto snesdsSaveRAM() -> uint8*;
++	auto snesdsSaveRAMSize() -> uint;
++}
++
+ RETRO_API void *retro_get_memory_data(unsigned id)
+ {
++	if (id == RETRO_MEMORY_SYSTEM_RAM)
++		return SuperFamicom::snesdsWorkRAM();
++	if (id == RETRO_MEMORY_SAVE_RAM)
++		return SuperFamicom::snesdsSaveRAM();
+ 	return nullptr;
+ }
+ 
+ RETRO_API size_t retro_get_memory_size(unsigned id)
+ {
++	if (id == RETRO_MEMORY_SYSTEM_RAM)
++		return SuperFamicom::snesdsWorkRAMSize();
++	if (id == RETRO_MEMORY_SAVE_RAM)
++		return SuperFamicom::snesdsSaveRAMSize();
+ 	return 0;
+ }
