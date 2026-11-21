@@ -53,6 +53,13 @@ From P.JBoy's bank logs (github.com/insanefirebat/sm_disassembly), checked again
 - A tile is drawn (`LoadPauseMenuMapTilemap`, `$82:943D`): explored: its word with bit 10 cleared (pink); else, with the area's map station, its word as it is (blue) where the reveal mask has it; else tile `$1F` (empty).
 - Drawn on top as sprites: the gunship, Samus's position (`MapScreen_DrawSamusPositionIndicator`, `$82:B9C8`), map icons by type (`Draw_MapIcons_ofGivenType`, `$82:B81C`, positions from `MapIcon_PositionTablePointers_*` at `$82:C7CB`...), elevator destinations (`MenuSpritemap_59`... `5E`), the scroll arrows.
 
+Sprites on the map (from the routines named above; not drawn by `tools/sm_map.py` yet):
+
+- Spritemaps: pointer table `$82:C569` (by ID); each: a count word, then 5-byte entries `s000000xxxxxxxxx` (size, 9-bit X), Y byte, `YXppPPPttttttttt` (flips, priority, palette, tile). The routine's palette bits ($03: `$0E00`, `$0C00`, `$0400` or 0) replace the entry's.
+- Samus's marker: x = (`RoomMapX` + high byte of Samus's X) x 8, y = (`RoomMapY` + high byte of Samus's Y + 1) x 8; spritemaps `$5F`, `$60`, `$61`, `$60` for 8, 4, 8, 4 frames; palette bits `$0E00`.
+- Icons (`Draw_Map_Icons`, `$82:B672`): boss icons (spritemap 9; drawn if the boss is dead, `$7E:D828` a byte an area, bit per icon, then crossed out with palette `$0C00`, or while the area's map is collected, `$0789`), missile stations (`$0B`), energy stations (`$0A`), map stations (`$4E`), all palette `$0E00`, each only where its map square is explored (`Check_if_MapPosition_isExplored`); save stations (8, palette `$0400`) only in the area saved in (`$7E:D918`) and only used ones (`$7E:D8F8`, 2 bytes an area, a bit a station). Position tables: 2 words (x, y map pixels) an icon, ending `$FFFF` (`$FFFE` skips a boss); per-area pointers at `$82:C7CB` (bosses), `C7DB` (missile), `C7EB` (energy), `C7FB` (map), `C80B` (save). In Crateria the gunship (spritemap `$63`, palette `$0E00`) at `Crateria_MapIconPositions_savePoints` / `savePoints2`.
+- Elevator destinations (`Display_Map_Elevator_Destinations`, `$82:BB30`-ish): only with the area's map station; per-area pointers `Map_Elevator_Destinations`, 3 words an entry (x, y, spritemap ID `$59`-`$5E`), ending `$FFFF`; palette 0.
+
 ## Not covered yet
 
 - Crateria and the first rooms of Brinstar have been played on the Duo (and the way back up, the owner's slot 0 state in the test data: the map once stuck on Brinstar there). Other areas, Ceres Station, bosses, the escape and the ending haven't.
