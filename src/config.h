@@ -34,6 +34,7 @@ enum { CL_PIXELATED, CL_FULL, CL_OFF };
 typedef struct Config {
 	char layout[16];   /* auto | span-h | span-v | dual | single */
 	bool swap;         /* map on the first (left/top) screen instead of the second */
+	bool swapChosen;   /* swap set by the player (a file or the menu); else by the screens' shapes (ui.c) */
 	char scale[16];    /* game: integer | fit | stretch */
 	char mapScale[16]; /* map:  integer | fit | stretch */
 	bool smooth;       /* plain linear filtering when scaling (blurry) */

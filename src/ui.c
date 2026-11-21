@@ -650,7 +650,28 @@ void ui_layout_pictures(void) {
 	}
 }
 
+static void layout_screens_inner(void);
+/* Which screen the game is on (`swap`), until the player picks: the one
+ * closer in shape to the SNES picture (4:3). On the Retroid Pocket Duo
+ * that's the bottom screen (1280x960 under 1920x1080); with two screens of
+ * a shape, the first (top or left), as before. */
 static void layout_screens(void) {
+	layout_screens_inner();
+	if (nScreens < 2 || cfg->swapChosen) return;
+	double off[2];
+	for (int i = 0; i < 2; ++i) {
+		double a = screens[i].rect.h > 0 ? (double) screens[i].rect.w / screens[i].rect.h : 1;
+		off[i] = fabs(log(a * 3 / 4));
+	}
+	bool below = off[1] + 0.05 < off[0];
+	if (cfg->swap != below) {
+		cfg->swap = below;
+		fprintf(stderr, "screens: the game on the %s screen, the one closer to 4:3 (%dx%d, %dx%d)\n", below ? "second" : "first",
+		        screens[0].rect.w, screens[0].rect.h, screens[1].rect.w, screens[1].rect.h);
+	}
+}
+
+static void layout_screens_inner(void) {
 	if (nViews == 2) {
 		nScreens = 2;
 #ifdef __ANDROID__

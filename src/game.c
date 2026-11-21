@@ -4419,6 +4419,7 @@ static void swap_screens(void) {
 		return;
 	}
 	cfg->swap = !cfg->swap;
+	cfg->swapChosen = true;
 	commit_current("swap"); /* (the layer in force: this game's own, or all games') */
 }
 
@@ -4824,6 +4825,7 @@ static void setting_applied(const Setting* st) {
 	} else if (!strcmp(k, "lcd_ghosting")) {
 		ghostHave = false;
 	} else if (!strcmp(k, "swap")) {
+		cfg->swapChosen = true;
 		if (emu.fb) {
 			game_tex_fit(emu.w, emu.h);
 			for (int i = 0; i < nViews; ++i) ui_update_texture(gameTex[i], emu.fb, emu.w * 4);

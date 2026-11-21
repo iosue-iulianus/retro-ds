@@ -91,7 +91,11 @@ static bool set_option(Config* c, const char* key, const char* val) {
 		return true; \
 	}
 	STR("layout", layout)
-	BOOL("swap", swap)
+	if (!strcmp(key, "swap")) {
+		c->swap = parse_bool(val);
+		c->swapChosen = true;
+		return true;
+	}
 	STR("scale", scale)
 	STR("map_scale", mapScale)
 	BOOL("smooth", smooth)
