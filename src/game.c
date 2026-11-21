@@ -4513,8 +4513,9 @@ static void load_overlay(int s, int which) {
  * colour picker is open, its colour as it's picked), or in the defaults
  * (a screen without a PNG in Overlays: Custom). Nothing where the picture
  * fills the screen. */
-static void draw_bezel(int s, const char* mode, bool defaults) {
-	SDL_Rect r = ui_image_rect(s, picW, picH, mode), sr = screens[s].rect;
+/* w x h: the picture inside (the game's, the map's or the logo's) */
+static void draw_bezel(int s, const char* mode, bool defaults, int w, int h) {
+	SDL_Rect r = ui_image_rect(s, w, h, mode), sr = screens[s].rect;
 	/* (Zoom: the part on the screen) */
 	int x0 = SDL_max(r.x, 0), y0 = SDL_max(r.y, 0), x1 = SDL_min(r.x + r.w, sr.w), y1 = SDL_min(r.y + r.h, sr.h);
 	if (x0 <= 0 && y0 <= 0 && x1 >= sr.w && y1 >= sr.h) return;
@@ -4563,7 +4564,12 @@ static void draw_overlay(int s, int which) {
 			return;
 		}
 	}
-	draw_bezel(s, which ? cfg->mapScale : cfg->scale, cfg->overlayMode != OVM_GENERATED);
+	/* round the second screen's picture: the map at its own size (a crop
+	 * smaller than the SNES screen is scaled up on its own), else a whole
+	 * SNES screen (the logo) */
+	bool map = which && mapShownIdx >= 0 && !logoForced;
+	int w = !which ? picW : map ? mapW : SNES_W, h = !which ? picH : map ? mapH : SNES_H;
+	draw_bezel(s, which ? cfg->mapScale : cfg->scale, cfg->overlayMode != OVM_GENERATED, w, h);
 }
 
 /* Text size for the FPS counter and messages: fits the empty band (gap px tall)
