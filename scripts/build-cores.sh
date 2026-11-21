@@ -40,7 +40,10 @@ git -C "$CORES/bsnes" apply "$HERE/scripts/cores/bsnes-memory.patch"
 if [ "${1:-}" = android ]; then
 	NDK="${ANDROID_NDK_HOME:?set ANDROID_NDK_HOME to an Android NDK}"
 	J="$CORES/bsnes/bsnes/target-libretro"
-	"$NDK/ndk-build" -C "$J/jni" -j"$JOBS" APP_ABI=arm64-v8a APP_PLATFORM=android-26 NDK_PROJECT_PATH="$J"
+	# (newer NDKs' clang rejects nall's own std::is_signed specialization:
+	# -Winvalid-specialization, an error by default)
+	"$NDK/ndk-build" -C "$J/jni" -j"$JOBS" APP_ABI=arm64-v8a APP_PLATFORM=android-26 NDK_PROJECT_PATH="$J" \
+		APP_CPPFLAGS="-Wno-invalid-specialization -Wno-unknown-warning-option"
 	mkdir -p "$CORES/bsnes/android"
 	cp "$J/libs/arm64-v8a/libretro.so" "$CORES/bsnes/android/libretro.so"
 	echo "bsnes (Android, arm64-v8a): $CORES/bsnes/android/libretro.so"
