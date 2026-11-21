@@ -111,8 +111,11 @@ fade, the GBA Metroid profiles' pattern), **Chrono Trigger** (status
 screen; later a custom asset candidate), then **A Link to the Past**
 (dungeon maps by capture; the overworld map is a Mode 7 zoom, so custom
 asset mode) and **Final Fantasy IV, V, VI** (party / status screens, as the
-FF Advance profiles do). Upstream's GBA profiles and `docs/games/` pages for
-ALttP and FF IV/V/VI are good references for rules.
+FF Advance profiles do). GBA DS's pages for the GBA versions of ALttP and FF
+IV/V/VI, and its general rules (GEN-1 and on, the rule format), are kept in
+`docs/reference/gba/` as references; other GBA games' pages are in git
+history (`git show 3b452dc:docs/games/<game>.md`). SNES games get their own
+`docs/games/<game>.md`.
 
 None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
 (DSP-1: bsnes needs the firmware or HLE) is not a first game.

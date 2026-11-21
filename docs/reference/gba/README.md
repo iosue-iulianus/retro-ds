@@ -1,3 +1,8 @@
+> **Reference, from GBA DS.** These pages describe GBA DS's GBA games and its
+> rule format, kept as references for SNES DS's own rules (SNES games get
+> their pages in `docs/games/`). Links to other GBA games' pages point at
+> files that are only in git history (`git show 3b452dc:docs/games/<page>`).
+
 # Game rulesets
 
 One file per supported game: what GBA DS shows on each screen, as numbered rules. They're the baseline for changing a game's profile (`src/profiles.c`): a change that breaks a rule is a regression unless the rule is changed with it, on purpose. `tools/regress.py` checks them against approved screenshots of real states (see [../TESTING.md](../TESTING.md)).
