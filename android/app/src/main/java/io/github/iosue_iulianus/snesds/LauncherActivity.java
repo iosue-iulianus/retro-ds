@@ -131,6 +131,8 @@ public class LauncherActivity extends Activity {
                 return;
             } else {
                 Log.w(TAG, "all files access not granted; ROM folders may be unreadable");
+                /* (once per start: data in the app's own folder goes with an uninstall) */
+                Toast.makeText(this, R.string.files_lost_short, Toast.LENGTH_LONG).show();
             }
         }
         startGame();
@@ -142,7 +144,7 @@ public class LauncherActivity extends Activity {
     private void askForFiles() {
         new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
                 .setTitle(R.string.files_title)
-                .setMessage(R.string.files_why)
+                .setMessage(getString(R.string.files_why) + "\n\n" + getString(R.string.files_lost))
                 .setCancelable(false)
                 .setPositiveButton(R.string.files_open, (d, w) -> {
                     if (!openFilesSettings()) startGame();
