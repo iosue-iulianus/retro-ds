@@ -144,8 +144,9 @@ typedef struct MapProfile {
 	} touch;
 	/* Painted over every capture (screen coords): with `filled`, the rect
 	 * in `fill` (0xRRGGBB), then `rows` from x, y: '#' in `ink`, '.' in
-	 * `fill`, anything else left as it is. */
-	struct { int x, y, w, h; bool filled; uint32_t fill, ink; const char* rows[8]; } paint[4];
+	 * `fill`, anything else left as it is. `page`: 0 on every page, 1 on
+	 * the map only, 2 on the second page only (touch). */
+	struct { int x, y, w, h; bool filled; uint32_t fill, ink; const char* rows[8]; int page; } paint[6];
 
 	/* Values that change when the player enters a new room; a change
 	 * triggers an early capture. Only addr/size are used. */

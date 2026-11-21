@@ -46,10 +46,14 @@ static const MapProfile profiles[] = {
 		           .tap = { { 172, 196, 84, 22 }, { 0, 196, 84, 22 } },
 		           .moved = { 0x7E0AF6, 0x7E0AFA } },
 		/* SM-7's plates: EXIT / START covered; arrows on the L and R pills
-		 * in place of the letters (the pill's grey and its letters' purple) */
+		 * in place of the letters (the pill's grey and its letters' purple);
+		 * each page shows only the plate to the other one (the map:
+		 * SAMUS and its pill; the equipment page: MAP and its) */
 		.paint = { { 96, 199, 64, 16, true, 0x000000 },
 		           { 20, 205, 9, 5, true, 0xBDBDBD, 0x42008C, { "...#.....", "..#......", ".######..", "..#......", "...#....." } },
-		           { 228, 205, 9, 5, true, 0xBDBDBD, 0x42008C, { "....#....", ".....#...", ".######..", ".....#...", "....#...." } } },
+		           { 228, 205, 9, 5, true, 0xBDBDBD, 0x42008C, { "....#....", ".....#...", ".######..", ".....#...", "....#...." } },
+		           { 8, 199, 74, 16, true, 0x000000, .page = 1 },
+		           { 174, 199, 74, 16, true, 0x000000, .page = 2 } },
 		/* SM-6: the HUD's mini-map, while Samus is played, goes through a
 		 * door, pauses and unpauses (08 to 12), outside Ceres Station */
 		.hide = { { 206, 4, 46, 28 } },
