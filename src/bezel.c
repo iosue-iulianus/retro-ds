@@ -31,7 +31,7 @@ SDL_Surface* image_load_mem(const unsigned char* data, size_t size); /* image.c 
 #define LOGO_H 0.56f
 #define MIN_LOGO 9.0f
 
-/* the logo as the bezel draws it (black outline, dimmed letters), cropped:
+/* the logo as the bezel draws it (printed in one dim colour), cropped:
  * tools/make_overlays.py --embed (from assets/brand/snes-ds-logo.png) */
 extern const unsigned char bezelLogoPng[];
 extern const size_t bezelLogoPngSize;
