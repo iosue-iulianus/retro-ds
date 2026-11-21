@@ -785,6 +785,7 @@ int ui_other_screen(void) {
 static int view_of_window(Uint32 id) {
 #ifdef __ANDROID__
 	if (id == SNESDS_SECOND_WINDOW_ID) return nViews == 2 ? 1 : -1;
+	if (id == SNESDS_MAIN_WINDOW_ID) return 0;
 #endif
 	for (int i = 0; i < nViews; ++i) {
 		if (SDL_GetWindowID(views[i].win) == id) return i;

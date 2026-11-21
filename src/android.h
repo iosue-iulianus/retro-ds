@@ -12,6 +12,8 @@
 
 /* windowID on the finger events forwarded from the second screen */
 #define SNESDS_SECOND_WINDOW_ID 0x6BD50002u
+/* touches on the activity's display, from its view (SnesDsActivity.onTouch) */
+#define SNESDS_MAIN_WINDOW_ID 0x6BD50001u
 
 /* stderr (where all of SNES DS's logging goes) to logcat (tag SNESDS) and to
  * <SNESDS_HOME>/snes-ds.log. Call first thing in main. */

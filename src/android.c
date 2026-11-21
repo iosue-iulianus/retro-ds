@@ -890,4 +890,21 @@ JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_native
 	SDL_PushEvent(&ev);
 }
 
+/* The same for the activity's own display (SnesDsActivity.onTouch: SDL's
+ * positions there weren't reliable on the Duo) */
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SnesDsActivity_nativeMainTouch(JNIEnv* env, jclass cls, jint kind, jfloat x,
+                                                                                jfloat y) {
+	if (!SDL_WasInit(SDL_INIT_EVENTS)) return;
+	SDL_Event ev;
+	memset(&ev, 0, sizeof(ev));
+	ev.type = kind == 1 ? SDL_FINGERDOWN : kind == 2 ? SDL_FINGERUP : SDL_FINGERMOTION;
+	ev.tfinger.touchId = 3;
+	ev.tfinger.fingerId = 0;
+	ev.tfinger.x = x;
+	ev.tfinger.y = y;
+	ev.tfinger.pressure = 1.0f;
+	ev.tfinger.windowID = SNESDS_MAIN_WINDOW_ID;
+	SDL_PushEvent(&ev);
+}
+
 #endif
