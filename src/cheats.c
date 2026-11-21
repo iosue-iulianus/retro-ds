@@ -282,7 +282,6 @@ void cheats_load(Cheats* c, const Config* cfg, const char* romPath, const char* 
 	Search s = { .out = c };
 	title_of(romPath, s.romTitle, sizeof(s.romTitle), NULL, NULL, 0);
 	s.region = gameCode ? region_of(gameCode[3]) : 0;
-	s.strict = gameCode && profile_ram_moved(gameCode);
 	char dirs[2200];
 #ifdef __ANDROID__
 	snprintf(dirs, sizeof(dirs), "%s", cfg->cheatDir);

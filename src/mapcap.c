@@ -22,21 +22,12 @@ struct MapCapture {
 	bool tight;
 	bool clean; /* map_crop: also erase button-prompt lettering (profile glyphs) */
 	int failures; /* consecutive failed captures (guarded by lock) */
-	/* profile.rate: the label copied from the pause screen (worker thread only) */
-	uint32_t rateBuf[256 * 16];
-	bool rateMask[256 * 16];
-	bool rateValid;
-	uint32_t* rateRef; /* map (frame 0) when the label was last refreshed */
-	int captures;
 	uint32_t tile[16 * 16]; /* empty grid cell used to paint over masks */
 	bool tileValid;
 
 	/* scratch buffers used by the capture routine (worker thread only) */
 	uint32_t* work[MAP_MAX_FRAMES];
 	uint32_t* prev;
-	uint32_t* under;   /* full-screen render of underLayers (profile.underRect) */
-	void* underState;
-	bool underValid;
 	int workFrames;
 	int workStep;     /* emulated frames between work[] frames */
 	volatile bool still; /* "Map Animations: Off": record the whole loop (animCycle) */
@@ -102,14 +93,11 @@ static bool screen_matches(const MapProfile* p, const uint32_t* fb) {
 	return true;
 }
 
-uint32_t (*memprobe_virtual)(Emu* e, uint32_t addr);
-
 bool memprobes_match(const MemProbe* list, int n, Emu* e) {
 	for (int i = 0; i < n && list[i].addr; ++i) {
 		const MemProbe* m = &list[i];
 		uint32_t v;
-		if (m->addr >= 0xF0000000u) v = memprobe_virtual ? memprobe_virtual(e, m->addr) : 0;
-		else switch (m->size) {
+		switch (m->size) {
 		case 2: v = emu_read16(e, m->addr); break;
 		case 4: v = emu_read32(e, m->addr); break;
 		default: v = emu_read8(e, m->addr); break;
@@ -155,51 +143,6 @@ static void find_tile(MapCapture* mc, const uint32_t* fb) {
 		for (int i = 0; i < k; ++i) mc->tile[j * k + i] = fb[(cellY[best] + j) * GBA_W + cellX[best] + i];
 	}
 	mc->tileValid = true;
-}
-
-static bool is_arrow(int key, uint32_t c) {
-	int r = c & 0xFF, g = (c >> 8) & 0xFF, b = (c >> 16) & 0xFF;
-	if (key == 1) return r > 140 && b > 140 && g < 110;          /* magenta */
-	if (key == 2) return r > 200 && b < 110 && (g > 150 || g < 110); /* yellow, orange, red */
-	return false;
-}
-
-/* Removes scroll arrows drawn over the map (crop coordinates in out). */
-static void remove_arrows(MapCapture* mc, uint32_t* out) {
-	const MapProfile* p = mc->prof;
-	int k = p->gridCell > 0 ? p->gridCell : 8;
-	for (int a = 0; a < 2 && p->arrows[a].w; ++a) {
-		for (int y = p->arrows[a].y; y < p->arrows[a].y + p->arrows[a].h; ++y) {
-			if (y < mc->cy || y >= mc->cy + mc->ch) continue;
-			uint32_t* row = &out[(y - mc->cy) * mc->cw];
-			for (int x = p->arrows[a].x; x < p->arrows[a].x + p->arrows[a].w; ++x) {
-				int u = x - mc->cx;
-				if (u < 0 || u >= mc->cw || !is_arrow(p->arrowKey, row[u])) continue;
-				/* majority vote among the same pixel 1-3 grid cells to either side,
-				 * so one-off details (door dividers) don't get copied */
-				uint32_t cands[6];
-				int nc = 0;
-				for (int d = 1; d <= 3; ++d) {
-					int c1 = u - d * k, c2 = u + d * k;
-					if (c1 >= 0 && !is_arrow(p->arrowKey, row[c1])) cands[nc++] = row[c1];
-					if (c2 < mc->cw && !is_arrow(p->arrowKey, row[c2])) cands[nc++] = row[c2];
-				}
-				uint32_t rep = 0;
-				bool found = false;
-				int bestN = 0;
-				for (int i = 0; i < nc; ++i) {
-					int n = 0;
-					for (int j = 0; j < nc; ++j) n += cands[j] == cands[i];
-					if (n > bestN) bestN = n, rep = cands[i], found = true;
-				}
-				if (!found && mc->tileValid) {
-					rep = mc->tile[(((y - p->gridY) % k + k) % k) * k + ((x - p->gridX) % k + k) % k];
-					found = true;
-				}
-				if (found) row[u] = rep;
-			}
-		}
-	}
 }
 
 /* Erases button-prompt letters (profile glyphs): pixels of the letter's colours
@@ -371,71 +314,15 @@ static void recolor(MapCapture* mc, uint32_t* out) {
 	}
 }
 
-static void paint_tab(MapCapture* mc, uint32_t* out) {
-	const MapProfile* p = mc->prof;
-	int h = p->tab.base - p->tab.top;
-	int xa = IMIN(p->tab.x0 - h, p->tab.n0), xb = IMAX(p->tab.x1 + h, p->tab.n1);
-	for (int x = xa; x <= xb; ++x) {
-		int t;
-		if (x >= p->tab.x0 && x <= p->tab.x1) t = p->tab.top;
-		else if (x < p->tab.x0 && x >= p->tab.x0 - h) t = p->tab.top + (p->tab.x0 - x);
-		else if (x > p->tab.x1 && x <= p->tab.x1 + h) t = p->tab.top + (x - p->tab.x1);
-		else t = p->tab.base;
-		if (t >= p->tab.base && (x < p->tab.n0 || x > p->tab.n1)) continue;
-		if (x < mc->cx || x >= mc->cx + mc->cw) continue;
-		for (int y = t; y <= p->tab.bottom; ++y) {
-			if (y < mc->cy || y >= mc->cy + mc->ch) continue;
-			int d = IMIN(y - t, p->tab.n - 1);
-			uint32_t* px = &out[(y - mc->cy) * mc->cw + (x - mc->cx)];
-			*px = (*px & 0xFF000000) | to_fb(p->tab.colors[d]);
-		}
-	}
-}
-
-static void patch_under(MapCapture* mc, uint32_t* out) {
-	const MapProfile* p = mc->prof;
-	for (int r = 0; r < 2 && p->underRect[r].x1; ++r) {
-		int x0 = IMAX(p->underRect[r].x0, mc->cx), x1 = IMIN(p->underRect[r].x1, mc->cx + mc->cw - 1);
-		int y0 = IMAX(p->underRect[r].y0, mc->cy), y1 = IMIN(p->underRect[r].y1, mc->cy + mc->ch - 1);
-		for (int y = y0; y <= y1; ++y) {
-			for (int x = x0; x <= x1; ++x) out[(y - mc->cy) * mc->cw + (x - mc->cx)] = mc->under[y * GBA_W + x];
-		}
-	}
-}
-
-/* Renders the current frame with only the profile's underLayers, then puts
- * the core back exactly as it was (layer switches apply on the state reload). */
-static void grab_under(MapCapture* mc, Emu* s) {
-	const MapProfile* p = mc->prof;
-	if (!emu_state_save(s, mc->underState)) return;
-	SpriteRule rules[8];
-	int n = 0, base;
-	while (n < 6 && p->captureHide[n].x1) rules[n] = p->captureHide[n], ++n;
-	base = n;
-	for (int i = 0; i < 2 && p->underHide[i].x1; ++i) rules[n++] = p->underHide[i];
-	if (n > base) emu_hide_sprites(s, rules, n);
-	emu_layers(s, p->underLayers);
-	emu_state_load(s, mc->underState);
-	emu_frame(s, 0);
-	memcpy(mc->under, s->fb, GBA_W * GBA_H * sizeof(uint32_t));
-	emu_layers(s, 0x1F);
-	if (n > base) emu_hide_sprites(s, rules, base);
-	emu_state_load(s, mc->underState);
-	mc->underValid = true;
-}
-
 static void crop(MapCapture* mc, const uint32_t* fb, uint32_t* out) {
 	const MapProfile* p = mc->prof;
 	for (int y = 0; y < mc->ch; ++y) {
 		memcpy(&out[y * mc->cw], &fb[(mc->cy + y) * GBA_W + mc->cx], mc->cw * sizeof(uint32_t));
 	}
-	if (mc->clean && mc->underValid) patch_under(mc, out);
 	if (mc->clean && p->glyphs[0].w) remove_glyphs(mc, out);
 	if (mc->clean && p->recolor[0].w) recolor(mc, out);
-	if (mc->clean && p->tab.n) paint_tab(mc, out);
 	if (!mc->tight || !p->masks[0].w) return;
 	if (!mc->tileValid) find_tile(mc, fb);
-	if (p->arrows[0].w) remove_arrows(mc, out);
 	if (!mc->tileValid) return;
 	int k = p->gridCell;
 	for (int m = 0; m < 8 && p->masks[m].w; ++m) {
@@ -465,7 +352,6 @@ static bool map_up(const MapProfile* p, Emu* s) {
 
 /* Runs the shadow core from `state`; returns NULL on success or a reason.
  * Fills mc->work[0..workFrames). */
-static bool grab_rate(MapCapture* mc, const void* state);
 
 /* Summed brightness of a frame (fast, for comparing fade levels). */
 static long frame_luma(const uint32_t* px, size_t n) {
@@ -473,7 +359,6 @@ static long frame_luma(const uint32_t* px, size_t n) {
 	for (size_t i = 0; i < n; i += 3) sum += (px[i] & 0xFF) + ((px[i] >> 8) & 0xFF) * 2 + ((px[i] >> 16) & 0xFF);
 	return sum + 1;
 }
-static void place_rate(MapCapture* mc);
 
 static const char* do_capture_(MapCapture* mc, const void* state);
 /* A capture, timed for SNESDS_DEBUG: how long, how many of the shadow
@@ -496,7 +381,6 @@ static const char* do_capture_(MapCapture* mc, const void* state) {
 	size_t n = mc->cropPixels;
 	mc->workFrames = 0;
 	mc->tileValid = false;
-	mc->underValid = false;
 	if (p->composePages) {
 		int n = MAP_MAX_FRAMES, step = 1;
 		const char* err = p->composePages(s, state, mc->work, &n, &step, mc->cw, mc->ch);
@@ -544,7 +428,6 @@ static const char* do_capture_(MapCapture* mc, const void* state) {
 	bool everUp = false;
 	int f, presses = 1, base = 0;
 	for (f = 0; f < p->settleMax; ++f) {
-		if (p->captureLayers) emu_write16(s, 0x05000000, p->captureBack); /* black (or the profile's colour) behind the layers shown */
 		emu_frame(s, 0);
 		if (!everUp && p->openWithin && f - base >= p->openWithin) {
 			if (presses < p->openTries) {
@@ -576,10 +459,6 @@ static const char* do_capture_(MapCapture* mc, const void* state) {
 	}
 	if (f >= p->settleMax) {
 		return everUp ? "map screen never settled" : "map screen did not appear";
-	}
-	if (mc->clean && p->underRect[0].x1) {
-		grab_under(mc, s);
-		if (mc->underValid) patch_under(mc, mc->work[0]);
 	}
 	mc->workFrames = 1;
 	int want = p->animFrames > MAP_MAX_FRAMES ? MAP_MAX_FRAMES : p->animFrames;
@@ -619,98 +498,7 @@ static const char* do_capture_(MapCapture* mc, const void* state) {
 			mc->workFrames -= skip;
 		}
 	}
-	if (p->rate.w) {
-		/* refresh the label when the map gained pixels (a new room, or the
-		 * marker moved to another one), and now and then regardless */
-		int grown = 0;
-		if (mc->rateValid) {
-			for (size_t i = 0; i < n && grown < 4; ++i) {
-				grown += (mc->rateRef[i] & 0xFFFFFF) != (mc->work[0][i] & 0xFFFFFF) &&
-				         (mc->rateRef[i] & 0xFFFFFF) == (to_fb(p->bgColor) & 0xFFFFFF);
-			}
-		}
-		if (!mc->rateValid || grown >= 4 || ++mc->captures % 8 == 0) {
-			if (grab_rate(mc, state)) {
-				mc->rateValid = true;
-				memcpy(mc->rateRef, mc->work[0], n * sizeof(uint32_t));
-			}
-		}
-		if (mc->rateValid) place_rate(mc);
-	}
 	return NULL;
-}
-
-/* Opens the pause screen in the shadow core and copies the rate label. */
-static bool grab_rate(MapCapture* mc, const void* state) {
-	const MapProfile* p = mc->prof;
-	Emu* s = &mc->shadow;
-	int w = p->rate.w, h = p->rate.h;
-	if ((w + 2) * (h + 2) > 256 * 16 || !emu_state_load(s, state)) return false;
-	emu_frame(s, 0);
-	for (int i = 0; i < 4 && p->rate.open[i].frames; ++i) {
-		for (int f = 0; f < p->rate.open[i].frames; ++f) emu_frame(s, p->rate.open[i].keys);
-	}
-	for (int f = 0; f < p->rate.wait; ++f) emu_frame(s, 0);
-	uint32_t text = to_fb(p->rate.text);
-	/* the digits, plus a 1-pixel outline in the map's background colour */
-	int count = 0;
-	uint32_t bg = 0xFF000000 | to_fb(p->bgColor);
-	for (int y = 0; y < h; ++y) {
-		for (int x = 0; x < w; ++x) {
-			mc->rateMask[y * w + x] = false;
-			if ((s->fb[(p->rate.y + y) * GBA_W + p->rate.x + x] & 0xFFFFFF) == text) ++count;
-		}
-	}
-	if (count < 12) return false; /* the pause screen didn't come up */
-	/* stored with a 1px border all round for the outline */
-	int bw = w + 2, bh = h + 2;
-	for (int y = 0; y < bh; ++y) {
-		for (int x = 0; x < bw; ++x) {
-			bool isText = false, nearText = false;
-			for (int dy = -1; dy <= 1; ++dy) {
-				for (int dx = -1; dx <= 1; ++dx) {
-					int u = x - 1 + dx, v = y - 1 + dy;
-					if (u < 0 || v < 0 || u >= w || v >= h) continue;
-					bool t = (s->fb[(p->rate.y + v) * GBA_W + p->rate.x + u] & 0xFFFFFF) == text;
-					if (t && !dx && !dy) isText = true;
-					if (t) nearText = true;
-				}
-			}
-			mc->rateBuf[y * bw + x] = isText ? (0xFF000000 | text) : bg;
-			mc->rateMask[y * bw + x] = nearText;
-		}
-	}
-	return true;
-}
-
-/* Puts the rate label into every captured frame, in the first corner that
- * has no rooms (or the emptiest one). */
-static void place_rate(MapCapture* mc) {
-	const MapProfile* p = mc->prof;
-	int w = p->rate.w + 2, h = p->rate.h + 2; /* with the outline */
-	if (w + 2 > mc->cw || h + 4 > mc->ch) return;
-	int ys[2] = { 1, mc->ch - h - 1 };
-	int x0 = mc->cw - w - 1;
-	uint32_t bg = to_fb(p->bgColor) & 0xFFFFFF;
-	int best = 0, bestCount = 1 << 30;
-	for (int c = 0; c < 2; ++c) {
-		int count = 0;
-		for (int y = ys[c]; y < ys[c] + h; ++y) {
-			for (int x = x0; x < x0 + w; ++x) {
-				if ((mc->work[0][y * mc->cw + x] & 0xFFFFFF) != bg) ++count;
-			}
-		}
-		if (count < bestCount) bestCount = count, best = c;
-		if (!count) break;
-	}
-	int y0 = ys[best];
-	for (int i = 0; i < mc->workFrames; ++i) {
-		for (int y = 0; y < h; ++y) {
-			for (int x = 0; x < w; ++x) {
-				if (mc->rateMask[y * w + x]) mc->work[i][(y0 + y) * mc->cw + x0 + x] = mc->rateBuf[y * w + x];
-			}
-		}
-	}
 }
 
 static void publish(MapCapture* mc, const char* err);
@@ -765,7 +553,6 @@ MapCapture* mapcap_create(const char* romPath, const char* gameCode, bool tight)
 	}
 	MapCapture* mc = calloc(1, sizeof(*mc));
 	mc->prof = p;
-	memprobe_virtual = p->virt;
 	if (!emu_open(&mc->shadow, romPath, NULL, false)) {
 		free(mc);
 		return NULL;
@@ -775,17 +562,6 @@ MapCapture* mapcap_create(const char* romPath, const char* gameCode, bool tight)
 	mc->snapshot = malloc(mc->stateSize);
 	mc->tight = tight && p->tight_w > 0;
 	mc->clean = tight;
-	if ((mc->clean || p->captureLayers) && p->captureHide[0].x1) {
-		int n = 0;
-		while (n < 6 && p->captureHide[n].x1) ++n;
-		emu_hide_sprites(&mc->shadow, p->captureHide, n);
-	}
-	if (p->captureKeep[0].x1) {
-		int n = 0;
-		while (n < 12 && p->captureKeep[n].x1) ++n;
-		emu_keep_sprites(&mc->shadow, p->captureKeep, n);
-	}
-	if (p->captureLayers) emu_layers(&mc->shadow, (p->captureLayers & 0xF) | 0x10);
 	if (mc->tight) {
 		mc->cx = p->tight_x, mc->cy = p->tight_y, mc->cw = p->tight_w, mc->ch = p->tight_h;
 	} else {
@@ -797,11 +573,6 @@ MapCapture* mapcap_create(const char* romPath, const char* gameCode, bool tight)
 		mc->published[i] = calloc(mc->cropPixels, sizeof(uint32_t));
 	}
 	mc->prev = calloc(mc->cropPixels, sizeof(uint32_t));
-	if (mc->clean && p->underRect[0].x1) {
-		mc->under = calloc((size_t) GBA_W * GBA_H, sizeof(uint32_t));
-		mc->underState = malloc(mc->stateSize);
-	}
-	mc->rateRef = calloc(mc->cropPixels, sizeof(uint32_t));
 	pthread_mutex_init(&mc->lock, NULL);
 	pthread_cond_init(&mc->cond, NULL);
 	return mc;
@@ -837,9 +608,6 @@ void mapcap_destroy(MapCapture* mc) {
 		free(mc->published[i]);
 	}
 	free(mc->prev);
-	free(mc->under);
-	free(mc->underState);
-	free(mc->rateRef);
 	free(mc->snapshot);
 	pthread_mutex_destroy(&mc->lock);
 	pthread_cond_destroy(&mc->cond);
@@ -966,8 +734,7 @@ uint32_t mapcap_room_key(MapCapture* mc, Emu* live) {
 	bool any = false;
 	for (int i = 0; i < 4 && mc->prof->room[i].addr; ++i) {
 		const MemProbe* m = &mc->prof->room[i];
-		uint32_t v = m->addr >= 0xF0000000u ? (memprobe_virtual ? memprobe_virtual(live, m->addr) : 0)
-		           : m->size == 4 ? emu_read32(live, m->addr) : m->size == 2 ? emu_read16(live, m->addr) : emu_read8(live, m->addr);
+		uint32_t v = m->size == 4 ? emu_read32(live, m->addr) : m->size == 2 ? emu_read16(live, m->addr) : emu_read8(live, m->addr);
 		if (m->mask) {
 			v &= m->mask;
 		}

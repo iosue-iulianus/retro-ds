@@ -45,7 +45,7 @@ endif
 ZLIB_A     := $(wildcard $(MGBA_BUILD)/zlib/libz.a)
 LIBS       := $(MGBA_BUILD)/libmgba.a $(ZLIB_A) -lSDL2 -lpthread -lm
 
-CORE_SRC   := src/emu.c src/patch.c src/mapcap.c src/profiles.c src/logo_masks.c
+CORE_SRC   := src/emu.c src/patch.c src/mapcap.c src/profiles.c
 # RetroAchievements: rcheevos (MIT), vendored in third_party/rcheevos
 RC_DIR     := third_party/rcheevos
 RC_SRC     := $(wildcard $(RC_DIR)/src/*.c $(RC_DIR)/src/rapi/*.c $(RC_DIR)/src/rcheevos/*.c) $(RC_DIR)/src/rhash/md5.c
@@ -71,12 +71,8 @@ $(OUT)/libwebp/%.o: $(WEBP_DIR)/src/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(OPTFLAGS) -std=gnu11 -I$(WEBP_DIR) -c $< -o $@
 
-# development tools (host only; need libpng)
-tools: $(OUT)/harness
-
-$(OUT)/harness: tools/harness.c tools/png.c $(CORE_SRC) src/logo.c src/*.h
-	@mkdir -p $(OUT)
-	$(CC) $(CFLAGS) -o $@ tools/harness.c tools/png.c $(CORE_SRC) src/logo.c $(MGBA_BUILD)/libmgba.a $(ZLIB_A) -lpng -lpthread -lm
+# development tools (host only; need libpng): the harness (tools/snes-harness.c)
+tools: build/host/snes-harness
 
 # SNES DS milestone M0 (host only): the libretro loader and its harness.
 # Needs no mGBA or SDL: make m0 -> build/host/snes-harness

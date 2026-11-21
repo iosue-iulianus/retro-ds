@@ -37,7 +37,6 @@ void config_defaults(Config* c) {
 	strcpy(c->touchMap, "window");
 	c->touchRotate = -1;
 	c->map = true;
-	c->tallLive = true;
 	c->customLogos = CL_PIXELATED;
 	c->rewind = true;
 	c->rewindSeconds = 30;
@@ -149,7 +148,6 @@ static bool set_option(Config* c, const char* key, const char* val) {
 	BOOL("pin_cores", pinCores)
 	BOOL("frame_buffer", frameBuffer)
 	BOOL("map", map)
-	BOOL("pinball_live", tallLive)
 	STR("logo_folder", logoFolder)
 	if (!strcmp(key, "custom_logos")) {
 		c->customLogos = !strcmp(val, "off") ? CL_OFF : !strcmp(val, "full") ? CL_FULL : CL_PIXELATED;
@@ -277,7 +275,7 @@ static int nCliKeys;
 static const char* const perGameKeys[] = {
 	"swap", "scale", "map_scale", "smooth", "border_color", "overlays", "overlay_screens", "bezel_logo", "bezel_inner",
 	"bezel_outer", "shader", "lcd_strength", "color_correction", "lcd_ghosting", "frame_buffer", "match_display", "map",
-	"map_interval", "custom_logos", "pinball_live", "rewind", "rewind_seconds",
+	"map_interval", "custom_logos", "rewind", "rewind_seconds",
 	"fast_forward", "ff_speed", "ab_swap", "show_fps", "audio_latency", "screen_match", "screen_placement",
 	"save_on_quit", "auto_load", "left_stick_dpad", "turbo_rate", "brightness_top", "brightness_bottom", "button_right", "button_bottom", "button_top", "button_left",
 	"button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right",
@@ -516,7 +514,6 @@ static const Setting settingsTable[] = {
 
 	{ "map", "Second screen", SF_BOOL, OFFB(map), ARR(chOnOff), 0, 0, 0, NULL, "Off: every game plays like an ordinary GBA game." },
 	{ "map_interval", "Map refresh", SF_INT, OFFB(mapInterval), ARR(chInterval), 0, 0, 0, NULL, "Shorter can make the sound crackle on a slow device." },
-	{ "pinball_live", "Pinball two-screen view", SF_BOOL, OFFB(tallLive), ARR(chOnOff), 0, 0, 0, NULL, "Off for slower devices: the table on one screen. Close and restart SNES DS to apply." },
 };
 
 const Setting* config_setting(const char* key) {

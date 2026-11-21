@@ -28,7 +28,7 @@ POT = os.path.join(I18N, "snes-ds.pot")
 OUT_C = os.path.join(SRC, "i18n_data.c")
 OUT_H = os.path.join(SRC, "i18n_data.h")
 
-SKIP_SRC = {"fonts_data.c", "brand_data.c", "bezel_logo.c", "logo_masks.c", "i18n_data.c", "i18n.c"}
+SKIP_SRC = {"fonts_data.c", "brand_data.c", "bezel_logo.c", "i18n_data.c", "i18n.c"}
 
 # function -> indexes of its text arguments (the function translates them where it draws them)
 DRAW_CALLS = {

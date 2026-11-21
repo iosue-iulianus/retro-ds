@@ -50,7 +50,6 @@ typedef struct Config {
 	bool frameBuffer; /* emulate a frame ahead on a second thread: smoother, a frame more input delay */
 	bool pinCores; /* Android: the game thread on a core of its own, the map capture off it (off by default) */
 	bool map;          /* enable the second-screen map */
-	bool tallLive;     /* Pokemon Pinball: a second copy of the game draws the bottom screen live */
 	bool rewind;       /* keep a rewind buffer (hold L2 to rewind) */
 	int rewindSeconds; /* how far back */
 	bool fastForward;  /* hold R2 to fast-forward */
