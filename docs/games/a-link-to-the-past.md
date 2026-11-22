@@ -41,7 +41,7 @@ GBA DS's page for the GBA version (`docs/reference/gba/zelda-a-link-to-the-past.
 - ALTTP-1: X is taken by SNES DS (the owner's choice, Nov 22, 2026).
 - Touch on the second screen (ALTTP-3, ALTTP-6, ALTTP-10), as for Super Metroid.
 - ALTTP-10: selecting an item writes to the game being played (the owner's choice, Nov 22, 2026): only when the player taps an item, between two frames, the bytes the game's own items screen would write and nothing else (see "Selecting an item" below). Off in RetroAchievements hardcore.
-- ALTTP-2 keeps a record the game doesn't: SNES DS saves what each file has seen, beside the battery save (its own file, never the game's), and in its states.
+- ALTTP-2 keeps a record the game doesn't: SNES DS saves what each file has seen beside the battery save (`<save>.alttp1` to `.alttp3`, its own files, never the game's) and in its save states (the "ALTP" section of SNES DS's block: the file, then the record). Loading a state adds what it had seen to that file's record, once Link is played from that file; nothing seen is taken away.
 - Nothing on the game screen is covered: A Link to the Past's HUD has no mini-map.
 
 ## Decisions for the owner
@@ -172,7 +172,7 @@ Next:
 
 6. A test build on the Duo (the owner): what to check is in "On the device" below.
 7. The owner's choices: the zoom levels and the one the map starts at; whether the ring is enough as Link's marker; what the seen record should survive.
-8. The seen record in SNES DS's states (the SDSX block), so a state brings its map with it; and saving it in the background if it gets slow (it's compressed on the game's thread, 3 ms for a few areas on the host).
+8. Saving the seen record in the background if it gets slow (it's compressed on the game's thread: 3 ms for a few areas on the host; a whole world is more). *(Done: the record in SNES DS's states, merged on loading: checked headless, a state brings its map to a game with no record.)*
 
 ### On the device (what to check)
 
@@ -200,4 +200,4 @@ Made in the harness (the owner had none), in `test-data/a-link-to-the-past/`, re
 - The Duo: nothing has run there yet.
 - Europe and Japan releases.
 - Special areas (`$80` and up), the mirror and the flute's flight, the ending and the credits: only what the rules say, not checked.
-- Saving the seen record in states.
+- The seen record's size and saving time with both worlds well explored (the host only saw a few areas).

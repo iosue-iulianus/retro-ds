@@ -50,6 +50,8 @@
  *   alttp take             take the ground on screen now, whatever the game
  *                          is doing
  *   alttp save PATH / alttp load PATH   the seen record
+ *   alttp merge PATH       a saved record merged into the one held (as
+ *                          loading a state with one does)
  *   bench [FRAMES]         the M0 measurements (see docs/M0-results.md)
  *   context N              savestate context for both (0 normal,
  *                          1 runahead same instance, 2 same binary)
@@ -252,6 +254,19 @@ static void alttp_cmd(Emu* e, const char* romPath, const char* line) {
 		const uint8_t* wr = emu_memory(e, EMU_MEM_WRAM, &n);
 		const uint8_t* v = emu_memory(e, EMU_MEM_VRAM, &vn);
 		if (wr && v) alttp_capture_now(alt, wr, v);
+	} else if (!strcmp(sub, "merge")) {
+		FILE* f = fopen(name, "rb");
+		uint8_t* d = NULL;
+		long n = 0;
+		if (f) {
+			fseek(f, 0, SEEK_END), n = ftell(f), fseek(f, 0, SEEK_SET);
+			d = n > 0 ? malloc((size_t) n) : NULL;
+			if (d && fread(d, 1, (size_t) n, f) != (size_t) n) n = 0;
+			fclose(f);
+		}
+		bool ok = d && n > 0 && alttp_seen_merge(alt, d, (size_t) n);
+		free(d);
+		printf("alttp merge %s: %s\n", name, ok ? "ok" : "FAILED");
 	} else if (!strcmp(sub, "save") || !strcmp(sub, "load")) {
 		bool ok = sub[0] == 's' ? alttp_save_seen(alt, name) : alttp_load_seen(alt, name);
 		printf("alttp %s %s: %s\n", sub, name, ok ? "ok" : "FAILED");

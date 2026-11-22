@@ -756,7 +756,9 @@ void alttp_clear_seen(Alttp* a) {
 	a->dirty = true;
 }
 
-bool alttp_save_seen(Alttp* a, const char* path) {
+/* The record packed: the header and the size, then zlib of the raw form.
+ * NULL if it can't be made. */
+static uint8_t* pack(const Alttp* a, size_t* n) {
 	size_t size = 0;
 	for (int w = 0; w < 2; ++w) {
 		size += sizeof a->seen[w] + 8;
@@ -764,7 +766,7 @@ bool alttp_save_seen(Alttp* a, const char* path) {
 	}
 	uint8_t* raw = malloc(size);
 	uLongf zn = compressBound((uLong) size);
-	uint8_t* z = malloc(zn);
+	uint8_t* z = malloc(12 + zn);
 	bool ok = false;
 	if (raw && z) {
 		size_t at = 0;
@@ -778,17 +780,61 @@ bool alttp_save_seen(Alttp* a, const char* path) {
 				for (int p = 0; p < CHUNK * CHUNK; ++p) raw[at++] = (uint8_t) a->chunk[w][i][p], raw[at++] = (uint8_t) (a->chunk[w][i][p] >> 8);
 			}
 		}
-		if (compress2(z, &zn, raw, (uLong) size, 6) == Z_OK) {
-			char tmp[1100];
-			snprintf(tmp, sizeof tmp, "%s.tmp", path);
-			FILE* f = fopen(tmp, "wb");
-			uint8_t head[12] = { 'S', 'D', 'S', 'A', 'L', 'T', 'P', '1', (uint8_t) size, (uint8_t) (size >> 8), (uint8_t) (size >> 16), (uint8_t) (size >> 24) };
-			ok = f && fwrite(head, 1, 12, f) == 12 && fwrite(z, 1, zn, f) == zn;
-			if (f && fclose(f) != 0) ok = false;
-			ok = ok && rename(tmp, path) == 0;
+		ok = compress2(z + 12, &zn, raw, (uLong) size, 6) == Z_OK;
+		const uint8_t head[12] = { 'S', 'D', 'S', 'A', 'L', 'T', 'P', '1', (uint8_t) size, (uint8_t) (size >> 8), (uint8_t) (size >> 16), (uint8_t) (size >> 24) };
+		memcpy(z, head, 12);
+	}
+	free(raw);
+	if (!ok) {
+		free(z);
+		return NULL;
+	}
+	*n = 12 + zn;
+	return z;
+}
+
+/* A packed record into seen and chunk (empty on entry; freed by the caller
+ * when it fails too) */
+static bool unpack(const uint8_t* z, size_t n, uint8_t seen[2][CELLS * CELLS / 8], uint16_t* chunk[2][CHUNKS * CHUNKS]) {
+	if (n <= 12 || memcmp(z, "SDSALTP1", 8)) return false;
+	uLongf size = (uLongf) (z[8] | z[9] << 8 | z[10] << 16 | (uint32_t) z[11] << 24);
+	if (size > 2u * (CELLS * CELLS / 8 + 8 + CHUNKS * CHUNKS * CHUNK * CHUNK * 2)) return false;
+	uint8_t* raw = malloc(size ? size : 1);
+	bool ok = raw && uncompress(raw, &size, z + 12, (uLong) (n - 12)) == Z_OK;
+	size_t at = 0;
+	for (int w = 0; w < 2 && ok; ++w) {
+		if (at + CELLS * CELLS / 8 + 8 > size) {
+			ok = false;
+			break;
+		}
+		memcpy(seen[w], raw + at, CELLS * CELLS / 8), at += CELLS * CELLS / 8;
+		uint64_t mask = 0;
+		for (int k = 0; k < 8; ++k) mask |= (uint64_t) raw[at++] << (k * 8);
+		for (int i = 0; i < CHUNKS * CHUNKS && ok; ++i) {
+			if (!(mask >> i & 1)) continue;
+			if (at + CHUNK * CHUNK * 2 > size || !(chunk[w][i] = malloc(CHUNK * CHUNK * 2))) {
+				ok = false;
+				break;
+			}
+			for (int p = 0; p < CHUNK * CHUNK; ++p, at += 2) chunk[w][i][p] = (uint16_t) (raw[at] | raw[at + 1] << 8);
 		}
 	}
 	free(raw);
+	return ok;
+}
+
+bool alttp_save_seen(Alttp* a, const char* path) {
+	size_t n = 0;
+	uint8_t* z = pack(a, &n);
+	bool ok = false;
+	if (z) {
+		char tmp[1100];
+		snprintf(tmp, sizeof tmp, "%s.tmp", path);
+		FILE* f = fopen(tmp, "wb");
+		ok = f && fwrite(z, 1, n, f) == n;
+		if (f && fclose(f) != 0) ok = false;
+		ok = ok && rename(tmp, path) == 0;
+	}
 	free(z);
 	if (ok) a->dirty = false;
 	return ok;
@@ -803,31 +849,46 @@ bool alttp_load_seen(Alttp* a, const char* path) {
 	long n = ftell(f);
 	fseek(f, 0, SEEK_SET);
 	uint8_t* z = n > 12 ? malloc((size_t) n) : NULL;
-	bool ok = z && fread(z, 1, (size_t) n, f) == (size_t) n && !memcmp(z, "SDSALTP1", 8);
+	bool ok = z && fread(z, 1, (size_t) n, f) == (size_t) n;
 	fclose(f);
-	uLongf size = ok ? (uLongf) (z[8] | z[9] << 8 | z[10] << 16 | (uint32_t) z[11] << 24) : 0;
-	uint8_t* raw = ok && size <= 2u * (sizeof a->seen[0] + 8 + CHUNKS * CHUNKS * CHUNK * CHUNK * 2) ? malloc(size) : NULL;
-	ok = raw && uncompress(raw, &size, z + 12, (uLong) (n - 12)) == Z_OK;
-	size_t at = 0;
+	ok = ok && unpack(z, (size_t) n, a->seen, a->chunk);
+	free(z);
+	if (!ok) clear_seen(a);
+	return ok;
+}
+
+void* alttp_seen_pack(const Alttp* a, size_t* n) {
+	return pack(a, n);
+}
+
+bool alttp_seen_merge(Alttp* a, const void* data, size_t n) {
+	static uint8_t seen[2][CELLS * CELLS / 8];
+	uint16_t* chunk[2][CHUNKS * CHUNKS];
+	memset(seen, 0, sizeof seen);
+	memset(chunk, 0, sizeof chunk);
+	bool ok = unpack(data, n, seen, chunk);
+	int added = 0;
 	for (int w = 0; w < 2 && ok; ++w) {
-		if (at + sizeof a->seen[w] + 8 > size) {
-			ok = false;
-			break;
-		}
-		memcpy(a->seen[w], raw + at, sizeof a->seen[w]), at += sizeof a->seen[w];
-		uint64_t mask = 0;
-		for (int k = 0; k < 8; ++k) mask |= (uint64_t) raw[at++] << (k * 8);
-		for (int i = 0; i < CHUNKS * CHUNKS && ok; ++i) {
-			if (!(mask >> i & 1)) continue;
-			if (at + CHUNK * CHUNK * 2 > size || !(a->chunk[w][i] = malloc(CHUNK * CHUNK * 2))) {
-				ok = false;
-				break;
+		for (int gy = 0; gy < CELLS; ++gy) {
+			for (int gx = 0; gx < CELLS; ++gx) {
+				int bit = 1 << (gx & 7), byte = (gy * CELLS + gx) >> 3;
+				if (!(seen[w][byte] & bit) || (a->seen[w][byte] & bit)) continue;
+				/* a square only the state had seen: its pixels, then seen */
+				const uint16_t* from = chunk[w][(gy * CELL / CHUNK) * CHUNKS + gx * CELL / CHUNK];
+				uint16_t* to = from ? chunk_for(a, w, gx * CELL, gy * CELL) : NULL;
+				if (!to) continue;
+				for (int y = 0; y < CELL; ++y) {
+					int o = ((gy * CELL + y) % CHUNK) * CHUNK + (gx * CELL) % CHUNK;
+					memcpy(to + o, from + o, CELL * 2);
+				}
+				a->seen[w][byte] |= (uint8_t) bit;
+				++added;
 			}
-			for (int p = 0; p < CHUNK * CHUNK; ++p, at += 2) a->chunk[w][i][p] = (uint16_t) (raw[at] | raw[at + 1] << 8);
 		}
 	}
-	free(z);
-	free(raw);
-	if (!ok) clear_seen(a);
+	for (int w = 0; w < 2; ++w) {
+		for (int i = 0; i < CHUNKS * CHUNKS; ++i) free(chunk[w][i]);
+	}
+	if (added) a->dirty = true;
 	return ok;
 }

@@ -3249,6 +3249,10 @@ static void blob_u32(Blob* b, uint32_t v) { blob_add(b, &v, 4); }
 static void blob_section(Blob* b, const char* tag, const void* d, size_t n) {
 	blob_add(b, tag, 4), blob_u32(b, (uint32_t) n), blob_add(b, d, n);
 }
+/* (A Link to the Past's seen record in states: alt_* below) */
+static void alt_state_block(Blob* b);
+static void alt_state_restore(const uint8_t* d, uint32_t n);
+
 /* The second screen's block in a state: "SDS2", version 1, the game's
  * 8-character code, then tagged sections (blob_find) */
 #define SCREEN_BLOB_HEAD 16
@@ -3264,6 +3268,7 @@ static void* screen_blob(size_t* n) {
 		free(m.p);
 	}
 	if (snapProf && mapShownIdx >= 0) blob_section(&b, "SNAP", snapShown, sizeof(snapShown));
+	alt_state_block(&b);
 	*n = b.n;
 	return b.p;
 }
@@ -3357,6 +3362,7 @@ static void screen_restore_apply(void) {
 		for (int i = 0; i < nViews; ++i) ui_update_texture(mapTex[i], snapShown, SNES_W * 4);
 		mapShownIdx = 0;
 	}
+	if ((d = blob_find(b, n, "ALTP", &sz))) alt_state_restore(d, sz);
 	if (debug) fprintf(stderr, "load state: the second screen from it (%s%s)\n", blob_find(b, n, "MAP ", &sz) ? " map" : "",
 	                   blob_find(b, n, "SNAP", &sz) ? " copy" : "");
 }
@@ -4823,6 +4829,10 @@ static int altDownX, altDownY;
 static float altDownVX, altDownVY, altPrevX, altPrevY;
 static Uint64 altStepT, altPrevT, altSavedT;
 static int altFile; /* the game's file whose seen record is loaded (1 to 3) */
+/* A loaded state's seen record, merged once Link is played from its file */
+static uint8_t* altPending;
+static size_t altPendingN;
+static int altPendingFile;
 
 /* The seen record of file f, beside the battery save: <save>.alttp<f> */
 static void alt_seen_path(int f, char* out, size_t n) {
@@ -4839,7 +4849,43 @@ static void alt_save_seen(void) {
 	        (double) (SDL_GetPerformanceCounter() - t0) * 1000.0 / SDL_GetPerformanceFrequency());
 }
 
+/* ALTTP-2 in save states: the file's seen record (section "ALTP": the
+ * file, 4 bytes, then the record as its own file has it). Loading one adds
+ * what it had seen to that file's record; nothing seen is taken away. */
+static void alt_state_block(Blob* b) {
+	if (!alt || !altFile) return;
+	size_t n = 0;
+	uint8_t* z = alttp_seen_pack(alt, &n);
+	if (!z) return;
+	Blob m = { 0 };
+	blob_u32(&m, (uint32_t) altFile), blob_add(&m, z, n);
+	if (m.p) blob_section(b, "ALTP", m.p, m.n);
+	free(m.p);
+	free(z);
+}
+
+static void alt_merge_pending(void) {
+	if (!alt || !altPending || !altFile || altPendingFile != altFile) return;
+	bool ok = alttp_seen_merge(alt, altPending, altPendingN);
+	fprintf(stderr, "map seen (file %d): the state's record %s\n", altFile, ok ? "added" : "not readable");
+	free(altPending);
+	altPending = NULL;
+	altMapDirty = true;
+}
+
+static void alt_state_restore(const uint8_t* d, uint32_t n) {
+	if (!alt || n <= 4) return;
+	free(altPending);
+	altPending = malloc(n - 4);
+	if (!altPending) return;
+	memcpy(altPending, d + 4, n - 4);
+	altPendingN = n - 4, altPendingFile = (int) rd32(d);
+	alt_merge_pending(); /* (now if it's this file's, else once its file is played) */
+}
+
 static void alt_free(void) {
+	free(altPending);
+	altPending = NULL;
 	if (!alt) return;
 	alt_save_seen();
 	alttp_free(alt);
@@ -4916,6 +4962,7 @@ static void alt_tick(void) {
 		}
 		altMapDirty = true;
 	}
+	alt_merge_pending();
 	if (ch & ALTTP_ITEMS) altItemsDirty = true;
 	if (ch & ALTTP_MAP) altMapDirty = true;
 	if ((ch & ALTTP_AREA) && !altDrag) altUser = false, altVelX = altVelY = 0; /* ALTTP-3: back on Link */
