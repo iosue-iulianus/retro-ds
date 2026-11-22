@@ -43,6 +43,7 @@ Every game also follows the general rules GBA DS set out (`docs/reference/gba/RE
 ## How it's found
 
 - Game state, `$7E0998`: `08` playing, `09` to `0B` going through a door, `0C` to `0E` pausing, `0F` the pause screen up, `10` to `12` unpausing; `00` to `05` the title, file and options screens. Area, `$7E079F`: `00` Crateria to `05` Tourian, `06` Ceres Station. Room, `$7E079B` (2 bytes).
+- Going through a door (`$0998` `09` to `0B`), the next room's header (area, `$07A1` / `$07A3`) is loaded some frames before Samus's position (`$0AF6`, `$0AFA`) is moved into the new room: in between, her square reads as one she's never in (measured leaving the Map Station room: room y 4 to 6 at frame 89 of the door, her y at frame 97). The drawn map keeps everything from the frame before the door until play resumes.
 - Start opens the pause screen in about 67 frames (the fade); it has settled by about 76.
 - The whole map: the pause map is a 512 x 256 layer; setting the view (`$7E00B1`, `$7E00B3`, 2 bytes each, any value: the game doesn't hold it to the map's edges) shows any part of it three frames later. Views at x -30, 166, 362 and y -60, 56, 172, each kept from x 30 to 225 and y 60 to 175, cover it.
 - Scrolling the pause map: the D-pad moves it a pixel a frame, in steps of 8 (a tap: 8; a 16-frame hold: 16), up to the edges of the area's map; the view's x grows in `$7E00B1`. Measured with the owner's state after the Map Station.

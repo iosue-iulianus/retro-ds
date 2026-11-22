@@ -558,10 +558,10 @@ static int ram16(const uint8_t* wram, uint32_t a) {
 	return wram[a] | wram[a + 1] << 8;
 }
 
-int smmap_update(SmMap* m, const uint8_t* wram) {
+/* Where Samus is, what she's explored and carries, from the RAM; the
+ * map's layer drawn again if that changed */
+static int read_game(SmMap* m, const uint8_t* wram) {
 	int changed = 0;
-	if (m->markerFrame < 0) build_markers(m);
-	m->state = wram[0x0998];
 	m->rawArea = ram16(wram, 0x079F);
 	m->area = m->rawArea >= 7 ? 0 : m->rawArea;
 	int oldSq = (m->roomX + (m->samusX >> 8)) | (m->roomY + (m->samusY >> 8)) << 8;
@@ -574,13 +574,13 @@ int smmap_update(SmMap* m, const uint8_t* wram) {
 	m->usedSaves = ram16(wram, 0xD8F8 + m->area * 2);
 	m->loadStation = ram16(wram, 0x078B) & 0xFF;
 	m->samusX = ram16(wram, 0x0AF6), m->samusY = ram16(wram, 0x0AFA);
+	m->roomX = ram16(wram, 0x07A1), m->roomY = ram16(wram, 0x07A3);
 	m->eqItems = ram16(wram, 0x09A2), m->colItems = ram16(wram, 0x09A4);
 	m->eqBeams = ram16(wram, 0x09A6), m->colBeams = ram16(wram, 0x09A8);
 	m->reserveMode = ram16(wram, 0x09C0), m->maxReserve = ram16(wram, 0x09D4);
 	m->reserve = ram16(wram, 0x09D6), m->hyper = ram16(wram, 0x0A76);
-	m->roomX = ram16(wram, 0x07A1), m->roomY = ram16(wram, 0x07A3);
 	int sq = (m->roomX + (m->samusX >> 8)) | (m->roomY + (m->samusY >> 8)) << 8;
-	if (sq != oldSq || m->area != oldArea) changed |= SMMAP_SQUARE;
+	if (sq != oldSq || m->area != oldArea) changed |= SMMAP_SQUARE | SMMAP_MARKER_CHANGED;
 
 	uint64_t key = 1469598103934665603ull;
 	int vals[] = { m->area, m->collected, m->station, m->bosses, m->saveArea, m->usedSaves, m->loadStation };
@@ -592,16 +592,19 @@ int smmap_update(SmMap* m, const uint8_t* wram) {
 		changed |= SMMAP_LAYER;
 	}
 	find_limits(m); /* (cheap; Samus's square counts when nothing's explored) */
+	return changed;
+}
 
-	/* the blinking: the marker 8, 4, 8, 4 frames ($82:BA25), the ring's
-	 * palette 15 frames, then 13 steps of 3 ($82:C10C) */
+/* A frame of blinking: the marker 8, 4, 8, 4 frames ($82:BA25), sprite
+ * palette 3 (the pills' rings, the reserve tanks) 15 frames, then 13 steps
+ * of 3 ($82:C10C); the chrome and page drawn again when they change */
+static int step(SmMap* m, int changed) {
 	++m->tick;
 	static const int markerSeq[4] = { 0, 1, 2, 1 }, markerLen[4] = { 8, 4, 8, 4 };
 	int t = (int) (m->tick % 24), f = 0;
 	while (t >= markerLen[f]) t -= markerLen[f++];
-	int mf = markerSeq[f];
-	if (mf != m->markerFrame || (changed & SMMAP_SQUARE)) changed |= SMMAP_MARKER_CHANGED;
-	m->markerFrame = mf;
+	if (markerSeq[f] != m->markerFrame) changed |= SMMAP_MARKER_CHANGED;
+	m->markerFrame = markerSeq[f];
 	int rt = (int) (m->tick % 54);
 	int rf = rt < 15 ? 0 : 1 + (rt - 15) / 3;
 	bool newArea = m->area != m->chromeArea;
@@ -620,6 +623,20 @@ int smmap_update(SmMap* m, const uint8_t* wram) {
 		changed |= SMMAP_PAGE;
 	}
 	return changed;
+}
+
+int smmap_update(SmMap* m, const uint8_t* wram) {
+	if (m->markerFrame < 0) build_markers(m);
+	m->state = wram[0x0998];
+	/* Going through a door (09 to 0B), the game loads the next room's
+	 * header (its area and place on the map, $82:DE6F) and moves Samus
+	 * into its coordinates at different steps: for some frames they don't
+	 * belong together, and her square (the map with it) would jump about.
+	 * The pause screen can't be opened then: everything stays as on the
+	 * last frame before the door until it's done. */
+	bool door = m->state >= 0x09 && m->state <= 0x0B;
+	int changed = door && m->haveLayer ? 0 : read_game(m, wram);
+	return step(m, changed);
 }
 
 bool smmap_live(const SmMap* m) {
