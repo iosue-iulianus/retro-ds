@@ -4821,7 +4821,7 @@ static bool altPinch; /* two fingers on the map */
 static float altPinchSpan, altPinchZ, altPinchWX, altPinchWY; /* at its start: the span, zoom, the world point under the fingers */
 static bool altXDown;
 static bool altItemsDirty;
-static SDL_Texture *altItemsTex[2], *altMarkerTex[2], *altDunTex[2], *altSkyTex[2][2];
+static SDL_Texture *altItemsTex[2], *altMarkerTex[2], *altDunTex[2], *altSkyTex[2][2], *altGoalTex[2];
 /* The map's pieces on the GPU (alttp_piece): made when first shown, made
  * again when the piece changed (at most every ALT_REMAKE seconds while
  * Link walks), the least lately shown let go past ALT_BUDGET bytes. The
@@ -4986,8 +4986,8 @@ static void alt_free(void) {
 	ui_set_pinch(false);
 	altPage = 0, altFile = 0, altFloor = ALTTP_FLOOR_AS_GAME, altDunKey = 0;
 	for (int i = 0; i < 2; ++i) {
-		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunTex[i], &altSkyTex[0][i], &altSkyTex[1][i] };
-		for (int k = 0; k < 5; ++k) {
+		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i] };
+		for (int k = 0; k < 6; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 			*t[k] = NULL;
 		}
@@ -5007,13 +5007,15 @@ static void alt_textures(void) {
 	if (!alt) return;
 	alt_cache_clear();
 	for (int i = 0; i < nViews; ++i) {
-		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunTex[i], &altSkyTex[0][i], &altSkyTex[1][i] };
-		for (int k = 0; k < 5; ++k) {
+		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i] };
+		for (int k = 0; k < 6; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 		}
 		altItemsTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
 		altDunTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
 		altMarkerTex[i] = native_texture(i, 32, 32, SDL_BLENDMODE_BLEND);
+		altGoalTex[i] = native_texture(i, ALTTP_GOALS * 16, 16, SDL_BLENDMODE_BLEND);
+		if (altGoalTex[i]) ui_update_texture(altGoalTex[i], alttp_goal_pictures(alt), ALTTP_GOALS * 16 * 4);
 		for (int w = 0; w < 2; ++w) {
 			altSkyTex[w][i] = native_texture(i, ALTTP_SKY_W, ALTTP_SKY_H, SDL_BLENDMODE_NONE);
 			if (altSkyTex[w][i]) ui_update_texture(altSkyTex[w][i], alttp_sky(alt, w), ALTTP_SKY_W * 4);
@@ -5074,6 +5076,9 @@ static void alt_tick(void) {
 	if (ch & ALTTP_ITEMS) altItemsDirty = true;
 	for (int i = 0; i < nViews && (ch & ALTTP_MARKER); ++i) {
 		if (altMarkerTex[i]) ui_update_texture(altMarkerTex[i], alttp_marker(alt), 32 * 4);
+	}
+	for (int i = 0; i < nViews && (ch & ALTTP_GOALS); ++i) {
+		if (altGoalTex[i]) ui_update_texture(altGoalTex[i], alttp_goal_pictures(alt), ALTTP_GOALS * 16 * 4);
 	}
 	if ((ch & ALTTP_AREA) && !altDrag) altUser = false, altVelX = altVelY = 0; /* ALTTP-3: back on Link */
 	if (alttp_ready(alt) && !alttp_in_menu(alt)) altShown = true;
@@ -5283,9 +5288,16 @@ static void draw_alt_map(int s) {
 			if (t) ui_image_part(s, t, (SDL_Rect) { 0, 0, n, n }, (SDL_Rect) { x, y, pw, ph });
 		}
 	}
-	/* Link: his sprite at three of the screen's pixels to one of his (1080 lines) */
+	/* ALTTP-11: the goal markers, then Link: their sprites at three of the
+	 * screen's pixels to one of theirs (1080 lines), whatever the zoom */
+	int m = SDL_max(1, a.h / 360);
+	const AltGoal* gl;
+	int ng = alttp_goals(alt, &gl);
+	for (int i = 0; i < ng; ++i) {
+		int gx = ox + (int) lroundf(gl[i].x / z) + gl[i].dx * m, gy = oy + (int) lroundf(gl[i].y / z) + gl[i].dy * m;
+		ui_image_part(s, altGoalTex, (SDL_Rect) { i * 16, 0, gl[i].size, gl[i].size }, (SDL_Rect) { gx, gy, gl[i].size * m, gl[i].size * m });
+	}
 	if (alttp_marker_on(alt)) {
-		int m = SDL_max(1, a.h / 360);
 		int mx = ox + (int) lroundf(lx / z) - 16 * m, my = oy + (int) lroundf(ly / z) - 16 * m;
 		ui_image_part(s, altMarkerTex, (SDL_Rect) { 0, 0, 32, 32 }, (SDL_Rect) { mx, my, 32 * m, 32 * m });
 	}

@@ -52,6 +52,8 @@
 #define R_ABILITIES 0xF379
 #define R_CRYSTALS 0xF37A
 #define R_PROGRESS 0xF3C5
+#define R_MAP_STAGE 0xF3C7 /* which goal markers the world map shows (the story's stage) */
+#define R_OW_EVENT_5B 0xF2DB /* bit $20: no goal markers any more */
 
 /* video RAM, word addresses, as the game sets the PPU for play */
 #define V_BG2_MAP 0x0000
@@ -80,6 +82,20 @@
 #define MAP_TILES 0x18C000u
 #define MAP_TILEMAP 0x0AC727u
 #define MAP_PALETTE 0x0ADB27u /* 128 Light World colours, then 128 Dark World */
+/* the world map's goal markers (ALTTP-11): for marker i (0 to 6) and the
+ * stage k (0 to 8), x and y (world pixels, $FF00 none) at GOAL_POSX/Y +
+ * $24 i + 2 k, attributes and tile at GOAL_TILE + $12 i + 2 k */
+#define GOAL_POSX 0x0ABDE4u
+#define GOAL_POSY 0x0ABDF6u
+#define GOAL_TILE 0x0ABEE0u
+#define GOAL_RED_X 0x0ABF5Eu    /* the red X's 4 frames (8 x 8 tiles) */
+#define GOAL_NUMBERS 0x0AC515u  /* each crystal's number (8 x 8 tiles) */
+#define PENDANT_BITS 0x0AC5A6u  /* markers 0 to 2's pendants in $7EF374 */
+#define CRYSTAL_BITS 0x0AC5BFu  /* markers 0 to 6's crystals in $7EF37A */
+#define SPR_SHEET_BANK 0x00CFF3u /* GFXSheetPointers, sprites: bank, high, low */
+#define SPR_SHEET_HIGH 0x00D0D2u
+#define SPR_SHEET_LOW 0x00D1B1u
+#define GOAL_SHEET 5            /* the markers' tiles: its second half (stored as it is), tiles $60 to $7F */
 
 #define BLANK 0x207F
 #define FILL 0x24F5
@@ -133,6 +149,13 @@ struct Alttp {
 	/* the clouds' own colours (the fog's edge): their body, light edge,
 	 * shaded edge and rim, from the sky's most used ones */
 	uint32_t cloud[2][4];
+	/* the goal markers: their tiles ($60 to $7F, video RAM words), the
+	 * ones shown now and their pictures */
+	uint16_t goalChr[32 * 16];
+	AltGoal goal[ALTTP_GOALS];
+	int nGoals;
+	uint32_t goalPx[ALTTP_GOALS * 16 * 16];
+	uint32_t goalKey;
 	int linkWorld, linkX, linkY;
 	int lastArea;
 	int takenX, takenY, takenWorld, takenAge; /* the last screen taken, and passes since */
@@ -296,6 +319,24 @@ static void cloud_colours(Alttp* a) {
 	}
 }
 
+/* the goal markers' tiles as the world map loads them (LoadChrHalfSlot
+ * with $0AAA = $10): the second half of sprite sheet 5, kept in the
+ * cartridge as it is (3 bits a pixel), the fourth plane set where any
+ * other is */
+static void goal_tiles(Alttp* a) {
+	uint32_t at = (uint32_t) rom8(a, SPR_SHEET_BANK + GOAL_SHEET) << 16 | (uint32_t) rom8(a, SPR_SHEET_HIGH + GOAL_SHEET) << 8 | rom8(a, SPR_SHEET_LOW + GOAL_SHEET);
+	uint32_t o = lorom(at) + 0x300;
+	for (int t = 0; t < 32; ++t) {
+		for (int y = 0; y < 8; ++y) {
+			uint32_t b = o + (uint32_t) t * 24;
+			uint8_t p0 = b + 2 * y + 1 < a->romSize ? a->rom[b + 2 * y] : 0, p1 = b + 2 * y + 1 < a->romSize ? a->rom[b + 2 * y + 1] : 0;
+			uint8_t p2 = b + 16 + y < a->romSize ? a->rom[b + 16 + y] : 0;
+			a->goalChr[t * 16 + y] = (uint16_t) (p0 | p1 << 8);
+			a->goalChr[t * 16 + 8 + y] = (uint16_t) (p2 | (p0 | p1 | p2) << 8);
+		}
+	}
+}
+
 Alttp* alttp_new(uint8_t* rom, size_t size) {
 	if (!rom || size < 0x100000 || crc32_of(rom, size) != ROM_CRC) {
 		free(rom);
@@ -315,6 +356,7 @@ Alttp* alttp_new(uint8_t* rom, size_t size) {
 	a->itemsKey = 1;
 	make_sky(a);
 	cloud_colours(a);
+	goal_tiles(a);
 	for (size_t i = 0; i < ALTTP_W * ALTTP_H; ++i) a->items[i] = 0xFF000000u;
 	return a;
 }
@@ -1113,6 +1155,84 @@ static bool link_marker(Alttp* a, const uint8_t* vram) {
 	return true;
 }
 
+/* ---- the world map's goal markers (ALTTP-11), as WorldMap_HandleSprites
+ * ($0A:BF66) chooses them: by the stage ($7EF3C7), none once $7EF2DB bit
+ * $20 is set or in the other world (stages 6 and up are the Dark
+ * World's); a pendant or crystal won, its marker gone; blinking with the
+ * frame counter as on the game's map */
+
+/* a sprite tile of the markers' ($60 to $7F) into a 16 x 16 picture */
+static void goal_sprite(Alttp* a, uint32_t* out, int size, int c, uint8_t attr) {
+	int pal = (attr >> 1) & 7;
+	for (int py = 0; py < size; ++py) {
+		int sy = attr & 0x80 ? size - 1 - py : py;
+		for (int px = 0; px < size; ++px) {
+			int sx = attr & 0x40 ? size - 1 - px : px;
+			int t = (c - 0x60 + (sx >> 3) + (sy >> 3) * 16) & 31;
+			uint16_t p01 = a->goalChr[t * 16 + (sy & 7)], p23 = a->goalChr[t * 16 + 8 + (sy & 7)];
+			int b = 7 - (sx & 7);
+			int ci = (p01 >> b & 1) | (p01 >> (8 + b) & 1) << 1 | (p23 >> b & 1) << 2 | (p23 >> (8 + b) & 1) << 3;
+			if (ci) out[py * 16 + px] = abgr(r16(a, R_PALETTE + (128 + pal * 16 + ci) * 2));
+		}
+	}
+}
+
+/* The markers shown now; true if they or their pictures changed */
+static bool goals_update(Alttp* a) {
+	AltGoal g[ALTTP_GOALS];
+	uint8_t chr[ALTTP_GOALS], attr[ALTTP_GOALS];
+	int n = 0, k = r8(a, R_MAP_STAGE), f = r8(a, R_FRAME);
+	bool dark = k >= 6;
+	if (k <= 8 && !(r8(a, R_OW_EVENT_5B) & 0x20) && dark == (a->linkWorld == 1)) {
+		for (int i = 0; i < ALTTP_GOALS; ++i) {
+			int x = rom16(a, GOAL_POSX + i * 0x24 + k * 2), y = rom16(a, GOAL_POSY + i * 0x24 + k * 2);
+			if (x & 0x8000) continue;
+			if (k == 3 && i < 3 && (r8(a, R_PENDANTS) & rom8(a, PENDANT_BITS + i))) continue;
+			if (k == 7 && (r8(a, R_CRYSTALS) & rom8(a, CRYSTAL_BITS + i))) continue;
+			uint8_t fl = rom8(a, GOAL_TILE + i * 0x12 + k * 2), ch = rom8(a, GOAL_TILE + i * 0x12 + k * 2 + 1);
+			if (ch && ch != 0x64 && (f & 0x10)) continue; /* (blinks: off half the time) */
+			if (ch) x -= 4, y -= 4;
+			AltGoal* o = &g[n];
+			o->x = x, o->y = y;
+			if (!ch) {
+				/* the red X, turning */
+				chr[n] = rom8(a, GOAL_RED_X + ((f >> 3) & 3)), attr[n] = 0x32, o->size = 8, o->dx = o->dy = -4;
+			} else if (ch == 0x64 && !(f & 0x10)) {
+				/* a crystal, blinking with its number */
+				chr[n] = rom8(a, GOAL_NUMBERS + i), attr[n] = 0x32, o->size = 8, o->dx = o->dy = 0;
+			} else {
+				chr[n] = ch, attr[n] = fl, o->size = 16, o->dx = o->dy = -4;
+			}
+			++n;
+		}
+	}
+	uint32_t key = crc32(0, (const Bytef*) g, (uInt) (sizeof g[0] * (size_t) n));
+	key = crc32(key, chr, (uInt) n), key = crc32(key, attr, (uInt) n);
+	key = crc32(key, a->ram + R_PALETTE + 256, 256) ^ (uint32_t) n;
+	key |= 1;
+	if (key == a->goalKey) return false;
+	a->goalKey = key;
+	memcpy(a->goal, g, sizeof g[0] * (size_t) n);
+	a->nGoals = n;
+	memset(a->goalPx, 0, sizeof a->goalPx);
+	uint32_t tmp[16 * 16];
+	for (int i = 0; i < n; ++i) {
+		memset(tmp, 0, sizeof tmp);
+		goal_sprite(a, tmp, g[i].size, chr[i], attr[i]);
+		for (int y = 0; y < 16; ++y) memcpy(&a->goalPx[y * ALTTP_GOALS * 16 + i * 16], &tmp[y * 16], 16 * 4);
+	}
+	return true;
+}
+
+int alttp_goals(const Alttp* a, const AltGoal** list) {
+	*list = a->goal;
+	return a->nGoals;
+}
+
+const uint32_t* alttp_goal_pictures(const Alttp* a) {
+	return a->goalPx;
+}
+
 const uint32_t* alttp_marker(const Alttp* a) {
 	return a->marker;
 }
@@ -1151,6 +1271,7 @@ int alttp_update(Alttp* a, const uint8_t* wram, const uint8_t* vram, const uint8
 		if (r8(a, R_AREA) != a->lastArea) a->lastArea = r8(a, R_AREA), ch |= ALTTP_AREA;
 		if (vram && link_marker(a, vram)) ch |= ALTTP_MARKER;
 	}
+	if (goals_update(a)) ch |= ALTTP_GOALS;
 	if (vram) {
 		uint32_t k = items_key(a, vram);
 		if (k != a->itemsKey) {

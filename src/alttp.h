@@ -32,7 +32,7 @@ Alttp* alttp_new(uint8_t* rom, size_t size);
 void alttp_free(Alttp* a);
 
 /* What changed in alttp_update */
-enum { ALTTP_ITEMS = 1, ALTTP_MAP = 2, ALTTP_AREA = 4, ALTTP_FILE = 8, ALTTP_MARKER = 16 };
+enum { ALTTP_ITEMS = 1, ALTTP_MAP = 2, ALTTP_AREA = 4, ALTTP_FILE = 8, ALTTP_MARKER = 16, ALTTP_GOALS = 32 };
 /* Once per pass of the loop, with the game's work RAM (128 KB), its video
  * RAM (64 KB, may be NULL: then nothing is taken for the map) and its
  * cartridge RAM (8 KB, may be NULL; its $1FFE says which file is played).
@@ -91,6 +91,18 @@ typedef struct AltPieceJob AltPieceJob;
 AltPieceJob* alttp_piece_job(const Alttp* a, int world, int i);
 void alttp_piece_make(const AltPieceJob* j, int level, uint32_t* out);
 const uint32_t* alttp_sky(const Alttp* a, int world);
+/* The world map's goal markers (ALTTP-11), as the game's own map would
+ * show them now in the world Link is in (blinking as there): each at
+ * world pixel (x, y), its picture (size x size, the top left of a 16 x 16
+ * place) drawn from (dx, dy) of its own pixels from there; picture i is
+ * at (16 i, 0) of alttp_goal_pictures (ALTTP_GOALS * 16 x 16).
+ * alttp_update says ALTTP_GOALS when they changed. */
+#define ALTTP_GOALS 7
+typedef struct {
+	int x, y, dx, dy, size;
+} AltGoal;
+int alttp_goals(const Alttp* a, const AltGoal** list);
+const uint32_t* alttp_goal_pictures(const Alttp* a);
 /* Link's marker (32 x 32, its middle at Link's place): his sprite as the
  * game draws it (ALTTP-4: facing and moving as he is; alttp_update says
  * ALTTP_MARKER when it changed), or the items screen's flashing ring until
