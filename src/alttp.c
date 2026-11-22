@@ -135,6 +135,7 @@ struct Alttp {
 	uint16_t menu[32 * 32];
 	uint32_t items[ALTTP_W * ALTTP_H];
 	uint32_t itemsKey;
+	uint32_t zoomPane[ALTTP_ZOOM_PANE_W * ALTTP_ZOOM_PANE_H]; /* the zoom indicator's pane */
 	uint32_t marker[32 * 32];
 	bool markerLink;    /* the marker is Link's sprite (else the ring, until he's seen) */
 	/* Link's picture for each way he faces (up, down, left, right as $2F / 2):
@@ -660,7 +661,25 @@ static void draw_tile2(const Alttp* a, const uint8_t* vram, uint16_t e, uint32_t
 	}
 }
 
+/* the zoom indicator's pane: a frame of the items screen's (the Y items',
+ * green), black inside, from the same tiles in video RAM */
+static void render_zoom_pane(Alttp* a, const uint8_t* vram) {
+	enum { C = ALTTP_ZOOM_PANE_W / 8, R = ALTTP_ZOOM_PANE_H / 8 };
+	static uint16_t m[32 * 32];
+	Pane p = { m, 0, 0 };
+	box(&p, 0, 0, C - 1, R - 1, 7);
+	for (int i = 0; i < ALTTP_ZOOM_PANE_W * ALTTP_ZOOM_PANE_H; ++i) a->zoomPane[i] = 0xFF000000u;
+	for (int r = 0; r < R; ++r) {
+		for (int c = 0; c < C; ++c) draw_tile2(a, vram, m[r * 32 + c], &a->zoomPane[r * 8 * ALTTP_ZOOM_PANE_W + c * 8], ALTTP_ZOOM_PANE_W);
+	}
+}
+
+const uint32_t* alttp_zoom_pane(const Alttp* a) {
+	return a->zoomPane;
+}
+
 static void render_items(Alttp* a, const uint8_t* vram) {
+	render_zoom_pane(a, vram);
 	for (size_t i = 0; i < ALTTP_W * ALTTP_H; ++i) a->items[i] = 0xFF000000u;
 	for (int r = MENU_ROW0; r < MENU_ROW0 + ALTTP_H / 8; ++r) {
 		for (int c = 0; c < 32; ++c) {

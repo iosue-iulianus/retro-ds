@@ -91,6 +91,13 @@ typedef struct AltPieceJob AltPieceJob;
 AltPieceJob* alttp_piece_job(const Alttp* a, int world, int i);
 void alttp_piece_make(const AltPieceJob* j, int level, uint32_t* out);
 const uint32_t* alttp_sky(const Alttp* a, int world);
+/* The map's zoom indicator's pane (ALTTP-3): a frame of the items
+ * screen's, black inside, ALTTP_ZOOM_PANE_W x _H; made again with the
+ * items screen (ALTTP_ITEMS) */
+#define ALTTP_ZOOM_PANE_W 32
+#define ALTTP_ZOOM_PANE_H 80
+const uint32_t* alttp_zoom_pane(const Alttp* a);
+
 /* The world map's goal markers (ALTTP-11), as the game's own map would
  * show them now in the world Link is in (blinking as there): each at
  * world pixel (x, y), its picture (size x size, the top left of a 16 x 16

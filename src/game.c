@@ -4818,7 +4818,6 @@ static int altZoomI = 2;
 static float altZ = 2;
 #define ALT_Z altZ
 static bool altPinch; /* two fingers on the map */
-static Uint64 altZoomT; /* when the zoom last changed (its indicator bright a while) */
 static float altPinchSpan, altPinchZ, altPinchWX, altPinchWY; /* at its start: the span, zoom, the world point under the fingers */
 static bool altXDown;
 static bool altItemsDirty;
@@ -4826,8 +4825,8 @@ static SDL_Texture *altItemsTex[2], *altMarkerTex[2], *altSkyTex[2][2], *altGoal
 #define ALT_TRI_W 16 /* the zoom indicator's Triforce */
 #define ALT_TRI_H 14
 static const uint32_t* alt_triforce(void);
-static SDL_Texture *altDotTex[2], *altCapTex[2]; /* a round dot, white; the same in black (the column's ends), edges soft */
-#define ALT_DOT 16
+static SDL_Texture* altZoomTex[2]; /* the zoom indicator, put together (alt_zoom_indicator) */
+static int altZoomAt = -1; /* the level it shows (-1: to be made again) */
 /* The map's pieces on the GPU (alttp_piece): made when first shown, made
  * again when the piece changed (at most every ALT_REMAKE seconds while
  * Link walks), the least lately shown let go past ALT_BUDGET bytes. The
@@ -5000,8 +4999,8 @@ static void alt_free(void) {
 	ui_set_pinch(false);
 	altPage = 0, altFile = 0, altFloor = ALTTP_FLOOR_AS_GAME, altDunKey = 0;
 	for (int i = 0; i < 2; ++i) {
-		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunWideTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i], &altTriTex[i], &altDotTex[i], &altCapTex[i] };
-		for (int k = 0; k < 9; ++k) {
+		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunWideTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i], &altTriTex[i], &altZoomTex[i] };
+		for (int k = 0; k < 8; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 			*t[k] = NULL;
 		}
@@ -5021,8 +5020,8 @@ static void alt_textures(void) {
 	if (!alt) return;
 	alt_cache_clear();
 	for (int i = 0; i < nViews; ++i) {
-		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunWideTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i], &altTriTex[i], &altDotTex[i], &altCapTex[i] };
-		for (int k = 0; k < 9; ++k) {
+		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunWideTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i], &altTriTex[i], &altZoomTex[i] };
+		for (int k = 0; k < 8; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 		}
 		altItemsTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
@@ -5031,22 +5030,8 @@ static void alt_textures(void) {
 		altGoalTex[i] = native_texture(i, ALTTP_GOAL_MAX * 16, 16, SDL_BLENDMODE_BLEND);
 		altTriTex[i] = native_texture(i, ALT_TRI_W, ALT_TRI_H, SDL_BLENDMODE_BLEND);
 		if (altTriTex[i]) ui_update_texture(altTriTex[i], alt_triforce(), ALT_TRI_W * 4);
-		for (int k = 0; k < 2; ++k) {
-			SDL_Texture** t = k ? &altCapTex[i] : &altDotTex[i];
-			*t = native_texture(i, ALT_DOT, ALT_DOT, SDL_BLENDMODE_BLEND);
-			if (!*t) continue;
-			uint32_t dot[ALT_DOT * ALT_DOT];
-			for (int y = 0; y < ALT_DOT; ++y) {
-				for (int x = 0; x < ALT_DOT; ++x) {
-					float dx = x + 0.5f - ALT_DOT / 2.0f, dy = y + 0.5f - ALT_DOT / 2.0f;
-					float e = ALT_DOT / 2.0f - sqrtf(dx * dx + dy * dy); /* inside by e pixels */
-					int al = e >= 1 ? 255 : e <= 0 ? 0 : (int) (e * 255);
-					dot[y * ALT_DOT + x] = (uint32_t) al << 24 | (k ? 0 : 0xFFFFFFu);
-				}
-			}
-			SDL_SetTextureScaleMode(*t, SDL_ScaleModeLinear);
-			ui_update_texture(*t, dot, ALT_DOT * 4);
-		}
+		altZoomTex[i] = native_texture(i, ALTTP_ZOOM_PANE_W, ALTTP_ZOOM_PANE_H, SDL_BLENDMODE_BLEND);
+		altZoomAt = -1;
 		if (altGoalTex[i]) ui_update_texture(altGoalTex[i], alttp_goal_pictures(alt), ALTTP_GOAL_MAX * 16 * 4);
 		for (int w = 0; w < 2; ++w) {
 			altSkyTex[w][i] = native_texture(i, ALTTP_SKY_W, ALTTP_SKY_H, SDL_BLENDMODE_NONE);
@@ -5158,7 +5143,7 @@ static void alt_tick(void) {
 	}
 	alt_merge_pending();
 	if (ch & ALTTP_FILES) alt_file_events();
-	if (ch & ALTTP_ITEMS) altItemsDirty = true;
+	if (ch & ALTTP_ITEMS) altItemsDirty = true, altZoomAt = -1;
 	for (int i = 0; i < nViews && (ch & ALTTP_MARKER); ++i) {
 		if (altMarkerTex[i]) ui_update_texture(altMarkerTex[i], alttp_marker(alt), 32 * 4);
 	}
@@ -5367,39 +5352,47 @@ static const uint32_t* alt_triforce(void) {
 	return px;
 }
 
-/* ALTTP-3: the zoom's levels in the screen's bottom right corner, the
- * closest at the top, the one it's at (or nearest, while pinched) a
- * Triforce; bright for 1.5 seconds after it changes, then faint */
+/* ALTTP-3: the zoom's levels in the screen's bottom right corner, in a
+ * pane of the items screen's (its frame from the game's tiles, black
+ * inside, solid as the game's panes), the closest at the top: a dot
+ * each, a Triforce for the level it's at (or nearest, while pinched).
+ * Put together as one picture, drawn at a whole number of screen pixels
+ * to one of its own. */
 static void alt_zoom_indicator(int s, SDL_Rect a) {
-	int u = SDL_max(2, a.h / 108);
-	int w = 4 * u, h = (ALT_ZOOMS * 3 + 2) * u;
-	SDL_Rect pill = { a.x + a.w - w - 2 * u, a.y + a.h - h - 2 * u, w, h };
-	double since = altZoomT ? (double) (SDL_GetPerformanceCounter() - altZoomT) / SDL_GetPerformanceFrequency() : 1e9;
-	float f = since < 1.5 ? 1.0f : since < 2.0 ? 1.0f - (float) (since - 1.5) / 0.5f * 0.55f : 0.45f;
-	/* the column: its round ends (halves of a disc) and the middle, apart */
-	Uint8 back = (Uint8) (130 * f);
-	SDL_SetTextureAlphaMod(altCapTex[screens[s].view], back);
-	ui_image_part(s, altCapTex, (SDL_Rect) { 0, 0, ALT_DOT, ALT_DOT / 2 }, (SDL_Rect) { pill.x, pill.y, w, w / 2 });
-	ui_image_part(s, altCapTex, (SDL_Rect) { 0, ALT_DOT / 2, ALT_DOT, ALT_DOT / 2 }, (SDL_Rect) { pill.x, pill.y + h - w / 2, w, w / 2 });
-	ui_fill(s, (SDL_Rect) { pill.x, pill.y + w / 2, w, h - 2 * (w / 2) }, (SDL_Color) { 0, 0, 0, back });
+	int v = screens[s].view;
+	if (!altZoomTex[v]) return;
 	int at = 0;
 	for (int i = 1; i < ALT_ZOOMS; ++i) {
 		if (fabsf(logf(altZooms[i] / altZ)) < fabsf(logf(altZooms[at] / altZ))) at = i;
 	}
-	int d = u * 8 / 5;
-	for (int i = 0; i < ALT_ZOOMS; ++i) {
-		int cy = pill.y + u + u / 2 + i * 3 * u + u;
-		if (i == at) {
-			/* the Triforce, as wide as the pill allows */
-			int tw = w - u / 2, th = tw * ALT_TRI_H / ALT_TRI_W; /* (3.5 u: 35 pixels on 1080 lines) */
-			SDL_SetTextureAlphaMod(altTriTex[screens[s].view], (Uint8) (255 * (0.4f + 0.6f * f)));
-			ui_image_part(s, altTriTex, (SDL_Rect) { 0, 0, ALT_TRI_W, ALT_TRI_H }, (SDL_Rect) { pill.x + (w - tw) / 2, cy - th / 2, tw, th });
-			continue;
+	if (at != altZoomAt) {
+		enum { W = ALTTP_ZOOM_PANE_W, H = ALTTP_ZOOM_PANE_H };
+		static uint32_t px[W * H];
+		memcpy(px, alttp_zoom_pane(alt), sizeof px);
+		const uint32_t* tri = alt_triforce();
+		static const char dot[4][5] = { ".##.", "####", "####", ".##." };
+		for (int i = 0; i < ALT_ZOOMS; ++i) {
+			int y0 = 8 + i * 16;
+			if (i == at) {
+				for (int y = 0; y < ALT_TRI_H; ++y) {
+					for (int x = 0; x < ALT_TRI_W; ++x) {
+						if (tri[y * ALT_TRI_W + x] >> 24) px[(y0 + 1 + y) * W + 8 + x] = tri[y * ALT_TRI_W + x];
+					}
+				}
+			} else {
+				for (int y = 0; y < 4; ++y) {
+					for (int x = 0; x < 4; ++x) {
+						if (dot[y][x] == '#') px[(y0 + 6 + y) * W + 14 + x] = 0xFF909090u;
+					}
+				}
+			}
 		}
-		SDL_Rect dot = { pill.x + (w - d) / 2, cy - d / 2, d, d };
-		SDL_SetTextureAlphaMod(altDotTex[screens[s].view], (Uint8) (110 * f));
-		ui_image_part(s, altDotTex, (SDL_Rect) { 0, 0, ALT_DOT, ALT_DOT }, dot);
+		ui_update_texture(altZoomTex[v], px, W * 4);
+		altZoomAt = at;
 	}
+	int k = SDL_max(1, a.h / 540), m = SDL_max(2, a.h / 54);
+	int w = ALTTP_ZOOM_PANE_W * k, h = ALTTP_ZOOM_PANE_H * k;
+	ui_image_part(s, altZoomTex, (SDL_Rect) { 0, 0, ALTTP_ZOOM_PANE_W, ALTTP_ZOOM_PANE_H }, (SDL_Rect) { a.x + a.w - w - m, a.y + a.h - h - m, w, h });
 }
 
 /* The map (ALTTP-2, ALTTP-3): the whole second screen, whatever its
@@ -5527,7 +5520,6 @@ static void alt_tap(int x, int y) {
 	if (altPage == 1 && !alttp_in_dungeon(alt)) {
 		/* (alt_step glides there, what's in the middle kept there) */
 		altZoomI = (altZoomI + 1) % ALT_ZOOMS;
-		altZoomT = SDL_GetPerformanceCounter();
 		fprintf(stderr, "map zoom: %g world pixels a pixel\n", altZooms[altZoomI]);
 		return;
 	}
@@ -5593,7 +5585,6 @@ static int alt_touch(const Pointer* p) {
 			altVelX = altVelY = 0;
 		}
 		altZ = SDL_clamp(altPinchZ * altPinchSpan / p->span, altZooms[0], altZooms[ALT_ZOOMS - 1]);
-		altZoomT = SDL_GetPerformanceCounter();
 		altVX = altPinchWX - (p->x - a.x) * altZ, altVY = altPinchWY - (p->y - a.y) * altZ;
 		alt_clamp(&altVX, &altVY);
 		altUser = true;
