@@ -15,6 +15,17 @@
 /* touches on the activity's display, from its view (SnesDsActivity.onTouch) */
 #define SNESDS_MAIN_WINDOW_ID 0x6BD50001u
 
+/* The event type touches from Java come as (SDL_RegisterEvents'), not
+ * SDL's finger events: SDL's renderer rewrites every finger event by its
+ * viewport at the moment it's pushed, from whichever thread pushes it, and
+ * Java's UI thread pushed them while the game thread had the second
+ * screen's viewport set (1280 x 960, 120 lines down): about half the
+ * touches came out x 1.5, y 1.125 - 135 on the Duo. user.code: 1 down, 2
+ * up, 3 motion; user.windowID: one of the ids above; data1, data2: x, y
+ * (0..1) as android_touch_pos gives them back. */
+Uint32 android_touch_event(void);
+void android_touch_pos(const SDL_Event* ev, float* x, float* y);
+
 /* stderr (where all of SNES DS's logging goes) to logcat (tag SNESDS) and to
  * <SNESDS_HOME>/snes-ds.log. Call first thing in main. */
 void android_init_log(void);

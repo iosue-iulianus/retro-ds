@@ -1055,6 +1055,21 @@ bool ui_events(void) {
 	evdev_volume_poll();
 	SDL_Event ev;
 	while (SDL_PollEvent(&ev)) {
+#ifdef __ANDROID__
+		/* touches from Java (android.h: their own event type, which SDL's
+		 * renderer leaves as they are) */
+		if (ev.type && ev.type == android_touch_event()) {
+			float tx, ty;
+			android_touch_pos(&ev, &tx, &ty);
+			static int javaTouchesLogged;
+			if ((debug || javaTouchesLogged < 6) && ev.user.code != 3) {
+				++javaTouchesLogged;
+				fprintf(stderr, "finger %s %.3f,%.3f window %u\n", ev.user.code == 1 ? "down" : "up", tx, ty, ev.user.windowID);
+			}
+			queue_pointer(ev.user.code, view_of_window(ev.user.windowID), tx, ty, true);
+			continue;
+		}
+#endif
 		switch (ev.type) {
 		case SDL_QUIT:
 			uiQuit = 1;
