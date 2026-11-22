@@ -183,6 +183,7 @@ Next:
 8. *(Done: the record in SNES DS's states, merged on loading: checked headless, a state brings its map to a game with no record. Each 512 x 512 piece is kept compressed and compressed again only when it has changed: with both worlds' 128 areas filled (host, synthetic), the record is 2.7 MB, the first save 583 ms, a save with nothing new 3 ms, after one new screen 6 ms, loading 75 ms.)*
 9. The owner's call: a state carries the whole record (up to a few MB once both worlds are explored, on top of the game's 290 KB); if that's too much, states could carry only what changed since the file's record was saved.
 10. *(Done, Nov 22, 2026: the fog's edge as the world map's clouds; ALTTP-2 and the clouds in the data.)*
+11. Next (the owner, Nov 22, 2026, after the Duo test of the zoom pane build): Link's marker walks again (the walking animation, not attacks or items); his gear (sword, shield, tunic) shown as it changes; the whole fog in the edge's cumulus style instead of the flat cloud picture; no thin cloud lines left between areas (a square counts as seen once all its pixels have been taken, over several screens); small clouds drifting slowly over the seen map; the map smooth in the Duo's 120 Hz mode (about 85 frames a second there now).
 
 ### On the device (what to check)
 
