@@ -15,13 +15,13 @@ Nothing counts as working until it has run on the Duo.
 libretro bsnes core and GBA DS's GBA-only features are gone. M2, on
 branch `m2-super-metroid` (draft PR #3): Super Metroid's second screen,
 the game on the screen closer to 4:3 (the Duo's bottom one), overlays
-(the bezel) off by default. Its map is currently captured and stitched
-on the hidden copy (touch: drag, SAMUS / MAP plates); the owner decided
-(Nov 21, 2026) to replace that with a map SNES DS draws itself from the
-ROM and RAM (research done: `docs/games/super-metroid.md` "The map's
-data", `tools/sm_map.py` pixel-exact for the map layer), and a drawn,
-tappable SAMUS page. Next: sprites in `tools/sm_map.py`, then the C
-renderer with smooth GPU scrolling, then the SAMUS page. Much of `src/` is
+(the bezel) off by default. Its map and SAMUS page are drawn by SNES DS
+itself from the ROM and RAM (`src/smmap.c`, the profile's `native`; no
+hidden copy runs for Super Metroid): pixel-exact against the game's
+pause screen (`tools/sm_map.py`, the harness's `smmap` and `smtoggle`),
+scrolled smoothly on the GPU (drag, fling, glide), and tapping an item
+on the SAMUS page switches it (the write exception, SM-10). Next: try it
+on the Duo; the reserve mode switch isn't done. Much of `src/` is
 GBA DS's (the game list, menus, settings, Android glue); upstream's session
 notes, with the detail on every inherited subsystem, are
 `git show 3b452dc:CLAUDE.md` (GBA DS v1.5.6, the commit this fork starts
@@ -268,6 +268,10 @@ Device details:
   the live game for other copies must use `emu_state_save_live` with the
   next frame's keys (the loop takes map and bug-report snapshots just
   before a frame for that).
+- `smmap.c`: Super Metroid's second screen drawn from the cartridge and
+  the game's RAM (map, equipment page, item switching); `game.c`'s
+  `native_*` show it (chrome as a picture, the map's layer and marker as
+  textures at screen-pixel offsets).
 - `mapcap.c`: map capture on the hidden copy in a background thread, on a
   normalized 256x224 picture (hi-res and interlaced ones halved): profiles
   give coordinates on the SNES screen.

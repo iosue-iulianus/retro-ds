@@ -4538,7 +4538,8 @@ static SmMap* nat;
 static const MapProfile* natProf;
 static bool natShown;  /* the second screen shows it (else the logo, SM-4) */
 static int natDirty;   /* pictures to upload again (SMMAP_CHROME, SMMAP_LAYER) */
-static SDL_Texture *natChromeTex[2], *natOverTex[2], *natLayerTex[2], *natMarkerTex[2];
+static SDL_Texture *natChromeTex[2], *natOverTex[2], *natLayerTex[2], *natMarkerTex[2], *natPageTex[2];
+static int natPage; /* 0 the map, 1 the equipment page (SM-10) */
 /* The view shown (the game's BG1 scroll, SNES pixels): resting where the
  * game would open its map (SM-9), gliding there; or the player's, from a
  * drag (and its fling), until Samus reaches another square (SM-7) */
@@ -4546,6 +4547,7 @@ static float natVX, natVY, natVelX, natVelY;
 static bool natHaveView, natUser, natDrag, natDragMoved;
 static int natDownX, natDownY;
 static float natDownVX, natDownVY, natPrevX, natPrevY;
+static bool natTapOk; /* the finger came down on the shown map or page */
 static Uint64 natStepT, natPrevT;
 
 static void native_free(void) {
@@ -4553,9 +4555,10 @@ static void native_free(void) {
 	nat = NULL;
 	natProf = NULL;
 	natShown = natHaveView = natUser = natDrag = false;
+	natPage = 0;
 	for (int i = 0; i < 2; ++i) {
-		SDL_Texture** t[] = { &natChromeTex[i], &natOverTex[i], &natLayerTex[i], &natMarkerTex[i] };
-		for (int k = 0; k < 4; ++k) {
+		SDL_Texture** t[] = { &natChromeTex[i], &natOverTex[i], &natLayerTex[i], &natMarkerTex[i], &natPageTex[i] };
+		for (int k = 0; k < 5; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 			*t[k] = NULL;
 		}
@@ -4582,16 +4585,17 @@ static SDL_Texture* native_texture(int v, int w, int h, SDL_BlendMode blend) {
 static void native_textures(void) {
 	if (!nat) return;
 	for (int i = 0; i < nViews; ++i) {
-		SDL_Texture** t[] = { &natChromeTex[i], &natOverTex[i], &natLayerTex[i], &natMarkerTex[i] };
-		for (int k = 0; k < 4; ++k) {
+		SDL_Texture** t[] = { &natChromeTex[i], &natOverTex[i], &natLayerTex[i], &natMarkerTex[i], &natPageTex[i] };
+		for (int k = 0; k < 5; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 		}
 		natChromeTex[i] = native_texture(i, SMMAP_W, SMMAP_H, SDL_BLENDMODE_NONE);
 		natOverTex[i] = native_texture(i, SMMAP_W, SMMAP_H, SDL_BLENDMODE_BLEND);
 		natLayerTex[i] = native_texture(i, SMMAP_LW, SMMAP_LH, SDL_BLENDMODE_BLEND);
 		natMarkerTex[i] = native_texture(i, SMMAP_MARKER, SMMAP_MARKER * 3, SDL_BLENDMODE_BLEND);
+		natPageTex[i] = native_texture(i, SMMAP_W, SMMAP_H, SDL_BLENDMODE_NONE);
 	}
-	natDirty = SMMAP_CHROME | SMMAP_LAYER | SMMAP_MARKER_CHANGED;
+	natDirty = SMMAP_CHROME | SMMAP_LAYER | SMMAP_MARKER_CHANGED | SMMAP_PAGE;
 }
 
 static void native_upload(void) {
@@ -4602,6 +4606,7 @@ static void native_upload(void) {
 		}
 		if ((natDirty & SMMAP_LAYER) && natLayerTex[i]) ui_update_texture(natLayerTex[i], smmap_layer(nat), SMMAP_LW * 4);
 		if ((natDirty & SMMAP_MARKER_CHANGED) && natMarkerTex[i]) ui_update_texture(natMarkerTex[i], smmap_markers(nat), SMMAP_MARKER * 4);
+		if ((natDirty & SMMAP_PAGE) && natPageTex[i]) ui_update_texture(natPageTex[i], smmap_page(nat), SMMAP_W * 4);
 	}
 	natDirty = 0;
 }
@@ -4612,14 +4617,15 @@ static void native_tick(void) {
 	const uint8_t* w = emu_memory(&emu, EMU_MEM_WRAM, &n);
 	if (!w || n < 0x20000) return;
 	int ch = smmap_update(nat, w);
-	natDirty |= ch & (SMMAP_CHROME | SMMAP_LAYER);
+	natDirty |= ch & (SMMAP_CHROME | SMMAP_LAYER | SMMAP_PAGE);
 	if (smmap_live(nat)) {
 		if (!natShown) natShown = true, natHaveView = false, natUser = false;
 	} else if (smmap_in_menu(nat)) {
 		natShown = false; /* SM-4: the logo */
 	}
-	/* SM-7: Samus on another square puts the map back where it rests */
-	if ((ch & SMMAP_SQUARE) && natUser && !natDrag) natUser = false, natVelX = natVelY = 0;
+	/* SM-7: Samus on another square puts the map back where it rests,
+	 * and the map back on the second screen */
+	if ((ch & SMMAP_SQUARE) && !natDrag) natUser = false, natVelX = natVelY = 0, natPage = 0;
 	/* SM-6, while the map is up */
 	hudHide = natShown && natProf->hide[0].w > 0 && cfg->map && memprobes_match(natProf->hideIf, 3, &emu);
 	native_upload();
@@ -4673,6 +4679,10 @@ static void native_step(void) {
 /* The second screen: the chrome, then through its window the map's layer
  * (repeated, as the SNES's is), the marker, and the frame's edge over them */
 static void draw_native(int s) {
+	if (natPage) {
+		ui_image_pixels(s, natPageTex, SMMAP_W, SMMAP_H, cfg->mapScale, SHADER_ON);
+		return;
+	}
 	float kx, ky;
 	SDL_Rect img = native_rect(s, &kx, &ky);
 	ui_image_pixels(s, natChromeTex, SMMAP_W, SMMAP_H, cfg->mapScale, SHADER_ON);
@@ -4699,9 +4709,36 @@ static void draw_native(int s) {
 	ui_clip(s, NULL);
 }
 
+/* A tap on the second screen (SM-7, SM-10): the plate switches the page;
+ * on the equipment page, an item is switched on or off, written to the
+ * game between frames as its own equipment screen would (an exception to
+ * "the game is only read", listed in docs/games/super-metroid.md).
+ * (RetroAchievements plays in casual mode only for now, ra.c; with
+ * hardcore, this is to be switched off.) */
+static void native_tap(int x, int y) {
+	float kx, ky;
+	SDL_Rect img = native_rect(1 - game_screen(), &kx, &ky);
+	if (kx <= 0 || ky <= 0) return;
+	int cx = (int) floorf((x - img.x) / kx), cy = (int) floorf((y - img.y) / ky);
+	if (cx < 0 || cy < 0 || cx >= SMMAP_W || cy >= SMMAP_H) return;
+	int cat = 0, idx = 0, hit = smmap_hit(nat, natPage, cx, cy, &cat, &idx);
+	if (hit == 1) {
+		natPage ^= 1;
+		if (debug) fprintf(stderr, "second screen: %s\n", natPage ? "equipment page" : "map");
+	} else if (hit == 2) {
+		size_t n = 0;
+		const uint8_t* w = emu_memory(&emu, EMU_MEM_WRAM, &n);
+		if (!w || n < 0x20000) return;
+		SmWrite out[96];
+		int k = smmap_toggle(nat, w, cat, idx, out, 96);
+		for (int i = 0; i < k; ++i) emu_write8(&emu, 0x7E0000 + out[i].addr, out[i].val);
+		if (k) native_tick(); /* (the page shows it now) */
+		fprintf(stderr, "equipment: item %d,%d switched (%d byte(s) written)\n", cat, idx, k);
+	}
+}
+
 /* A touch on the second screen (SM-7): a drag moves the map with the
- * finger, a fling carries on; a tap on the plate switches the page
- * (SM-10, to come). Never the menu. */
+ * finger, a fling carries on; a tap goes to native_tap. Never the menu. */
 static int native_touch(const Pointer* p) {
 	if (!cfg->map || nScreens != 2) return 0;
 	if (p->screen == game_screen() && !(natDrag && p->kind != 1)) return 0;
@@ -4709,6 +4746,7 @@ static int native_touch(const Pointer* p) {
 	if (p->kind == 1) {
 		natDrag = natShown;
 		natDragMoved = false;
+		natTapOk = natShown;
 		natDownX = p->x, natDownY = p->y;
 		natDownVX = natVX, natDownVY = natVY;
 		natPrevX = (float) p->x, natPrevY = (float) p->y, natPrevT = now;
@@ -4720,7 +4758,7 @@ static int native_touch(const Pointer* p) {
 	native_rect(1 - game_screen(), &kx, &ky);
 	if (kx <= 0 || ky <= 0) return 1;
 	if (abs(p->x - natDownX) > 8 || abs(p->y - natDownY) > 8) natDragMoved = true;
-	if (natDragMoved) {
+	if (natDragMoved && !natPage) {
 		/* (the map follows the finger: the view goes the other way) */
 		natVX = natDownVX - (p->x - natDownX) / kx, natVY = natDownVY - (p->y - natDownY) / ky;
 		native_clamp(&natVX, &natVY, NULL, NULL);
@@ -4735,7 +4773,11 @@ static int native_touch(const Pointer* p) {
 	}
 	if (p->kind != 2) return 1;
 	natDrag = false;
-	if (natDragMoved) {
+	if (!natDragMoved) {
+		if (natTapOk) native_tap(p->x, p->y);
+		return 1;
+	}
+	if (!natPage) {
 		/* a finger that stopped before lifting: no fling */
 		if ((double) (now - natPrevT) / SDL_GetPerformanceFrequency() > 0.08) natVelX = natVelY = 0;
 		natStepT = 0;
