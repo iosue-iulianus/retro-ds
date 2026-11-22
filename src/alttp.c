@@ -86,10 +86,10 @@
 
 #define CELL 16 /* what counts as seen: 16 x 16 world pixels, whole */
 #define CELLS (ALTTP_WORLD / CELL)
-#define CHUNK 512 /* the ground is kept in 512 x 512 pieces (an area) */
-#define CHUNKS (ALTTP_WORLD / CHUNK)
-#define SKY_W 512
-#define SKY_H 80
+#define CHUNK ALTTP_PIECE /* the ground is kept in 512 x 512 pieces (an area) */
+#define CHUNKS ALTTP_PIECES
+#define SKY_W ALTTP_SKY_W
+#define SKY_H ALTTP_SKY_H
 
 enum { P_ITEMS, P_NAME, P_PROGRESS, P_ABILITY, P_EQUIPMENT, P_COUNT };
 /* each pane's place on the game's own screen, and on SNES DS's (ALTTP-10:
@@ -125,6 +125,9 @@ struct Alttp {
 	uint32_t zlen[2][CHUNKS * CHUNKS];
 	bool zstale[2][CHUNKS * CHUNKS];
 	uint8_t seen[2][CELLS * CELLS / 8];
+	/* each piece's last change (gen when it changed: odd, never 0) */
+	uint32_t pver[2][CHUNKS * CHUNKS];
+	uint32_t gen;
 	uint32_t sky[2][SKY_W * SKY_H];
 	int linkWorld, linkX, linkY;
 	int lastArea;
@@ -190,12 +193,21 @@ Alttp* alttp_new(uint8_t* rom, size_t size) {
 	a->rom = rom, a->romSize = size;
 	a->dun = altdun_new(rom, size);
 	a->lastArea = -1;
+	a->gen = 1;
 	a->oamFrame[0] = a->oamFrame[1] = -1;
 	a->takenX = -1;
 	a->itemsKey = 1;
 	make_sky(a);
 	for (size_t i = 0; i < ALTTP_W * ALTTP_H; ++i) a->items[i] = 0xFF000000u;
 	return a;
+}
+
+/* every piece to be drawn again (the record replaced) */
+static void changed_all(Alttp* a) {
+	a->gen += 2;
+	for (int w = 0; w < 2; ++w) {
+		for (int i = 0; i < CHUNKS * CHUNKS; ++i) a->pver[w][i] = a->gen;
+	}
 }
 
 static void clear_seen(Alttp* a) {
@@ -207,6 +219,7 @@ static void clear_seen(Alttp* a) {
 		}
 	}
 	memset(a->seen, 0, sizeof a->seen);
+	changed_all(a);
 }
 
 void alttp_free(Alttp* a) {
@@ -600,10 +613,12 @@ static uint16_t* chunk_for(Alttp* a, int w, int x, int y) {
 	uint16_t** c = &a->chunk[w][i];
 	if (!*c) *c = calloc(CHUNK * CHUNK, sizeof(uint16_t));
 	a->zstale[w][i] = true;
+	a->pver[w][i] = a->gen;
 	return *c;
 }
 
 static void capture(Alttp* a, const uint8_t* vram) {
+	a->gen += 2;
 	int w = (r8(a, R_AREA) & 0x40) != 0;
 	int cx = r16(a, R_BG2_X), cy = r16(a, R_BG2_Y) + 1; /* line 0 shows row scroll + 1 */
 	bool bg1 = r8(a, R_TM) & 1;
@@ -685,6 +700,45 @@ void alttp_compose(const Alttp* a, int world, int zoom, int vx, int vy, int w, i
 			o[ox] = 0xFF000000u | B << 16 | G << 8 | R;
 		}
 	}
+}
+
+uint32_t alttp_piece_version(const Alttp* a, int world, int i) {
+	world &= 1;
+	return i >= 0 && i < CHUNKS * CHUNKS && a->chunk[world][i] ? a->pver[world][i] : 0;
+}
+
+void alttp_piece(const Alttp* a, int world, int i, int level, uint32_t* out) {
+	world &= 1;
+	level = level < 0 ? 0 : level > 4 ? 4 : level;
+	int b = 1 << level, n = CHUNK >> level;
+	int x0 = (i % CHUNKS) * CHUNK, y0 = (i / CHUNKS) * CHUNK;
+	const uint16_t* c = i >= 0 && i < CHUNKS * CHUNKS ? a->chunk[world][i] : NULL;
+	for (int oy = 0; oy < n; ++oy) {
+		uint32_t* o = out + (size_t) oy * n;
+		for (int ox = 0; ox < n; ++ox) {
+			unsigned r = 0, g = 0, bl = 0, k = 0;
+			for (int y = oy * b; y < oy * b + b && c; ++y) {
+				for (int x = ox * b; x < ox * b + b; ++x) {
+					uint16_t v = c[y * CHUNK + x];
+					if (!v || !is_seen(a, world, x0 + x, y0 + y)) continue;
+					r += v & 31, g += (v >> 5) & 31, bl += (v >> 10) & 31, ++k;
+				}
+			}
+			if (!k) {
+				o[ox] = 0;
+			} else if (b == 1) {
+				o[ox] = abgr(c[oy * CHUNK + ox]);
+			} else {
+				/* the block's average, as much there as was seen of it */
+				uint32_t R = r * 255 / (31 * k), G = g * 255 / (31 * k), B = bl * 255 / (31 * k);
+				o[ox] = (uint32_t) (k * 255 / (unsigned) (b * b)) << 24 | B << 16 | G << 8 | R;
+			}
+		}
+	}
+}
+
+const uint32_t* alttp_sky(const Alttp* a, int world) {
+	return a->sky[world & 1];
 }
 
 void alttp_link(const Alttp* a, int* world, int* x, int* y) {
@@ -962,6 +1016,7 @@ bool alttp_load_seen(Alttp* a, const char* path) {
 	ok = ok && unpack(z, (size_t) n, a->seen, a->chunk, a->zchunk, a->zlen);
 	free(z);
 	if (!ok) clear_seen(a);
+	changed_all(a);
 	return ok;
 }
 
@@ -976,6 +1031,7 @@ bool alttp_seen_merge(Alttp* a, const void* data, size_t n) {
 	memset(chunk, 0, sizeof chunk);
 	bool ok = unpack(data, n, seen, chunk, NULL, NULL);
 	int added = 0;
+	a->gen += 2;
 	for (int w = 0; w < 2 && ok; ++w) {
 		for (int gy = 0; gy < CELLS; ++gy) {
 			for (int gx = 0; gx < CELLS; ++gx) {

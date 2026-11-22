@@ -45,6 +45,8 @@
  *                          pixels from world pixel (X, Y) at ZOOM (1, 2, 4)
  *   alttp dungeon NAME [FLOOR]   the dungeon map Link is in (FLOOR at
  *                          the top, else as the game opens it)
+ *   alttp piece NAME W I L   the map's piece I of world W at level L as
+ *                          the app's GPU map draws it (NAME.png)
  *   alttp marker NAME      Link's marker on the map (32 x 32, its middle at
  *                          Link's place) and where it goes on the picture
  *   alttp select ITEM      select Y item ITEM (1 bow ... 20 mirror) as a
@@ -223,6 +225,15 @@ static void alttp_cmd(Emu* e, const char* romPath, const char* line) {
 		out_path(path, sizeof path, name, ".png");
 		bool ok = write_png(path, alttp_items(alt), ALTTP_W, ALTTP_H, ALTTP_W);
 		printf("alttp items %s: %s\n", path, ok ? "ok" : "FAILED");
+	} else if (!strcmp(sub, "piece")) {
+		/* (zoom, x, y: the world, the piece, the level) */
+		int n = ALTTP_PIECE >> (y < 0 ? 0 : y > 4 ? 4 : y);
+		uint32_t* px = malloc((size_t) ALTTP_PIECE * ALTTP_PIECE * 4);
+		if (px) alttp_piece(alt, zoom, x, y, px);
+		out_path(path, sizeof path, name, ".png");
+		bool ok = px && write_png(path, px, n, n, n);
+		printf("alttp piece %s (version %u): %s\n", path, alttp_piece_version(alt, zoom, x), ok ? "ok" : "FAILED");
+		free(px);
 	} else if (!strcmp(sub, "marker")) {
 		alt_update(e);
 		size_t n;

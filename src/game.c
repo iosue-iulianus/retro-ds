@@ -4805,22 +4805,41 @@ static int native_touch(const Pointer* p) {
  * docs/games/a-link-to-the-past.md, ALTTP-1 and on): the items screen,
  * or the world map (X switches); taps select items, a drag moves the map
  * and a tap on it changes its zoom. Nothing is captured on a hidden copy. */
-#define ALT_TW (ALTTP_W + 8) /* the map's texture: the screen and a margin, for smooth scrolling */
-#define ALT_TH (ALTTP_H + 8)
 static Alttp* alt;
 static bool altShown;   /* the second screen shows it (else the logo, ALTTP-9) */
 static int altPage;     /* 0 the items screen, 1 the map (ALTTP-1) */
-static int altZoom = 1; /* world pixels a shown pixel (ALTTP-3) */
+/* ALTTP-3: the map's zooms, world pixels a pixel of the screen (each tap
+ * the next, out; from the farthest, the closest), and the one it's at */
+static const float altZooms[] = { 0.5f, 1, 2, 4 };
+#define ALT_ZOOMS ((int) (sizeof altZooms / sizeof altZooms[0]))
+static int altZoomI = 2;
+#define ALT_Z (altZooms[altZoomI])
 static bool altXDown;
-static bool altItemsDirty, altMapDirty;
-static SDL_Texture *altItemsTex[2], *altMapTex[2], *altMarkerTex[2], *altDunTex[2];
+static bool altItemsDirty;
+static SDL_Texture *altItemsTex[2], *altMarkerTex[2], *altDunTex[2], *altSkyTex[2][2];
+/* The map's pieces on the GPU (alttp_piece): made when first shown, made
+ * again when the piece changed (at most every ALT_REMAKE seconds while
+ * Link walks), the least lately shown let go past ALT_BUDGET bytes. The
+ * map scrolls and zooms by moving them: nothing is drawn on the CPU then. */
+typedef struct {
+	int world, piece, level; /* -1: free */
+	uint32_t ver;            /* the piece's version it was made from */
+	Uint64 madeT;
+	unsigned shown;          /* the frame it was last shown */
+	SDL_Texture* tex[2];     /* (one view's: the second screen's) */
+} AltPiece;
+#define ALT_CACHE 128
+#define ALT_BUDGET (40u << 20)
+#define ALT_REMAKE 0.25
+static AltPiece altCache[ALT_CACHE];
+static size_t altCacheBytes;
+static unsigned altFrame;
+static uint32_t* altPieceBuf;
 /* ALTTP-6: the floor shown at the top of the dungeon map (as the game
  * opens it until the player picks one; back to that when Link changes
  * floor), and Link's floor when it was picked */
 static int altFloor = ALTTP_FLOOR_AS_GAME, altFloorLink;
 static uint32_t altDunKey; /* what the dungeon map's texture was drawn from (0: nothing) */
-static uint32_t altMapPx[ALT_TW * ALT_TH];
-static int altMapX = INT_MIN, altMapY, altMapZoom, altMapWorld; /* what altMapPx holds */
 /* The view (the map's top left, world pixels): on Link, or the player's
  * from a drag until Link enters another area (ALTTP-3) */
 static float altVX, altVY, altVelX, altVelY;
@@ -4870,7 +4889,6 @@ static void alt_merge_pending(void) {
 	fprintf(stderr, "map seen (file %d): the state's record %s\n", altFile, ok ? "added" : "not readable");
 	free(altPending);
 	altPending = NULL;
-	altMapDirty = true;
 }
 
 static void alt_state_restore(const uint8_t* d, uint32_t n) {
@@ -4883,6 +4901,17 @@ static void alt_state_restore(const uint8_t* d, uint32_t n) {
 	alt_merge_pending(); /* (now if it's this file's, else once its file is played) */
 }
 
+static void alt_cache_clear(void) {
+	for (int k = 0; k < ALT_CACHE; ++k) {
+		for (int i = 0; i < 2; ++i) {
+			if (altCache[k].tex[i]) SDL_DestroyTexture(altCache[k].tex[i]);
+		}
+		memset(&altCache[k], 0, sizeof altCache[k]);
+		altCache[k].world = -1;
+	}
+	altCacheBytes = 0;
+}
+
 static void alt_free(void) {
 	free(altPending);
 	altPending = NULL;
@@ -4891,14 +4920,17 @@ static void alt_free(void) {
 	alttp_free(alt);
 	alt = NULL;
 	altShown = altHaveView = altUser = altDrag = false;
-	altPage = 0, altFile = 0, altMapX = INT_MIN, altFloor = ALTTP_FLOOR_AS_GAME, altDunKey = 0;
+	altPage = 0, altFile = 0, altFloor = ALTTP_FLOOR_AS_GAME, altDunKey = 0;
 	for (int i = 0; i < 2; ++i) {
-		SDL_Texture** t[] = { &altItemsTex[i], &altMapTex[i], &altMarkerTex[i], &altDunTex[i] };
-		for (int k = 0; k < 4; ++k) {
+		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunTex[i], &altSkyTex[0][i], &altSkyTex[1][i] };
+		for (int k = 0; k < 5; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 			*t[k] = NULL;
 		}
 	}
+	alt_cache_clear();
+	free(altPieceBuf);
+	altPieceBuf = NULL;
 }
 
 static void alt_open(const char* rom) {
@@ -4910,33 +4942,47 @@ static void alt_open(const char* rom) {
 
 static void alt_textures(void) {
 	if (!alt) return;
+	alt_cache_clear();
 	for (int i = 0; i < nViews; ++i) {
-		SDL_Texture** t[] = { &altItemsTex[i], &altMapTex[i], &altMarkerTex[i], &altDunTex[i] };
-		for (int k = 0; k < 4; ++k) {
+		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunTex[i], &altSkyTex[0][i], &altSkyTex[1][i] };
+		for (int k = 0; k < 5; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 		}
 		altItemsTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
 		altDunTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
-		altMapTex[i] = native_texture(i, ALT_TW, ALT_TH, SDL_BLENDMODE_NONE);
 		altMarkerTex[i] = native_texture(i, 32, 32, SDL_BLENDMODE_BLEND);
+		for (int w = 0; w < 2; ++w) {
+			altSkyTex[w][i] = native_texture(i, ALTTP_SKY_W, ALTTP_SKY_H, SDL_BLENDMODE_NONE);
+			if (altSkyTex[w][i]) ui_update_texture(altSkyTex[w][i], alttp_sky(alt, w), ALTTP_SKY_W * 4);
+		}
 	}
 	altItemsDirty = true;
-	altMapX = INT_MIN;
 	altDunKey = 0;
+}
+
+/* The map fills the second screen, whatever its shape (ALTTP-3): its
+ * size in world pixels at the zoom */
+static void alt_view_size(float* w, float* h) {
+	SDL_Rect a = screens[nScreens == 2 ? 1 - game_screen() : 0].pic;
+	*w = SDL_max(a.w, 1) * ALT_Z, *h = SDL_max(a.h, 1) * ALT_Z;
+}
+
+/* The view inside the world (in the middle where the world is smaller) */
+static void alt_clamp(float* vx, float* vy) {
+	float w, h;
+	alt_view_size(&w, &h);
+	*vx = w >= ALTTP_WORLD ? (ALTTP_WORLD - w) / 2 : SDL_clamp(*vx, 0.0f, ALTTP_WORLD - w);
+	*vy = h >= ALTTP_WORLD ? (ALTTP_WORLD - h) / 2 : SDL_clamp(*vy, 0.0f, ALTTP_WORLD - h);
 }
 
 /* Where the view rests: Link in the middle, inside the world */
 static void alt_home(float* vx, float* vy) {
-	int w, x, y;
-	alttp_link(alt, &w, &x, &y);
-	float maxX = (float) (ALTTP_WORLD - ALTTP_W * altZoom), maxY = (float) (ALTTP_WORLD - ALTTP_H * altZoom);
-	*vx = SDL_clamp(x - ALTTP_W * altZoom / 2.0f, 0.0f, maxX);
-	*vy = SDL_clamp(y - ALTTP_H * altZoom / 2.0f, 0.0f, maxY);
-}
-
-static void alt_clamp(float* vx, float* vy) {
-	*vx = SDL_clamp(*vx, 0.0f, (float) (ALTTP_WORLD - ALTTP_W * altZoom));
-	*vy = SDL_clamp(*vy, 0.0f, (float) (ALTTP_WORLD - ALTTP_H * altZoom));
+	int wd, x, y;
+	alttp_link(alt, &wd, &x, &y);
+	float w, h;
+	alt_view_size(&w, &h);
+	*vx = x - w / 2, *vy = y - h / 2;
+	alt_clamp(vx, vy);
 }
 
 /* After the frames of a pass of the loop: the game read again */
@@ -4960,11 +5006,9 @@ static void alt_tick(void) {
 			bool ok = alttp_load_seen(alt, path);
 			fprintf(stderr, "map seen (file %d): %s %s\n", altFile, ok ? "loaded from" : "nothing yet in", path);
 		}
-		altMapDirty = true;
 	}
 	alt_merge_pending();
 	if (ch & ALTTP_ITEMS) altItemsDirty = true;
-	if (ch & ALTTP_MAP) altMapDirty = true;
 	for (int i = 0; i < nViews && (ch & ALTTP_MARKER); ++i) {
 		if (altMarkerTex[i]) ui_update_texture(altMarkerTex[i], alttp_marker(alt), 32 * 4);
 	}
@@ -5034,30 +5078,113 @@ static SDL_Rect alt_rect(int s, float* kx, float* ky) {
 	return img;
 }
 
-/* The map: composed (in shown pixels) from the view's whole shown pixel,
- * drawn at its fraction so a drag moves it smoothly; Link's marker on it */
+/* A piece of the map as a texture of view v, made (again) if it changed:
+ * NULL if it isn't made yet (this frame's time for making them gone) */
+static size_t bytes_of(const AltPiece* e) {
+	size_t n = (size_t) (ALTTP_PIECE >> e->level);
+	return n * n * 4;
+}
+
+static SDL_Texture* const* alt_piece_tex(int v, int world, int piece, int level, uint32_t ver, double* budget) {
+	Uint64 now = SDL_GetPerformanceCounter(), freq = SDL_GetPerformanceFrequency();
+	AltPiece* e = NULL;
+	for (int k = 0; k < ALT_CACHE && !e; ++k) {
+		if (altCache[k].world == world && altCache[k].piece == piece && altCache[k].level == level) e = &altCache[k];
+	}
+	int n = ALTTP_PIECE >> level;
+	size_t bytes = (size_t) n * n * 4;
+	bool make = !e || !e->tex[v] || (e->ver != ver && (double) (now - e->madeT) / freq >= ALT_REMAKE);
+	if (make && *budget <= 0) return e && e->tex[v] ? e->tex : NULL;
+	if (!e) {
+		/* a free place, else the one shown longest ago (not this frame) */
+		for (int k = 0; k < ALT_CACHE; ++k) {
+			AltPiece* c = &altCache[k];
+			if (c->world < 0) {
+				e = c;
+				break;
+			}
+			if (c->shown != altFrame && (!e || c->shown < e->shown)) e = c;
+		}
+		if (!e) return NULL;
+		for (int i = 0; i < 2; ++i) {
+			if (e->tex[i]) SDL_DestroyTexture(e->tex[i]), altCacheBytes -= bytes_of(e);
+		}
+		memset(e, 0, sizeof *e);
+		e->world = world, e->piece = piece, e->level = level;
+		/* within the budget: the ones shown longest ago go */
+		while (altCacheBytes + bytes > ALT_BUDGET) {
+			AltPiece* old = NULL;
+			for (int k = 0; k < ALT_CACHE; ++k) {
+				AltPiece* c = &altCache[k];
+				if (c != e && c->world >= 0 && c->shown != altFrame && (!old || c->shown < old->shown)) old = c;
+			}
+			if (!old) break;
+			for (int i = 0; i < 2; ++i) {
+				if (old->tex[i]) SDL_DestroyTexture(old->tex[i]), altCacheBytes -= bytes_of(old);
+			}
+			memset(old, 0, sizeof *old);
+			old->world = -1;
+		}
+	}
+	e->shown = altFrame;
+	if (make) {
+		if (!e->tex[v]) {
+			e->tex[v] = native_texture(v, n, n, SDL_BLENDMODE_BLEND);
+			if (!e->tex[v]) return NULL;
+			altCacheBytes += bytes;
+		}
+		if (!altPieceBuf) altPieceBuf = malloc((size_t) ALTTP_PIECE * ALTTP_PIECE * 4);
+		if (!altPieceBuf) return NULL;
+		alttp_piece(alt, world, piece, level, altPieceBuf);
+		ui_update_texture(e->tex[v], altPieceBuf, n * 4);
+		e->ver = ver, e->madeT = now;
+		*budget -= (double) (SDL_GetPerformanceCounter() - now) / freq;
+	}
+	return e->tex;
+}
+
+/* The map (ALTTP-2, ALTTP-3): the whole second screen, whatever its
+ * shape; the clouds, the seen ground over them in pieces at the zoom's
+ * level (each texture pixel one or two of the screen's), Link's marker at
+ * a size of its own. The view's top left is (altVX, altVY), world pixels. */
 static void draw_alt_map(int s) {
 	int world, lx, ly;
 	alttp_link(alt, &world, &lx, &ly);
-	int sx = (int) floorf(altVX / altZoom), sy = (int) floorf(altVY / altZoom);
-	if (altMapDirty || sx != altMapX || sy != altMapY || altZoom != altMapZoom || world != altMapWorld) {
-		alttp_compose(alt, world, altZoom, sx * altZoom, sy * altZoom, ALT_TW, ALT_TH, altMapPx);
-		for (int i = 0; i < nViews; ++i) {
-			if (altMapTex[i]) ui_update_texture(altMapTex[i], altMapPx, ALT_TW * 4);
-		}
-		altMapX = sx, altMapY = sy, altMapZoom = altZoom, altMapWorld = world, altMapDirty = false;
-	}
-	float kx, ky;
-	SDL_Rect img = alt_rect(s, &kx, &ky);
-	SDL_Rect clip = { img.x + screens[s].rect.x, img.y + screens[s].rect.y, img.w, img.h };
+	SDL_Rect a = screens[s].pic;
+	int v = screens[s].view;
+	float z = ALT_Z;
+	++altFrame;
+	SDL_Rect clip = { a.x + screens[s].rect.x, a.y + screens[s].rect.y, a.w, a.h };
 	ui_clip(s, &clip);
-	float fx = altVX / altZoom - sx, fy = altVY / altZoom - sy;
-	int bx = img.x - (int) lroundf(fx * kx), by = img.y - (int) lroundf(fy * ky);
-	ui_image_part(s, altMapTex, (SDL_Rect) { 0, 0, ALT_TW, ALT_TH }, (SDL_Rect) { bx, by, (int) lroundf(ALT_TW * kx), (int) lroundf(ALT_TH * ky) });
+	/* where the world's top left is on the screen */
+	int ox = a.x - (int) lroundf(altVX / z), oy = a.y - (int) lroundf(altVY / z);
+	/* the clouds, fixed to the world, at a size of their own */
+	int k = SDL_max(1, a.h / 540), tw = ALTTP_SKY_W * k, th = ALTTP_SKY_H * k;
+	int x0 = ox - (int) ceilf((ox - a.x) / (float) tw) * tw, y0 = oy - (int) ceilf((oy - a.y) / (float) th) * th;
+	for (int y = y0; y < a.y + a.h; y += th) {
+		for (int x = x0; x < a.x + a.w; x += tw) ui_image_part(s, altSkyTex[world & 1], (SDL_Rect) { 0, 0, ALTTP_SKY_W, ALTTP_SKY_H }, (SDL_Rect) { x, y, tw, th });
+	}
+	/* the ground */
+	int level = z >= 4 ? 2 : z >= 2 ? 1 : 0;
+	int n = ALTTP_PIECE >> level, ps = (int) lroundf(ALTTP_PIECE / z);
+	double budget = 0.004; /* seconds a frame for making pieces */
+	for (int py = 0; py < ALTTP_PIECES; ++py) {
+		int y = oy + py * ps;
+		if (y >= a.y + a.h || y + ps <= a.y) continue;
+		for (int px = 0; px < ALTTP_PIECES; ++px) {
+			int x = ox + px * ps;
+			if (x >= a.x + a.w || x + ps <= a.x) continue;
+			int i = py * ALTTP_PIECES + px;
+			uint32_t ver = alttp_piece_version(alt, world, i);
+			SDL_Texture* const* t = ver ? alt_piece_tex(v, world, i, level, ver, &budget) : NULL;
+			if (t) ui_image_part(s, t, (SDL_Rect) { 0, 0, n, n }, (SDL_Rect) { x, y, ps, ps });
+		}
+	}
+	/* Link: his sprite at three of the screen's pixels to one of his (1080 lines) */
 	if (alttp_marker_on(alt)) {
-		float mx = (lx - altVX) / altZoom - 16, my = (ly - altVY) / altZoom - 16;
-		ui_image_part(s, altMarkerTex, (SDL_Rect) { 0, 0, 32, 32 },
-		              (SDL_Rect) { img.x + (int) lroundf(mx * kx), img.y + (int) lroundf(my * ky), (int) lroundf(32 * kx), (int) lroundf(32 * ky) });
+		int m = SDL_max(1, a.h / 360);
+		int mx = ox + (int) lroundf(lx / z) - 16 * m, my = oy + (int) lroundf(ly / z) - 16 * m;
+		ui_image_part(s, altMarkerTex, (SDL_Rect) { 0, 0, 32, 32 }, (SDL_Rect) { mx, my, 32 * m, 32 * m });
 	}
 	ui_clip(s, NULL);
 }
@@ -5080,7 +5207,6 @@ static uint32_t alt_keys(uint32_t keys) {
 	if (x && !altXDown) {
 		altPage ^= 1;
 		if (altPage) altUser = false, altHaveView = false;
-		altMapDirty = true;
 		fprintf(stderr, "second screen: %s\n", altPage ? "the map" : "the items");
 	}
 	altXDown = x;
@@ -5093,6 +5219,18 @@ static uint32_t alt_keys(uint32_t keys) {
  * RetroAchievements' hardcore it is to be switched off, ra.c plays casual
  * only for now); on the map, the next zoom (ALTTP-3) */
 static void alt_tap(int x, int y) {
+	if (altPage == 1 && !alttp_in_dungeon(alt)) {
+		/* keep what's in the middle in the middle */
+		float w, h;
+		alt_view_size(&w, &h);
+		float mx = altVX + w / 2, my = altVY + h / 2;
+		altZoomI = (altZoomI + 1) % ALT_ZOOMS;
+		alt_view_size(&w, &h);
+		altVX = mx - w / 2, altVY = my - h / 2;
+		alt_clamp(&altVX, &altVY);
+		fprintf(stderr, "map zoom: %g world pixels a pixel\n", ALT_Z);
+		return;
+	}
 	float kx, ky;
 	SDL_Rect img = alt_rect(1 - game_screen(), &kx, &ky);
 	if (kx <= 0 || ky <= 0) return;
@@ -5106,15 +5244,6 @@ static void alt_tap(int x, int y) {
 			altFloorLink = link;
 			fprintf(stderr, "dungeon map: floor %d\n", f);
 		}
-		return;
-	}
-	if (altPage == 1) {
-		/* keep what's in the middle in the middle */
-		float mx = altVX + ALTTP_W * altZoom / 2.0f, my = altVY + ALTTP_H * altZoom / 2.0f;
-		altZoom = altZoom == 1 ? 2 : altZoom == 2 ? 4 : 1;
-		altVX = mx - ALTTP_W * altZoom / 2.0f, altVY = my - ALTTP_H * altZoom / 2.0f;
-		alt_clamp(&altVX, &altVY);
-		fprintf(stderr, "map zoom: %d world pixels a pixel\n", altZoom);
 		return;
 	}
 	int item = alttp_items_hit(alt, cx, cy);
@@ -5151,12 +5280,12 @@ static int alt_touch(const Pointer* p) {
 	if (kx <= 0 || ky <= 0) return 1;
 	if (fabsf((p->x - altDownX) / kx) > 4 || fabsf((p->y - altDownY) / ky) > 4) altDragMoved = true;
 	if (altDragMoved && altPage == 1 && !alttp_in_dungeon(alt)) {
-		altVX = altDownVX - (p->x - altDownX) / kx * altZoom, altVY = altDownVY - (p->y - altDownY) / ky * altZoom;
+		altVX = altDownVX - (p->x - altDownX) * ALT_Z, altVY = altDownVY - (p->y - altDownY) * ALT_Z;
 		alt_clamp(&altVX, &altVY);
 		altUser = true;
 		double dt = (double) (now - altPrevT) / SDL_GetPerformanceFrequency();
 		if (dt > 0.004) {
-			float vx = -(p->x - altPrevX) / kx * altZoom / (float) dt, vy = -(p->y - altPrevY) / ky * altZoom / (float) dt;
+			float vx = -(p->x - altPrevX) * ALT_Z / (float) dt, vy = -(p->y - altPrevY) * ALT_Z / (float) dt;
 			altVelX = altVelX * 0.5f + vx * 0.5f, altVelY = altVelY * 0.5f + vy * 0.5f;
 			altPrevX = (float) p->x, altPrevY = (float) p->y, altPrevT = now;
 		}

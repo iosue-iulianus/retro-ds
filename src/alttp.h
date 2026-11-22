@@ -19,6 +19,10 @@
 #define ALTTP_W 256
 #define ALTTP_H 224
 #define ALTTP_WORLD 4096 /* each world is 4096 x 4096 pixels */
+#define ALTTP_PIECE 512 /* the map is kept in pieces of 512 x 512 world pixels */
+#define ALTTP_PIECES (ALTTP_WORLD / ALTTP_PIECE) /* a row of them */
+#define ALTTP_SKY_W 512 /* the clouds' picture (the fog), repeated */
+#define ALTTP_SKY_H 80
 
 typedef struct Alttp Alttp;
 
@@ -69,6 +73,16 @@ void alttp_link(const Alttp* a, int* world, int* x, int* y);
  * w x h shown pixels from world pixel (vx, vy), the seen ground and the
  * clouds elsewhere, into out (w x h) */
 void alttp_compose(const Alttp* a, int world, int zoom, int vx, int vy, int w, int h, uint32_t* out);
+/* The map in pieces, for drawing it on the GPU: piece i (row by row,
+ * ALTTP_PIECES a row) of `world` at level L (each pixel 2^L x 2^L world
+ * pixels, averaged), (ALTTP_PIECE >> L) squared pixels into out; what
+ * hasn't been seen transparent (partly, where a pixel was partly seen).
+ * alttp_piece_version: changes whenever the piece does; 0 while there's
+ * nothing in it. alttp_sky: the clouds shown where nothing is seen,
+ * ALTTP_SKY_W x ALTTP_SKY_H, in the world's own colours. */
+uint32_t alttp_piece_version(const Alttp* a, int world, int i);
+void alttp_piece(const Alttp* a, int world, int i, int level, uint32_t* out);
+const uint32_t* alttp_sky(const Alttp* a, int world);
 /* Link's marker (32 x 32, its middle at Link's place): his sprite as the
  * game draws it (ALTTP-4: facing and moving as he is; alttp_update says
  * ALTTP_MARKER when it changed), or the items screen's flashing ring until
