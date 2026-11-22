@@ -172,10 +172,57 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   the SDK and NDK, so it runs on GitHub Actions
   (`.github/workflows/android.yml`: pushes to `snes`, pull requests into
   it, "Run workflow"); release-signed with the repo's secrets (the key is
-  in the owner's `~/.config/snes-ds-signing/`). Install on the Duo over
-  wireless adb: `adb.exe -s IP:PORT install "$(wslpath -w APK)"` (Windows'
-  adb; the port from `adb.exe mdns services`).
+  in the owner's `~/.config/snes-ds-signing/`). Getting it onto the Duo:
+  "The device loop" below.
 - Platforms: Android and the Linux desktop only.
+
+## The device loop (build on CI, install over wireless adb)
+
+How a change gets onto the owner's Retroid Pocket Duo. The workspace
+can't build Android itself (no SDK), so:
+
+1. **Push the branch.** An open pull request into `snes` (or a push to
+   `snes`) runs `.github/workflows/android.yml` (the release-signed APK)
+   and the i18n check. If i18n fails, it's almost always shifted line
+   numbers: run `python3 tools/i18n.py all`, commit the `.pot`, push.
+2. **Wait for the Android run of that exact commit.** Each push starts
+   two runs (push and pull_request events), so pick the run by commit
+   and name, then wait on its id in the background:
+   `gh run list -R iosue-iulianus/snes-ds --branch BRANCH --json databaseId,name,headSha`
+   (`name == "Android"`, `headSha` the commit), then loop on
+   `gh run view ID --json status` until `completed`.
+3. **Download it** into the scratchpad: `gh run download ID -R
+   iosue-iulianus/snes-ds` gives `snes-ds-vX-android/*.apk`.
+4. **Check SNES DS isn't in use.** `adb.exe -s 192.168.0.217:PORT shell
+   'dumpsys activity activities | grep -E "ResumedActivity:"'`: if
+   `SnesDsActivity` is resumed the owner is playing; wait (or ask). A
+   cached process in the background is fine (it auto-saves on leaving).
+5. **Back up the owner's states first** (never lose them): pull the
+   newest `SNES DS/states/*.state` (and the `.srm` in `ROMs/snes`) into
+   `/home/joshua/projects/snes-ds/test-data/<game>/`, read-only.
+6. **Install over the old one:** `adb.exe -s IP:PORT install -r
+   "$(wslpath -w APK)"`. Same signing key, so data and settings stay.
+   Never suggest uninstalling: without All files access the app's own
+   folder (and its states) goes with it.
+
+Device details:
+
+- adb is Windows' (`/mnt/c/ProgramData/chocolatey/bin/adb.exe`, WSL
+  with mirrored networking). The Duo is at 192.168.0.217; the port
+  changes whenever wireless debugging restarts (`adb.exe mdns services`
+  or `adb.exe devices`).
+- Paths on the device: `/storage/emulated/0/SNES DS/` (log
+  `snes-ds.log`, `states/`, `launch.log`), ROMs in
+  `/storage/emulated/0/ROMs/snes/`.
+- Screenshots of each display: `adb.exe exec-out screencap -d DISPLAY_ID
+  -p > file.png` with the ids from `dumpsys SurfaceFlinger --display-id`
+  (plain `screencap` came back black). The top display (game activity) is
+  logical display 0, the bottom (second screen) display 2.
+- Test taps without the owner: `adb.exe shell input -d 0 tap X Y` (top
+  display coordinates); the log's `touch down on screen ...` lines show
+  where SNES DS put it. Only tap where it can't upset the game.
+- Debug logging (`SNESDS_DEBUG`) can't be switched on at runtime on
+  Android; the log has the 5-second frame lines and touch lines.
 
 ## Testing without the device
 
