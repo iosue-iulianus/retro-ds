@@ -73,6 +73,49 @@ static void trim_black(uint8_t* rgba, int w, int h) {
 	free(mark), free(stack);
 }
 
+/* The profile's second picture (dropRects), the frame after the logo's */
+static void logo_drop(Emu* e, const MapProfile* p, const char* outPng) {
+	if (p->logo.dropPokeAddr) emu_write8(e, p->logo.dropPokeAddr, p->logo.dropPokeVal);
+	emu_frame_blind(e, 0);
+	if (p->logo.dropPokeAddr) emu_write8(e, p->logo.dropPokeAddr, p->logo.dropPokeVal);
+	emu_frame(e, 0);
+	int x0 = e->w, y0 = e->h, x1 = 0, y1 = 0;
+	for (int r = 0; r < 4 && p->logo.dropRects[r][2] > 0; ++r) {
+		const int* q = p->logo.dropRects[r];
+		x0 = q[0] < x0 ? q[0] : x0, y0 = q[1] < y0 ? q[1] : y0, x1 = q[2] > x1 ? q[2] : x1, y1 = q[3] > y1 ? q[3] : y1;
+	}
+	x1 = x1 > e->w ? e->w : x1, y1 = y1 > e->h ? e->h : y1;
+	int w = x1 - x0, h = y1 - y0;
+	uint8_t* rgba = w > 0 && h > 0 ? calloc((size_t) w * h, 4) : NULL;
+	if (!rgba) return;
+	for (int y = y0; y < y1; ++y) {
+		for (int x = x0; x < x1; ++x) {
+			bool in = false;
+			for (int r = 0; r < 4 && p->logo.dropRects[r][2] > 0 && !in; ++r) {
+				const int* q = p->logo.dropRects[r];
+				in = x >= q[0] && x < q[2] && y >= q[1] && y < q[3];
+			}
+			uint32_t c = e->fb[y * e->w + x];
+			/* (the backdrop, the frame's corner's colour: clear; a flash can colour it) */
+			if (!in || (c & 0xFFFFFF) == (e->fb[0] & 0xFFFFFF)) continue;
+			uint8_t* o = &rgba[((y - y0) * w + x - x0) * 4];
+			o[0] = c & 0xFF, o[1] = (c >> 8) & 0xFF, o[2] = (c >> 16) & 0xFF, o[3] = 255;
+		}
+	}
+	char path[1100], tmp[1100];
+	logo_drop_path(outPng, path, sizeof path);
+	snprintf(tmp, sizeof tmp, "%s.tmp", path);
+	bool ok = stbi_write_png(tmp, w, h, 4, rgba, w * 4) && rename(tmp, path) == 0;
+	free(rgba);
+	fprintf(stderr, "logo: %s's drop %dx%d at %d,%d -> %s\n", p->codes[0], w, h, x0, y0, ok ? path : "write failed");
+}
+
+void logo_drop_path(const char* logoPng, char* out, size_t n) {
+	snprintf(out, n, "%s", logoPng);
+	char* dot = strrchr(out, '.');
+	if (dot && (size_t) (dot - out) + 10 < n) strcpy(dot, "-drop.png");
+}
+
 /* The logo from the game's own title screen: the ROM booted on a silent
  * core and run to its title (the profile's logo.wait, pressStart and wait2,
  * or its steps); the picture inside the profile's box is kept as a PNG. */
@@ -120,6 +163,7 @@ bool logo_extract(const char* romPath, const char* gameCode, const char* outPng)
 		ok = rgba && stbi_write_png(tmp, w, h, 4, rgba, w * 4) && rename(tmp, outPng) == 0;
 		free(rgba);
 		fprintf(stderr, "logo: %s %dx%d -> %s\n", gameCode, w, h, ok ? outPng : "write failed");
+		if (ok && p->logo.dropRects[0][2] > 0) logo_drop(&e, p, outPng);
 	}
 	emu_close(&e);
 	return ok;

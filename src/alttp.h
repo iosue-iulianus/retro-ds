@@ -163,6 +163,12 @@ bool alttp_in_special(const Alttp* a);
 /* The game over screen (module $12): it takes the video memory the maps
  * are drawn from */
 bool alttp_game_over(const Alttp* a);
+/* ALTTP-14: the game's title (module 0), and the y of its sword's top on
+ * the game's screen (SNES pixels, its picture from logo_drop_path: 48
+ * pixels from x 48), where it is or, before it starts down, would be
+ * (negative: above the screen); false while there's no sword to show */
+bool alttp_title(const Alttp* a);
+bool alttp_title_sword(const Alttp* a, int* y);
 const uint32_t* alttp_dungeon_map(Alttp* a, const uint8_t* vram, int view);
 /* The dungeon's floors, lowest and highest, and Link's */
 bool alttp_dungeon_floors(const Alttp* a, int* lowest, int* highest, int* link);

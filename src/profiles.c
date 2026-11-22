@@ -95,7 +95,11 @@ static const MapProfile profiles[] = {
 		/* ALTTP-9: the title's logo the frame the sword has come down,
 		 * on black (frame 858 from power-on; the flashes, then the
 		 * scenery, come next), the black round it trimmed */
-		.logo = { .wait = 857, .minX = 48, .minY = 36, .maxX = 226, .maxY = 168, .rev = 1, .trimBlack = true },
+		.logo = { .wait = 857, .minX = 48, .minY = 36, .maxX = 226, .maxY = 168, .rev = 2, .trimBlack = true,
+		          /* ALTTP-14: the sword alone (sprites only, $1C = $10), its
+		           * crossguard's row and its blade's column (the Triforce's
+		           * sprites beside it left out) */
+		          .dropPokeAddr = 0x7E001C, .dropPokeVal = 0x10, .dropRects = { { 48, 62, 96, 78 }, { 64, 38, 80, 166 } } },
 	},
 };
 

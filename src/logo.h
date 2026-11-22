@@ -7,6 +7,7 @@
 #define SNESDS_LOGO_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 /* Synchronous extraction. Returns false if the game has no logo profile or
@@ -30,5 +31,8 @@ bool logo_busy(const char* gameCode);
  * while paused), the rest wait for the game list. */
 void logo_pause(bool on);
 void logo_shutdown(void);
+
+/* The path of a logo's second picture (the profile's drop) */
+void logo_drop_path(const char* logoPng, char* out, size_t n);
 
 #endif

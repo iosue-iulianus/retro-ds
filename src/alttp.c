@@ -37,6 +37,8 @@
 #define R_SORT_OFFSET 0x0352 /* where Link's sprites start in it, in bytes */
 #define R_OAM_HIGH 0x0A20 /* each sprite's 9th x bit (bit 0) and size (bit 1), a byte each */
 #define OAM_COPY (R_OAM_HIGH + 128 - R_OAM)
+#define R_TITLE_SWORD 0x00C8 /* the title's sword's y (16 bits; -130 to 30) */
+#define R_TITLE_FADE 0xC007  /* the title's ZELDA fade-in: a countdown, a step every 3 frames */
 #define R_MENU_CUSTOM 0x0112 /* a spell's animation (START not allowed) */
 #define R_CUR_ITEM 0x0202
 #define R_RING 0x0207
@@ -178,6 +180,9 @@ struct Alttp {
 	int lastArea;
 	int takenX, takenY, takenWorld, takenAge; /* the last screen taken, and passes since */
 	int file; /* 1 to 3, 0 not known */
+	/* the title's sword (ALTTP-14): the fade-in's countdown as last seen,
+	 * the update it changed at, and updates counted */
+	int titleCount, titleCountAt, updates;
 	/* the game's files in its cartridge RAM, as at the last update (ALTTP-2:
 	 * the seen record goes with its file: erased, copied) */
 	bool slotsKnown, slotValid[3];
@@ -1449,6 +1454,9 @@ int alttp_take_file_events(Alttp* a, AltSlotEvent* out, int max) {
 int alttp_update(Alttp* a, const uint8_t* wram, const uint8_t* vram, const uint8_t* sram) {
 	memcpy(a->ram, wram, sizeof a->ram);
 	a->have = true;
+	++a->updates;
+	if (r8(a, R_MODULE) == 0x00 && r8(a, R_SUBMODULE) == 0x05 && r8(a, R_TITLE_FADE) != a->titleCount)
+		a->titleCount = r8(a, R_TITLE_FADE), a->titleCountAt = a->updates;
 	int ch = 0;
 	uint8_t m = r8(a, R_MODULE);
 	if (m == 0x04) a->namingSeen = true; /* a new file: its record starts empty */
@@ -1492,6 +1500,30 @@ int alttp_update(Alttp* a, const uint8_t* wram, const uint8_t* vram, const uint8
 }
 
 /* ---- the dungeon map (ALTTP-5, ALTTP-6; alttp_dungeon.c) */
+
+bool alttp_title(const Alttp* a) {
+	return a->have && r8(a, R_MODULE) == 0x00;
+}
+
+/* The game's title (module 0): the ZELDA lettering fades in (submodule 5:
+ * its countdown at $7EC007 a step every 3 frames), then the sword comes
+ * down (submodule 6 on: $C8 from -130 to 30, 16 a frame; drawn the
+ * frame after at $C8 - 16 + 8, its first sprite 8 below $C8's place
+ * less 8). Before it starts, where it would be: as many frames ahead as
+ * the countdown has left. */
+bool alttp_title_sword(const Alttp* a, int* y) {
+	if (!alttp_title(a)) return false;
+	uint8_t sub = r8(a, R_SUBMODULE);
+	if (sub == 0x05) {
+		int left = 3 * (a->titleCount - 1) + (3 - (a->updates - a->titleCountAt));
+		*y = -122 - 16 * (left > 0 ? left : 0);
+		return a->titleCount > 0;
+	}
+	if (sub < 0x06 || sub > 0x08) return false;
+	int16_t p = (int16_t) r16(a, R_TITLE_SWORD);
+	*y = p == 30 ? 38 : p - 8;
+	return true;
+}
 
 bool alttp_game_over(const Alttp* a) {
 	return a->have && r8(a, R_MODULE) == 0x12;

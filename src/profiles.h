@@ -180,6 +180,14 @@ typedef struct MapProfile {
 		/* the black round the logo (reached from the box's edge) made
 		 * transparent, but for a pixel's outline next to the logo */
 		bool trimBlack;
+		/* a second picture taken the frame after the logo's: with dropPoke
+		 * (as pokeAddr) written, the pixels inside dropRects (x0, y0, x1,
+		 * y1; up to 4, the first with x1 0 ends the list) kept, the rest
+		 * clear, cut to their box: <logo>-drop.png (A Link to the Past:
+		 * the title's sword, falling from the second screen, ALTTP-14) */
+		uint32_t dropPokeAddr;
+		uint8_t dropPokeVal;
+		int dropRects[4][4];
 	} logo;
 
 	int animFrames; /* frames to record for the blinking/pulsing marker loop */

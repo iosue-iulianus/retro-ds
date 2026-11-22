@@ -4840,7 +4840,38 @@ static SDL_Texture *altItemsTex[2], *altMarkerTex[2], *altSkyTex[2][2], *altGoal
 #define ALT_TRI_W 16 /* the zoom indicator's Triforce */
 #define ALT_TRI_H 14
 static const uint32_t* alt_triforce(void);
-static SDL_Texture* altZoomTex[2]; /* the zoom indicator, put together (alt_zoom_indicator) */
+static SDL_Texture* altZoomTex[2];
+/* ALTTP-14: the title's sword (the logo's drop picture), once it's there */
+static SDL_Texture* altSwordTex[2];
+static int altSwordW, altSwordH, altSwordTry;
+
+static void alt_sword_load(void) {
+	if (altSwordTex[0] || altSwordTex[1] || ++altSwordTry % 60 != 1) return; /* (tried once a second: it's made after the logo) */
+	char lp[1200], dp[1200];
+	if (ui_logo_source(cfg, romPath, emu.gameCode, lp, sizeof lp) != LOGO_EXTRACTED) return;
+	logo_drop_path(lp, dp, sizeof dp);
+	FILE* f = fopen(dp, "rb");
+	if (!f) return;
+	fclose(f);
+	if (ui_load_image(dp, altSwordTex, &altSwordW, &altSwordH, false)) fprintf(stderr, "title: the sword from %s\n", dp);
+}
+
+/* The top screen at the game's title: black, and the sword coming down it
+ * to where the game's own comes into its screen, at the same speed, its
+ * screen's bottom edge taken as the game's screen's top */
+static void draw_alt_title(int s) {
+	SDL_Rect r = screens[s].rect;
+	ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, (SDL_Color) { 0, 0, 0, 255 });
+	int y, g = game_screen();
+	if (!altSwordTex[screens[s].view] || !alttp_title_sword(alt, &y)) return;
+	SDL_Rect img = ui_image_rect(g, picW, picH, cfg->scale);
+	float k = picH > 0 ? img.h / (float) picH : 1;
+	int w = (int) lroundf(altSwordW * k), h = (int) lroundf(altSwordH * k);
+	int ty = r.h + img.y + (int) lroundf(y * k);
+	int tx = r.w / 2 + (img.x + (int) lroundf(48 * k) - screens[g].rect.w / 2);
+	if (ty >= r.h || ty + h <= 0) return;
+	ui_image_part(s, altSwordTex, (SDL_Rect) { 0, 0, altSwordW, altSwordH }, (SDL_Rect) { tx, ty, w, h });
+} /* the zoom indicator, put together (alt_zoom_indicator) */
 static int altZoomAt = -1; /* the level it shows (-1: to be made again) */
 /* The map's pieces on the GPU (alttp_piece): made when first shown, made
  * again when the piece changed (at most every ALT_REMAKE seconds while
@@ -5064,8 +5095,8 @@ static void alt_free(void) {
 	ui_set_pinch(false);
 	altPage = 0, altFile = 0, altFloor = ALTTP_FLOOR_AS_GAME, altDunKey = 0;
 	for (int i = 0; i < 2; ++i) {
-		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunWideTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i], &altTriTex[i], &altZoomTex[i] };
-		for (int k = 0; k < 8; ++k) {
+		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunWideTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i], &altTriTex[i], &altZoomTex[i], &altSwordTex[i] };
+		for (int k = 0; k < 9; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 			*t[k] = NULL;
 		}
@@ -6094,6 +6125,9 @@ static void draw_game(void) {
 		if (nat && natShown) {
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			draw_native(s);
+		} else if (alt && alttp_title(alt) && nScreens == 2) {
+			alt_sword_load();
+			draw_alt_title(s);
 		} else if (alt && altShown && !(altPage == 1 && alttp_in_special(alt))) {
 			/* (ALTTP-12: in a special area the map gives way to the logo) */
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
