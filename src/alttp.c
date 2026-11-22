@@ -668,9 +668,36 @@ static void render_zoom_pane(Alttp* a, const uint8_t* vram) {
 	static uint16_t m[32 * 32];
 	Pane p = { m, 0, 0 };
 	box(&p, 0, 0, C - 1, R - 1, 7);
-	for (int i = 0; i < ALTTP_ZOOM_PANE_W * ALTTP_ZOOM_PANE_H; ++i) a->zoomPane[i] = 0xFF000000u;
+	enum { W = ALTTP_ZOOM_PANE_W, H = ALTTP_ZOOM_PANE_H };
+	uint32_t* px = a->zoomPane;
+	for (int i = 0; i < W * H; ++i) px[i] = 0;
 	for (int r = 0; r < R; ++r) {
-		for (int c = 0; c < C; ++c) draw_tile2(a, vram, m[r * 32 + c], &a->zoomPane[r * 8 * ALTTP_ZOOM_PANE_W + c * 8], ALTTP_ZOOM_PANE_W);
+		for (int c = 0; c < C; ++c) draw_tile2(a, vram, m[r * 32 + c], &px[r * 8 * W + c * 8], W);
+	}
+	/* outside the frame's green line clear (the map shows there, right up
+	 * to the green: the tiles' own dark outline outside it goes too);
+	 * inside, black: what can't be reached from the edge without crossing
+	 * the line */
+	static uint8_t out[W * H];
+	static int stack[W * H];
+	#define PASS(i) (!px[i] || ((px[i] & 0xFF) + (px[i] >> 8 & 0xFF) + (px[i] >> 16 & 0xFF)) < 96)
+	memset(out, 0, sizeof out);
+	int n = 0;
+	for (int i = 0; i < W * H; ++i) {
+		int x = i % W, y = i / W;
+		if ((x == 0 || y == 0 || x == W - 1 || y == H - 1) && PASS(i)) out[i] = 1, stack[n++] = i;
+	}
+	while (n) {
+		int i = stack[--n], x = i % W, y = i / W;
+		const int nb[4] = { x > 0 ? i - 1 : -1, x < W - 1 ? i + 1 : -1, y > 0 ? i - W : -1, y < H - 1 ? i + W : -1 };
+		for (int k = 0; k < 4; ++k) {
+			if (nb[k] >= 0 && !out[nb[k]] && PASS(nb[k])) out[nb[k]] = 1, stack[n++] = nb[k];
+		}
+	}
+	#undef PASS
+	for (int i = 0; i < W * H; ++i) {
+		if (out[i]) px[i] = 0;
+		else if (!px[i]) px[i] = 0xFF000000u;
 	}
 }
 
