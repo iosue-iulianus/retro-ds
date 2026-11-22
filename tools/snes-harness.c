@@ -18,6 +18,7 @@
  *   peek ADDR [LEN]        print LEN bytes (hex SNES address: 7E0998)
  *   poke ADDR LEN VAL      write 1 or 2 bytes
  *   dumpram NAME           OUTDIR/NAME.ram: the 128 KB of work RAM
+ *   dumpvram NAME          OUTDIR/NAME.vram: the 64 KB of video RAM
  *   copy                   A's state into B (timed)
  *   mapcap NAME [opts]     copy A into B, press a button on B and run B
  *                          until the screen is up and settled; writes
@@ -509,11 +510,12 @@ int main(int argc, char** argv) {
 			unsigned v = (unsigned) strtoul(s3, NULL, 16);
 			if (atoi(s2) == 2) emu_write16(e, addr, (uint16_t) v);
 			else emu_write8(e, addr, (uint8_t) v);
-		} else if (!strcmp(cmd, "dumpram")) {
+		} else if (!strcmp(cmd, "dumpram") || !strcmp(cmd, "dumpvram")) {
+			bool video = cmd[4] == 'v';
 			char path[1200];
-			out_path(path, sizeof path, s1, ".ram");
+			out_path(path, sizeof path, s1, video ? ".vram" : ".ram");
 			size_t n;
-			uint8_t* w = emu_memory(e, EMU_MEM_WRAM, &n);
+			uint8_t* w = emu_memory(e, video ? EMU_MEM_VRAM : EMU_MEM_WRAM, &n);
 			FILE* o = w ? fopen(path, "wb") : NULL;
 			if (o) {
 				fwrite(w, 1, n, o);

@@ -12,7 +12,8 @@
 # bsnes gets scripts/cores/bsnes-memory.patch: libretro's bsnes exposes no
 # memory through retro_get_memory_data, and SNES DS reads work RAM and loads
 # and saves cartridge RAM itself (bsnes writes it only when the game is
-# unloaded). It also takes states for the same instance (rewind) without
+# unloaded); video RAM too, read for maps assembled from the game's own
+# screens (A Link to the Past). It also takes states for the same instance (rewind) without
 # synchronizing, so they never move the emulation forward.
 set -eu
 

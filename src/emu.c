@@ -1212,7 +1212,8 @@ void* emu_state_file_get_extra(Emu* e, const char* path, size_t* n) {
 uint8_t* emu_memory(Emu* e, int region, size_t* size) {
 	if (size) *size = 0;
 	if (!e->core) return NULL;
-	unsigned id = region == EMU_MEM_SRAM ? RETRO_MEMORY_SAVE_RAM : RETRO_MEMORY_SYSTEM_RAM;
+	unsigned id = region == EMU_MEM_SRAM ? RETRO_MEMORY_SAVE_RAM
+		: region == EMU_MEM_VRAM ? RETRO_MEMORY_VIDEO_RAM : RETRO_MEMORY_SYSTEM_RAM;
 	ENTER(e);
 	uint8_t* p = e->core->get_memory_data(id);
 	size_t n = e->core->get_memory_size(id);

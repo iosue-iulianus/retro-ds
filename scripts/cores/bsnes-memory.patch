@@ -26,8 +26,26 @@ index b6fec16..4b57ead 100644
 +  auto snesdsWorkRAM() -> uint8* { return cpu.wram; }
 +  auto snesdsWorkRAMSize() -> uint { return sizeof(cpu.wram); }
 +}
+diff --git a/bsnes/sfc/ppu-fast/ppu.cpp b/bsnes/sfc/ppu-fast/ppu.cpp
+index 718a633..1c7cd08 100644
+--- a/bsnes/sfc/ppu-fast/ppu.cpp
++++ b/bsnes/sfc/ppu-fast/ppu.cpp
+@@ -204,3 +204,13 @@ auto PPU::power(bool reset) -> void {
+ }
+ 
+ }
++
++//SNES DS: the frontend reads video RAM through retro_get_memory_data
++//(RETRO_MEMORY_VIDEO_RAM); only the fast PPU's (the default), the accurate
++//PPU keeps its own private
++namespace SuperFamicom {
++  auto snesdsVideoRAM() -> uint8* {
++    return system.fastPPU() ? (uint8*)ppufast.vram : nullptr;
++  }
++  auto snesdsVideoRAMSize() -> uint { return 64 * 1024; }
++}
 diff --git a/bsnes/target-libretro/libretro.cpp b/bsnes/target-libretro/libretro.cpp
-index 8010816..c717d64 100644
+index 8010816..0e601fe 100644
 --- a/bsnes/target-libretro/libretro.cpp
 +++ b/bsnes/target-libretro/libretro.cpp
 @@ -637,14 +637,31 @@ RETRO_API void retro_run()
@@ -64,7 +82,7 @@ index 8010816..c717d64 100644
  	return true;
  }
  
-@@ -785,12 +802,30 @@ RETRO_API unsigned retro_get_region()
+@@ -785,12 +802,36 @@ RETRO_API unsigned retro_get_region()
  
  // Currently, there is no safe/sensible way to use the memory interface without severe hackery.
  // Rely on higan to load and save SRAM until there is really compelling reason not to.
@@ -76,6 +94,8 @@ index 8010816..c717d64 100644
 +	auto snesdsWorkRAMSize() -> uint;
 +	auto snesdsSaveRAM() -> uint8*;
 +	auto snesdsSaveRAMSize() -> uint;
++	auto snesdsVideoRAM() -> uint8*;
++	auto snesdsVideoRAMSize() -> uint;
 +}
 +
  RETRO_API void *retro_get_memory_data(unsigned id)
@@ -84,6 +104,8 @@ index 8010816..c717d64 100644
 +		return SuperFamicom::snesdsWorkRAM();
 +	if (id == RETRO_MEMORY_SAVE_RAM)
 +		return SuperFamicom::snesdsSaveRAM();
++	if (id == RETRO_MEMORY_VIDEO_RAM)
++		return SuperFamicom::snesdsVideoRAM();
  	return nullptr;
  }
  
@@ -93,5 +115,7 @@ index 8010816..c717d64 100644
 +		return SuperFamicom::snesdsWorkRAMSize();
 +	if (id == RETRO_MEMORY_SAVE_RAM)
 +		return SuperFamicom::snesdsSaveRAMSize();
++	if (id == RETRO_MEMORY_VIDEO_RAM)
++		return SuperFamicom::snesdsVideoRAMSize();
  	return 0;
  }
