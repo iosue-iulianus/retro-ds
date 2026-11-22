@@ -172,7 +172,8 @@ Next:
 
 6. A test build on the Duo (the owner): what to check is in "On the device" below.
 7. The owner's choices: the zoom levels and the one the map starts at; whether the ring is enough as Link's marker; what the seen record should survive.
-8. Saving the seen record in the background if it gets slow (it's compressed on the game's thread: 3 ms for a few areas on the host; a whole world is more). *(Done: the record in SNES DS's states, merged on loading: checked headless, a state brings its map to a game with no record.)*
+8. *(Done: the record in SNES DS's states, merged on loading: checked headless, a state brings its map to a game with no record. Each 512 x 512 piece is kept compressed and compressed again only when it has changed: with both worlds' 128 areas filled (host, synthetic), the record is 2.7 MB, the first save 583 ms, a save with nothing new 3 ms, after one new screen 6 ms, loading 75 ms.)*
+9. The owner's call: a state carries the whole record (up to a few MB once both worlds are explored, on top of the game's 290 KB); if that's too much, states could carry only what changed since the file's record was saved.
 
 ### On the device (what to check)
 
@@ -187,6 +188,7 @@ Next:
 - **Transitions:** `$8A` is `00` indoors and the coordinates jump to the room's; area changes and the mirror move things at different frames. ALTTP-8 freezes the picture from the module (`$10` not `07` / `09` / `0B`, `$11` not `00`); measure first, as for Super Metroid's doors.
 - **The seen record lives outside the game:** a save made on another emulator, a copied or erased file, or a state from before the record existed all start dark (or wrong). Mitigation: per file slot, cleared when a new file starts, kept in states too.
 - **Video RAM from the core:** the world map reads the game's video RAM, which bsnes gives only with its fast PPU (the default; `bsnes-memory.patch`). With the accurate PPU (a core option, or the few games bsnes forces to it) the world map stays empty; the items screen too (its tiles are there).
+- **The record's size:** a few MB once both worlds are explored (2.7 MB in the synthetic test), in its file and in each of SNES DS's states.
 - **Special areas:** the map doesn't take the ground in areas `$80` and up (the Master Sword's grove, Zora's waterfall), whose coordinates aren't the world's; not checked in the harness.
 - **Other releases:** Japan (three revisions) and Europe have other addresses; USA only at first.
 - **Randomizers and hacks** move things; the profile is for the clean ROM's CRC only.

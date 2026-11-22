@@ -268,8 +268,11 @@ static void alttp_cmd(Emu* e, const char* romPath, const char* line) {
 		free(d);
 		printf("alttp merge %s: %s\n", name, ok ? "ok" : "FAILED");
 	} else if (!strcmp(sub, "save") || !strcmp(sub, "load")) {
+		double t0 = now_ms();
 		bool ok = sub[0] == 's' ? alttp_save_seen(alt, name) : alttp_load_seen(alt, name);
-		printf("alttp %s %s: %s\n", sub, name, ok ? "ok" : "FAILED");
+		struct stat st;
+		printf("alttp %s %s: %s (%.1f ms, %lld bytes)\n", sub, name, ok ? "ok" : "FAILED", now_ms() - t0,
+		       stat(name, &st) == 0 ? (long long) st.st_size : -1LL);
 	}
 }
 

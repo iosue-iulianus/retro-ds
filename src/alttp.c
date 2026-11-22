@@ -107,6 +107,11 @@ struct Alttp {
 	uint32_t marker[32 * 32];
 	/* the map */
 	uint16_t* chunk[2][CHUNKS * CHUNKS]; /* SNES colour | 0x8000 where taken, 0 elsewhere */
+	/* each piece compressed as the record keeps it, made again only when
+	 * the piece has changed since (so saving costs the new pieces only) */
+	uint8_t* zchunk[2][CHUNKS * CHUNKS];
+	uint32_t zlen[2][CHUNKS * CHUNKS];
+	bool zstale[2][CHUNKS * CHUNKS];
 	uint8_t seen[2][CELLS * CELLS / 8];
 	uint32_t sky[2][SKY_W * SKY_H];
 	int linkWorld, linkX, linkY;
@@ -184,7 +189,8 @@ static void clear_seen(Alttp* a) {
 	for (int w = 0; w < 2; ++w) {
 		for (int i = 0; i < CHUNKS * CHUNKS; ++i) {
 			free(a->chunk[w][i]);
-			a->chunk[w][i] = NULL;
+			free(a->zchunk[w][i]);
+			a->chunk[w][i] = NULL, a->zchunk[w][i] = NULL, a->zlen[w][i] = 0, a->zstale[w][i] = false;
 		}
 	}
 	memset(a->seen, 0, sizeof a->seen);
@@ -572,9 +578,13 @@ static void bg_row(const uint8_t* vram, uint32_t mapBase, int x, int y, int n, u
 	}
 }
 
+/* the piece holding world pixel (x, y), made if needed; the caller writes
+ * to it, so its compressed copy is out of date */
 static uint16_t* chunk_for(Alttp* a, int w, int x, int y) {
-	uint16_t** c = &a->chunk[w][(y / CHUNK) * CHUNKS + x / CHUNK];
+	int i = (y / CHUNK) * CHUNKS + x / CHUNK;
+	uint16_t** c = &a->chunk[w][i];
 	if (!*c) *c = calloc(CHUNK * CHUNK, sizeof(uint16_t));
+	a->zstale[w][i] = true;
 	return *c;
 }
 
@@ -734,8 +744,7 @@ int alttp_dungeon_floor_at(const Alttp* a, int x, int y) {
 	return a->dun && alttp_in_dungeon(a) ? altdun_floor_at(a->dun, a->ram, x, y) : ALTTP_FLOOR_AS_GAME;
 }
 
-/* ---- the seen record's file: "SDSALTP1", the size, then zlib of: per
- * world, the seen cells' bits, the pieces' mask (64 bits) and each piece */
+/* ---- the seen record's file (pack's format, below) */
 
 bool alttp_dirty(const Alttp* a) {
 	return a->dirty;
@@ -756,71 +765,77 @@ void alttp_clear_seen(Alttp* a) {
 	a->dirty = true;
 }
 
-/* The record packed: the header and the size, then zlib of the raw form.
+/* The record packed (the file's and the state section's format):
+ * "SDSALTP2"; each world's seen squares (a bit each, 8 KB); then for each
+ * world the pieces present (64 bits) and each one as a 32-bit length and
+ * its 512 x 512 SNES colours (little-endian words) compressed with zlib.
  * NULL if it can't be made. */
-static uint8_t* pack(const Alttp* a, size_t* n) {
-	size_t size = 0;
+#define SEEN_BYTES (CELLS * CELLS / 8)
+static uint8_t* pack(Alttp* a, size_t* n) {
+	size_t size = 8 + 2 * SEEN_BYTES;
 	for (int w = 0; w < 2; ++w) {
-		size += sizeof a->seen[w] + 8;
-		for (int i = 0; i < CHUNKS * CHUNKS; ++i) size += a->chunk[w][i] ? CHUNK * CHUNK * 2 : 0;
-	}
-	uint8_t* raw = malloc(size);
-	uLongf zn = compressBound((uLong) size);
-	uint8_t* z = malloc(12 + zn);
-	bool ok = false;
-	if (raw && z) {
-		size_t at = 0;
-		for (int w = 0; w < 2; ++w) {
-			memcpy(raw + at, a->seen[w], sizeof a->seen[w]), at += sizeof a->seen[w];
-			uint64_t mask = 0;
-			for (int i = 0; i < CHUNKS * CHUNKS; ++i) mask |= (uint64_t) (a->chunk[w][i] != NULL) << i;
-			for (int k = 0; k < 8; ++k) raw[at++] = (uint8_t) (mask >> (k * 8));
-			for (int i = 0; i < CHUNKS * CHUNKS; ++i) {
-				if (!a->chunk[w][i]) continue;
-				for (int p = 0; p < CHUNK * CHUNK; ++p) raw[at++] = (uint8_t) a->chunk[w][i][p], raw[at++] = (uint8_t) (a->chunk[w][i][p] >> 8);
+		size += 8;
+		for (int i = 0; i < CHUNKS * CHUNKS; ++i) {
+			if (!a->chunk[w][i]) continue;
+			if (a->zstale[w][i] || !a->zchunk[w][i]) {
+				/* (pieces are in memory as host words: little-endian on every target) */
+				uLongf zn = compressBound(CHUNK * CHUNK * 2);
+				uint8_t* z = malloc(zn);
+				if (!z || compress2(z, &zn, (const Bytef*) a->chunk[w][i], CHUNK * CHUNK * 2, 6) != Z_OK) {
+					free(z);
+					return NULL;
+				}
+				free(a->zchunk[w][i]);
+				a->zchunk[w][i] = z, a->zlen[w][i] = (uint32_t) zn, a->zstale[w][i] = false;
 			}
+			size += 4 + a->zlen[w][i];
 		}
-		ok = compress2(z + 12, &zn, raw, (uLong) size, 6) == Z_OK;
-		const uint8_t head[12] = { 'S', 'D', 'S', 'A', 'L', 'T', 'P', '1', (uint8_t) size, (uint8_t) (size >> 8), (uint8_t) (size >> 16), (uint8_t) (size >> 24) };
-		memcpy(z, head, 12);
 	}
-	free(raw);
-	if (!ok) {
-		free(z);
-		return NULL;
+	uint8_t* out = malloc(size);
+	if (!out) return NULL;
+	size_t at = 0;
+	memcpy(out, "SDSALTP2", 8), at = 8;
+	for (int w = 0; w < 2; ++w) memcpy(out + at, a->seen[w], SEEN_BYTES), at += SEEN_BYTES;
+	for (int w = 0; w < 2; ++w) {
+		uint64_t mask = 0;
+		for (int i = 0; i < CHUNKS * CHUNKS; ++i) mask |= (uint64_t) (a->chunk[w][i] != NULL) << i;
+		for (int k = 0; k < 8; ++k) out[at++] = (uint8_t) (mask >> (k * 8));
+		for (int i = 0; i < CHUNKS * CHUNKS; ++i) {
+			if (!a->chunk[w][i]) continue;
+			uint32_t zl = a->zlen[w][i];
+			for (int k = 0; k < 4; ++k) out[at++] = (uint8_t) (zl >> (k * 8));
+			memcpy(out + at, a->zchunk[w][i], zl), at += zl;
+		}
 	}
-	*n = 12 + zn;
-	return z;
+	*n = at;
+	return out;
 }
 
-/* A packed record into seen and chunk (empty on entry; freed by the caller
- * when it fails too) */
-static bool unpack(const uint8_t* z, size_t n, uint8_t seen[2][CELLS * CELLS / 8], uint16_t* chunk[2][CHUNKS * CHUNKS]) {
-	if (n <= 12 || memcmp(z, "SDSALTP1", 8)) return false;
-	uLongf size = (uLongf) (z[8] | z[9] << 8 | z[10] << 16 | (uint32_t) z[11] << 24);
-	if (size > 2u * (CELLS * CELLS / 8 + 8 + CHUNKS * CHUNKS * CHUNK * CHUNK * 2)) return false;
-	uint8_t* raw = malloc(size ? size : 1);
-	bool ok = raw && uncompress(raw, &size, z + 12, (uLong) (n - 12)) == Z_OK;
-	size_t at = 0;
-	for (int w = 0; w < 2 && ok; ++w) {
-		if (at + CELLS * CELLS / 8 + 8 > size) {
-			ok = false;
-			break;
-		}
-		memcpy(seen[w], raw + at, CELLS * CELLS / 8), at += CELLS * CELLS / 8;
+/* A packed record into seen and chunk (empty on entry; the caller frees
+ * what's there when it fails too). zchunk / zlen (may be NULL): keep each
+ * piece's compressed copy too. */
+static bool unpack(const uint8_t* z, size_t n, uint8_t seen[2][SEEN_BYTES], uint16_t* chunk[2][CHUNKS * CHUNKS],
+                   uint8_t* zchunk[2][CHUNKS * CHUNKS], uint32_t zlen[2][CHUNKS * CHUNKS]) {
+	if (n < 8 + 2 * SEEN_BYTES + 16 || memcmp(z, "SDSALTP2", 8)) return false;
+	size_t at = 8;
+	for (int w = 0; w < 2; ++w) memcpy(seen[w], z + at, SEEN_BYTES), at += SEEN_BYTES;
+	for (int w = 0; w < 2; ++w) {
+		if (at + 8 > n) return false;
 		uint64_t mask = 0;
-		for (int k = 0; k < 8; ++k) mask |= (uint64_t) raw[at++] << (k * 8);
-		for (int i = 0; i < CHUNKS * CHUNKS && ok; ++i) {
+		for (int k = 0; k < 8; ++k) mask |= (uint64_t) z[at++] << (k * 8);
+		for (int i = 0; i < CHUNKS * CHUNKS; ++i) {
 			if (!(mask >> i & 1)) continue;
-			if (at + CHUNK * CHUNK * 2 > size || !(chunk[w][i] = malloc(CHUNK * CHUNK * 2))) {
-				ok = false;
-				break;
-			}
-			for (int p = 0; p < CHUNK * CHUNK; ++p, at += 2) chunk[w][i][p] = (uint16_t) (raw[at] | raw[at + 1] << 8);
+			if (at + 4 > n) return false;
+			uint32_t zl = (uint32_t) (z[at] | z[at + 1] << 8 | z[at + 2] << 16 | (uint32_t) z[at + 3] << 24);
+			at += 4;
+			if (zl > n - at || !(chunk[w][i] = malloc(CHUNK * CHUNK * 2))) return false;
+			uLongf dl = CHUNK * CHUNK * 2;
+			if (uncompress((Bytef*) chunk[w][i], &dl, z + at, zl) != Z_OK || dl != CHUNK * CHUNK * 2) return false;
+			if (zchunk && (zchunk[w][i] = malloc(zl))) memcpy(zchunk[w][i], z + at, zl), zlen[w][i] = zl;
+			at += zl;
 		}
 	}
-	free(raw);
-	return ok;
+	return true;
 }
 
 bool alttp_save_seen(Alttp* a, const char* path) {
@@ -851,22 +866,22 @@ bool alttp_load_seen(Alttp* a, const char* path) {
 	uint8_t* z = n > 12 ? malloc((size_t) n) : NULL;
 	bool ok = z && fread(z, 1, (size_t) n, f) == (size_t) n;
 	fclose(f);
-	ok = ok && unpack(z, (size_t) n, a->seen, a->chunk);
+	ok = ok && unpack(z, (size_t) n, a->seen, a->chunk, a->zchunk, a->zlen);
 	free(z);
 	if (!ok) clear_seen(a);
 	return ok;
 }
 
-void* alttp_seen_pack(const Alttp* a, size_t* n) {
+void* alttp_seen_pack(Alttp* a, size_t* n) {
 	return pack(a, n);
 }
 
 bool alttp_seen_merge(Alttp* a, const void* data, size_t n) {
-	static uint8_t seen[2][CELLS * CELLS / 8];
+	static uint8_t seen[2][SEEN_BYTES];
 	uint16_t* chunk[2][CHUNKS * CHUNKS];
 	memset(seen, 0, sizeof seen);
 	memset(chunk, 0, sizeof chunk);
-	bool ok = unpack(data, n, seen, chunk);
+	bool ok = unpack(data, n, seen, chunk, NULL, NULL);
 	int added = 0;
 	for (int w = 0; w < 2 && ok; ++w) {
 		for (int gy = 0; gy < CELLS; ++gy) {

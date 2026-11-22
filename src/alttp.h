@@ -89,7 +89,7 @@ bool alttp_dirty(const Alttp* a);
 /* The record packed for a save state (malloc'd, the file's format), and a
  * state's record merged into the file's: what it had seen added, nothing
  * taken away (ALTTP-2: seen parts stay seen) */
-void* alttp_seen_pack(const Alttp* a, size_t* n);
+void* alttp_seen_pack(Alttp* a, size_t* n);
 bool alttp_seen_merge(Alttp* a, const void* data, size_t n);
 
 /* The dungeon map (ALTTP-5), as the game's own map screen shows it,
