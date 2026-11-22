@@ -4825,6 +4825,10 @@ static SDL_Texture *altItemsTex[2], *altMarkerTex[2], *altSkyTex[2][2], *altGoal
 #define ALT_TRI_W 16 /* the zoom indicator's Triforce */
 #define ALT_TRI_H 14
 static const uint32_t* alt_triforce(void);
+#define ALT_DRIFTS 14
+/* the drifting clouds, each its own texture (its own see-through level), and their shadows */
+static SDL_Texture *altDriftTex[ALT_DRIFTS][2], *altDriftShadowTex[ALT_DRIFTS][2];
+static int altDriftWorld = -1; /* the world whose colours they're in */
 static SDL_Texture* altZoomTex[2]; /* the zoom indicator, put together (alt_zoom_indicator) */
 static int altZoomAt = -1; /* the level it shows (-1: to be made again) */
 /* The map's pieces on the GPU (alttp_piece): made when first shown, made
@@ -5007,6 +5011,13 @@ static void alt_free(void) {
 	}
 	alt_cache_clear();
 	alt_worker_stop();
+	for (int d = 0; d < ALT_DRIFTS; ++d) {
+		for (int i = 0; i < 2; ++i) {
+			if (altDriftTex[d][i]) SDL_DestroyTexture(altDriftTex[d][i]);
+			if (altDriftShadowTex[d][i]) SDL_DestroyTexture(altDriftShadowTex[d][i]);
+			altDriftTex[d][i] = altDriftShadowTex[d][i] = NULL;
+		}
+	}
 }
 
 static void alt_open(const char* rom) {
@@ -5031,6 +5042,15 @@ static void alt_textures(void) {
 		altTriTex[i] = native_texture(i, ALT_TRI_W, ALT_TRI_H, SDL_BLENDMODE_BLEND);
 		if (altTriTex[i]) ui_update_texture(altTriTex[i], alt_triforce(), ALT_TRI_W * 4);
 		altZoomTex[i] = native_texture(i, ALTTP_ZOOM_PANE_W, ALTTP_ZOOM_PANE_H, SDL_BLENDMODE_BLEND);
+		for (int d = 0; d < ALT_DRIFTS; ++d) {
+			if (altDriftTex[d][i]) SDL_DestroyTexture(altDriftTex[d][i]);
+			if (altDriftShadowTex[d][i]) SDL_DestroyTexture(altDriftShadowTex[d][i]);
+			altDriftTex[d][i] = native_texture(i, ALTTP_DRIFT_W, ALTTP_DRIFT_H, SDL_BLENDMODE_BLEND);
+			altDriftShadowTex[d][i] = native_texture(i, ALTTP_DRIFT_W, ALTTP_DRIFT_H, SDL_BLENDMODE_BLEND);
+			int kinds = SDL_max(1, alttp_drift_kinds(alt));
+			if (altDriftShadowTex[d][i]) ui_update_texture(altDriftShadowTex[d][i], alttp_drift_shadow(alt, d % kinds), ALTTP_DRIFT_W * 4);
+		}
+		altDriftWorld = -1;
 		altZoomAt = -1;
 		if (altGoalTex[i]) ui_update_texture(altGoalTex[i], alttp_goal_pictures(alt), ALTTP_GOAL_MAX * 16 * 4);
 		for (int w = 0; w < 2; ++w) {
@@ -5352,6 +5372,50 @@ static const uint32_t* alt_triforce(void) {
 	return px;
 }
 
+/* ALTTP-2: a few small clouds drifting slowly east over the map, their
+ * shadows faint below right of them, wrapping round the world; at the
+ * clouds' own size (k screen pixels to one of theirs). Places from the
+ * time since the program started, the same each run. */
+static void alt_drift(int s, SDL_Rect a, int world, int ox, int oy, float z, int k) {
+	int v = screens[s].view;
+	if (world != altDriftWorld) {
+		/* (in the world's own cloud colours) */
+		for (int d = 0; d < ALT_DRIFTS; ++d) {
+			for (int i = 0; i < nViews; ++i) {
+				int cw, chh, kinds = SDL_max(1, alttp_drift_kinds(alt));
+				if (altDriftTex[d][i]) ui_update_texture(altDriftTex[d][i], alttp_drift_cloud(alt, world, d % kinds, &cw, &chh), ALTTP_DRIFT_W * 4);
+			}
+		}
+		altDriftWorld = world;
+	}
+	double t = (double) SDL_GetTicks() / 1000.0;
+	int span = ALTTP_WORLD + 1024, kinds = alttp_drift_kinds(alt);
+	if (kinds <= 0) return;
+	uint32_t seed = 97;
+	for (int d = 0; d < ALT_DRIFTS; ++d) {
+		seed = seed * 1103515245u + 12345u;
+		int x0 = (int) (seed >> 8) % span, y0;
+		seed = seed * 1103515245u + 12345u, y0 = (int) (seed >> 8) % ALTTP_WORLD;
+		seed = seed * 1103515245u + 12345u;
+		float speed = 6.0f + (float) ((seed >> 8) % 7); /* world pixels a second */
+		if (!altDriftTex[d][v] || !altDriftShadowTex[d][v]) continue;
+		int cw, chh;
+		alttp_drift_cloud(alt, world, d % kinds, &cw, &chh);
+		int w = cw * k, h = chh * k;
+		/* (wraps: from 512 left of the world to 512 right of it) */
+		double wx = fmod(x0 + speed * t, (double) span) - 512;
+		int sx = ox + (int) lround(wx / z), sy = oy + (int) lround(y0 / z);
+		if (sx + w + 12 * k < a.x || sx > a.x + a.w || sy + h + 12 * k < a.y || sy > a.y + a.h) continue;
+		/* over the ground seen, fading out over the clouds */
+		float f = alttp_seen_fraction(alt, world, (int) wx, y0, (int) (wx + w * z), (int) (y0 + h * z));
+		if (f <= 0) continue;
+		SDL_SetTextureAlphaMod(altDriftShadowTex[d][v], (Uint8) (55 * f));
+		SDL_SetTextureAlphaMod(altDriftTex[d][v], (Uint8) (215 * f));
+		ui_image_part(s, altDriftShadowTex[d], (SDL_Rect) { 0, 0, cw, chh }, (SDL_Rect) { sx + 8 * k, sy + 12 * k, w, h });
+		ui_image_part(s, altDriftTex[d], (SDL_Rect) { 0, 0, cw, chh }, (SDL_Rect) { sx, sy, w, h });
+	}
+}
+
 /* ALTTP-3: the zoom's levels in the screen's bottom right corner, in a
  * pane of the items screen's (its frame from the game's tiles, black
  * inside, solid as the game's panes), the closest at the top: a dot
@@ -5445,6 +5509,10 @@ static void draw_alt_map(int s) {
 		}
 	}
 	if (next >= 0) alt_piece_ask(world, next, level, nextVer);
+	/* (drifting clouds, alt_drift: off until they look like the game's own:
+	 * its puffs are light and shade strokes, their inside the sky's colour,
+	 * so over land they show as strokes) */
+	(void) alt_drift;
 	/* ALTTP-11: the goal markers, then Link: their sprites at three of the
 	 * screen's pixels to one of theirs (1080 lines), whatever the zoom */
 	int m = SDL_max(1, a.h / 360);

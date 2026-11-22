@@ -167,6 +167,9 @@ struct Alttp {
 	/* the clouds' own colours (the fog's edge): their body, light edge,
 	 * shaded edge and rim, from the sky's most used ones */
 	uint32_t cloud[2][4];
+	/* a small cloud drifting over the map, and its shadow (ALTTP-2) */
+	uint32_t drift[2][ALTTP_DRIFT_KINDS][ALTTP_DRIFT_W * ALTTP_DRIFT_H], driftShadow[ALTTP_DRIFT_KINDS][ALTTP_DRIFT_W * ALTTP_DRIFT_H];
+	int driftPuff[ALTTP_DRIFT_KINDS], driftW[ALTTP_DRIFT_KINDS], driftH[ALTTP_DRIFT_KINDS], nDrift;
 	/* the goal markers: their tiles ($60 to $7F, video RAM words), the
 	 * ones shown now and their pictures */
 	uint16_t goalChr[32 * 16];
@@ -258,6 +261,40 @@ static void make_sky(Alttp* a) {
 			if (whole && nPuffs < 64) puffStart[nPuffs] = start, puffLen[nPuffs++] = nTiles - start;
 			else nTiles = start;
 		}
+	}
+	/* the biggest whole puffs, for the clouds drifting over the map */
+	a->nDrift = 0;
+	for (int d = 0; d < 3 && d < nPuffs; ++d) {
+		int best = -1;
+		for (int p = 0; p < nPuffs; ++p) {
+			bool used = false;
+			for (int e = 0; e < a->nDrift; ++e) used |= a->driftPuff[e] == p;
+			if (!used && (best < 0 || puffLen[p] > puffLen[best])) best = p;
+		}
+		if (best < 0) break;
+		a->driftPuff[a->nDrift++] = best;
+		int x0 = N, y0 = N, x1 = 0, y1 = 0;
+		for (int k = 0; k < puffLen[best]; ++k) {
+			int t = puffTile[puffStart[best] + k], x = t % N, y = t / N;
+			x0 = x < x0 ? x : x0, y0 = y < y0 ? y : y0, x1 = x > x1 ? x : x1, y1 = y > y1 ? y : y1;
+		}
+		for (int w = 0; w < 2; ++w) {
+			uint32_t* out = a->drift[w][d];
+			for (int i = 0; i < ALTTP_DRIFT_W * ALTTP_DRIFT_H; ++i) out[i] = 0;
+			for (int k = 0; k < puffLen[best]; ++k) {
+				int t = puffTile[puffStart[best] + k], tx = t % N - x0, ty = t / N - y0;
+				if ((tx + 1) * 8 > ALTTP_DRIFT_W || (ty + 1) * 8 > ALTTP_DRIFT_H) continue;
+				uint8_t ch = map[t / N][t % N];
+				uint8_t plainIdx = rom8(a, MAP_TILES + plain * 64) & 0x7F; /* (the plain tile's colour: clear) */
+				for (int y = 0; y < 8; ++y) {
+					for (int x = 0; x < 8; ++x) {
+						uint8_t i = rom8(a, MAP_TILES + ch * 64 + y * 8 + x) & 0x7F;
+						if (i != plainIdx) out[(ty * 8 + y) * ALTTP_DRIFT_W + tx * 8 + x] = abgr(rom16(a, MAP_PALETTE + w * 256 + i * 2));
+					}
+				}
+			}
+		}
+		a->driftW[d] = ((x1 - x0 + 1) * 8 < ALTTP_DRIFT_W ? (x1 - x0 + 1) * 8 : ALTTP_DRIFT_W), a->driftH[d] = ((y1 - y0 + 1) * 8 < ALTTP_DRIFT_H ? (y1 - y0 + 1) * 8 : ALTTP_DRIFT_H);
 	}
 	/* scattered: each puff by turns at the next free place a simple
 	 * sequence picks, until a sixth of the picture's tiles are cloud */
@@ -360,50 +397,39 @@ static void goal_tiles(Alttp* a) {
 	}
 }
 
-/* The clouds where nothing is seen, as cumulus: round puffs in the
- * clouds' own colours (cloud_colours) with the fog edge's rims (lit
- * above left, shaded below right), the lower ones over the upper ones as
- * a bank of cloud is seen from above, wrapping round the picture's edges
- * so it repeats without a seam (the owner, Nov 22, 2026: the world map's
- * scattered puffs on a plain ground looked bad) */
-static void make_cumulus(Alttp* a) {
-	enum { N = 170 };
-	static int px[N], py[N], pr[N];
-	uint32_t seed = 2468;
-	for (int i = 0; i < N; ++i) {
-		seed = seed * 1103515245u + 12345u, px[i] = (int) (seed >> 8) % SKY_W;
-		seed = seed * 1103515245u + 12345u, py[i] = (int) (seed >> 8) % SKY_H;
-		seed = seed * 1103515245u + 12345u, pr[i] = 10 + (int) (seed >> 8) % 15;
+/* A small cloud to drift over the map: a few puffs as the cumulus's,
+ * clear round them, in each world's colours; its shadow, the same shape
+ * in black (game.c draws it faint, below right of the cloud) */
+static void make_drift(Alttp* a) {
+	for (int d = 0; d < ALTTP_DRIFT_KINDS; ++d) {
+		for (int i = 0; i < ALTTP_DRIFT_W * ALTTP_DRIFT_H; ++i) a->driftShadow[d][i] = a->drift[0][d][i] ? 0xFF000000u : 0;
 	}
-	/* (top to bottom: each puff drawn over those above it) */
-	for (int i = 1; i < N; ++i) {
-		for (int j = i; j > 0 && py[j] < py[j - 1]; --j) {
-			int t;
-			t = px[j], px[j] = px[j - 1], px[j - 1] = t;
-			t = py[j], py[j] = py[j - 1], py[j - 1] = t;
-			t = pr[j], pr[j] = pr[j - 1], pr[j - 1] = t;
+}
+
+int alttp_drift_kinds(const Alttp* a) {
+	return a->nDrift;
+}
+
+const uint32_t* alttp_drift_cloud(const Alttp* a, int world, int kind, int* w, int* h) {
+	*w = a->driftW[kind], *h = a->driftH[kind];
+	return a->drift[world & 1][kind];
+}
+
+static bool is_seen(const Alttp* a, int w, int x, int y);
+
+float alttp_seen_fraction(const Alttp* a, int world, int x0, int y0, int x1, int y1) {
+	int n = 0, k = 0;
+	for (int j = 0; j < 4; ++j) {
+		for (int i = 0; i < 5; ++i, ++n) {
+			int x = x0 + (x1 - x0) * (2 * i + 1) / 10, y = y0 + (y1 - y0) * (2 * j + 1) / 8;
+			if (is_seen(a, world & 1, x, y)) ++k;
 		}
 	}
-	for (int w = 0; w < 2; ++w) {
-		const uint32_t* cl = a->cloud[w];
-		uint32_t* out = a->sky[w];
-		for (int i = 0; i < SKY_W * SKY_H; ++i) out[i] = cl[0];
-		for (int i = 0; i < N; ++i) {
-			int r = pr[i];
-			for (int dy = -r; dy <= r; ++dy) {
-				for (int dx = -r; dx <= r; ++dx) {
-					float d = r - sqrtf((float) (dx * dx + dy * dy));
-					if (d <= 0) continue;
-					/* lit above left (a thin light edge), shaded below right */
-					uint32_t c = cl[0];
-					if (dx + dy > 0) c = d < 1.5f ? cl[3] : d < 3.5f ? cl[2] : cl[0];
-					else if (d < 1.2f && dx + dy < -r / 2) c = cl[1];
-					int x = ((px[i] + dx) % SKY_W + SKY_W) % SKY_W, y = ((py[i] + dy) % SKY_H + SKY_H) % SKY_H;
-					out[y * SKY_W + x] = c;
-				}
-			}
-		}
-	}
+	return (float) k / n;
+}
+
+const uint32_t* alttp_drift_shadow(const Alttp* a, int kind) {
+	return a->driftShadow[kind];
 }
 
 Alttp* alttp_new(uint8_t* rom, size_t size) {
@@ -426,7 +452,7 @@ Alttp* alttp_new(uint8_t* rom, size_t size) {
 	a->itemsKey = 1;
 	make_sky(a);
 	cloud_colours(a);
-	make_cumulus(a);
+	make_drift(a);
 	goal_tiles(a);
 	for (size_t i = 0; i < ALTTP_W * ALTTP_H; ++i) a->items[i] = 0xFF000000u;
 	return a;
