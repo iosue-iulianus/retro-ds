@@ -7,7 +7,8 @@ the two floors' rooms) and BG1 (the grid), all made when the map opens
 (Module0E_03_01_DrawMap, $0A:E0DC). This builds the same tilemaps from the
 cartridge's tables and the game's work RAM, without opening the map.
 
-    alttp_dungeon.py ROM --check NAME
+    alttp_dungeon.py ROM --check NAME [--shot SHOT.png]
+    alttp_dungeon.py ROM --draw NAME OUT.png
 
 NAME.ram / NAME.vram: a harness dump taken with the game's dungeon map open.
 Compares the built tilemaps with its video RAM (BG2 and BG1 words $0000-
@@ -342,7 +343,117 @@ def sprites(rom, ram):
         r2 = (r2 - 1) & 0xFF
         if done:
             break
+    # the shown floors lit in the list, every other 16 frames
+    # (DungeonMap_DrawFloorBlinker, sprites $40 and up)
+    floor = shown
+    flag = 1 if up + down != 1 else 0
+    floor = (floor - flag) & 0xFF
+    r0 = 0
+    for _ in range(flag + 1):
+        r0 = fix((floor + down) & 0xFF)
+        floor = (floor + 1) & 0xFF
+    if frame & 0x10:
+        y0 = (rom.b(FLOOR_ICON_Y + r0) - 4) & 0xFF
+        for f in range(flag, -1, -1):
+            x = 40
+            p = 0x40 + (0, 8)[f]
+            for i in range(3, -1, -1):
+                at = 0x3D | (0 if i else 0x40)
+                ch = rom.b(BLINKER_CHAR + i)
+                oam[p] = (x, (y0 + f * 16) & 0xFF, ch, at, False)
+                oam[p + 4] = (x, (y0 + f * 16 + 8) & 0xFF, ch, at | 0x80, False)
+                x += 8
+                p += 1
     return oam
+
+
+HUD_PALETTE = 0x1BD6A0        # rows 0-1: the HUD's second palette
+MAP_BG_PALETTE = 0x1BE544     # rows 2-7
+MAP_SPRITE_PALETTE = 0x1BD70A  # rows 12-14, colours 1-7
+
+
+def palette(rom, ram):
+    """The colours while the map is up: the map's own (Palette_Load_HUD,
+    _DungeonMapBG, _DungeonMapSprite), the rest the game's as it was."""
+    pal = [ram[0xC500 + 2 * i] | ram[0xC501 + 2 * i] << 8 for i in range(256)]
+    for i in range(32):
+        pal[i] = rom.w(HUD_PALETTE + i * 2)
+    for i in range(96):
+        pal[32 + i] = rom.w(MAP_BG_PALETTE + i * 2)
+    for r in range(3):
+        for c in range(7):
+            pal[(12 + r) * 16 + 1 + c] = rom.w(MAP_SPRITE_PALETTE + (r * 7 + c) * 2)
+    return pal
+
+
+def render(rom, ram, vram_tiles, built, oam):
+    """The picture as the PPU makes it in mode 1 with BG3 on top (BGMODE
+    $09): main screen BG2, BG3 and sprites; BG1 (the grid) on the sub
+    screen, added where the main screen shows the backdrop (CGWSEL $02,
+    CGADSUB $20). vram_tiles(word) gives video RAM's tiles."""
+    pal = palette(rom, ram)
+    rgb = lambda c: ((c & 31) << 3 | (c & 31) >> 2, (c >> 5 & 31) << 3 | (c >> 5 & 31) >> 2, (c >> 10 & 31) << 3 | (c >> 10 & 31) >> 2)
+
+    def bg(mapbase, chrbase, bpp, x, y):
+        y = (y + 1) & 511  # (line 0 shows row 1)
+        x &= 511
+        scr = (x >> 8) + ((y >> 8) << 1)
+        e = built.get(mapbase + scr * 0x400 + ((y >> 3) & 31) * 32 + ((x >> 3) & 31), 0)
+        tx, ty = x & 7, y & 7
+        if e & 0x4000:
+            tx = 7 - tx
+        if e & 0x8000:
+            ty = 7 - ty
+        b = 7 - tx
+        if bpp == 4:
+            a = chrbase + (e & 0x3FF) * 16
+            p0, p1 = vram_tiles(a + ty), vram_tiles(a + 8 + ty)
+            c = (p0 >> b & 1) | (p0 >> (8 + b) & 1) << 1 | (p1 >> b & 1) << 2 | (p1 >> (8 + b) & 1) << 3
+            return (((e >> 10) & 7) * 16 + c if c else 0), (e >> 13) & 1
+        p0 = vram_tiles(chrbase + (e & 0x3FF) * 8 + ty)
+        c = (p0 >> b & 1) | (p0 >> (8 + b) & 1) << 1
+        return (((e >> 10) & 7) * 4 + c if c else 0), (e >> 13) & 1
+
+    # sprites into a line buffer: colour and priority, the first in OAM on top
+    spr = {}
+    for i in sorted(oam, reverse=True):
+        x, y, t, at, big = oam[i]
+        size = 16 if big else 8
+        base = 0x5000 if at & 1 else 0x4000
+        for yy in range(size):
+            for xx in range(size):
+                sx, sy = (x + xx) & 0x1FF, (y + yy) & 0xFF  # (picture line Y: a line below BG row Y)
+                if sx >= 256 or sy >= 224:
+                    continue
+                tx = size - 1 - xx if at & 0x40 else xx
+                ty = size - 1 - yy if at & 0x80 else yy
+                tile = (t + (tx >> 3) + (ty >> 3) * 16) & 0xFF
+                a = base + tile * 16
+                p0, p1 = vram_tiles(a + (ty & 7)), vram_tiles(a + 8 + (ty & 7))
+                b = 7 - (tx & 7)
+                c = (p0 >> b & 1) | (p0 >> (8 + b) & 1) << 1 | (p1 >> b & 1) << 2 | (p1 >> (8 + b) & 1) << 3
+                if c:
+                    spr[(sx, sy)] = (128 + ((at >> 1) & 7) * 16 + c, (at >> 4) & 3)
+    from PIL import Image
+    im = Image.new("RGB", (256, 224))
+    px = im.load()
+    for y in range(224):
+        for x in range(256):
+            b2, p2 = bg(0x0000, 0x2000, 4, x, y)
+            b3, p3 = bg(0x6000, 0x7000, 2, x, y)
+            s = spr.get((x, y))
+            # mode 1, BG3 priority: BG3 hi, OBJ 3, BG2 hi, OBJ 2, BG2 lo, OBJ 1, BG3 lo, OBJ 0
+            order = [(b3, p3 == 1), (s and s[0], s and s[1] == 3), (b2, p2 == 1), (s and s[0], s and s[1] == 2),
+                     (b2, p2 == 0), (s and s[0], s and s[1] == 1), (b3, p3 == 0), (s and s[0], s and s[1] == 0)]
+            c = next((i for i, ok in order if i and ok), None)
+            if c is None:
+                b1, _ = bg(0x1000, 0x2000, 4, x, y)
+                back, sub = pal[0], pal[b1] if b1 else 0
+                c0 = tuple(min(31, (back >> k & 31) + (sub >> k & 31)) for k in (0, 5, 10))
+                px[x, y] = rgb(c0[0] | c0[1] << 5 | c0[2] << 10)
+            else:
+                px[x, y] = rgb(pal[c])
+    return im
 
 
 def check(rom, name):
@@ -378,12 +489,45 @@ def check(rom, name):
     return 1 if bad else 0
 
 
+def compare_shot(rom, name, shot):
+    """The picture drawn from what was built (the tiles from the dump's video
+    RAM: alttp_gfx.py checks those) against the game's own picture. The
+    game's picture shows the sprites of the frame before (OAM is copied in
+    the next vertical blank): give a shot taken one frame after the dump."""
+    from PIL import Image
+    ram = open(name + ".ram", "rb").read()
+    v = open(name + ".vram", "rb").read()
+    tiles = lambda w: v[(w & 0x7FFF) * 2] | v[(w & 0x7FFF) * 2 + 1] << 8
+    im = render(Rom(rom.d), ram, tiles, build(rom, ram), sprites(rom, ram))
+    pic = Image.open(shot).convert("RGB")
+    a, b = im.load(), pic.load()
+    bad = [(x, y) for y in range(224) for x in range(256) if a[x, y] != b[x, y]]
+    print(f"{256 * 224 - len(bad)} of {256 * 224} pixels as the game's picture")
+    if bad:
+        xs, ys = [p[0] for p in bad], [p[1] for p in bad]
+        print(f"  differing within x {min(xs)}-{max(xs)}, y {min(ys)}-{max(ys)}")
+    return im, 1 if bad else 0
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("rom")
-    ap.add_argument("--check", required=True)
+    ap.add_argument("--check")
+    ap.add_argument("--shot")
+    ap.add_argument("--draw", nargs=2)
     a = ap.parse_args()
-    return check(Rom(open(a.rom, "rb").read()), a.check)
+    rom = Rom(open(a.rom, "rb").read())
+    if a.draw:
+        name, out = a.draw
+        ram = open(name + ".ram", "rb").read()
+        v = open(name + ".vram", "rb").read()
+        tiles = lambda w: v[(w & 0x7FFF) * 2] | v[(w & 0x7FFF) * 2 + 1] << 8
+        render(rom, ram, tiles, build(rom, ram), sprites(rom, ram)).save(out)
+        return 0
+    r = check(rom, a.check)
+    if a.shot:
+        r |= compare_shot(rom, a.check, a.shot)[1]
+    return r
 
 
 if __name__ == "__main__":
