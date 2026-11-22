@@ -111,6 +111,25 @@ Measured in the harness, Nov 22, 2026, with test files made by `tools/alttp_save
 - Sprites: Link's head by the current floor (`DungeonMap_DrawLinkPointing`), the blinking room marker at Link's place in the room (`$0A:EB50`; `$22`, `$20` give the place within the room), the floor numbers (`$0A:EC0A`), the blinking floor (`$0A:ECCF`), the boss icon. The "LEVEL n" heading (`$0A:E1A4`).
 - Graphics: the game loads a tile set for the map (`Module0E_03_01_00_PrepMapGraphics`, `$0A:E0E4`: main theme 32, sprite set `$80` + the dungeon) and its palettes (`Palette_Load_DungeonMapBG`, `$1B:EE3A`; `..._DungeonMapSprite`, `$1B:EDDD`). The sets are compressed: SNES DS will need the game's graphics decompression (or the tiles taken from VRAM once, see Risks).
 
+### The items screen (ALTTP-10)
+
+- The game builds its items screen (START) as a 32 x 32 BG3 tilemap in work RAM at `$7E1000` (`ItemMenu_Initialize`, `$0D:DDAB`) and slides it down (BG3's scroll, `$7E00EA`, to `$FF18`); the screen's rows 5 to 29 are the panes. Its tiles are BG3's (VRAM `$7000`, 2 bits a pixel), loaded for the HUD and always there while playing; its colours the palette buffer's first 32 (`$7E:C500`).
+- The panes (column, row; width x height, in tiles): the Y items (1, 5; 19 x 15), the selected item and its name (21, 5; 10 x 6), the pendants or crystals (21, 11; 10 x 9), DO (1, 21; 19 x 9), the equipment (21, 21; 10 x 9).
+- From the cartridge: the item icons (`ItemIconPointers`, `$0D:FA93`, bank `$0D`: one table per item kind, 4 tilemap words per level), the Y items' places (`MenuCursorPositions`, `$0D:FAD5`, addresses in the `$7E1000` buffer), the item names (`$0D:F1C9`, 16 words an item, two rows of 8; the bottle's contents `$0D:F449`, powder `$0D:F549`, flute `$0D:F569`, mirror `$0D:F5A9`, bow and arrows `$0D:F5C9`), the pendants' and crystals' windows (`$0D:E860`, `$0D:E914`, 10 x 9 words), DO's words (`$0D:F959`; the gloves' `$0D:F931`), EQUIPMENT and DUNGEON ITEM (`$0D:ED09`, `$0D:ED19`), the heart pieces (`$0D:F911`). The frames, the ring round the selected item and a few marks are constants in the game's code (`$0D:E3D9` and on), written down in `tools/alttp_items.py`.
+- From work RAM: the items `$7EF340` to `$7EF35B` (as the save data), the selected bottle `$7EF34F` and the bottles `$7EF35C`, the selected Y item `$7E0202` (1 bow ... 20 mirror), the ring's blink `$7E0207` (shown while bit `$10` is set), pendants `$7EF374`, crystals `$7EF37A`, abilities `$7EF379`, heart pieces `$7EF36B`, the dungeon (`$7E040C`) with its map, compass and big key bits.
+- **Checked:** `tools/alttp_items.py --check` builds the same tilemap as the game's, word for word (696 words), in nine dumps: three sets of items (the opening's, the Light World's with pendants, the Dark World's with crystals and bottles), the ring on and off.
+
+### Selecting an item (ALTTP-10)
+
+What the game's own items screen leaves when the ring is moved to an item and the screen closed (`ItemMenu_Close`, `$0D:DFBA`, with `UpdateHUD`), and so what a tap writes, between two frames:
+
+- `$7E0202`: the item (1 to 20).
+- `$7E0303`: the item Y uses, from `MenuToEquipID` (`$0D:FA15`, a byte per item); `$7E0304` follows by itself.
+- `$7E034B` = `2` and `$7E020B` = `0`, unless the item is a rod (`$0303` `5` or `6`: then `$034B` = `0`), as the closing does.
+- The HUD's item box in the HUD buffer: `$7E:C74A`, `C74C`, `C78A`, `C78C`, the item's 4 icon words (the same icons as the items screen's), and `$7E0016` = `1` so the next vertical blank sends the HUD to video RAM.
+
+**Checked:** selecting the hammer this way and with the game's own items screen leaves the same bytes in `$0202`, `$0303`, `$0304`, `$034B`, `$020B`, the HUD buffer (`$C700` to `$C7FF`) and the save data, but for the selected bottle (`$7EF34F`), which the game's screen sets to the first bottle when it opens and Link has bottles but none selected: a tap on the bottle does that too. Y then uses the hammer (seen in the harness).
+
 ### The HUD
 
 - No mini-map. Nothing on the game screen is covered.
