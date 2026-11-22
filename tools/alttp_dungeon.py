@@ -36,6 +36,20 @@ VERTICAL_TILES, VERTICAL_ADDR = 0x0AE441, 0x0AE445
 FLOOR_NUMBERS = 0x0AE4E9      # 8 words: 1 to 8
 ROW_OFFSET = 0x0AE56F         # 5 words: each row of rooms in the buffer
 
+# the sprites (DungeonMap_DrawSprites, $0A:EAB2)
+MARKER_Y_BASE = 0x0AE7F3      # 2 words: each shown floor's top
+FAIRY_ROOMS = 0x0AE7F9        # 3 words: rooms the marker shows as another
+FAIRY_REPLACEMENTS = 0x0AE7FF
+BOSS_ROOMS = 0x0AE807         # a word a dungeon
+BLINK_PROPS = 0x0AEB48        # 4 bytes: the room dot's colours
+MARKER_DX, MARKER_DY, MARKER_PROPS, MARKER_FLASH = 0x0AEB8A, 0x0AEB8E, 0x0AEB92, 0x0AEB96
+FLOOR_ICON_Y = 0x0AECBE       # 8 bytes: each floor's line in the list
+FLOOR_NUMBER_CHAR = 0x0AECC6  # 8 bytes: 1 to 8
+BLINKER_CHAR = 0x0AED50       # 4 bytes
+BOSS_POSITION = 0x0AEE5D      # a word a dungeon: the skull's place in its room
+BOSS_FLOOR = 0x0AEE79         # a word a dungeon ($FFFF: none)
+LINK_HEAD = 0x10A9C0          # Link's head, 16 x 16 (4 bits a pixel, a 16-tile row)
+
 LETTER_B, LETTER_F = 0x1F1C, 0x1F1D
 EMPTY_TEMPLATE = 0x51
 
@@ -211,6 +225,126 @@ def build(rom, ram):
     return vram
 
 
+def sprites(rom, ram):
+    """The sprites as DungeonMap_DrawSprites places them: {OAM index: (x, y,
+    tile, attributes, big)}. Link's head is tile 0; the rest are the second
+    name table's (the map's sprite set)."""
+    r8 = lambda a: ram[a]
+    r16 = lambda a: ram[a] | ram[a + 1] << 8
+    s8 = lambda v: v - 256 if v >= 128 else v
+    frame = r8(0x1A)
+    dung = r16(0x040C) >> 1
+    t5 = rom.w(FLOOR_COUNT + dung * 2) & 0xFF
+    up, down = t5 >> 4, t5 & 15
+    cur = r8(0xA4)
+    oam = {}
+
+    def fix(r):
+        # where the floor list puts floor index r (from the lowest)
+        if 4 - down >= 0:
+            r += 4 - down
+            a = up - 4
+            if a >= 0:
+                r -= a
+        return r
+
+    # Link pointing at his floor (DungeonMap_DrawLinkPointing)
+    r3 = fix((down + cur) & 0xFF)
+    oam[0] = (0x19, rom.b(FLOOR_ICON_Y + r3) - 4, 0x00, 0x3E, True)
+
+    # where Link is on the map (DungeonMap_DrawRoomMarkers, $0A:E823)
+    idx = 2 if cur == ((-down) & 0xFF) else 0
+    shown = (cur + 1) & 0xFF if idx else cur
+    room = r16(0xA0)
+    for i in range(3):
+        if room == rom.w(FAIRY_ROOMS + i * 2):
+            room = rom.w(FAIRY_REPLACEMENTS + i * 2)
+    layout_at = 0x0A0000 | rom.w(ROOM_POINTERS + dung * 2)
+    floor1 = (down + cur) & 0xFF
+    cells = [rom.b(layout_at + floor1 * 25 + k) for k in range(25)]
+    xc = yc = 0
+    for k in range(25):
+        if cells[k] == (room & 0xFF):
+            break
+        if xc < 64:
+            xc += 16
+        else:
+            xc, yc = 0, yc + 16
+    var3 = (xc + 0x90 + ((r16(0x22) & 0x1E0) >> 5)) & 0xFF
+    var6 = yc
+    var5 = (yc + rom.w(MARKER_Y_BASE + idx) + ((r16(0x20) & 0x1E0) >> 5)) & 0xFFFF
+    # the boss's room on its floor
+    boss_floor = rom.w(BOSS_FLOOR + dung * 2)
+    floor2 = (down + boss_floor) & 0xFF
+    cells2 = [rom.b(layout_at + floor2 * 25 + k) for k in range(25)]
+    var7, var8 = 0x40, 0x40
+    look = rom.w(BOSS_ROOMS + dung * 2) & 0xFF
+    for j in range(24, -1, -1):
+        if cells2[j] != 0x0F and cells2[j] == look:
+            break
+        var7 -= 0x10
+        if var7 < 0:
+            var7 = 0x40
+            var8 = (var8 - 0x10) & 0xFF
+    floor3 = s8((shown - (boss_floor & 0xFF)) & 0xFF)
+    # (16 bits: a boss floor that isn't shown puts it at 256 and over: hidden)
+    var8 = (var8 + 0x60 * floor3 + rom.w(MARKER_Y_BASE)) & 0xFFFF
+
+    # the brackets round Link's room on each shown floor (DrawLocationMarker)
+    pos = 1
+    for r14 in range(2):
+        for i in range(3, -1, -1):
+            r15 = (var6 + rom.w(MARKER_Y_BASE + r14 * 2)) & 0xFF
+            fr = (frame >> 2) & 1
+            if ((var5 + 1) & 0xF0) == r15 + 1 and var5 < 256:
+                fr += 2
+            x = (s8(rom.b(MARKER_DX + i)) + (var3 & 0xF0)) & 0xFF
+            y = (r15 + s8(rom.b(MARKER_DY + i))) & 0xFF
+            oam[pos] = (x, y, 0x00, rom.b(MARKER_FLASH + fr) | rom.b(MARKER_PROPS + i), True)
+            pos += 1
+    # the blinking dot (DungeonMap_DrawBlinkingIndicator)
+    oam[pos] = ((var3 - 3) & 0xFF, ((var5 if var5 < 256 else 0xF0) - 3) & 0xFF, 0x34, rom.b(BLINK_PROPS + ((frame >> 2) & 3)), False)
+    pos += 1
+    # the boss, with the compass, until beaten (DungeonMap_DrawBossIcon)
+    # ($FFFF: no boss; floors below the ground are $00FF, $00FE...)
+    if boss_floor != 0xFFFF and not (r16(0xF000 + look * 2) & 0x800) and r16(0xF364) & (0x8000 >> dung):
+        if (frame & 15) < 10:
+            r3b = fix((down + boss_floor) & 0xFF)
+            oam[pos] = (0x4C, rom.b(FLOOR_ICON_Y + r3b), 0x31, 0x33, False)
+            pos += 1
+            xy = rom.w(BOSS_POSITION + dung * 2)
+            oam[pos] = (((xy >> 8) + var7 + 0x90) & 0xFF, ((xy & 0xFF) + var8) & 0xFF if var8 < 256 else 0xF0, 0x31, 0x33, False)
+            pos += 1
+    # each floor's number in the list (DungeonMap_DrawFloorNumberObjects)
+    yv = 7
+    if up + down != 8 and up < 4:
+        yv = 6
+        i = 3
+        while i != 0 and i != up:
+            yv -= 1
+            i -= 1
+        if down >= 5:
+            i = 5
+            while i != down and down != 8:
+                yv += 1
+                i += 1
+    r4 = (rom.b(FLOOR_ICON_Y + yv) + 1) & 0xFF
+    r2 = (up - 1) & 0xFF
+    r3n = (-down) & 0xFF
+    while True:
+        a = 0x1C if r2 & 0x80 else rom.b(FLOOR_NUMBER_CHAR + r2)
+        b = rom.b(FLOOR_NUMBER_CHAR + (r2 ^ 0xFF)) if r2 & 0x80 else 0x1D
+        oam[pos] = (0x30, r4, a, 0x3D, False)
+        oam[pos + 1] = (0x38, r4, b, 0x3D, False)
+        r4 = (r4 + 16) & 0xFF
+        pos += 2
+        done = r2 == r3n
+        r2 = (r2 - 1) & 0xFF
+        if done:
+            break
+    return oam
+
+
 def check(rom, name):
     ram = open(name + ".ram", "rb").read()
     v = open(name + ".vram", "rb").read()
@@ -221,6 +355,19 @@ def check(rom, name):
         if g != w:
             bad[a] = (g, w)
     print(f"{len(built) - len(bad)} of {len(built)} tilemap words as the game's ({len(bad)} differ)")
+    oam = sprites(rom, ram)
+    obad = 0
+    for i, (x, y, t, at, big) in oam.items():
+        g = ram[0x800 + i * 4:0x804 + i * 4]
+        hi = (ram[0xA00 + i // 4] >> ((i % 4) * 2)) & 3
+        gx = g[0] | (hi & 1) << 8
+        if (gx & 0xFF, g[1], g[2], g[3], bool(hi & 2)) != (x, y, t, at, big):
+            obad += 1
+            print(f"  sprite {i}: game x {gx} y {g[1]} tile {g[2]:02X} attr {g[3]:02X} big {bool(hi & 2)};"
+                  f" built x {x} y {y} tile {t:02X} attr {at:02X} big {big}")
+    print(f"{len(oam) - obad} of {len(oam)} sprites as the game's")
+    if obad:
+        return 1
     for a in sorted(bad)[:30]:
         g, w = bad[a]
         layer = "BG3" if a >= 0x6000 else "BG1" if a >= 0x1000 else "BG2"
