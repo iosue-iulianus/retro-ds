@@ -27,6 +27,11 @@
  *                          stable=8 maxdiff=64 max=600 blind=1 (frames
  *                          before `until` holds run without drawing)
  *                          verbose=1 (pixels changed, frame by frame)
+ *   smmap NAME [VX VY|game]  Super Metroid's map as SNES DS draws it
+ *                          (src/smmap.c), from A's RAM: NAME.png, 256 x
+ *                          178, at the view given, the game's own ($B1,
+ *                          $B3: its pause screen, the blinking as on its
+ *                          picture) or where SNES DS rests it
  *   bench [FRAMES]         the M0 measurements (see docs/M0-results.md)
  *   context N              savestate context for both (0 normal,
  *                          1 runahead same instance, 2 same binary)
@@ -38,6 +43,7 @@
  *                          the default, shows the problem it fixes)
  */
 #include "../src/emu.h"
+#include "../src/smmap.h"
 
 #include <pthread.h>
 #include <stdio.h>
@@ -86,6 +92,44 @@ static void shot(Emu* e, const char* name) {
 	out_path(path, sizeof path, name, ".png");
 	if (!write_png(path, e->fb, e->w, e->h, e->w)) fprintf(stderr, "can't write %s\n", path);
 	else printf("shot %s (%dx%d)\n", path, e->w, e->h);
+}
+
+/* ---- Super Metroid's native map ---- */
+
+static void smmap_cmd(Emu* e, const char* romPath, const char* name, const char* a, const char* b) {
+	static SmMap* sm;
+	if (!sm) {
+		size_t n = 0;
+		uint8_t* rom = emu_rom_read_played(romPath, &n, NULL, NULL, NULL);
+		sm = smmap_new(rom, n);
+		if (!sm) {
+			fprintf(stderr, "smmap: not a ROM it knows\n");
+			return;
+		}
+	}
+	size_t n;
+	const uint8_t* w = emu_memory(e, EMU_MEM_WRAM, &n);
+	if (!w || n < 0x20000) return;
+	smmap_update(sm, w);
+	int vx, vy;
+	if (!strcmp(a, "game")) {
+		vx = (int16_t) (w[0xB1] | w[0xB2] << 8), vy = (int16_t) (w[0xB3] | w[0xB4] << 8);
+		/* the marker as the picture has it: a frame late ($82:B9FC) */
+		static const int seq[4] = { 0, 1, 2, 1 }, delay[4] = { 8, 4, 8, 4 };
+		int f = (w[0x0776] >> 1) & 3;
+		if ((w[0x0778] | w[0x0779] << 8) == delay[f] - 1) f = (f + 3) & 3;
+		smmap_set_blink(sm, seq[f], w[0x074F]);
+	} else if (*a) {
+		vx = atoi(a), vy = atoi(b);
+	} else {
+		smmap_home(sm, &vx, &vy);
+	}
+	static uint32_t px[SMMAP_W * SMMAP_H];
+	smmap_compose(sm, vx, vy, px);
+	char path[1200];
+	out_path(path, sizeof path, name, ".png");
+	if (!write_png(path, px, SMMAP_W, SMMAP_H, SMMAP_W)) fprintf(stderr, "can't write %s\n", path);
+	else printf("smmap %s (view %d, %d)\n", path, vx, vy);
 }
 
 /* ---- state copy ---- */
@@ -414,6 +458,8 @@ int main(int argc, char** argv) {
 				for (int i = 0; i < 3; ++i) emu_frame(e, k);
 				for (int i = 0; i < 9; ++i) emu_frame(e, 0);
 			}
+		} else if (!strcmp(cmd, "smmap")) {
+			smmap_cmd(e, rom, s1, s2, s3);
 		} else if (!strcmp(cmd, "shot")) {
 			shot(e, s1);
 		} else if (!strcmp(cmd, "save") || !strcmp(cmd, "load")) {
