@@ -4818,10 +4818,11 @@ static int altZoomI = 2;
 static float altZ = 2;
 #define ALT_Z altZ
 static bool altPinch; /* two fingers on the map */
+static Uint64 altZoomT; /* when the zoom last changed (its indicator bright a while) */
 static float altPinchSpan, altPinchZ, altPinchWX, altPinchWY; /* at its start: the span, zoom, the world point under the fingers */
 static bool altXDown;
 static bool altItemsDirty;
-static SDL_Texture *altItemsTex[2], *altMarkerTex[2], *altDunTex[2], *altSkyTex[2][2], *altGoalTex[2];
+static SDL_Texture *altItemsTex[2], *altMarkerTex[2], *altSkyTex[2][2], *altGoalTex[2];
 /* The map's pieces on the GPU (alttp_piece): made when first shown, made
  * again when the piece changed (at most every ALT_REMAKE seconds while
  * Link walks), the least lately shown let go past ALT_BUDGET bytes. The
@@ -4855,7 +4856,14 @@ static uint32_t* altWOut;
  * floor), and Link's floor when it was picked */
 static int altFloor = ALTTP_FLOOR_AS_GAME, altFloorLink;
 static uint32_t altDunKey; /* what the dungeon map's texture was drawn from (0: nothing) */
-static uint32_t altDunBack = 0xFF000000u; /* its picture's edge colour: the rest of the screen in it */
+/* ALTTP-5: the dungeon map widened to the screen's shape, its frame's
+ * colour (its edge pixels) at the sides, drawn as one picture so the
+ * LCD grid falls on the sides as on the frame */
+static uint32_t altDunPx[ALTTP_W * ALTTP_H];
+static bool altDunNew;
+static uint32_t* altDunWide;
+static int altDunWW, altDunWH, altDunWView = -1;
+static SDL_Texture* altDunWideTex[2];
 /* The view (the map's top left, world pixels): on Link, or the player's
  * from a drag until Link enters another area (ALTTP-3) */
 static float altVX, altVY, altVelX, altVelY;
@@ -4987,7 +4995,7 @@ static void alt_free(void) {
 	ui_set_pinch(false);
 	altPage = 0, altFile = 0, altFloor = ALTTP_FLOOR_AS_GAME, altDunKey = 0;
 	for (int i = 0; i < 2; ++i) {
-		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i] };
+		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunWideTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i] };
 		for (int k = 0; k < 6; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 			*t[k] = NULL;
@@ -5008,12 +5016,12 @@ static void alt_textures(void) {
 	if (!alt) return;
 	alt_cache_clear();
 	for (int i = 0; i < nViews; ++i) {
-		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i] };
+		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunWideTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i] };
 		for (int k = 0; k < 6; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 		}
 		altItemsTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
-		altDunTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
+		altDunWideTex[i] = NULL; /* (made at its size when shown) */
 		altMarkerTex[i] = native_texture(i, 32, 32, SDL_BLENDMODE_BLEND);
 		altGoalTex[i] = native_texture(i, ALTTP_GOAL_MAX * 16, 16, SDL_BLENDMODE_BLEND);
 		if (altGoalTex[i]) ui_update_texture(altGoalTex[i], alttp_goal_pictures(alt), ALTTP_GOAL_MAX * 16 * 4);
@@ -5023,7 +5031,7 @@ static void alt_textures(void) {
 		}
 	}
 	altItemsDirty = true;
-	altDunKey = 0;
+	altDunKey = 0, altDunWView = -1;
 }
 
 /* The map fills the second screen, whatever its shape (ALTTP-3): its
@@ -5151,10 +5159,7 @@ static void alt_tick(void) {
 		uint32_t key = (uint32_t) (w[0x1A] >> 2) | (uint32_t) (altFloor & 0xFF) << 8 | (uint32_t) w[0xA4] << 16 | (uint32_t) w[0xA0] << 24;
 		key ^= (uint32_t) emu_crc32(0, w + 0xF000, 0x500) ^ (uint32_t) (w[0x20] | w[0x22] << 8) * 0x9E3779B1u;
 		const uint32_t* px = key != altDunKey ? alttp_dungeon_map(alt, v && vn >= 0x10000 ? v : NULL, altFloor) : NULL;
-		if (px) altDunKey = key, altDunBack = px[0];
-		for (int i = 0; i < nViews && px; ++i) {
-			if (altDunTex[i]) ui_update_texture(altDunTex[i], px, ALTTP_W * 4);
-		}
+		if (px) altDunKey = key, memcpy(altDunPx, px, sizeof altDunPx), altDunNew = true;
 	} else if (!alttp_in_dungeon(alt)) {
 		altFloor = ALTTP_FLOOR_AS_GAME;
 	}
@@ -5307,6 +5312,27 @@ static void alt_piece_ask(int world, int piece, int level, uint32_t ver) {
 	SDL_UnlockMutex(altWLock);
 }
 
+/* ALTTP-3: the zoom's levels in the map's bottom right corner, the
+ * closest at the top, the one it's at (or nearest, while pinched) lit;
+ * bright for 1.5 seconds after it changes, then faint */
+static void alt_zoom_indicator(int s, SDL_Rect a) {
+	int u = SDL_max(2, a.h / 108);
+	int w = 3 * u, h = (ALT_ZOOMS * 3 + 1) * u;
+	SDL_Rect pill = { a.x + a.w - w - 2 * u, a.y + a.h - h - 2 * u, w, h };
+	double since = altZoomT ? (double) (SDL_GetPerformanceCounter() - altZoomT) / SDL_GetPerformanceFrequency() : 1e9;
+	float f = since < 1.5 ? 1.0f : since < 2.0 ? 1.0f - (float) (since - 1.5) / 0.5f * 0.55f : 0.45f;
+	ui_fill_round(s, pill, (SDL_Color) { 0, 0, 0, (Uint8) (130 * f) }, w / 2);
+	int at = 0;
+	for (int i = 1; i < ALT_ZOOMS; ++i) {
+		if (fabsf(logf(altZooms[i] / altZ)) < fabsf(logf(altZooms[at] / altZ))) at = i;
+	}
+	int d = u * 8 / 5;
+	for (int i = 0; i < ALT_ZOOMS; ++i) {
+		SDL_Rect dot = { pill.x + (w - d) / 2, pill.y + u + i * 3 * u + (2 * u - d) / 2, d, d };
+		ui_fill_round(s, dot, (SDL_Color) { 255, 255, 255, (Uint8) ((i == at ? 235 : 70) * f) }, d / 2);
+	}
+}
+
 /* The map (ALTTP-2, ALTTP-3): the whole second screen, whatever its
  * shape; the clouds, the seen ground over them in pieces at the zoom's
  * level (each texture pixel one or two of the screen's), Link's marker at
@@ -5365,6 +5391,7 @@ static void draw_alt_map(int s) {
 		int gx = ox + (int) lroundf(gl[i].x / z) + gl[i].dx * m, gy = oy + (int) lroundf(gl[i].y / z) + gl[i].dy * m;
 		ui_image_part(s, altGoalTex, (SDL_Rect) { i * 16, 0, gl[i].size, gl[i].size }, (SDL_Rect) { gx, gy, gl[i].size * m, gl[i].size * m });
 	}
+	alt_zoom_indicator(s, a);
 	if (alttp_marker_on(alt)) {
 		int mx = ox + (int) lroundf(lx / z) - 16 * m, my = oy + (int) lroundf(ly / z) - 16 * m;
 		ui_image_part(s, altMarkerTex, (SDL_Rect) { 0, 0, 32, 32 }, (SDL_Rect) { mx, my, 32 * m, 32 * m });
@@ -5374,10 +5401,29 @@ static void draw_alt_map(int s) {
 
 static void draw_alt(int s) {
 	if (altPage == 1 && alttp_in_dungeon(alt)) {
-		/* ALTTP-5: the frame's colour out to the screen's edges, whatever its shape */
-		SDL_Color c = { (Uint8) (altDunBack & 0xFF), (Uint8) (altDunBack >> 8 & 0xFF), (Uint8) (altDunBack >> 16 & 0xFF), 255 };
-		ui_fill(s, (SDL_Rect) { 0, 0, screens[s].rect.w, screens[s].rect.h }, c);
-		ui_image_pixels(s, altDunTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON);
+		/* the picture's own scale, the canvas as many of its pixels as the screen holds */
+		SDL_Rect img = ui_image_rect(s, ALTTP_W, ALTTP_H, cfg->mapScale);
+		float k = img.w > 0 ? img.w / (float) ALTTP_W : 1;
+		SDL_Rect pa = screens[s].pic;
+		int W = SDL_clamp((int) (pa.w / k), ALTTP_W, 2048), H = SDL_clamp((int) (pa.h / k), ALTTP_H, 2048);
+		int v = screens[s].view;
+		if (W != altDunWW || H != altDunWH || v != altDunWView || !altDunWideTex[v]) {
+			uint32_t* nb = realloc(altDunWide, (size_t) W * H * 4);
+			if (!nb) return;
+			altDunWide = nb, altDunWW = W, altDunWH = H, altDunWView = v;
+			if (altDunWideTex[v]) SDL_DestroyTexture(altDunWideTex[v]);
+			altDunWideTex[v] = native_texture(v, W, H, SDL_BLENDMODE_NONE);
+			altDunNew = true;
+		}
+		if (altDunNew && altDunWideTex[v]) {
+			uint32_t back = altDunPx[0];
+			for (int i = 0; i < W * H; ++i) altDunWide[i] = back;
+			int x0 = (W - ALTTP_W) / 2, y0 = (H - ALTTP_H) / 2;
+			for (int y = 0; y < ALTTP_H; ++y) memcpy(&altDunWide[(y0 + y) * W + x0], &altDunPx[y * ALTTP_W], ALTTP_W * 4);
+			ui_update_texture(altDunWideTex[v], altDunWide, W * 4);
+			altDunNew = false;
+		}
+		ui_image_pixels(s, altDunWideTex, W, H, cfg->mapScale, SHADER_ON);
 	}
 	else if (altPage == 1) draw_alt_map(s);
 	else ui_image_pixels(s, altItemsTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON);
@@ -5407,9 +5453,11 @@ static uint32_t alt_keys(uint32_t keys) {
  * RetroAchievements' hardcore it is to be switched off, ra.c plays casual
  * only for now); on the map, the next zoom (ALTTP-3) */
 static void alt_tap(int x, int y) {
+	if (altPage == 1 && alttp_in_special(alt)) return; /* (the logo) */
 	if (altPage == 1 && !alttp_in_dungeon(alt)) {
 		/* (alt_step glides there, what's in the middle kept there) */
 		altZoomI = (altZoomI + 1) % ALT_ZOOMS;
+		altZoomT = SDL_GetPerformanceCounter();
 		fprintf(stderr, "map zoom: %g world pixels a pixel\n", altZooms[altZoomI]);
 		return;
 	}
@@ -5449,7 +5497,7 @@ static int alt_touch(const Pointer* p) {
 		 * which stays under them; let go, the zoom settles on the nearest
 		 * level; the finger left drags on */
 		int s = 1 - game_screen();
-		if (altPage != 1 || alttp_in_dungeon(alt) || !altShown || p->screen != s) return 1;
+		if (altPage != 1 || alttp_in_dungeon(alt) || alttp_in_special(alt) || !altShown || p->screen != s) return 1;
 		SDL_Rect a = screens[s].pic;
 		if (p->kind == 5) {
 			if (altPinch) {
@@ -5475,6 +5523,7 @@ static int alt_touch(const Pointer* p) {
 			altVelX = altVelY = 0;
 		}
 		altZ = SDL_clamp(altPinchZ * altPinchSpan / p->span, altZooms[0], altZooms[ALT_ZOOMS - 1]);
+		altZoomT = SDL_GetPerformanceCounter();
 		altVX = altPinchWX - (p->x - a.x) * altZ, altVY = altPinchWY - (p->y - a.y) * altZ;
 		alt_clamp(&altVX, &altVY);
 		altUser = true;
@@ -5497,7 +5546,7 @@ static int alt_touch(const Pointer* p) {
 	alt_rect(1 - game_screen(), &kx, &ky);
 	if (kx <= 0 || ky <= 0) return 1;
 	if (fabsf((p->x - altDownX) / kx) > 4 || fabsf((p->y - altDownY) / ky) > 4) altDragMoved = true;
-	if (altDragMoved && altPage == 1 && !alttp_in_dungeon(alt)) {
+	if (altDragMoved && altPage == 1 && !alttp_in_dungeon(alt) && !alttp_in_special(alt)) {
 		altVX = altDownVX - (p->x - altDownX) * ALT_Z, altVY = altDownVY - (p->y - altDownY) * ALT_Z;
 		alt_clamp(&altVX, &altVY);
 		altUser = true;
@@ -5815,7 +5864,7 @@ static bool logo_draw(uint32_t* px, int cw, int ch, int k, int top, int alpha) {
 	return true;
 }
 
-/* The game's logo as a GBA screen would show it: centred on dark grey in a
+/* The game's logo as a GBA screen would show it: centred on black in a
  * 240x160 picture, at half strength (nothing live to show), drawn with the second screen's scaling and the LCD grid.
  * Logos extracted from the ROM are at GBA resolution; a user's own logo
  * that's bigger stays a high-resolution image (logoCanvasTex NULL). */
@@ -5835,7 +5884,7 @@ static void make_logo_canvas(void) {
 		int cw = SNES_W * sub, ch = SNES_H * sub;
 		uint32_t* big4 = malloc((size_t) cw * ch * 4);
 		if (!big4) return;
-		for (int i = 0; i < cw * ch; ++i) big4[i] = SCREEN_GREY;
+		for (int i = 0; i < cw * ch; ++i) big4[i] = 0xFF000000u; /* (OLED black, the owner's choice) */
 		logo_draw(big4, cw, ch, sub, 0, LOGO_IDLE);
 		for (int i = 0; i < nViews; ++i) {
 			logoCanvasTex[i] = SDL_CreateTexture(views[i].ren, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, cw, ch);
@@ -5848,7 +5897,7 @@ static void make_logo_canvas(void) {
 		return;
 	}
 	static uint32_t px[SNES_W * SNES_H];
-	for (int i = 0; i < SNES_W * SNES_H; ++i) px[i] = SCREEN_GREY;
+	for (int i = 0; i < SNES_W * SNES_H; ++i) px[i] = 0xFF000000u; /* (OLED black, the owner's choice) */
 	logo_draw(px, SNES_W, SNES_H, 1, 0, LOGO_IDLE);
 	for (int i = 0; i < nViews; ++i) {
 		logoCanvasTex[i] = SDL_CreateTexture(views[i].ren, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, SNES_W, SNES_H);
@@ -5892,7 +5941,8 @@ static void draw_game(void) {
 		if (nat && natShown) {
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			draw_native(s);
-		} else if (alt && altShown) {
+		} else if (alt && altShown && !(altPage == 1 && alttp_in_special(alt))) {
+			/* (ALTTP-12: in a special area the map gives way to the logo) */
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			draw_alt(s);
 		} else if (mapShownIdx >= 0 && !logoForced) {

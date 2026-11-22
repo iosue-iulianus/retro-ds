@@ -28,6 +28,7 @@
 #define R_BG1_Y 0x00E6
 #define R_LINK_Y 0x0020
 #define R_LINK_X 0x0022
+#define R_FACING 0x002F /* the way Link faces: 0 up, 2 down, 4 left, 6 right */
 #define R_AREA 0x008A
 #define R_BG2_X 0x00E2
 #define R_BG2_Y 0x00E8
@@ -136,7 +137,12 @@ struct Alttp {
 	uint32_t itemsKey;
 	uint32_t marker[32 * 32];
 	bool markerLink;    /* the marker is Link's sprite (else the ring, until he's seen) */
-	uint32_t markerKey; /* what Link's sprite was made from */
+	/* Link's picture for each way he faces (up, down, left, right as $2F / 2):
+	 * what it was made from, 2 taken standing still, 1 not yet; the one shown */
+	uint32_t dirPx[4][32 * 32];
+	uint32_t dirKey[4];
+	uint8_t dirHave[4];
+	int shownDir, stoodDir, lastDir; /* the way he stood still the update before (-1 not), the way he faced */
 	/* the sprite list's copy as it was the frame before ($1A, frame) and
 	 * this frame: the picture (and the tiles in video RAM) go with the
 	 * copy made the frame before, sent to the PPU at its end */
@@ -363,6 +369,7 @@ Alttp* alttp_new(uint8_t* rom, size_t size) {
 	a->rom = rom, a->romSize = size;
 	a->dun = altdun_new(rom, size);
 	a->lastArea = -1;
+	a->stoodDir = a->lastDir = -1;
 	a->gen = 1;
 	a->oamFrame[0] = a->oamFrame[1] = -1;
 	a->takenX = -1;
@@ -1124,7 +1131,7 @@ void alttp_link(const Alttp* a, int* world, int* x, int* y) {
 
 /* a sprite of the game's (size 8 or 16, 4 bits a pixel) from video RAM
  * into the marker, its top left at (ox, oy); attr: its vhoopppN byte */
-static void draw_sprite(Alttp* a, const uint8_t* vram, int size, int c, uint8_t attr, int ox, int oy) {
+static void draw_sprite(const Alttp* a, uint32_t* out, const uint8_t* vram, int size, int c, uint8_t attr, int ox, int oy) {
 	int pal = (attr >> 1) & 7;
 	for (int py = 0; py < size; ++py) {
 		int sy = attr & 0x80 ? size - 1 - py : py;
@@ -1136,7 +1143,7 @@ static void draw_sprite(Alttp* a, const uint8_t* vram, int size, int c, uint8_t 
 			uint16_t p01 = vword(vram, t + (sy & 7)), p23 = vword(vram, t + 8 + (sy & 7));
 			int b = 7 - (sx & 7);
 			int ci = (p01 >> b & 1) | (p01 >> (8 + b) & 1) << 1 | (p23 >> b & 1) << 2 | (p23 >> (8 + b) & 1) << 3;
-			if (ci) a->marker[y * 32 + x] = abgr(r16(a, R_PALETTE + (128 + pal * 16 + ci) * 2));
+			if (ci) out[y * 32 + x] = abgr(r16(a, R_PALETTE + (128 + pal * 16 + ci) * 2));
 		}
 	}
 }
@@ -1145,9 +1152,11 @@ static void draw_sprite(Alttp* a, const uint8_t* vram, int size, int c, uint8_t 
  * from $0352's place (his body, head, shield, sword, the item in his
  * hand); his own tiles are the first 32 (0x00 head, 0x02 body), which
  * the game fills with his pose each frame. Drawn round his body as they
- * are on screen: facing, moving and swinging as he is. Kept as it was
- * while he isn't drawn (the blink after a hit). True if changed. */
+ * are on screen. True if the marker changed. */
 #define LINK_SLOTS 12
+static bool link_take(Alttp* a, const uint8_t* vram, const uint8_t* list, int first, int n, const int* x, const int* y,
+                      const bool* shown, int body, int d, bool standing);
+
 static bool link_marker(Alttp* a, const uint8_t* vram) {
 	/* the copy the shown picture was made from, if the update before
 	 * was the frame before (else this frame's: a frame out, at most) */
@@ -1170,7 +1179,28 @@ static bool link_marker(Alttp* a, const uint8_t* vram) {
 		shown[i] = o[2] < 0x20 && !(o[3] & 1) && y[i] < 0xE0 && x[i] > -16 && x[i] < 256;
 		if (shown[i] && o[2] == 0x02 && (hi & 2) && body < 0) body = i;
 	}
-	if (body < 0) return false;
+	/* ALTTP-4: not animated, only turned: a picture of him for each way he
+	 * faces, taken while he stands still (nothing in hand, no sword out),
+	 * else the first seen that way until then */
+	int d = (r8(a, R_FACING) >> 1) & 3;
+	bool standing = !r8(a, 0x27) && !r8(a, 0x28) && !r8(a, 0x2E) && !r8(a, 0x3A) && !r8(a, 0x5D) && !r8(a, 0x4D) &&
+	                !r8(a, 0x0301) && !r8(a, 0x0308) && !r8(a, 0x037A) && !r8(a, 0x02DA);
+	/* (still for two frames the same way: the sprite list is the frame
+	 * before's, the RAM this frame's) */
+	bool still = standing && a->stoodDir == d, held = a->lastDir == d;
+	a->stoodDir = standing ? d : -1, a->lastDir = d;
+	bool changed = false;
+	if (body >= 0 && (still || (held && !a->dirHave[d]))) changed = link_take(a, vram, list, first, n, x, y, shown, body, d, still);
+	if (!a->dirHave[d] || (!changed && d == a->shownDir && a->markerLink)) return false;
+	memcpy(a->marker, a->dirPx[d], sizeof a->marker);
+	a->shownDir = d, a->markerLink = true;
+	return true;
+}
+
+/* Link's picture for way d from this frame's sprites (if it differs from
+ * the one kept); true if it changed */
+static bool link_take(Alttp* a, const uint8_t* vram, const uint8_t* list, int first, int n, const int* x, const int* y,
+                      const bool* shown, int body, int d, bool standing) {
 	uint32_t k = crc32(0, vram + V_OBJ_CHR * 2, 0x400);
 	k = crc32(k, a->ram + R_PALETTE + 128 * 2, 256);
 	for (int i = 0; i < n; ++i) {
@@ -1180,9 +1210,13 @@ static bool link_marker(Alttp* a, const uint8_t* vram) {
 		k = crc32(k, e, sizeof e);
 	}
 	k |= 1;
-	if (a->markerLink && k == a->markerKey) return false;
-	a->markerKey = k, a->markerLink = true;
-	for (int i = 0; i < 32 * 32; ++i) a->marker[i] = 0;
+	if (a->dirHave[d] && k == a->dirKey[d]) {
+		if (standing) a->dirHave[d] = 2;
+		return false;
+	}
+	a->dirKey[d] = k, a->dirHave[d] = standing ? 2 : 1;
+	uint32_t* pic = a->dirPx[d];
+	for (int i = 0; i < 32 * 32; ++i) pic[i] = 0;
 	/* the body's top left where it is round Link's middle (alttp_link):
 	 * 8 pixels right of Link's x and a line below y + 8; the first slots
 	 * over the later ones, as the SNES shows them */
@@ -1190,8 +1224,8 @@ static bool link_marker(Alttp* a, const uint8_t* vram) {
 		if (!shown[i]) continue;
 		const uint8_t* o = list + (first + i) * 4;
 		int mx = 8 + x[i] - x[body], my = 13 + y[i] - y[body];
-		if (list[R_OAM_HIGH - R_OAM + first + i] & 2) draw_sprite(a, vram, 16, o[2], o[3], mx, my);
-		else draw_sprite(a, vram, 8, o[2], o[3], mx, my);
+		if (list[R_OAM_HIGH - R_OAM + first + i] & 2) draw_sprite(a, pic, vram, 16, o[2], o[3], mx, my);
+		else draw_sprite(a, pic, vram, 8, o[2], o[3], mx, my);
 	}
 	return true;
 }
@@ -1371,6 +1405,11 @@ int alttp_update(Alttp* a, const uint8_t* wram, const uint8_t* vram, const uint8
 }
 
 /* ---- the dungeon map (ALTTP-5, ALTTP-6; alttp_dungeon.c) */
+
+bool alttp_in_special(const Alttp* a) {
+	uint8_t m = r8(a, R_MODULE);
+	return a->have && (m == 0x09 || m == 0x0B) && !r8(a, R_INDOORS) && r8(a, R_AREA) >= 0x80;
+}
 
 bool alttp_in_dungeon(const Alttp* a) {
 	return a->have && r8(a, R_INDOORS) && r8(a, R_DUNGEON) != 0xFF;
