@@ -28,7 +28,7 @@ Alttp* alttp_new(uint8_t* rom, size_t size);
 void alttp_free(Alttp* a);
 
 /* What changed in alttp_update */
-enum { ALTTP_ITEMS = 1, ALTTP_MAP = 2, ALTTP_AREA = 4, ALTTP_FILE = 8 };
+enum { ALTTP_ITEMS = 1, ALTTP_MAP = 2, ALTTP_AREA = 4, ALTTP_FILE = 8, ALTTP_MARKER = 16 };
 /* Once per pass of the loop, with the game's work RAM (128 KB), its video
  * RAM (64 KB, may be NULL: then nothing is taken for the map) and its
  * cartridge RAM (8 KB, may be NULL; its $1FFE says which file is played).
@@ -69,8 +69,10 @@ void alttp_link(const Alttp* a, int* world, int* x, int* y);
  * w x h shown pixels from world pixel (vx, vy), the seen ground and the
  * clouds elsewhere, into out (w x h) */
 void alttp_compose(const Alttp* a, int world, int zoom, int vx, int vy, int w, int h, uint32_t* out);
-/* Link's marker: the items screen's flashing ring (32 x 32, its middle at
- * the marker's place), and whether it shows now (it blinks as the ring) */
+/* Link's marker (32 x 32, its middle at Link's place): his sprite as the
+ * game draws it (ALTTP-4: facing and moving as he is; alttp_update says
+ * ALTTP_MARKER when it changed), or the items screen's flashing ring until
+ * he has been seen; and whether it shows now (the ring blinks) */
 const uint32_t* alttp_marker(const Alttp* a);
 bool alttp_marker_on(const Alttp* a);
 

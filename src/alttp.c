@@ -24,6 +24,10 @@
 #define R_AREA 0x008A
 #define R_BG2_X 0x00E2
 #define R_BG2_Y 0x00E8
+#define R_OAM 0x0800      /* the game's copy of the sprite list, 128 x 4 bytes */
+#define R_SORT_OFFSET 0x0352 /* where Link's sprites start in it, in bytes */
+#define R_OAM_HIGH 0x0A20 /* each sprite's 9th x bit (bit 0) and size (bit 1), a byte each */
+#define OAM_COPY (R_OAM_HIGH + 128 - R_OAM)
 #define R_MENU_CUSTOM 0x0112 /* a spell's animation (START not allowed) */
 #define R_CUR_ITEM 0x0202
 #define R_RING 0x0207
@@ -53,6 +57,7 @@
 #define V_BG1_MAP 0x1000
 #define V_BG12_CHR 0x2000
 #define V_BG3_CHR 0x7000
+#define V_OBJ_CHR 0x4000 /* sprite tiles: Link's head is 0x00, his body 0x02 */
 
 /* the cartridge (SNES addresses) */
 #define ITEM_ICON_POINTERS 0x0DFA93u
@@ -105,6 +110,13 @@ struct Alttp {
 	uint32_t items[ALTTP_W * ALTTP_H];
 	uint32_t itemsKey;
 	uint32_t marker[32 * 32];
+	bool markerLink;    /* the marker is Link's sprite (else the ring, until he's seen) */
+	uint32_t markerKey; /* what Link's sprite was made from */
+	/* the sprite list's copy as it was the frame before ($1A, frame) and
+	 * this frame: the picture (and the tiles in video RAM) go with the
+	 * copy made the frame before, sent to the PPU at its end */
+	uint8_t oam[2][OAM_COPY + 2];
+	int oamFrame[2];
 	/* the map */
 	uint16_t* chunk[2][CHUNKS * CHUNKS]; /* SNES colour | 0x8000 where taken, 0 elsewhere */
 	/* each piece compressed as the record keeps it, made again only when
@@ -178,6 +190,7 @@ Alttp* alttp_new(uint8_t* rom, size_t size) {
 	a->rom = rom, a->romSize = size;
 	a->dun = altdun_new(rom, size);
 	a->lastArea = -1;
+	a->oamFrame[0] = a->oamFrame[1] = -1;
 	a->takenX = -1;
 	a->itemsKey = 1;
 	make_sky(a);
@@ -463,7 +476,9 @@ static void render_items(Alttp* a, const uint8_t* vram) {
 			if (e != BLANK) draw_tile2(a, vram, e, &a->items[(r - MENU_ROW0) * 8 * ALTTP_W + c * 8], ALTTP_W);
 		}
 	}
-	/* Link's marker on the map: the same ring, round a 16 x 16 middle */
+	/* Link's marker on the map until his sprite has been seen: the same
+	 * ring, round a 16 x 16 middle */
+	if (a->markerLink) return;
 	for (int i = 0; i < 32 * 32; ++i) a->marker[i] = 0;
 	static const int8_t ringAt[12][2] = { { 1, 0 }, { 2, 0 }, { 0, 1 }, { 3, 1 }, { 0, 2 }, { 3, 2 }, { 1, 3 }, { 2, 3 }, { 0, 0 }, { 3, 0 }, { 3, 3 }, { 0, 3 } };
 	static const uint16_t ringTile[12] = { 0x2061, 0x6061, 0x2070, 0x6070, 0xA070, 0xE070, 0xA061, 0xE061, 0x2060, 0x6060, 0xE060, 0xA060 };
@@ -676,12 +691,89 @@ void alttp_link(const Alttp* a, int* world, int* x, int* y) {
 	*world = a->linkWorld, *x = a->linkX, *y = a->linkY;
 }
 
+/* ---- Link's marker on the map: his sprite as the game draws it now */
+
+/* a sprite of the game's (size 8 or 16, 4 bits a pixel) from video RAM
+ * into the marker, its top left at (ox, oy); attr: its vhoopppN byte */
+static void draw_sprite(Alttp* a, const uint8_t* vram, int size, int c, uint8_t attr, int ox, int oy) {
+	int pal = (attr >> 1) & 7;
+	for (int py = 0; py < size; ++py) {
+		int sy = attr & 0x80 ? size - 1 - py : py;
+		for (int px = 0; px < size; ++px) {
+			int sx = attr & 0x40 ? size - 1 - px : px;
+			int x = ox + px, y = oy + py;
+			if (x < 0 || x >= 32 || y < 0 || y >= 32) continue;
+			uint32_t t = V_OBJ_CHR + (uint32_t) ((c + (sx >> 3) + (sy >> 3) * 16) & 0x1FF) * 16;
+			uint16_t p01 = vword(vram, t + (sy & 7)), p23 = vword(vram, t + 8 + (sy & 7));
+			int b = 7 - (sx & 7);
+			int ci = (p01 >> b & 1) | (p01 >> (8 + b) & 1) << 1 | (p23 >> b & 1) << 2 | (p23 >> (8 + b) & 1) << 3;
+			if (ci) a->marker[y * 32 + x] = abgr(r16(a, R_PALETTE + (128 + pal * 16 + ci) * 2));
+		}
+	}
+}
+
+/* Link's sprites as the game draws him now: the 12 slots of the sprite list
+ * from $0352's place (his body, head, shield, sword, the item in his
+ * hand); his own tiles are the first 32 (0x00 head, 0x02 body), which
+ * the game fills with his pose each frame. Drawn round his body as they
+ * are on screen: facing, moving and swinging as he is. Kept as it was
+ * while he isn't drawn (the blink after a hit). True if changed. */
+#define LINK_SLOTS 12
+static bool link_marker(Alttp* a, const uint8_t* vram) {
+	/* the copy the shown picture was made from, if the update before
+	 * was the frame before (else this frame's: a frame out, at most) */
+	uint8_t f = r8(a, R_FRAME);
+	if (f != a->oamFrame[1]) {
+		memcpy(a->oam[0], a->oam[1], sizeof a->oam[0]), a->oamFrame[0] = a->oamFrame[1];
+		memcpy(a->oam[1], a->ram + R_OAM, OAM_COPY), memcpy(a->oam[1] + OAM_COPY, a->ram + R_SORT_OFFSET, 2);
+		a->oamFrame[1] = f;
+	}
+	const uint8_t* list = a->oam[a->oamFrame[0] == (uint8_t) (f - 1) ? 0 : 1];
+	int first = ((list[OAM_COPY] | list[OAM_COPY + 1] << 8) >> 2) & 0x7F;
+	int n = 128 - first < LINK_SLOTS ? 128 - first : LINK_SLOTS;
+	int x[LINK_SLOTS], y[LINK_SLOTS], body = -1;
+	bool shown[LINK_SLOTS];
+	for (int i = 0; i < n; ++i) {
+		const uint8_t* o = list + (first + i) * 4;
+		uint8_t hi = list[R_OAM_HIGH - R_OAM + first + i];
+		x[i] = o[0] | (hi & 1) << 8, y[i] = o[1];
+		if (x[i] >= 256) x[i] -= 512;
+		shown[i] = o[2] < 0x20 && !(o[3] & 1) && y[i] < 0xE0 && x[i] > -16 && x[i] < 256;
+		if (shown[i] && o[2] == 0x02 && (hi & 2) && body < 0) body = i;
+	}
+	if (body < 0) return false;
+	uint32_t k = crc32(0, vram + V_OBJ_CHR * 2, 0x400);
+	k = crc32(k, a->ram + R_PALETTE + 128 * 2, 256);
+	for (int i = 0; i < n; ++i) {
+		if (!shown[i]) continue;
+		const uint8_t* o = list + (first + i) * 4;
+		uint8_t e[5] = { o[2], o[3], (uint8_t) (x[i] - x[body]), (uint8_t) (y[i] - y[body]), list[R_OAM_HIGH - R_OAM + first + i] & 2 };
+		k = crc32(k, e, sizeof e);
+	}
+	k |= 1;
+	if (a->markerLink && k == a->markerKey) return false;
+	a->markerKey = k, a->markerLink = true;
+	for (int i = 0; i < 32 * 32; ++i) a->marker[i] = 0;
+	/* the body's top left where it is round Link's middle (alttp_link):
+	 * 8 pixels right of Link's x and a line below y + 8; the first slots
+	 * over the later ones, as the SNES shows them */
+	for (int i = n - 1; i >= 0; --i) {
+		if (!shown[i]) continue;
+		const uint8_t* o = list + (first + i) * 4;
+		int mx = 8 + x[i] - x[body], my = 13 + y[i] - y[body];
+		if (list[R_OAM_HIGH - R_OAM + first + i] & 2) draw_sprite(a, vram, 16, o[2], o[3], mx, my);
+		else draw_sprite(a, vram, 8, o[2], o[3], mx, my);
+	}
+	return true;
+}
+
 const uint32_t* alttp_marker(const Alttp* a) {
 	return a->marker;
 }
 
 bool alttp_marker_on(const Alttp* a) {
-	return (r8(a, R_FRAME) & 0x10) != 0;
+	/* (the ring blinks as the game's own; Link's sprite stays) */
+	return a->markerLink || (r8(a, R_FRAME) & 0x10) != 0;
 }
 
 /* ---- once a pass */
@@ -711,6 +803,7 @@ int alttp_update(Alttp* a, const uint8_t* wram, const uint8_t* vram, const uint8
 			a->takenX = cx, a->takenY = cy, a->takenWorld = w, a->takenAge = 0;
 		}
 		if (r8(a, R_AREA) != a->lastArea) a->lastArea = r8(a, R_AREA), ch |= ALTTP_AREA;
+		if (vram && link_marker(a, vram)) ch |= ALTTP_MARKER;
 	}
 	if (vram) {
 		uint32_t k = items_key(a, vram);

@@ -4965,6 +4965,9 @@ static void alt_tick(void) {
 	alt_merge_pending();
 	if (ch & ALTTP_ITEMS) altItemsDirty = true;
 	if (ch & ALTTP_MAP) altMapDirty = true;
+	for (int i = 0; i < nViews && (ch & ALTTP_MARKER); ++i) {
+		if (altMarkerTex[i]) ui_update_texture(altMarkerTex[i], alttp_marker(alt), 32 * 4);
+	}
 	if ((ch & ALTTP_AREA) && !altDrag) altUser = false, altVelX = altVelY = 0; /* ALTTP-3: back on Link */
 	if (alttp_ready(alt) && !alttp_in_menu(alt)) altShown = true;
 	else if (alttp_in_menu(alt)) altShown = false; /* ALTTP-9: the logo */

@@ -45,6 +45,8 @@
  *                          pixels from world pixel (X, Y) at ZOOM (1, 2, 4)
  *   alttp dungeon NAME [FLOOR]   the dungeon map Link is in (FLOOR at
  *                          the top, else as the game opens it)
+ *   alttp marker NAME      Link's marker on the map (32 x 32, its middle at
+ *                          Link's place) and where it goes on the picture
  *   alttp select ITEM      select Y item ITEM (1 bow ... 20 mirror) as a
  *                          tap on the items screen would
  *   alttp take             take the ground on screen now, whatever the game
@@ -221,6 +223,17 @@ static void alttp_cmd(Emu* e, const char* romPath, const char* line) {
 		out_path(path, sizeof path, name, ".png");
 		bool ok = write_png(path, alttp_items(alt), ALTTP_W, ALTTP_H, ALTTP_W);
 		printf("alttp items %s: %s\n", path, ok ? "ok" : "FAILED");
+	} else if (!strcmp(sub, "marker")) {
+		alt_update(e);
+		size_t n;
+		const uint8_t* wr = emu_memory(e, EMU_MEM_WRAM, &n);
+		int world, lx, ly;
+		alttp_link(alt, &world, &lx, &ly);
+		out_path(path, sizeof path, name, ".png");
+		bool ok = write_png(path, alttp_marker(alt), 32, 32, 32);
+		/* (the marker's top left on the picture: Link's place less the camera) */
+		int px = lx - 16 - (wr[0xE2] | wr[0xE3] << 8), py = ly - 16 - (wr[0xE8] | wr[0xE9] << 8) - 1;
+		printf("alttp marker %s (on the picture at %d,%d): %s\n", path, px, py, ok ? "ok" : "FAILED");
 	} else if (!strcmp(sub, "map")) {
 		if (w < 1 || h < 1 || w > 4096 || h > 4096) return;
 		uint32_t* px = malloc((size_t) w * h * 4);
