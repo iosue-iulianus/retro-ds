@@ -166,13 +166,24 @@ def draw(world, rom, dark, zoom, crop):
         x1, y1 = (max(xs) // 512 + 1) * 512, (max(ys) // 512 + 1) * 512
     else:
         x0, y0, x1, y1 = 0, 0, WORLD, WORLD
-    im = Image.new("RGB", (x1 - x0, y1 - y0))
+    im = Image.new("RGB", ((x1 - x0) // zoom, (y1 - y0) // zoom))
     p = im.load()
-    for (x, y), c in world.px.items():
-        if x0 <= x < x1 and y0 <= y < y1 and (x // CELL, y // CELL) in world.seen:
-            p[x - x0, y - y0] = rgb(c)
-    if zoom > 1:
-        im = im.resize((im.width // zoom, im.height // zoom), Image.BOX)
+    if zoom == 1:
+        for (x, y), c in world.px.items():
+            if x0 <= x < x1 and y0 <= y < y1 and (x // CELL, y // CELL) in world.seen:
+                p[x - x0, y - y0] = rgb(c)
+    else:
+        # each shown pixel: the average of the block's SNES colours, widened
+        # to 8 bits a channel (x 255 / 31)
+        for oy in range(im.height):
+            for ox in range(im.width):
+                wx, wy = x0 + ox * zoom, y0 + oy * zoom
+                if (wx // CELL, wy // CELL) not in world.seen:
+                    continue
+                cs = [world.px[(wx + i, wy + j)] for j in range(zoom) for i in range(zoom) if (wx + i, wy + j) in world.px]
+                if cs:
+                    n = len(cs)
+                    p[ox, oy] = tuple(sum((c >> k) & 31 for c in cs) * 255 // (31 * n) for k in (0, 5, 10))
     # the clouds go on at the shown size, so they keep the game's pixels
     sky = clouds(rom, dark)
     sp = sky.load()

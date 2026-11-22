@@ -37,6 +37,17 @@
  *   smtoggle CAT INDEX     Super Metroid: switch an item on or off as
  *                          the drawn equipment page does (src/smmap.c:
  *                          CAT 1 beams, 2 suit / misc., 3 boots)
+ *   alttp on|off           A Link to the Past (src/alttp.c): read A's RAM
+ *                          after every frame from now on (the map takes the
+ *                          ground on screen as the app would)
+ *   alttp items NAME       the items screen as the second screen shows it
+ *   alttp map NAME ZOOM X Y W H   the world map Link is in, W x H shown
+ *                          pixels from world pixel (X, Y) at ZOOM (1, 2, 4)
+ *   alttp select ITEM      select Y item ITEM (1 bow ... 20 mirror) as a
+ *                          tap on the items screen would
+ *   alttp take             take the ground on screen now, whatever the game
+ *                          is doing
+ *   alttp save PATH / alttp load PATH   the seen record
  *   bench [FRAMES]         the M0 measurements (see docs/M0-results.md)
  *   context N              savestate context for both (0 normal,
  *                          1 runahead same instance, 2 same binary)
@@ -48,6 +59,7 @@
  *                          the default, shows the problem it fixes)
  */
 #include "../src/emu.h"
+#include "../src/alttp.h"
 #include "../src/smmap.h"
 
 #include <pthread.h>
@@ -160,6 +172,78 @@ static void smmap_cmd(Emu* e, const char* romPath, const char* name, const char*
 	out_path(path, sizeof path, name, ".png");
 	if (!write_png(path, px, SMMAP_W, SMMAP_H, SMMAP_W)) fprintf(stderr, "can't write %s\n", path);
 	else printf("smmap %s (view %d, %d)\n", path, vx, vy);
+}
+
+/* ---- A Link to the Past (src/alttp.c) ---- */
+
+static Alttp* alt;
+static bool altTrack;
+
+static bool alt_open(const char* romPath) {
+	if (!alt) {
+		size_t n = 0;
+		uint8_t* rom = emu_rom_read_played(romPath, &n, NULL, NULL, NULL);
+		alt = alttp_new(rom, n);
+		if (!alt) fprintf(stderr, "alttp: not a ROM it knows\n");
+	}
+	return alt != NULL;
+}
+
+static void alt_update(Emu* e) {
+	size_t n, vn, sn;
+	const uint8_t* w = emu_memory(e, EMU_MEM_WRAM, &n);
+	const uint8_t* v = emu_memory(e, EMU_MEM_VRAM, &vn);
+	const uint8_t* s = emu_memory(e, EMU_MEM_SRAM, &sn);
+	if (w && n >= 0x20000) alttp_update(alt, w, v && vn >= 0x10000 ? v : NULL, s && sn >= 0x2000 ? s : NULL);
+}
+
+/* One frame of A or B; A's RAM read after it while tracking */
+static void frame(Emu* e, uint32_t keys) {
+	emu_frame(e, keys);
+	if (altTrack && alt && e == &inst[0]) alt_update(e);
+}
+
+static void alttp_cmd(Emu* e, const char* romPath, const char* line) {
+	char sub[16] = "", name[512] = "";
+	int zoom = 1, x = 0, y = 0, w = 256, h = 224;
+	sscanf(line, "%*s %15s %511s %d %d %d %d %d", sub, name, &zoom, &x, &y, &w, &h);
+	if (!alt_open(romPath)) return;
+	char path[1200];
+	if (!strcmp(sub, "on") || !strcmp(sub, "off")) {
+		altTrack = sub[1] == 'n';
+		if (altTrack) alt_update(e);
+	} else if (!strcmp(sub, "items")) {
+		alt_update(e);
+		out_path(path, sizeof path, name, ".png");
+		bool ok = write_png(path, alttp_items(alt), ALTTP_W, ALTTP_H, ALTTP_W);
+		printf("alttp items %s: %s\n", path, ok ? "ok" : "FAILED");
+	} else if (!strcmp(sub, "map")) {
+		if (w < 1 || h < 1 || w > 4096 || h > 4096) return;
+		uint32_t* px = malloc((size_t) w * h * 4);
+		int world, lx, ly;
+		alttp_link(alt, &world, &lx, &ly);
+		alttp_compose(alt, world, zoom, x, y, w, h, px);
+		out_path(path, sizeof path, name, ".png");
+		bool ok = px && write_png(path, px, w, h, w);
+		printf("alttp map %s (world %d, Link %d,%d): %s\n", path, world, lx, ly, ok ? "ok" : "FAILED");
+		free(px);
+	} else if (!strcmp(sub, "select")) {
+		size_t n;
+		alt_update(e);
+		const uint8_t* wr = emu_memory(e, EMU_MEM_WRAM, &n);
+		AltWrite out[32];
+		int k = alttp_select(alt, wr, atoi(name), out, 32);
+		for (int i = 0; i < k; ++i) emu_write8(e, 0x7E0000 + out[i].addr, out[i].val);
+		printf("alttp select %d: %d byte(s) written\n", atoi(name), k);
+	} else if (!strcmp(sub, "take")) {
+		size_t n, vn;
+		const uint8_t* wr = emu_memory(e, EMU_MEM_WRAM, &n);
+		const uint8_t* v = emu_memory(e, EMU_MEM_VRAM, &vn);
+		if (wr && v) alttp_capture_now(alt, wr, v);
+	} else if (!strcmp(sub, "save") || !strcmp(sub, "load")) {
+		bool ok = sub[0] == 's' ? alttp_save_seen(alt, name) : alttp_load_seen(alt, name);
+		printf("alttp %s %s: %s\n", sub, name, ok ? "ok" : "FAILED");
+	}
 }
 
 /* ---- state copy ---- */
@@ -477,17 +561,19 @@ int main(int argc, char** argv) {
 		char cmd[32] = "", s1[512] = "", s2[64] = "", s3[64] = "";
 		sscanf(p, "%31s %511s %63s %63s", cmd, s1, s2, s3);
 		if (!strcmp(cmd, "wait")) {
-			for (int i = atoi(s1); i > 0; --i) emu_frame(e, 0);
+			for (int i = atoi(s1); i > 0; --i) frame(e, 0);
 		} else if (!strcmp(cmd, "hold")) {
 			uint32_t k = parse_keys(s1);
-			for (int i = atoi(s2); i > 0; --i) emu_frame(e, k);
+			for (int i = atoi(s2); i > 0; --i) frame(e, k);
 		} else if (!strcmp(cmd, "tap")) {
 			uint32_t k = parse_keys(s1);
 			int count = *s2 ? atoi(s2) : 1;
 			for (int c = 0; c < count; ++c) {
-				for (int i = 0; i < 3; ++i) emu_frame(e, k);
-				for (int i = 0; i < 9; ++i) emu_frame(e, 0);
+				for (int i = 0; i < 3; ++i) frame(e, k);
+				for (int i = 0; i < 9; ++i) frame(e, 0);
 			}
+		} else if (!strcmp(cmd, "alttp")) {
+			alttp_cmd(e, rom, p);
 		} else if (!strcmp(cmd, "smtoggle")) {
 			smtoggle_cmd(e, rom, atoi(s1), atoi(s2));
 		} else if (!strcmp(cmd, "smmap")) {
