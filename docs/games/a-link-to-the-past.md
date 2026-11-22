@@ -130,6 +130,15 @@ What the game's own items screen leaves when the ring is moved to an item and th
 
 **Checked:** selecting the hammer this way and with the game's own items screen leaves the same bytes in `$0202`, `$0303`, `$0304`, `$034B`, `$020B`, the HUD buffer (`$C700` to `$C7FF`) and the save data, but for the selected bottle (`$7EF34F`), which the game's screen sets to the first bottle when it opens and Link has bottles but none selected: a tap on the bottle does that too. Y then uses the hammer (seen in the harness).
 
+### Tile sheets (for the dungeon map, ALTTP-5)
+
+- The game's tiles are in compressed sheets of 64 tiles at 3 bits a pixel. Where each is: `GFXSheetPointers`, bank, high and low bytes in three tables: background sheets `$00:CF80`, `$00:D05F`, `$00:D13E`; sprite sheets `$00:CFF3`, `$00:D0D2`, `$00:D1B1`.
+- The compression (`$00:E7DE`): a command byte, its top 3 bits the kind and the rest the length less one (or, with `$E0` and up, a 10-bit length over two bytes and the kind in bits 2 to 4): 0 copy, 1 a byte repeated, 2 two bytes alternating, 3 a byte counting up, 4 and up a copy of earlier output (a 16-bit offset, low byte first); `$FF` ends.
+- Widening to 4 bits (`Do3To4Low`, `$00:E63C`; `Do3To4High`, `$00:E5AF`): each tile's 16 bytes of planes 0 and 1, then plane 2 with plane 3 empty, or (high) plane 3 set wherever any of the others is, so the tile uses its palette's upper 8 colours. Which BG slots are high depends on the tileset (main tileset `$20` and up: the slots at VRAM `$2000`, `$3000`, `$3400`, `$3800`; below: the upper four); sprite sheets `$52`, `$53`, `$5A`, `$5B`, `$5C`, `$5E`, `$5F` are high.
+- Tilesets (`InitializeTilesets`, `$00:E19B`): main tileset `$0AA1` (`$00:E073`, 8 sheets: BG VRAM `$2000` up, a sheet per `$400` words), aux `$0AA2` (`$00:DD97`, 4 sheets for the middle four slots, 0 keeps the main one's), sprites `$0AA3` (`$00:DB57`, 4 sheets at `$5000` up).
+- The dungeon map loads main `$20`, aux `$40`, sprites `$80` + the dungeon's number (`$0A:E0E4`). **Checked:** `tools/alttp_gfx.py --check` builds exactly the dungeon map's tiles in video RAM (16384 bytes of BG tiles, 8192 of sprite tiles, Eastern Palace) and the overworld's BG tiles; in a dungeon while playing, all but the animated tiles' two slots.
+- The dungeon map's BG3 (its frames, MAP) uses the HUD's tiles, always in video RAM while playing. Its palettes are its own (`Palette_Load_DungeonMapBG`, `$1B:EE3A`; `Palette_Load_DungeonMapSprite`, `$1B:EDDD`; the HUD's second palette).
+
 ### The HUD
 
 - No mini-map. Nothing on the game screen is covered.
