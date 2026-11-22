@@ -160,6 +160,9 @@ bool alttp_in_dungeon(const Alttp* a);
 /* Link is in a special area of the overworld (area $80 and up: the Master
  * Sword's grove, Zora's waterfall...), which the world map doesn't show */
 bool alttp_in_special(const Alttp* a);
+/* The game over screen (module $12): it takes the video memory the maps
+ * are drawn from */
+bool alttp_game_over(const Alttp* a);
 const uint32_t* alttp_dungeon_map(Alttp* a, const uint8_t* vram, int view);
 /* The dungeon's floors, lowest and highest, and Link's */
 bool alttp_dungeon_floors(const Alttp* a, int* lowest, int* highest, int* link);

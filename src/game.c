@@ -5217,14 +5217,18 @@ static void alt_tick(void) {
 		if (altGoalTex[i]) ui_update_texture(altGoalTex[i], alttp_goal_pictures(alt), ALTTP_GOAL_MAX * 16 * 4);
 	}
 	if ((ch & ALTTP_AREA) && !altDrag) altUser = false, altVelX = altVelY = 0; /* ALTTP-3: back on Link */
-	if (alttp_ready(alt) && !alttp_in_menu(alt)) altShown = true;
-	else if (alttp_in_menu(alt)) altShown = false; /* ALTTP-9: the logo */
+	/* ALTTP-9: the logo at the menus, and at game over (the game takes the
+	 * video memory the maps are drawn from there) */
+	if (alttp_in_menu(alt) || alttp_game_over(alt)) altShown = false;
+	else if (alttp_ready(alt)) altShown = true;
 	/* the seen record, now and then while playing */
 	Uint64 now = SDL_GetPerformanceCounter();
 	if (!altSavedT) altSavedT = now;
 	if ((double) (now - altSavedT) / SDL_GetPerformanceFrequency() > 60) altSavedT = now, alt_save_seen();
 	/* ALTTP-5: the dungeon map, while it's shown (it blinks as the game's) */
-	if (altPage == 1 && alttp_in_dungeon(alt)) {
+	if (altPage == 1 && alttp_in_dungeon(alt) && alttp_playing(alt)) {
+		/* (drawn while Link is played: elsewhere, game over and the like,
+		 * video memory holds other tiles; the last drawing stays) */
 		int lo, hi, link;
 		if (alttp_dungeon_floors(alt, &lo, &hi, &link) && altFloor != ALTTP_FLOOR_AS_GAME && link != altFloorLink)
 			altFloor = ALTTP_FLOOR_AS_GAME; /* ALTTP-6: Link changed floor */

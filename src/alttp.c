@@ -1493,6 +1493,10 @@ int alttp_update(Alttp* a, const uint8_t* wram, const uint8_t* vram, const uint8
 
 /* ---- the dungeon map (ALTTP-5, ALTTP-6; alttp_dungeon.c) */
 
+bool alttp_game_over(const Alttp* a) {
+	return a->have && r8(a, R_MODULE) == 0x12;
+}
+
 bool alttp_in_special(const Alttp* a) {
 	uint8_t m = r8(a, R_MODULE);
 	return a->have && (m == 0x09 || m == 0x0B) && !r8(a, R_INDOORS) && r8(a, R_AREA) >= 0x80;
