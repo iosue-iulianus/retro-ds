@@ -65,38 +65,10 @@ public class SnesDsActivity extends SDLActivity {
             case MotionEvent.ACTION_DOWN: kind = 1; break;
             case MotionEvent.ACTION_UP: case MotionEvent.ACTION_CANCEL: kind = 2; break;
             case MotionEvent.ACTION_MOVE: kind = 3; break;
-            default: logTouch("main", v, e, 4); return true;
+            default: return true;
         }
-        logTouch("main", v, e, kind);
         nativeMainTouch(kind, e.getX() / Math.max(1, v.getWidth()), e.getY() / Math.max(1, v.getHeight()));
         return true;
-    }
-
-    /* A line in snes-ds.log for each finger down and up, and each move
-     * that jumps (diagnosing touch positions that come out half as much
-     * again on the Duo, Nov 22, 2026) */
-    static native void nativeLog(String line);
-    private static float lastTouchX = -1, lastTouchY = -1;
-    static void logTouch(String which, View v, MotionEvent e, int kind) {
-        float x = e.getX(), y = e.getY();
-        boolean jump = kind == 3 && lastTouchX >= 0 && (Math.abs(x - lastTouchX) > 150 || Math.abs(y - lastTouchY) > 150);
-        if (kind <= 3) {
-            lastTouchX = kind == 2 ? -1 : x;
-            lastTouchY = kind == 2 ? -1 : y;
-        }
-        if (kind == 3 && !jump) return;
-        String what = kind == 1 ? "down" : kind == 2 ? "up" : kind == 3 ? "jump" : MotionEvent.actionToString(e.getAction());
-        int[] at = new int[2];
-        v.getLocationOnScreen(at);
-        try {
-            nativeLog(String.format(java.util.Locale.ROOT,
-                    "touch event (%s): %s x %.1f y %.1f raw %.1f,%.1f view %dx%d at %d,%d display %d device %d (%s) source 0x%x pointers %d id0 %d tool %d history %d%s",
-                    which, what, x, y, e.getRawX(), e.getRawY(), v.getWidth(), v.getHeight(),
-                    at[0], at[1], e.getDisplayId(), e.getDeviceId(), e.getDevice() != null ? e.getDevice().getName() : "?",
-                    e.getSource(), e.getPointerCount(), e.getPointerId(0), e.getToolType(0), e.getHistorySize(),
-                    e.getPointerCount() > 1 ? String.format(java.util.Locale.ROOT, " pointer 1: id %d at %.1f,%.1f", e.getPointerId(1), e.getX(1), e.getY(1)) : ""));
-        } catch (UnsatisfiedLinkError ignored) {
-        }
     }
 
     /**

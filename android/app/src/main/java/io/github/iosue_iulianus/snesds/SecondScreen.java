@@ -71,14 +71,13 @@ public class SecondScreen extends Presentation implements SurfaceHolder.Callback
             case MotionEvent.ACTION_DOWN: kind = 1; break;
             case MotionEvent.ACTION_UP: case MotionEvent.ACTION_CANCEL: kind = 2; break;
             case MotionEvent.ACTION_MOVE: kind = 3; break;
-            default: SnesDsActivity.logTouch("second", v, e, 4); return true;
+            default: return true;
         }
         float x = e.getX() / Math.max(1, v.getWidth()), y = e.getY() / Math.max(1, v.getHeight());
         if (kind != 3) {
             Log.i(TAG, "second screen touch " + (kind == 1 ? "down" : "up") + " at "
                     + (int) e.getX() + "," + (int) e.getY() + " of " + v.getWidth() + "x" + v.getHeight());
         }
-        SnesDsActivity.logTouch("second", v, e, kind);
         nativeTouch(kind, x, y);
         return true;
     }
