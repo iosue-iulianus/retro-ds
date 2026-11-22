@@ -43,6 +43,8 @@
  *   alttp items NAME       the items screen as the second screen shows it
  *   alttp map NAME ZOOM X Y W H   the world map Link is in, W x H shown
  *                          pixels from world pixel (X, Y) at ZOOM (1, 2, 4)
+ *   alttp dungeon NAME [FLOOR]   the dungeon map Link is in (FLOOR at
+ *                          the top, else as the game opens it)
  *   alttp select ITEM      select Y item ITEM (1 bow ... 20 mirror) as a
  *                          tap on the items screen would
  *   alttp take             take the ground on screen now, whatever the game
@@ -227,6 +229,16 @@ static void alttp_cmd(Emu* e, const char* romPath, const char* line) {
 		bool ok = px && write_png(path, px, w, h, w);
 		printf("alttp map %s (world %d, Link %d,%d): %s\n", path, world, lx, ly, ok ? "ok" : "FAILED");
 		free(px);
+	} else if (!strcmp(sub, "dungeon")) {
+		size_t vn;
+		alt_update(e);
+		const uint8_t* v = emu_memory(e, EMU_MEM_VRAM, &vn);
+		int floor = ALTTP_FLOOR_AS_GAME;
+		sscanf(line, "%*s %*s %*s %d", &floor);
+		const uint32_t* px = alttp_dungeon_map(alt, v, floor);
+		out_path(path, sizeof path, name, ".png");
+		bool ok = px && write_png(path, px, ALTTP_W, ALTTP_H, ALTTP_W);
+		printf("alttp dungeon %s: %s\n", path, ok ? "ok" : px ? "FAILED" : "not in a dungeon");
 	} else if (!strcmp(sub, "select")) {
 		size_t n;
 		alt_update(e);

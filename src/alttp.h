@@ -87,6 +87,21 @@ bool alttp_load_seen(Alttp* a, const char* path);
 bool alttp_save_seen(Alttp* a, const char* path);
 bool alttp_dirty(const Alttp* a);
 
+/* The dungeon map (ALTTP-5), as the game's own map screen shows it,
+ * ALTTP_W x ALTTP_H, from the cartridge, the RAM of the last update and the
+ * game's video RAM now (the HUD's tiles); NULL outside dungeons. view:
+ * ALTTP_FLOOR_AS_GAME (Link's floor at the top, as the game opens it) or
+ * the floor to show at the top (0 1F, 1 2F, -1 B1...: ALTTP-6). Valid
+ * until the next call. */
+#define ALTTP_FLOOR_AS_GAME (-128)
+bool alttp_in_dungeon(const Alttp* a);
+const uint32_t* alttp_dungeon_map(Alttp* a, const uint8_t* vram, int view);
+/* The dungeon's floors, lowest and highest, and Link's */
+bool alttp_dungeon_floors(const Alttp* a, int* lowest, int* highest, int* link);
+/* The floor whose number is under (x, y) on the map's floor list, or
+ * ALTTP_FLOOR_AS_GAME */
+int alttp_dungeon_floor_at(const Alttp* a, int x, int y);
+
 /* Tests: take the ground on screen now, whatever the game is doing (the
  * harness's dumps were taken while playing) */
 void alttp_capture_now(Alttp* a, const uint8_t* wram, const uint8_t* vram);

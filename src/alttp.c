@@ -3,6 +3,7 @@
  * references, tools/alttp_items.py and tools/alttp_world.py, do the same
  * and are checked against the game's own screens. */
 #include "alttp.h"
+#include "alttp_dungeon.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -94,6 +95,7 @@ static const int8_t paneTouch[P_COUNT][2] = { { 12, 15 }, { 1, 24 }, { 1, 15 }, 
 struct Alttp {
 	uint8_t* rom;
 	size_t romSize;
+	AltDungeon* dun; /* the dungeon map (alttp_dungeon.c) */
 	uint8_t ram[0x20000]; /* the work RAM of the last update */
 	bool have;            /* ram holds the game's */
 	bool played;          /* Link has been played since the game was loaded */
@@ -169,6 +171,7 @@ Alttp* alttp_new(uint8_t* rom, size_t size) {
 		return NULL;
 	}
 	a->rom = rom, a->romSize = size;
+	a->dun = altdun_new(rom, size);
 	a->lastArea = -1;
 	a->takenX = -1;
 	a->itemsKey = 1;
@@ -190,6 +193,7 @@ static void clear_seen(Alttp* a) {
 void alttp_free(Alttp* a) {
 	if (!a) return;
 	clear_seen(a);
+	altdun_free(a->dun);
 	free(a->rom);
 	free(a);
 }
@@ -708,6 +712,26 @@ int alttp_update(Alttp* a, const uint8_t* wram, const uint8_t* vram, const uint8
 		}
 	}
 	return ch;
+}
+
+/* ---- the dungeon map (ALTTP-5, ALTTP-6; alttp_dungeon.c) */
+
+bool alttp_in_dungeon(const Alttp* a) {
+	return a->have && r8(a, R_INDOORS) && r8(a, R_DUNGEON) != 0xFF;
+}
+
+const uint32_t* alttp_dungeon_map(Alttp* a, const uint8_t* vram, int view) {
+	uint32_t* out = NULL;
+	if (!a->dun || !alttp_in_dungeon(a) || !altdun_draw(a->dun, a->ram, vram, view, &out)) return NULL;
+	return out;
+}
+
+bool alttp_dungeon_floors(const Alttp* a, int* lowest, int* highest, int* link) {
+	return a->dun && alttp_in_dungeon(a) && altdun_floors(a->dun, a->ram, lowest, highest, link);
+}
+
+int alttp_dungeon_floor_at(const Alttp* a, int x, int y) {
+	return a->dun && alttp_in_dungeon(a) ? altdun_floor_at(a->dun, a->ram, x, y) : ALTTP_FLOOR_AS_GAME;
 }
 
 /* ---- the seen record's file: "SDSALTP1", the size, then zlib of: per
