@@ -59,13 +59,38 @@ public class SnesDsActivity extends SDLActivity {
      * other display (x half as much again, y squeezed toward the middle),
      * so taps on the second screen's map missed what they were aimed at.
      */
+    /**
+     * Two fingers (a pinch, for the map's zoom): kind 4 while two or more
+     * are down, at their middle, their distance apart (as a fraction of
+     * the view's width, in 1/4096ths) in the bits above the kind's four;
+     * kind 5 when one of two lifts, at the one left (which drags on).
+     */
+    private static void pinch(View v, MotionEvent e, int kind) {
+        float w = Math.max(1, v.getWidth()), h = Math.max(1, v.getHeight());
+        if (kind == 5) {
+            int keep = e.getActionIndex() == 0 ? 1 : 0;
+            nativeMainTouch(5, e.getX(keep) / w, e.getY(keep) / h);
+            return;
+        }
+        if (e.getPointerCount() < 2) return;
+        float x0 = e.getX(0), y0 = e.getY(0), x1 = e.getX(1), y1 = e.getY(1);
+        int span = Math.min(0x7FFFFF, Math.round((float) Math.hypot(x1 - x0, y1 - y0) / w * 4096));
+        nativeMainTouch(4 | span << 4, (x0 + x1) / 2 / w, (y0 + y1) / 2 / h);
+    }
+
     private boolean onTouch(View v, MotionEvent e) {
         int kind;
         switch (e.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: kind = 1; break;
             case MotionEvent.ACTION_UP: case MotionEvent.ACTION_CANCEL: kind = 2; break;
-            case MotionEvent.ACTION_MOVE: kind = 3; break;
+            case MotionEvent.ACTION_MOVE: kind = e.getPointerCount() >= 2 ? 4 : 3; break;
+            case MotionEvent.ACTION_POINTER_DOWN: kind = 4; break;
+            case MotionEvent.ACTION_POINTER_UP: kind = e.getPointerCount() == 2 ? 5 : 4; break;
             default: return true;
+        }
+        if (kind >= 4) {
+            pinch(v, e, kind);
+            return true;
         }
         nativeMainTouch(kind, e.getX() / Math.max(1, v.getWidth()), e.getY() / Math.max(1, v.getHeight()));
         return true;

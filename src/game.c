@@ -4809,11 +4809,16 @@ static Alttp* alt;
 static bool altShown;   /* the second screen shows it (else the logo, ALTTP-9) */
 static int altPage;     /* 0 the items screen, 1 the map (ALTTP-1) */
 /* ALTTP-3: the map's zooms, world pixels a pixel of the screen (each tap
- * the next, out; from the farthest, the closest), and the one it's at */
+ * the next, out; from the farthest, the closest; a pinch goes between
+ * them and settles on the nearest), the one it's at or going to, and the
+ * zoom shown now (gliding to it) */
 static const float altZooms[] = { 0.5f, 1, 2, 4 };
 #define ALT_ZOOMS ((int) (sizeof altZooms / sizeof altZooms[0]))
 static int altZoomI = 2;
-#define ALT_Z (altZooms[altZoomI])
+static float altZ = 2;
+#define ALT_Z altZ
+static bool altPinch; /* two fingers on the map */
+static float altPinchSpan, altPinchZ, altPinchWX, altPinchWY; /* at its start: the span, zoom, the world point under the fingers */
 static bool altXDown;
 static bool altItemsDirty;
 static SDL_Texture *altItemsTex[2], *altMarkerTex[2], *altDunTex[2], *altSkyTex[2][2];
@@ -4919,7 +4924,8 @@ static void alt_free(void) {
 	alt_save_seen();
 	alttp_free(alt);
 	alt = NULL;
-	altShown = altHaveView = altUser = altDrag = false;
+	altShown = altHaveView = altUser = altDrag = altPinch = false;
+	ui_set_pinch(false);
 	altPage = 0, altFile = 0, altFloor = ALTTP_FLOOR_AS_GAME, altDunKey = 0;
 	for (int i = 0; i < 2; ++i) {
 		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunTex[i], &altSkyTex[0][i], &altSkyTex[1][i] };
@@ -5051,10 +5057,21 @@ static void alt_step(void) {
 	float dt = altStepT ? (float) ((double) (now - altStepT) / SDL_GetPerformanceFrequency()) : 0;
 	altStepT = now;
 	dt = SDL_min(dt, 0.1f);
+	if (!altPinch && altZ != altZooms[altZoomI]) {
+		/* the zoom glides to its level round the middle of the screen */
+		float w, h;
+		alt_view_size(&w, &h);
+		float mx = altVX + w / 2, my = altVY + h / 2, to = altZooms[altZoomI];
+		float k = 1 - expf(-dt / 0.06f);
+		altZ = fabsf(to - altZ) < 0.002f * to ? to : altZ * powf(to / altZ, k);
+		alt_view_size(&w, &h);
+		altVX = mx - w / 2, altVY = my - h / 2;
+		if (altUser) alt_clamp(&altVX, &altVY);
+	}
 	float hx, hy;
 	alt_home(&hx, &hy);
 	if (!altHaveView) altVX = hx, altVY = hy, altHaveView = true;
-	if (altDrag) return;
+	if (altDrag || altPinch) return;
 	if (altUser) {
 		if (altVelX == 0 && altVelY == 0) return;
 		altVX += altVelX * dt, altVY += altVelY * dt;
@@ -5166,18 +5183,19 @@ static void draw_alt_map(int s) {
 	}
 	/* the ground */
 	int level = z >= 4 ? 2 : z >= 2 ? 1 : 0;
-	int n = ALTTP_PIECE >> level, ps = (int) lroundf(ALTTP_PIECE / z);
+	int n = ALTTP_PIECE >> level;
 	double budget = 0.004; /* seconds a frame for making pieces */
 	for (int py = 0; py < ALTTP_PIECES; ++py) {
-		int y = oy + py * ps;
-		if (y >= a.y + a.h || y + ps <= a.y) continue;
+		/* (each edge rounded once, so pieces meet at any zoom) */
+		int y = oy + (int) lroundf(py * ALTTP_PIECE / z), ph = oy + (int) lroundf((py + 1) * ALTTP_PIECE / z) - y;
+		if (y >= a.y + a.h || y + ph <= a.y) continue;
 		for (int px = 0; px < ALTTP_PIECES; ++px) {
-			int x = ox + px * ps;
-			if (x >= a.x + a.w || x + ps <= a.x) continue;
+			int x = ox + (int) lroundf(px * ALTTP_PIECE / z), pw = ox + (int) lroundf((px + 1) * ALTTP_PIECE / z) - x;
+			if (x >= a.x + a.w || x + pw <= a.x) continue;
 			int i = py * ALTTP_PIECES + px;
 			uint32_t ver = alttp_piece_version(alt, world, i);
 			SDL_Texture* const* t = ver ? alt_piece_tex(v, world, i, level, ver, &budget) : NULL;
-			if (t) ui_image_part(s, t, (SDL_Rect) { 0, 0, n, n }, (SDL_Rect) { x, y, ps, ps });
+			if (t) ui_image_part(s, t, (SDL_Rect) { 0, 0, n, n }, (SDL_Rect) { x, y, pw, ph });
 		}
 	}
 	/* Link: his sprite at three of the screen's pixels to one of his (1080 lines) */
@@ -5220,15 +5238,9 @@ static uint32_t alt_keys(uint32_t keys) {
  * only for now); on the map, the next zoom (ALTTP-3) */
 static void alt_tap(int x, int y) {
 	if (altPage == 1 && !alttp_in_dungeon(alt)) {
-		/* keep what's in the middle in the middle */
-		float w, h;
-		alt_view_size(&w, &h);
-		float mx = altVX + w / 2, my = altVY + h / 2;
+		/* (alt_step glides there, what's in the middle kept there) */
 		altZoomI = (altZoomI + 1) % ALT_ZOOMS;
-		alt_view_size(&w, &h);
-		altVX = mx - w / 2, altVY = my - h / 2;
-		alt_clamp(&altVX, &altVY);
-		fprintf(stderr, "map zoom: %g world pixels a pixel\n", ALT_Z);
+		fprintf(stderr, "map zoom: %g world pixels a pixel\n", altZooms[altZoomI]);
 		return;
 	}
 	float kx, ky;
@@ -5262,6 +5274,42 @@ static void alt_tap(int x, int y) {
  * fling carries on), a tap goes to alt_tap. Never the menu. */
 static int alt_touch(const Pointer* p) {
 	if (!cfg->map || nScreens != 2) return 0;
+	if (p->kind >= 4) {
+		/* ALTTP-3: a pinch zooms round the point between the fingers,
+		 * which stays under them; let go, the zoom settles on the nearest
+		 * level; the finger left drags on */
+		int s = 1 - game_screen();
+		if (altPage != 1 || alttp_in_dungeon(alt) || !altShown || p->screen != s) return 1;
+		SDL_Rect a = screens[s].pic;
+		if (p->kind == 5) {
+			if (altPinch) {
+				int best = 0;
+				for (int i = 1; i < ALT_ZOOMS; ++i) {
+					if (fabsf(logf(altZooms[i] / altZ)) < fabsf(logf(altZooms[best] / altZ))) best = i;
+				}
+				altZoomI = best;
+				fprintf(stderr, "map zoom: %g world pixels a pixel (pinched)\n", altZooms[altZoomI]);
+			}
+			altPinch = false;
+			altDrag = true, altDragMoved = true, altTapOk = false;
+			altDownX = p->x, altDownY = p->y, altDownVX = altVX, altDownVY = altVY;
+			altPrevX = (float) p->x, altPrevY = (float) p->y, altPrevT = SDL_GetPerformanceCounter();
+			altVelX = altVelY = 0;
+			return 1;
+		}
+		if (p->span < 8) return 1;
+		if (!altPinch) {
+			altPinch = true, altDrag = false, altDragMoved = true, altTapOk = false;
+			altPinchSpan = p->span, altPinchZ = altZ;
+			altPinchWX = altVX + (p->x - a.x) * altZ, altPinchWY = altVY + (p->y - a.y) * altZ;
+			altVelX = altVelY = 0;
+		}
+		altZ = SDL_clamp(altPinchZ * altPinchSpan / p->span, altZooms[0], altZooms[ALT_ZOOMS - 1]);
+		altVX = altPinchWX - (p->x - a.x) * altZ, altVY = altPinchWY - (p->y - a.y) * altZ;
+		alt_clamp(&altVX, &altVY);
+		altUser = true;
+		return 1;
+	}
 	if (p->screen == game_screen() && !(altDrag && p->kind != 1)) return 0;
 	Uint64 now = SDL_GetPerformanceCounter();
 	if (p->kind == 1) {
@@ -5292,6 +5340,7 @@ static int alt_touch(const Pointer* p) {
 	}
 	if (p->kind != 2) return 1;
 	altDrag = false;
+	altPinch = false;
 	if (!altDragMoved) {
 		if (altTapOk) alt_tap(p->x, p->y);
 		return 1;
@@ -6493,6 +6542,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		}
 		ui_tick();
 		ui_read_buttons();
+		ui_set_pinch(alt && altPage == 1 && altShown && !menuOpen && nScreens == 2);
 		{
 			const char* ld = ui_script_load();
 			if (ld && !state_load(ld)) fprintf(stderr, "could not load %s\n", ld);
@@ -6502,6 +6552,10 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		Pointer p;
 		while (ui_next_pointer(&p)) {
 			if (p.kind == 1) hint_dismiss(); /* (any touch puts the hint away) */
+			if (p.kind >= 4) {
+				if (!menuOpen) map_touch(&p);
+				continue;
+			}
 			int mt = menuOpen ? 0 : map_touch(&p);
 			if (mt == 2) forceMap = true;
 			if (mt) continue;

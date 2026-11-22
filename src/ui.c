@@ -97,6 +97,7 @@ static uint32_t scriptBtns;
 static long scriptTapUp = -1;
 static float tapX, tapY;
 /* SWIPE:x0,y0,x1,y1 (fractions of the window): down, 4 moves a tick apart, up */
+/* PINCH:x,y,s0,s1 (fractions of the window): two fingers round (x, y), s0 apart going to s1 in 8 ticks, then one lifted and the other */
 static float swipe[4];
 static int swipeStep = -1;
 static char pendingShot[160];
@@ -135,7 +136,7 @@ void ui_load_script(const char* path) {
 		s->tick = t;
 		s->btns = 0;
 		s->action[0] = 0;
-		if (!strncmp(what, "TAP:", 4) || !strncmp(what, "SWIPE:", 6) || !strncmp(what, "SHOT:", 5) || !strncmp(what, "LOAD:", 5) || !strcmp(what, "QUIT") ||
+		if (!strncmp(what, "TAP:", 4) || !strncmp(what, "SWIPE:", 6) || !strncmp(what, "PINCH:", 6) || !strncmp(what, "SHOT:", 5) || !strncmp(what, "LOAD:", 5) || !strcmp(what, "QUIT") ||
 		    !strncmp(what, "JOY", 3)) {
 			snprintf(s->action, sizeof(s->action), "%s", what);
 		} else {
@@ -174,6 +175,12 @@ const char* ui_script_load(void) {
 	return path;
 }
 
+static bool pinchOn;
+static float pinchSpan; /* the next kind 4's span, a fraction of the view's width */
+static float pinch[4];  /* a script's PINCH: x, y, the spans from and to */
+static int pinchStep = -1;
+static void queue_pointer(int kind, int view, float px, float py, bool normalized);
+
 static void push_finger(Uint32 type, float x, float y) {
 	SDL_Event ev;
 	memset(&ev, 0, sizeof(ev));
@@ -198,6 +205,11 @@ static void run_script(void) {
 				push_finger(SDL_FINGERDOWN, swipe[0], swipe[1]);
 				swipeStep = 0;
 			}
+		} else if (!strncmp(s->action, "PINCH:", 6)) {
+			if (sscanf(s->action + 6, "%f,%f,%f,%f", &pinch[0], &pinch[1], &pinch[2], &pinch[3]) == 4) {
+				pinchStep = 0;
+				queue_pointer(1, 0, pinch[0], pinch[1], true); /* (the first finger) */
+			}
 		} else if (!strncmp(s->action, "SHOT:", 5)) {
 			snprintf(pendingShot, sizeof(pendingShot), "%s", s->action + 5);
 		} else if (!strncmp(s->action, "LOAD:", 5)) {
@@ -216,6 +228,20 @@ static void run_script(void) {
 		float x = swipe[0] + (swipe[2] - swipe[0]) * t, y = swipe[1] + (swipe[3] - swipe[1]) * t;
 		push_finger(swipeStep <= 4 ? SDL_FINGERMOTION : SDL_FINGERUP, x, y);
 		if (swipeStep > 4) swipeStep = -1;
+	}
+	if (pinchStep >= 0) {
+		/* two fingers at (x, y) going from one span apart to the other in
+		 * 8 frames, then one lifted (kind 5) and the other (up) */
+		int st = ++pinchStep;
+		if (st <= 8) {
+			pinchSpan = pinch[2] + (pinch[3] - pinch[2]) * st / 8.0f;
+			queue_pointer(4, 0, pinch[0], pinch[1], true);
+		} else if (st == 9) {
+			queue_pointer(5, 0, pinch[0], pinch[1], true);
+		} else {
+			queue_pointer(2, 0, pinch[0], pinch[1], true);
+			pinchStep = -1;
+		}
 	}
 	if (scriptTapUp >= 0 && (long) ticks >= scriptTapUp) {
 		push_finger(SDL_FINGERUP, tapX, tapY);
@@ -793,8 +819,13 @@ static int view_of_window(Uint32 id) {
 	return -1;
 }
 
+void ui_set_pinch(bool on) {
+	pinchOn = on;
+}
+
 static void queue_pointer(int kind, int view, float px, float py, bool normalized) {
-	Pointer p = { kind, 0, 0, 0 };
+	if (kind >= 4 && !pinchOn) return;
+	Pointer p = { kind, 0, 0, 0, 0 };
 	int ts = ui_touch_screen();
 	if (normalized && !strcmp(cfg->touchMap, "screen")) {
 		/* touch panel coordinates cover just the touch screen (a finger on
@@ -803,6 +834,7 @@ static void queue_pointer(int kind, int view, float px, float py, bool normalize
 		p.screen = ts;
 		p.x = SDL_clamp((int) (px * screens[ts].rect.w), 0, screens[ts].rect.w - 1);
 		p.y = SDL_clamp((int) (py * screens[ts].rect.h), 0, screens[ts].rect.h - 1);
+		if (kind == 4) p.span = pinchSpan * screens[ts].rect.w;
 	} else {
 		if (view < 0) view = screens[ts].view;
 		int w, h;
@@ -813,6 +845,7 @@ static void queue_pointer(int kind, int view, float px, float py, bool normalize
 			 * past 0-1 sliding off; dropped, a lift there would be lost) */
 			x = SDL_clamp((int) (px * w), 0, w - 1);
 			y = SDL_clamp((int) (py * h), 0, h - 1);
+			if (kind == 4) p.span = pinchSpan * w;
 		} else {
 			int ww, wh;
 			SDL_GetWindowSize(views[view].win, &ww, &wh);
@@ -832,7 +865,7 @@ static void queue_pointer(int kind, int view, float px, float py, bool normalize
 	}
 	if (debug) fprintf(stderr, "pointer kind %d screen %d at %d,%d\n", p.kind, p.screen, p.x, p.y);
 #ifdef __ANDROID__
-	if (p.kind != 3) {
+	if (p.kind == 1 || p.kind == 2) {
 		fprintf(stderr, "touch %s on screen %d (%s display) at %d,%d\n", p.kind == 1 ? "down" : "up", p.screen,
 		        screens[p.screen].view == 0 ? "game activity's" : "second", p.x, p.y);
 	}
@@ -1062,11 +1095,14 @@ bool ui_events(void) {
 			float tx, ty;
 			android_touch_pos(&ev, &tx, &ty);
 			static int javaTouchesLogged;
-			if ((debug || javaTouchesLogged < 6) && ev.user.code != 3) {
+			/* (kind 4: the fingers' distance apart above the kind's four bits) */
+			int kind = ev.user.code & 15;
+			pinchSpan = (float) ((unsigned) ev.user.code >> 4) / 4096.0f;
+			if ((debug || javaTouchesLogged < 6) && (kind == 1 || kind == 2)) {
 				++javaTouchesLogged;
-				fprintf(stderr, "finger %s %.3f,%.3f window %u\n", ev.user.code == 1 ? "down" : "up", tx, ty, ev.user.windowID);
+				fprintf(stderr, "finger %s %.3f,%.3f window %u\n", kind == 1 ? "down" : "up", tx, ty, ev.user.windowID);
 			}
-			queue_pointer(ev.user.code, view_of_window(ev.user.windowID), tx, ty, true);
+			queue_pointer(kind, view_of_window(ev.user.windowID), tx, ty, true);
 			continue;
 		}
 #endif

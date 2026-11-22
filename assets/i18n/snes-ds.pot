@@ -76,7 +76,7 @@ msgid_plural "%d RetroArch states here"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/game.c:3980 src/game.c:6567 src/game.c:6875
+#: src/game.c:3980 src/game.c:6621 src/game.c:6929
 #, c-format
 msgid "%s"
 msgstr ""
@@ -253,7 +253,7 @@ msgstr ""
 msgid "All games"
 msgstr ""
 
-#: src/game.c:5880
+#: src/game.c:5929
 msgid "Already the value for all games"
 msgstr ""
 
@@ -488,12 +488,12 @@ msgstr ""
 msgid "Choose a folder in Android's file picker..."
 msgstr ""
 
-#: src/game.c:5953
+#: src/game.c:6002
 #, c-format
 msgid "Choose it again to close %s: %s"
 msgstr ""
 
-#: src/game.c:5952
+#: src/game.c:6001
 msgid "Choose it again to restart: unsaved progress is lost"
 msgstr ""
 
@@ -589,7 +589,7 @@ msgstr ""
 msgid "Couldn't load the achievements"
 msgstr ""
 
-#: src/game.c:6213
+#: src/game.c:6262
 msgid "Couldn't load the game"
 msgstr ""
 
@@ -849,7 +849,7 @@ msgstr ""
 msgid "Game on top"
 msgstr ""
 
-#: src/game.c:6023
+#: src/game.c:6072
 msgid "Game restarted"
 msgstr ""
 
@@ -1099,11 +1099,11 @@ msgstr ""
 msgid "Lines between the pixels, like a handheld's LCD"
 msgstr ""
 
-#: src/game.c:6006
+#: src/game.c:6055
 msgid "Load failed"
 msgstr ""
 
-#: src/game.c:6559 src/game.c:6869
+#: src/game.c:6613 src/game.c:6923
 msgid "Load failed."
 msgstr ""
 
@@ -1229,7 +1229,7 @@ msgstr ""
 msgid "No achievements for this ROM (MD5 %s)"
 msgstr ""
 
-#: src/game.c:5971
+#: src/game.c:6020
 msgid "No cheats found (see Cheats in the wiki)"
 msgstr ""
 
@@ -1257,7 +1257,7 @@ msgstr ""
 msgid "No patches here yet"
 msgstr ""
 
-#: src/game.c:6557 src/game.c:6867
+#: src/game.c:6611 src/game.c:6921
 msgid "No quick state saved yet."
 msgstr ""
 
@@ -1281,7 +1281,7 @@ msgstr ""
 msgid "Not in the folder any more: it's left out"
 msgstr ""
 
-#: src/game.c:6328
+#: src/game.c:6377
 msgid "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes."
 msgstr ""
 
@@ -1297,7 +1297,7 @@ msgstr ""
 msgid "Nothing mapped"
 msgstr ""
 
-#: src/game.c:5992
+#: src/game.c:6041
 #, c-format
 msgid "Nothing saved in slot %d yet"
 msgstr ""
@@ -1436,7 +1436,7 @@ msgstr ""
 msgid "Patches"
 msgstr ""
 
-#: src/game.c:6322
+#: src/game.c:6371
 msgid "Patches changed"
 msgstr ""
 
@@ -1444,7 +1444,7 @@ msgstr ""
 msgid "Patches changed since the game started"
 msgstr ""
 
-#: src/game.c:6322
+#: src/game.c:6371
 msgid "Patches changed: carrying on from where you were"
 msgstr ""
 
@@ -1476,7 +1476,7 @@ msgstr ""
 msgid "Pink"
 msgstr ""
 
-#: src/game.c:6584
+#: src/game.c:6638
 msgid "Pinned: the bar stays up."
 msgstr ""
 
@@ -1638,7 +1638,7 @@ msgstr ""
 msgid "Resume"
 msgstr ""
 
-#: src/game.c:6325
+#: src/game.c:6374
 msgid "Resumed. Tap or HOME for the menu"
 msgstr ""
 
@@ -1745,15 +1745,15 @@ msgstr ""
 msgid "Run at the display's rate: no small regular stutter."
 msgstr ""
 
-#: src/game.c:5891
+#: src/game.c:5940
 msgid "Same as all games again"
 msgstr ""
 
-#: src/game.c:5987
+#: src/game.c:6036
 msgid "Save failed"
 msgstr ""
 
-#: src/game.c:6554 src/game.c:6865
+#: src/game.c:6608 src/game.c:6919
 msgid "Save failed."
 msgstr ""
 
@@ -1794,15 +1794,15 @@ msgstr ""
 msgid "Save States: SNES DS's Own"
 msgstr ""
 
-#: src/game.c:6002
+#: src/game.c:6051
 msgid "Saved by another emulator: can't load it"
 msgstr ""
 
-#: src/game.c:5816
+#: src/game.c:5865
 msgid "Saved for all games"
 msgstr ""
 
-#: src/game.c:5816
+#: src/game.c:5865
 msgid "Saved for this game"
 msgstr ""
 
@@ -1862,11 +1862,11 @@ msgstr ""
 msgid "Screens"
 msgstr ""
 
-#: src/game.c:6053
+#: src/game.c:6102
 msgid "Screenshot failed"
 msgstr ""
 
-#: src/game.c:6053
+#: src/game.c:6102
 msgid "Screenshot saved"
 msgstr ""
 
@@ -2014,7 +2014,7 @@ msgstr ""
 msgid "Skipped in %d s if nothing is pressed"
 msgstr ""
 
-#: src/game.c:5995
+#: src/game.c:6044
 #, c-format
 msgid "Slot %d loaded"
 msgstr ""
@@ -2204,7 +2204,7 @@ msgstr ""
 msgid "Sound delay"
 msgstr ""
 
-#: src/game.c:7133
+#: src/game.c:7187
 #, c-format
 msgid "Sound delay raised to %d ms: the sound kept breaking up"
 msgstr ""
@@ -2229,16 +2229,16 @@ msgstr ""
 msgid "Starting a game picks up where you closed it."
 msgstr ""
 
-#: src/game.c:6558 src/game.c:6868
+#: src/game.c:6612 src/game.c:6922
 msgid "State loaded."
 msgstr ""
 
-#: src/game.c:5983
+#: src/game.c:6032
 #, c-format
 msgid "State saved to slot %d"
 msgstr ""
 
-#: src/game.c:6554 src/game.c:6865
+#: src/game.c:6608 src/game.c:6919
 msgid "State saved."
 msgstr ""
 
@@ -2310,11 +2310,11 @@ msgstr ""
 msgid "Take Screenshot"
 msgstr ""
 
-#: src/game.c:6571
+#: src/game.c:6625
 msgid "Tap again to close SNES DS."
 msgstr ""
 
-#: src/game.c:6331
+#: src/game.c:6380
 msgid "Tap the screen or press HOME for the menu"
 msgstr ""
 
@@ -2364,7 +2364,7 @@ msgstr ""
 msgid "the button that opens SNES DS's menu (Home, Menu or Function)"
 msgstr ""
 
-#: src/game.c:5953
+#: src/game.c:6002
 msgid "the game"
 msgstr ""
 
@@ -2463,7 +2463,7 @@ msgstr ""
 msgid "This is v%s. Look for a new version, and download and install it."
 msgstr ""
 
-#: src/game.c:6004
+#: src/game.c:6053
 msgid "This state can't be read"
 msgstr ""
 
@@ -2526,11 +2526,11 @@ msgstr ""
 msgid "Unlocks will be sent when the connection is back"
 msgstr ""
 
-#: src/game.c:6584
+#: src/game.c:6638
 msgid "Unpinned: the bar hides after 5 seconds."
 msgstr ""
 
-#: src/game.c:5951
+#: src/game.c:6000
 msgid "unsaved progress is lost"
 msgstr ""
 
@@ -2572,7 +2572,7 @@ msgstr ""
 msgid "Used from the next time the game starts"
 msgstr ""
 
-#: src/ui.c:979
+#: src/ui.c:1012
 #, c-format
 msgid "Volume %d%%"
 msgstr ""
@@ -2712,7 +2712,7 @@ msgstr ""
 msgid "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors."
 msgstr ""
 
-#: src/game.c:5951
+#: src/game.c:6000
 msgid "your place is saved"
 msgstr ""
 

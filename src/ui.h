@@ -55,10 +55,15 @@ static inline bool btn_released(int b) {
 
 /* Pointer (touch or mouse) event in screen-local pixels. */
 typedef struct {
-	int kind; /* 0 none, 1 down, 2 up, 3 motion */
+	int kind; /* 0 none, 1 down, 2 up, 3 motion; with ui_set_pinch, 4 two
+	           * fingers (at their middle), 5 one of two lifted (at the other) */
 	int screen;
 	int x, y;
+	float span; /* kind 4: the fingers' distance apart, pixels */
 } Pointer;
+/* Two-finger events (kinds 4 and 5) wanted, while something can pinch;
+ * otherwise they're dropped */
+void ui_set_pinch(bool on);
 
 bool ui_init(Config* cfg, bool wantDual);
 void ui_shutdown(void);
