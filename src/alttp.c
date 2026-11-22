@@ -442,6 +442,14 @@ bool alttp_ready(const Alttp* a) {
 	return a->played;
 }
 
+/* the overworld scrolling from one area to the next (submodules 5 to 7;
+ * $13 to $15 after a mosaic), the screen at full brightness */
+static bool area_scrolling(const Alttp* a) {
+	uint8_t m = r8(a, R_MODULE), sub = r8(a, R_SUBMODULE);
+	return (m == 0x09 || m == 0x0B) && ((sub >= 0x05 && sub <= 0x07) || (sub >= 0x13 && sub <= 0x15)) && !r8(a, R_INDOORS) &&
+	       r8(a, R_INIDISP) == 0x0F && r8(a, R_AREA) < 0x80;
+}
+
 /* outdoors in a world's own areas, playable, the screen at full brightness */
 static bool outdoors_still(const Alttp* a) {
 	uint8_t m = r8(a, R_MODULE);
@@ -875,7 +883,8 @@ static uint16_t backdrop_math(const Alttp* a, uint16_t back, uint8_t subIndex) {
  * game has the rows between in video RAM already). Never past the area
  * ($8A's place, 512 or 1024 world pixels square by $0712). */
 #define EDGE_REACH 32
-static void capture(Alttp* a, const uint8_t* vram) {
+static bool is_seen(const Alttp* a, int w, int x, int y);
+static void capture(Alttp* a, const uint8_t* vram, bool scrolling) {
 	a->gen += 2;
 	int area = r8(a, R_AREA), w = (area & 0x40) != 0;
 	int size = r16(a, R_AREA_BIG) ? 1024 : 512;
@@ -883,7 +892,11 @@ static void capture(Alttp* a, const uint8_t* vram) {
 	int cx = r16(a, R_BG2_X), cy = r16(a, R_BG2_Y) + 1; /* line 0 shows row scroll + 1 */
 	/* the part taken: the screen, out to the area's edge where it's near */
 	int x0 = cx, x1 = cx + ALTTP_W, y0 = cy, y1 = cy + ALTTP_H;
-	if (x0 - ax0 <= EDGE_REACH) x0 = (x0 - EDGE_REACH > ax0 ? x0 - EDGE_REACH : ax0);
+	if (scrolling) {
+		/* (the scroll from one area to the next, the new one's in charge:
+		 * only its part of the screen) */
+		x0 = x0 > ax0 ? x0 : ax0, y0 = y0 > ay0 ? y0 : ay0, x1 = x1 < ax1 ? x1 : ax1, y1 = y1 < ay1 ? y1 : ay1;
+	} else if (x0 - ax0 <= EDGE_REACH) x0 = (x0 - EDGE_REACH > ax0 ? x0 - EDGE_REACH : ax0);
 	if (ax1 - x1 <= EDGE_REACH) x1 = (x1 + EDGE_REACH < ax1 ? x1 + EDGE_REACH : ax1);
 	if (y0 - ay0 <= EDGE_REACH) y0 = (y0 - EDGE_REACH > ay0 ? y0 - EDGE_REACH : ay0);
 	if (ay1 - y1 <= EDGE_REACH) y1 = (y1 + EDGE_REACH < ay1 ? y1 + EDGE_REACH : ay1);
@@ -905,6 +918,9 @@ static void capture(Alttp* a, const uint8_t* vram) {
 			int i = bg1 && i1[k] ? i1[k] : i2[k];
 			uint16_t col = r16(a, R_PALETTE + i * 2);
 			if (!i) col = backdrop_math(a, col, subBg1 ? s1[k] : 0);
+			/* (while scrolling, only squares not seen yet: the ground already
+			 * taken is never written over then) */
+			if (scrolling && is_seen(a, w, wx, wy)) continue;
 			uint16_t* c = chunk_for(a, w, wx, wy);
 			if (c) c[(wy % CHUNK) * CHUNK + wx % CHUNK] = (uint16_t) ((col & 0x7FFF) | 0x8000);
 		}
@@ -919,7 +935,7 @@ static void capture(Alttp* a, const uint8_t* vram) {
 void alttp_capture_now(Alttp* a, const uint8_t* wram, const uint8_t* vram) {
 	memcpy(a->ram, wram, sizeof a->ram);
 	a->have = true;
-	capture(a, vram);
+	capture(a, vram, false);
 }
 
 static bool is_seen(const Alttp* a, int w, int x, int y) {
@@ -1480,11 +1496,15 @@ int alttp_update(Alttp* a, const uint8_t* wram, const uint8_t* vram, const uint8
 		int cx = r16(a, R_BG2_X), cy = r16(a, R_BG2_Y);
 		bool moved = cx != a->takenX || cy != a->takenY || w != a->takenWorld;
 		if (vram && (moved || ++a->takenAge >= 30)) {
-			capture(a, vram), ch |= ALTTP_MAP;
+			capture(a, vram, false), ch |= ALTTP_MAP;
 			a->takenX = cx, a->takenY = cy, a->takenWorld = w, a->takenAge = 0;
 		}
 		if (r8(a, R_AREA) != a->lastArea) a->lastArea = r8(a, R_AREA), ch |= ALTTP_AREA;
 		if (vram && link_marker(a, vram)) ch |= ALTTP_MARKER;
+	} else if (vram && area_scrolling(a)) {
+		/* the scroll from one area to the next shows the strip by the
+		 * boundary that the screen never shows whole otherwise */
+		capture(a, vram, true), ch |= ALTTP_MAP;
 	}
 	if (goals_update(a)) ch |= ALTTP_GOALS;
 	if (vram) {
