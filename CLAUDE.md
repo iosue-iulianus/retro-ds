@@ -21,15 +21,7 @@ on the hidden copy (touch: drag, SAMUS / MAP plates); the owner decided
 ROM and RAM (research done: `docs/games/super-metroid.md` "The map's
 data", `tools/sm_map.py` pixel-exact for the map layer), and a drawn,
 tappable SAMUS page. Next: sprites in `tools/sm_map.py`, then the C
-renderer with smooth GPU scrolling, then the SAMUS page.
-
-**The philosophy below is GBA DS's and is being replaced** (owner, Nov
-22, 2026): SNES DS is as if the SNES were portable with a touch second
-screen. The second screen keeps the game's own style; touch on it is
-welcome; SNES DS may draw second-screen content itself; writing to the
-running game is kept to a minimum. Rewrite `wiki/Philosophy.md` and the
-section below around that, with the owner, before leaning on the old
-rules. Much of `src/` is
+renderer with smooth GPU scrolling, then the SAMUS page. Much of `src/` is
 GBA DS's (the game list, menus, settings, Android glue); upstream's session
 notes, with the detail on every inherited subsystem, are
 `git show 3b452dc:CLAUDE.md` (GBA DS v1.5.6, the commit this fork starts
@@ -37,66 +29,49 @@ from).
 
 ## Philosophy
 
-`wiki/Philosophy.md` is the player-facing statement of what SNES DS is for
-and what goes on either screen: (1) an SNES with a second screen, neither a
-touchscreen, (2) function over form (nothing on the second screen that makes
-the player look twice: no prompts, cursor or controlled character, nothing
-split across the screens or on both), (3) keep it simple, (4) only the
-game's own graphics, (5) no in-game touch, (6) exceptions allowed when they
-earn their place, custom asset mode being the standing one. Read it before
-changing what a game shows. Keep it written for players (no rule IDs, file
-paths or session notes); how sessions apply it lives here:
+`wiki/Philosophy.md` is the player-facing statement (rewritten with the
+owner, Nov 22, 2026; GBA DS's version is in git history): a portable
+Super Nintendo with a touch second screen. (1) The game screen is the
+game; small changes to it only where the second screen takes something
+over, listed and switchable. (2) The second screen is in the game's own
+style: the game's art (screens, cartridge graphics, what it draws), new
+layouts allowed, no SNES DS font/icons/panels; small touch hints (an
+arrow on a plate) listed. (3) Useful at a glance and smooth: live,
+display-rate scrolling, no capture delays or jumps; the logo or the last
+good picture when unsure. (4) Touch the second screen (look, choose,
+switch items); play with the buttons; touch on the game screen opens
+the pause menu. (5) Read the game freely, write rarely: writes only for
+a deliberate player action, done as the game's own menu would, listed;
+avoid code patches; off in RetroAchievements hardcore. (6) The best tool
+per game: drawn from the game's data (Super Metroid), assembled from
+what the player has seen (A Link to the Past's overworld), opened on a
+hidden copy (status screens), the logo; each checked against the game
+itself. (7) Keep it simple and testable. (8) Exceptions deliberate,
+written down, switchable. Custom asset mode (the player's own map
+pictures) remains an option. How sessions apply it:
 
-- **Check requests against it, and say so.** If a request, or the obvious
-  way to do it, conflicts with a principle, say which one and why, and
-  suggest something that fits. If the owner still wants it, it's an
-  exception: do it, write it as a rule in `docs/games/<game>.md`, and add it
-  to the page's list of exceptions. Don't quietly bend a principle, and
-  don't quietly refuse because of one.
-- **Rule first, then code.** A change to what a game shows starts with its
-  rules in `docs/games/<game>.md`, in the player's terms; then the profile,
-  then the tests.
-- **Try simple approaches first.** For a game's second screen, in order: a
-  screen the game already draws, opened on the hidden copy and captured; a
-  snapshot of a screen the live game shows; custom asset mode, where the
-  profile allows it and a capture can't work; the logo. Rebuilding a screen
-  from the game's memory, or drawing anything new (SNES DS's font, panels,
-  icons), is out.
-- **The live game is read-only.** Reading its RAM (gameplay checks, room
-  numbers, custom asset mode's position) is fine; writing to it, sending it
-  input it didn't get from the player, or changing how its picture is
-  drawn is not.
-- **When unsure, show less.** If a situation can't be detected reliably,
-  show the logo or keep the last good picture and list it as a known issue.
-  Don't guess.
-- **Say what you couldn't do.** Known limitations go in the changelog and
-  release notes in plain words.
-- **Keep changes small enough to test.** Every change ends with a test build
-  and a short note of what to check on the device; if that note would be
-  long, the change is probably too big for one step.
+- **Check requests against it, and say so.** If a request conflicts with
+  a principle, say which and suggest something that fits; if the owner
+  still wants it, write it as an exception in `docs/games/<game>.md`.
+- **Rule first, then code.** A change to what a game shows starts with
+  its rules in `docs/games/<game>.md`, in the player's terms; then the
+  code, then the tests.
+- **Writes to the live game** are listed per game, made between frames,
+  and disabled in RetroAchievements hardcore.
+- **When unsure, show less,** and say what you couldn't do (changelog,
+  release notes).
+- **Keep changes small enough to test.** Every change ends with a test
+  build and a short note of what to check on the device.
 
-### Custom asset mode (the standing exception)
+### Custom asset mode
 
 Opt-in per game: only a profile with an `.asset` section uses it, and only
-when the player has put the files in place. Rules for sessions:
-
-- SNES DS ships no asset. They live in `assets/user/<game>/` (gitignored):
-  never commit, generate or download one.
-- Lossless only: PNG (indexed allowed) or lossless WebP, 1 image pixel = 1
-  game pixel. Reject JPEG and lossy WebP with a log line.
-- Missing, unreadable or invalid (a degenerate transform, an image that
-  doesn't load): log it and fall back to capture, then the logo. Never an
-  error on screen.
-- Position comes from the live game's RAM every frame; no hidden-copy
-  captures run while the asset is up. The marker hides whenever the
-  profile's "in normal gameplay" check fails.
-- Drawn at the top screen's native resolution, nearest neighbour only.
-  Images bigger than the renderer's max texture size are split into 512x512
-  tiles at load.
-
-The full design (manifest format, transforms, overlays, the ALttP
-addresses still to verify) is in `docs/custom-assets.md`. It's built after
-M0.
+when the player has put the files in place. SNES DS ships no asset. They
+live in `assets/user/<game>/` (gitignored): never commit, generate or
+download one. Lossless only (PNG or lossless WebP, 1 image pixel = 1 game
+pixel); anything missing or invalid is logged and falls back to the
+game's usual second screen. Position from the live game's RAM. The full
+design is in `docs/custom-assets.md`.
 
 ## Decisions already made (don't re-open without the owner)
 
@@ -114,21 +89,26 @@ M0.
    deadlock); fine for host experiments only.
 3. **Game identity:** CRC32 of the ROM with any 512-byte copier header
    stripped (file size % 1024 == 512). Not the internal header checksum.
-4. **v1 scope:** map capture, screen snapshot and custom asset mode. No HUD
-   split, no sprite hiding, no renderer patches (GBA DS's `emu_hud_*`,
-   `emu_hide_*` and `SpriteRule` have no SNES equivalent yet).
+4. **Second screens (updated Nov 22, 2026):** drawn natively from the
+   game's ROM and RAM where that's best (Super Metroid's map and SAMUS
+   page), assembled from the live game's own pictures (A Link to the
+   Past's overworld, planned), captured on the hidden copy (status
+   screens), custom asset mode, the logo. No renderer patches (GBA DS's
+   `emu_hud_*`, `emu_hide_*`, `SpriteRule`); covering a piece of the game
+   screen (Super Metroid's mini-map) is a frontend draw, listed per game.
 5. **Framebuffer size is a runtime value:** 256x224 normally, 512 wide in
    hi-res, 239 lines with overscan. Nothing new may assume a fixed size
    (`GBA_W` / `GBA_H` are being retired).
 
 ## Games
 
-Priority: **Super Metroid** (map capture: Start opens the pause map after a
-fade, the GBA Metroid profiles' pattern), **Chrono Trigger** (status
-screen; later a custom asset candidate), then **A Link to the Past**
-(dungeon maps by capture; the overworld map is a Mode 7 zoom, so custom
-asset mode) and **Final Fantasy IV, V, VI** (party / status screens, as the
-FF Advance profiles do). GBA DS's pages for the GBA versions of ALttP and FF
+Priority: **Super Metroid** (its map and SAMUS page drawn natively from
+ROM and RAM, touch: drag the map, tap items), **Chrono Trigger** (status
+screen), then **A Link to the Past** (like Super Metroid where its data
+allows; the overworld map assembled from the screens the player has seen,
+unexplored parts dark; dungeon maps drawn or captured) and **Final
+Fantasy IV, V, VI** (party / status screens, as the FF Advance profiles
+do). GBA DS's pages for the GBA versions of ALttP and FF
 IV/V/VI, and its general rules (GEN-1 and on, the rule format), are kept in
 `docs/reference/gba/` as references; other GBA games' pages are in git
 history (`git show 3b452dc:docs/games/<game>.md`). SNES games get their own

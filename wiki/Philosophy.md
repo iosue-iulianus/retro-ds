@@ -1,84 +1,85 @@
-What SNES DS is meant to be, and the principles behind what it does and doesn't do. If you've asked for a feature and the answer was no, or wondered why a game's second screen looks the way it does, this is usually why.
+What SNES DS is meant to be, and the principles behind what it does and doesn't do. If you've wondered why a game's second screen looks or works the way it does, or why a feature was turned down, this is usually why.
 
-SNES DS is a fork of [GBA DS](https://github.com/kyannon/gba-ds), and these principles are GBA DS's, carried over to the Super Nintendo.
+SNES DS started as a fork of [GBA DS](https://github.com/kyannon/gba-ds) and owes it a lot: the game list, the menus, the idea of a second screen filled from the game itself. It isn't a port of GBA DS's rules, though. A Super Nintendo is a different machine, and SNES DS takes its own liberties.
 
-## 1. It's a Super Nintendo with a second screen.
+## 1. A portable Super Nintendo with a touch second screen.
 
-SNES DS emulates a Super Nintendo with a second screen beside the TV, neither of them a touchscreen, as if Nintendo had sold one as an add-on for the console. On a two-screen handheld, the game plays on one screen and the second screen sits on the other. All the other rules follow from this one.
-
-What this means in practice:
-
-- **The second screen is an SNES screen.** What the game puts there is an SNES picture (256 pixels wide, 224 tall, or the wider picture of a game that switches to the SNES's high-resolution mode), scaled up exactly like the game screen, so a pixel is the same size on both screens where the screens allow it. Whatever goes there is drawn at the game's own size. The one exception is custom asset mode (rule 6), which draws its picture at the second screen's own resolution.
-- **Ask what the game would have done.** When deciding what goes on the second screen, the question is: if this game had been made for an SNES with a second screen, what would its developers have put there? Usually the answer is something the game already has: the map, a status screen, the party's health.
-- **The game itself isn't changed.** The game you're playing runs as it would on an SNES. Its second screen is filled from a hidden second copy of the game, which opens menus there without ever pausing your game, sending it input or changing its memory. Reading the live game's memory to know where you are or what is on screen is fine; writing to it is not. The game screen shows the game's whole picture, exactly as the SNES draws it.
-- **The emulator's own screens are separate.** The game list, pause menu, settings and update screens belong to SNES DS, not to the imagined console. They have their own look and use the touchscreen (rule 5).
-
-## 2. Function over form.
-
-The second screen gives the player information or context they would otherwise have to find in a pause menu or some other way. SNES DS puts that first, ahead of making anything look prettier or better than it did in the original game.
+Imagine Nintendo had made the Super Nintendo portable, with a second, touch screen under the first, the way the DS did for its own games. Imagine the games were updated for it: the map you used to pause for is now always in view, your equipment is a tap away, and the main screen is free for playing. That's SNES DS.
 
 What this means in practice:
 
-- **Useful beats pretty.** A status screen that shows the party's health and magic, even cropped to fit, is better than a nicer-looking screen with less in it, or a slower one.
-- **Show what matters right now.** The second screen follows what the player is doing: the room Samus is in, the party as it is after the last battle. Keeping up quickly is part of the function.
-- **Nothing there should make you look twice.** The second screen is for looking at; everything you act on stays on the game screen. So the second screen leaves out anything that looks like it's waiting for a button or like the thing you're controlling: button prompts, a menu cursor, the character you're moving. Those belong to the hidden copy, not your game. A map's own marker of where you are is information, and stays. Nothing is split across the two screens or shown on both: half an animation on each screen, or the same box twice, leaves you wondering which one is real.
-- **When there's nothing useful, say so plainly.** If there's nothing live to show (a title screen, a cutscene, a menu), the second screen shows the game's logo at half strength so it reads as idle, rather than something stale or invented. If a capture can't be confirmed as correct, the last good picture stays up. Better nothing new than something wrong.
-- **No enhancement for its own sake.** No smoothing, recolouring, upscaled art or animated transitions. Display options (scaling, shaders, overlays) are the player's choice, set in the pause menu, and are applied the same way to both screens. Overlays only ever fill the space around the SNES pictures, never what's on them.
+- **The game screen is the game.** It plays as it would on a Super Nintendo, on your buttons, and shows the game's picture as the console draws it. The few changes made to it come from the second screen taking something over: once the second screen always shows Super Metroid's map, the game's own mini-map is redundant and can go. Changes like that are listed for each game and can be switched off.
+- **The second screen is the game's companion.** It shows what the game would have put there if it had been made for this handheld: a map, a status screen, your equipment, the party's health. It's live, and you can touch it.
+- **The emulator's own screens are separate.** The game list, pause menu, settings and update screens belong to SNES DS, not to the imagined console. They have their own look.
 
-## 3. Keep it simple.
+## 2. In the game's own style.
 
-SNES games use their layers, mid-frame tricks and extra chips in complex, clever ways. SNES DS shouldn't spend a lot of processing power untangling all of that, as a full decompilation and recompilation project might. Logic and actions should be simple to test, and should cover as many cases as possible in as few steps as possible.
+Whatever is on the second screen should look as if the game's own artists made it. A player who knows the game should feel at home there at once.
 
 What this means in practice:
 
-- **Use what the game already does.** The usual approach is to open the game's own menu on the hidden copy and take a picture of it. That's simple, works in every situation the menu can be opened, and gets the game's own drawing for free. Reading a few memory addresses to know when to do it (a "screen is open" flag, the room number) is fine. Rebuilding a screen from the game's data is not.
-- **Fewer, broader checks.** One check that holds everywhere (the menu's open flag plus a few fixed pixels) is better than many special cases. When a game has an odd situation (a scene that blocks the menu), it's often fine to show the logo there and write it down as a known issue, instead of adding a workaround.
-- **Everything has to be testable.** Each game's behaviour is written down as a list of plain rules, and checked against saved moments from real play every time something changes. If a behaviour can't be described simply and checked that way, it's probably too complicated.
-- **Know the cost.** The device has to run the game, the hidden copy and the drawing at full speed. An accurate SNES emulator is far more expensive than a GBA one, so a second copy of the game is already most of the budget. Nothing else runs a third.
+- **The game's own art.** Tiles, colours, fonts, icons and frames all come from the game itself: from its own screens, its graphics in the cartridge, or what it draws while you play. SNES DS ships no art for any game.
+- **New layouts are fine, new art isn't.** SNES DS can arrange the game's own pieces in ways the game never did: a whole area's map you can scroll freely, an equipment page you can tap, a world map assembled from the places you've been. It doesn't draw new pictures in a style of its own: no SNES DS font, icons or panels on the second screen.
+- **Small marks where touch needs them.** A touch screen sometimes needs a hint the game never had, such as an arrow on a button that used to say L. Those are kept small, drawn from the game's own pieces where possible, and listed with the game's rules.
+- **Pixels at the game's own size.** Pictures are scaled up the way the game screen is, nearest neighbour, so pixels look the same on both screens.
 
-## 4. Use the original game's aesthetic.
+## 3. Useful at a glance, and smooth.
 
-Don't create original UI elements from scratch. Everything drawn on either screen comes directly from the original game's own screens (its pause and status menus, its map), with as little changed as possible. Small changes are fine where they make sense, such as removing button prompts that no longer apply.
-
-What this means in practice:
-
-- **Taken from the game, not drawn for it.** Logos are taken from each game's own title screen. Status screens and maps are the game's own, captured from the hidden copy. SNES DS ships no art for any game.
-- **Allowed changes are small and mechanical.** These include:
-  - cropping to the part that matters;
-  - covering a button prompt that no longer applies with the background around it;
-  - turning through a status screen's pages on a timer, where the game splits what matters over several pages.
-- **Not allowed:** text in SNES DS's font on the second screen, new icons, panels or frames of SNES DS's own design, redrawn or restyled game art, or a layout so rearranged that it no longer reads as the game's own screen.
-- **The exception that proves the rule:** when the logo is all the second screen shows, it's on dark grey rather than black, and at half strength. That's SNES DS signalling where the screen is and that it's idle, kept to a minimum.
-
-## 5. No in-game touch.
-
-Touch is only for things the emulator does, such as the pause menu. SNES DS doesn't add touch controls to SNES games.
+The second screen gives you what you'd otherwise pause for, and it should feel like a modern handheld, not like an emulator taking screenshots.
 
 What this means in practice:
 
-- **Touch belongs to SNES DS.** Tapping opens the pause menu; the game list, settings and the pause menu are touch controls for SNES DS itself.
-- **Nothing on the second screen needs a tap.** Everything the game puts there is to look at. Tapping a map to move there, or any other touch input sent to the game, is out of scope, however natural it might feel on a two-screen handheld.
-- **Buttons give the game an SNES pad.** The handheld's buttons map to the SNES controller as they're laid out, and you can change that game by game.
+- **Show what matters right now.** The second screen follows what you're doing: the room you're in, the area you've reached, the party after the last battle.
+- **It moves like a real screen.** A map scrolls under your finger at the screen's own refresh rate, without waiting for anything. A marker blinks the way the game blinks it. Delays and jumps are bugs, not the price of the approach.
+- **When there's nothing useful, say so plainly.** On a title screen, in a cutscene, or anywhere SNES DS can't be sure what's right, the second screen shows the game's logo, or keeps the last good picture. Better nothing new than something wrong.
+- **No enhancement for its own sake.** No smoothing or recolouring of the game's pictures. Display options (scaling, shaders) are your choice, in the pause menu.
 
-## 6. Rules are written to be broken.
+## 4. Touch the second screen; play with the buttons.
 
-Above all, SNES DS is a fun exercise in making these games more fun to play on a dual-screen handheld. It also has to stay controlled enough that development doesn't get away from one developer and tester. So exceptions are allowed, deliberately.
+The second screen is a touch screen, and that's the point of it. The game itself is still played with the buttons.
 
 What this means in practice:
 
-- **An exception has to earn its place.** It should make the game clearly more fun or easier to play on the device, and be something the player would recognise. Being technically possible is not enough.
-- **Every exception is deliberate.** It's written down with the game's other rules and tested like everything else, so it isn't "fixed" later by mistake.
-- **Optional where it can be.** Where an exception changes how the game plays or looks, there's a way back to the original.
-- **Scope is a feature.** Every change has to be built, tested on the real device and maintained by one person. A smaller, solid feature beats a bigger, fragile one, and that's often the honest answer to a feature request: not "never", but "not at the cost of everything else working".
+- **Touch is for looking and choosing.** Drag a map to look around; tap a page's button to switch pages; tap an item to switch it on or off. Those are things you'd have done in a pause menu.
+- **The game stays on the buttons.** Running, jumping and fighting aren't moved onto the touch screen. There are no on-screen controls for playing.
+- **Touch on the game screen belongs to SNES DS.** Tapping it opens the pause menu, as before.
 
-### Custom asset mode
+## 5. Read the game freely, write to it rarely.
 
-Custom asset mode is the one standing exception, and it is opt-in, game by game. Some screens can't be captured well: A Link to the Past's overworld map is a Mode 7 zoom that never settles into a clean picture. For a game whose profile allows it, you can supply your own picture of the map, and SNES DS shows it on the second screen with a marker at your position.
+SNES DS learns what to show by reading the game: its memory (where you are, what you've explored, what you're carrying) and its cartridge (maps, graphics). Reading changes nothing. Writing to the game you're playing is different: it can upset the game, your saves or achievements, so it's kept to a minimum.
 
-- **Your picture, not ours.** SNES DS ships no map art. The picture, the marker and any overlays come from you, in a folder of your own, and are never part of a release. Without them, the game behaves as if the mode didn't exist: the captured screen, or the logo.
-- **Lossless only.** The picture is a PNG or a lossless WebP, one picture pixel to one game pixel, with no upscaling baked in. It's drawn at the second screen's own resolution with nearest-neighbour scaling, either the whole world fitted to the screen or a window that follows you.
-- **The game is still untouched.** Your position is read from the live game's memory; nothing is written to it, and no hidden copy runs while the picture is up.
-- **When unsure, show less.** The marker hides in menus, transitions and cutscenes. If the picture is missing or can't be read, SNES DS falls back to the captured screen, then the logo.
-- **Extra layers are off by default.** A picture can come with overlays (where the heart pieces are, for example), each one switched on in the pause menu.
+What this means in practice:
 
-Current exceptions: custom asset mode, for the games whose profiles allow it (planned first for A Link to the Past's overworld).
+- **Reading is how it knows.** Your position, what you've explored and the items you have all come from the game's memory, every frame.
+- **Writing only for a deliberate action.** When you tap something that changes the game (switching an item in Super Metroid), SNES DS makes the change the way the game's own pause screen would, between frames, and nothing else. Each one is listed with the game's rules.
+- **No patching the game's code where it can be avoided.** The game runs as it was made.
+- **Achievements stay fair.** With RetroAchievements' hardcore mode on, anything that writes to the game is switched off.
+
+## 6. The best tool for each game.
+
+Different games need different second screens, and SNES DS has several ways to make them. Each game uses whichever gives the best result, with the simplest one that's good enough.
+
+- **Drawn from the game's data.** SNES DS reads the game's maps and graphics from the cartridge and what you've explored from its memory, and draws the screen itself, in the game's style. It's live, smooth and costs little. Super Metroid's map and equipment page work this way.
+- **Assembled from what you've seen.** As you play, SNES DS keeps the pictures the game draws of each place, and puts them together into a map of everywhere you've been, with the rest left dark until you get there. That suits a world map the game never shows in one piece, such as A Link to the Past's overworld.
+- **Opened on a hidden copy.** For a screen the game already draws well (a party's status, an inventory), a hidden second copy of the game opens it and the picture is shown on the second screen, without your game ever pausing. It works for almost any game, but it costs battery and is never instant, so it's for screens that don't need to be.
+- **The logo,** when nothing else fits.
+
+Whichever way a screen is made, it has to be checked against the game itself: a drawn map must match the game's own map, pixel for pixel, where the game has one.
+
+## 7. Keep it simple and testable.
+
+Every feature has to be built, tested on the real device and kept working by one developer. A smaller, solid feature beats a bigger, fragile one.
+
+What this means in practice:
+
+- **Rules first.** Each game's second screen is written down as a list of plain rules, checked against saved moments from real play whenever something changes.
+- **Know the cost.** The handheld runs an accurate SNES emulator at full speed; anything else has to fit beside it without draining the battery.
+- **Not "never", but "not at the cost of everything else working".** That's often the honest answer to a feature request.
+
+## 8. Rules are written to be broken.
+
+These principles are a guide, not a cage. An exception is fine when it makes a game clearly better on the device, as long as it's deliberate: written down with the game's rules, tested like everything else, and, where it changes how the game plays or looks, something you can switch off.
+
+### Your own pictures
+
+For a game whose profile allows it, you can also supply your own picture of a map (a lossless PNG or WebP, one pixel per game pixel), and SNES DS shows it on the second screen with a live marker at your position. SNES DS never ships these pictures: they're yours, in a folder of your own. Without one, the game uses its usual second screen.
