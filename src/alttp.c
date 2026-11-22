@@ -109,6 +109,7 @@ struct Alttp {
 	uint32_t sky[2][SKY_W * SKY_H];
 	int linkWorld, linkX, linkY;
 	int lastArea;
+	int takenX, takenY, takenWorld, takenAge; /* the last screen taken, and passes since */
 	int file; /* 1 to 3, 0 not known */
 	bool dirty;
 };
@@ -169,6 +170,7 @@ Alttp* alttp_new(uint8_t* rom, size_t size) {
 	}
 	a->rom = rom, a->romSize = size;
 	a->lastArea = -1;
+	a->takenX = -1;
 	a->itemsKey = 1;
 	make_sky(a);
 	for (size_t i = 0; i < ALTTP_W * ALTTP_H; ++i) a->items[i] = 0xFF000000u;
@@ -538,19 +540,24 @@ int alttp_select(const Alttp* a, const uint8_t* wram, int item, AltWrite* out, i
 
 /* ---- the world map (ALTTP-2; tools/alttp_world.py) */
 
-/* colour index of BG1 or BG2 at layer pixel (x, y), 0 if clear */
-static int bg_pixel(const uint8_t* vram, uint32_t mapBase, int x, int y) {
-	x &= 511, y &= 511;
-	int screen = (x >> 8) + ((y >> 8) << 1);
-	uint16_t e = vword(vram, mapBase + screen * 0x400 + ((y >> 3) & 31) * 32 + ((x >> 3) & 31));
-	int tx = x & 7, ty = y & 7;
-	if (e & 0x4000) tx = 7 - tx;
-	if (e & 0x8000) ty = 7 - ty;
-	uint32_t base = V_BG12_CHR + (e & 0x3FF) * 16;
-	uint16_t p0 = vword(vram, base + ty), p1 = vword(vram, base + 8 + ty);
-	int b = 7 - tx;
-	int c = (p0 >> b & 1) | (p0 >> (8 + b) & 1) << 1 | (p1 >> b & 1) << 2 | (p1 >> (8 + b) & 1) << 3;
-	return c ? ((e >> 10) & 7) * 16 + c : 0;
+/* Colour indices of BG1 or BG2 along a line: n pixels from layer pixel
+ * (x, y), 0 where clear. Each tile's row decoded once. */
+static void bg_row(const uint8_t* vram, uint32_t mapBase, int x, int y, int n, uint8_t* out) {
+	y &= 511;
+	for (int i = 0; i < n;) {
+		int lx = (x + i) & 511;
+		int screen = (lx >> 8) + ((y >> 8) << 1);
+		uint16_t e = vword(vram, mapBase + screen * 0x400 + ((y >> 3) & 31) * 32 + ((lx >> 3) & 31));
+		int ty = e & 0x8000 ? 7 - (y & 7) : y & 7;
+		uint32_t base = V_BG12_CHR + (e & 0x3FF) * 16;
+		uint16_t p0 = vword(vram, base + ty), p1 = vword(vram, base + 8 + ty);
+		int pal = ((e >> 10) & 7) * 16;
+		for (int tx = lx & 7; tx < 8 && i < n; ++tx, ++i) {
+			int b = e & 0x4000 ? tx : 7 - tx;
+			int c = (p0 >> b & 1) | (p0 >> (8 + b) & 1) << 1 | (p1 >> b & 1) << 2 | (p1 >> (8 + b) & 1) << 3;
+			out[i] = (uint8_t) (c ? pal + c : 0);
+		}
+	}
 }
 
 static uint16_t* chunk_for(Alttp* a, int w, int x, int y) {
@@ -563,14 +570,16 @@ static void capture(Alttp* a, const uint8_t* vram) {
 	int w = (r8(a, R_AREA) & 0x40) != 0;
 	int cx = r16(a, R_BG2_X), cy = r16(a, R_BG2_Y) + 1; /* line 0 shows row scroll + 1 */
 	bool bg1 = r8(a, R_TM) & 1;
+	uint8_t i2[ALTTP_W], i1[ALTTP_W];
 	for (int y = 0; y < ALTTP_H; ++y) {
 		int wy = cy + y;
 		if (wy < 0 || wy >= ALTTP_WORLD) continue;
+		bg_row(vram, V_BG2_MAP, cx, wy, ALTTP_W, i2);
+		if (bg1) bg_row(vram, V_BG1_MAP, cx, wy, ALTTP_W, i1);
 		for (int x = 0; x < ALTTP_W; ++x) {
 			int wx = cx + x;
 			if (wx < 0 || wx >= ALTTP_WORLD) continue;
-			int i = bg1 ? bg_pixel(vram, V_BG1_MAP, wx, wy) : 0;
-			if (!i) i = bg_pixel(vram, V_BG2_MAP, wx, wy);
+			int i = bg1 && i1[x] ? i1[x] : i2[x];
 			uint16_t* c = chunk_for(a, w, wx, wy);
 			if (c) c[(wy % CHUNK) * CHUNK + wx % CHUNK] = (uint16_t) (r16(a, R_PALETTE + i * 2) | 0x8000);
 		}
@@ -671,7 +680,14 @@ int alttp_update(Alttp* a, const uint8_t* wram, const uint8_t* vram, const uint8
 		int w = (r8(a, R_AREA) & 0x40) != 0;
 		a->linkWorld = w;
 		a->linkX = r16(a, R_LINK_X) + 8, a->linkY = r16(a, R_LINK_Y) + 12;
-		if (vram) capture(a, vram), ch |= ALTTP_MAP;
+		/* the screen taken when the camera has moved, else every 30
+		 * passes (what changes in place: a cut bush, a lifted rock) */
+		int cx = r16(a, R_BG2_X), cy = r16(a, R_BG2_Y);
+		bool moved = cx != a->takenX || cy != a->takenY || w != a->takenWorld;
+		if (vram && (moved || ++a->takenAge >= 30)) {
+			capture(a, vram), ch |= ALTTP_MAP;
+			a->takenX = cx, a->takenY = cy, a->takenWorld = w, a->takenAge = 0;
+		}
 		if (r8(a, R_AREA) != a->lastArea) a->lastArea = r8(a, R_AREA), ch |= ALTTP_AREA;
 	}
 	if (vram) {
