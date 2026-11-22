@@ -451,7 +451,7 @@ static void render_items(Alttp* a, const uint8_t* vram) {
 			if (e != BLANK) draw_tile2(a, vram, e, &a->items[(r - MENU_ROW0) * 8 * ALTTP_W + c * 8], ALTTP_W);
 		}
 	}
-	/* Link's marker: the same ring, round a 16 x 16 middle */
+	/* Link's marker on the map: the same ring, round a 16 x 16 middle */
 	for (int i = 0; i < 32 * 32; ++i) a->marker[i] = 0;
 	static const int8_t ringAt[12][2] = { { 1, 0 }, { 2, 0 }, { 0, 1 }, { 3, 1 }, { 0, 2 }, { 3, 2 }, { 1, 3 }, { 2, 3 }, { 0, 0 }, { 3, 0 }, { 3, 3 }, { 0, 3 } };
 	static const uint16_t ringTile[12] = { 0x2061, 0x6061, 0x2070, 0x6070, 0xA070, 0xE070, 0xA061, 0xE061, 0x2060, 0x6060, 0xE060, 0xA060 };
@@ -459,8 +459,12 @@ static void render_items(Alttp* a, const uint8_t* vram) {
 		uint32_t tile[64];
 		for (int k = 0; k < 64; ++k) tile[k] = 0;
 		draw_tile2(a, vram, (uint16_t) (ringTile[i] | 7 << 10), tile, 8);
+		/* (only the ring: its black, the menu's pane behind it, left out) */
 		for (int y = 0; y < 8; ++y) {
-			for (int x = 0; x < 8; ++x) a->marker[(ringAt[i][1] * 8 + y) * 32 + ringAt[i][0] * 8 + x] = tile[y * 8 + x];
+			for (int x = 0; x < 8; ++x) {
+				uint32_t c = tile[y * 8 + x];
+				a->marker[(ringAt[i][1] * 8 + y) * 32 + ringAt[i][0] * 8 + x] = (c & 0xFFFFFF) ? c : 0;
+			}
 		}
 	}
 }

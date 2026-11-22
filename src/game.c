@@ -5,6 +5,7 @@
 #include "brand.h"
 #include "emu.h"
 #include "mapcap.h"
+#include "alttp.h"
 #include "smmap.h"
 #include "hotkeys.h"
 #include "paths.h"
@@ -4566,8 +4567,13 @@ static void native_free(void) {
 }
 
 /* The game's profile asks for it: the ROM as played, read again */
+static void alt_open(const char* rom);
+static void alt_free(void);
+
 static void native_open(const char* rom, const MapProfile* p) {
 	native_free();
+	alt_free();
+	if (p && p->native == NATIVE_ALTTP) alt_open(rom);
 	if (!p || p->native != NATIVE_SUPER_METROID) return;
 	size_t n = 0;
 	uint8_t* data = emu_rom_read_played(rom, &n, NULL, NULL, NULL);
@@ -4788,6 +4794,300 @@ static int native_touch(const Pointer* p) {
 	return 1;
 }
 
+
+/* ---- A Link to the Past's second screen, made by SNES DS (src/alttp.c;
+ * docs/games/a-link-to-the-past.md, ALTTP-1 and on): the items screen,
+ * or the world map (X switches); taps select items, a drag moves the map
+ * and a tap on it changes its zoom. Nothing is captured on a hidden copy. */
+#define ALT_TW (ALTTP_W + 8) /* the map's texture: the screen and a margin, for smooth scrolling */
+#define ALT_TH (ALTTP_H + 8)
+static Alttp* alt;
+static bool altShown;   /* the second screen shows it (else the logo, ALTTP-9) */
+static int altPage;     /* 0 the items screen, 1 the map (ALTTP-1) */
+static int altZoom = 1; /* world pixels a shown pixel (ALTTP-3) */
+static bool altXDown;
+static bool altItemsDirty, altMapDirty;
+static SDL_Texture *altItemsTex[2], *altMapTex[2], *altMarkerTex[2];
+static uint32_t altMapPx[ALT_TW * ALT_TH];
+static int altMapX = INT_MIN, altMapY, altMapZoom, altMapWorld; /* what altMapPx holds */
+/* The view (the map's top left, world pixels): on Link, or the player's
+ * from a drag until Link enters another area (ALTTP-3) */
+static float altVX, altVY, altVelX, altVelY;
+static bool altHaveView, altUser, altDrag, altDragMoved, altTapOk;
+static int altDownX, altDownY;
+static float altDownVX, altDownVY, altPrevX, altPrevY;
+static Uint64 altStepT, altPrevT, altSavedT;
+static int altFile; /* the game's file whose seen record is loaded (1 to 3) */
+
+/* The seen record of file f, beside the battery save: <save>.alttp<f> */
+static void alt_seen_path(int f, char* out, size_t n) {
+	snprintf(out, n, "%s.alttp%d", gp.sav, f);
+}
+
+static void alt_save_seen(void) {
+	if (!alt || !altFile || !alttp_dirty(alt) || !gp.sav[0]) return;
+	char path[1100];
+	alt_seen_path(altFile, path, sizeof path);
+	Uint64 t0 = SDL_GetPerformanceCounter();
+	bool ok = alttp_save_seen(alt, path);
+	fprintf(stderr, "map seen (file %d): %s %s (%.0f ms)\n", altFile, ok ? "saved to" : "can't save", path,
+	        (double) (SDL_GetPerformanceCounter() - t0) * 1000.0 / SDL_GetPerformanceFrequency());
+}
+
+static void alt_free(void) {
+	if (!alt) return;
+	alt_save_seen();
+	alttp_free(alt);
+	alt = NULL;
+	altShown = altHaveView = altUser = altDrag = false;
+	altPage = 0, altFile = 0, altMapX = INT_MIN;
+	for (int i = 0; i < 2; ++i) {
+		SDL_Texture** t[] = { &altItemsTex[i], &altMapTex[i], &altMarkerTex[i] };
+		for (int k = 0; k < 3; ++k) {
+			if (*t[k]) SDL_DestroyTexture(*t[k]);
+			*t[k] = NULL;
+		}
+	}
+}
+
+static void alt_open(const char* rom) {
+	size_t n = 0;
+	uint8_t* data = emu_rom_read_played(rom, &n, NULL, NULL, NULL);
+	alt = alttp_new(data, n);
+	fprintf(stderr, "second screen: %s\n", alt ? "drawn by SNES DS (A Link to the Past's items and map)" : "can't draw A Link to the Past's screens");
+}
+
+static void alt_textures(void) {
+	if (!alt) return;
+	for (int i = 0; i < nViews; ++i) {
+		SDL_Texture** t[] = { &altItemsTex[i], &altMapTex[i], &altMarkerTex[i] };
+		for (int k = 0; k < 3; ++k) {
+			if (*t[k]) SDL_DestroyTexture(*t[k]);
+		}
+		altItemsTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
+		altMapTex[i] = native_texture(i, ALT_TW, ALT_TH, SDL_BLENDMODE_NONE);
+		altMarkerTex[i] = native_texture(i, 32, 32, SDL_BLENDMODE_BLEND);
+	}
+	altItemsDirty = true;
+	altMapX = INT_MIN;
+}
+
+/* Where the view rests: Link in the middle, inside the world */
+static void alt_home(float* vx, float* vy) {
+	int w, x, y;
+	alttp_link(alt, &w, &x, &y);
+	float maxX = (float) (ALTTP_WORLD - ALTTP_W * altZoom), maxY = (float) (ALTTP_WORLD - ALTTP_H * altZoom);
+	*vx = SDL_clamp(x - ALTTP_W * altZoom / 2.0f, 0.0f, maxX);
+	*vy = SDL_clamp(y - ALTTP_H * altZoom / 2.0f, 0.0f, maxY);
+}
+
+static void alt_clamp(float* vx, float* vy) {
+	*vx = SDL_clamp(*vx, 0.0f, (float) (ALTTP_WORLD - ALTTP_W * altZoom));
+	*vy = SDL_clamp(*vy, 0.0f, (float) (ALTTP_WORLD - ALTTP_H * altZoom));
+}
+
+/* After the frames of a pass of the loop: the game read again */
+static void alt_tick(void) {
+	size_t n = 0, vn = 0, sn = 0;
+	const uint8_t* w = emu_memory(&emu, EMU_MEM_WRAM, &n);
+	const uint8_t* v = emu_memory(&emu, EMU_MEM_VRAM, &vn);
+	const uint8_t* sr = emu_memory(&emu, EMU_MEM_SRAM, &sn);
+	if (!w || n < 0x20000) return;
+	int ch = alttp_update(alt, w, v && vn >= 0x10000 ? v : NULL, sr && sn >= 0x2000 ? sr : NULL);
+	if (ch & ALTTP_FILE) {
+		/* another of the game's files: its own seen record */
+		alt_save_seen();
+		altFile = alttp_file(alt);
+		char path[1100];
+		alt_seen_path(altFile, path, sizeof path);
+		if (alttp_take_new_file(alt)) {
+			alttp_clear_seen(alt);
+			fprintf(stderr, "map seen (file %d): a new file, starts empty\n", altFile);
+		} else {
+			bool ok = alttp_load_seen(alt, path);
+			fprintf(stderr, "map seen (file %d): %s %s\n", altFile, ok ? "loaded from" : "nothing yet in", path);
+		}
+		altMapDirty = true;
+	}
+	if (ch & ALTTP_ITEMS) altItemsDirty = true;
+	if (ch & ALTTP_MAP) altMapDirty = true;
+	if ((ch & ALTTP_AREA) && !altDrag) altUser = false, altVelX = altVelY = 0; /* ALTTP-3: back on Link */
+	if (alttp_ready(alt) && !alttp_in_menu(alt)) altShown = true;
+	else if (alttp_in_menu(alt)) altShown = false; /* ALTTP-9: the logo */
+	/* the seen record, now and then while playing */
+	Uint64 now = SDL_GetPerformanceCounter();
+	if (!altSavedT) altSavedT = now;
+	if ((double) (now - altSavedT) / SDL_GetPerformanceFrequency() > 60) altSavedT = now, alt_save_seen();
+	if (altItemsDirty) {
+		for (int i = 0; i < nViews; ++i) {
+			if (altItemsTex[i]) ui_update_texture(altItemsTex[i], alttp_items(alt), ALTTP_W * 4);
+			if (altMarkerTex[i]) ui_update_texture(altMarkerTex[i], alttp_marker(alt), 32 * 4);
+		}
+		altItemsDirty = false;
+	}
+}
+
+/* Once a drawn frame: the view moves on (a glide back to Link, a fling) */
+static void alt_step(void) {
+	Uint64 now = SDL_GetPerformanceCounter();
+	float dt = altStepT ? (float) ((double) (now - altStepT) / SDL_GetPerformanceFrequency()) : 0;
+	altStepT = now;
+	dt = SDL_min(dt, 0.1f);
+	float hx, hy;
+	alt_home(&hx, &hy);
+	if (!altHaveView) altVX = hx, altVY = hy, altHaveView = true;
+	if (altDrag) return;
+	if (altUser) {
+		if (altVelX == 0 && altVelY == 0) return;
+		altVX += altVelX * dt, altVY += altVelY * dt;
+		float slow = expf(-dt / 0.35f);
+		altVelX *= slow, altVelY *= slow;
+		float bx = altVX, by = altVY;
+		alt_clamp(&altVX, &altVY);
+		if (bx != altVX || fabsf(altVelX) < 4) altVelX = 0;
+		if (by != altVY || fabsf(altVelY) < 4) altVelY = 0;
+		return;
+	}
+	float a = 1 - expf(-dt / 0.09f);
+	altVX += (hx - altVX) * a, altVY += (hy - altVY) * a;
+	if (fabsf(hx - altVX) < 0.02f) altVX = hx;
+	if (fabsf(hy - altVY) < 0.02f) altVY = hy;
+}
+
+static SDL_Rect alt_rect(int s, float* kx, float* ky) {
+	SDL_Rect img = ui_image_rect(s, ALTTP_W, ALTTP_H, cfg->mapScale);
+	*kx = img.w / (float) ALTTP_W, *ky = img.h / (float) ALTTP_H;
+	return img;
+}
+
+/* The map: composed (in shown pixels) from the view's whole shown pixel,
+ * drawn at its fraction so a drag moves it smoothly; Link's marker on it */
+static void draw_alt_map(int s) {
+	int world, lx, ly;
+	alttp_link(alt, &world, &lx, &ly);
+	int sx = (int) floorf(altVX / altZoom), sy = (int) floorf(altVY / altZoom);
+	if (altMapDirty || sx != altMapX || sy != altMapY || altZoom != altMapZoom || world != altMapWorld) {
+		alttp_compose(alt, world, altZoom, sx * altZoom, sy * altZoom, ALT_TW, ALT_TH, altMapPx);
+		for (int i = 0; i < nViews; ++i) {
+			if (altMapTex[i]) ui_update_texture(altMapTex[i], altMapPx, ALT_TW * 4);
+		}
+		altMapX = sx, altMapY = sy, altMapZoom = altZoom, altMapWorld = world, altMapDirty = false;
+	}
+	float kx, ky;
+	SDL_Rect img = alt_rect(s, &kx, &ky);
+	SDL_Rect clip = { img.x + screens[s].rect.x, img.y + screens[s].rect.y, img.w, img.h };
+	ui_clip(s, &clip);
+	float fx = altVX / altZoom - sx, fy = altVY / altZoom - sy;
+	int bx = img.x - (int) lroundf(fx * kx), by = img.y - (int) lroundf(fy * ky);
+	ui_image_part(s, altMapTex, (SDL_Rect) { 0, 0, ALT_TW, ALT_TH }, (SDL_Rect) { bx, by, (int) lroundf(ALT_TW * kx), (int) lroundf(ALT_TH * ky) });
+	if (alttp_marker_on(alt)) {
+		float mx = (lx - altVX) / altZoom - 16, my = (ly - altVY) / altZoom - 16;
+		ui_image_part(s, altMarkerTex, (SDL_Rect) { 0, 0, 32, 32 },
+		              (SDL_Rect) { img.x + (int) lroundf(mx * kx), img.y + (int) lroundf(my * ky), (int) lroundf(32 * kx), (int) lroundf(32 * ky) });
+	}
+	ui_clip(s, NULL);
+}
+
+static void draw_alt(int s) {
+	if (altPage == 1) draw_alt_map(s);
+	else ui_image_pixels(s, altItemsTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON);
+}
+
+/* ALTTP-1: X, while Link is played, switches the second screen between
+ * the items and the map instead of opening the game's own map. Returns
+ * the keys the game gets. */
+static uint32_t alt_keys(uint32_t keys) {
+	if (!alt || !cfg->map || nScreens != 2 || !alttp_playing(alt)) {
+		altXDown = (keys & K_X) != 0;
+		return keys;
+	}
+	bool x = (keys & K_X) != 0;
+	if (x && !altXDown) {
+		altPage ^= 1;
+		if (altPage) altUser = false, altHaveView = false;
+		fprintf(stderr, "second screen: %s\n", altPage ? "the map" : "the items");
+	}
+	altXDown = x;
+	return keys & ~(uint32_t) K_X;
+}
+
+/* A tap on the second screen: on the items screen, Y item selected
+ * (ALTTP-10, written to the game between frames as its own items screen
+ * would: an exception listed in docs/games/a-link-to-the-past.md; with
+ * RetroAchievements' hardcore it is to be switched off, ra.c plays casual
+ * only for now); on the map, the next zoom (ALTTP-3) */
+static void alt_tap(int x, int y) {
+	float kx, ky;
+	SDL_Rect img = alt_rect(1 - game_screen(), &kx, &ky);
+	if (kx <= 0 || ky <= 0) return;
+	int cx = (int) floorf((x - img.x) / kx), cy = (int) floorf((y - img.y) / ky);
+	if (cx < 0 || cy < 0 || cx >= ALTTP_W || cy >= ALTTP_H) return;
+	if (altPage == 1) {
+		/* keep what's in the middle in the middle */
+		float mx = altVX + ALTTP_W * altZoom / 2.0f, my = altVY + ALTTP_H * altZoom / 2.0f;
+		altZoom = altZoom == 1 ? 2 : altZoom == 2 ? 4 : 1;
+		altVX = mx - ALTTP_W * altZoom / 2.0f, altVY = my - ALTTP_H * altZoom / 2.0f;
+		alt_clamp(&altVX, &altVY);
+		fprintf(stderr, "map zoom: %d world pixels a pixel\n", altZoom);
+		return;
+	}
+	int item = alttp_items_hit(alt, cx, cy);
+	if (!item) return;
+	size_t n = 0;
+	const uint8_t* w = emu_memory(&emu, EMU_MEM_WRAM, &n);
+	if (!w || n < 0x20000) return;
+	AltWrite out[32];
+	int k = alttp_select(alt, w, item, out, 32);
+	for (int i = 0; i < k; ++i) emu_write8(&emu, 0x7E0000 + out[i].addr, out[i].val);
+	if (k) alt_tick(); /* (the items screen shows it now) */
+	fprintf(stderr, "items: item %d selected (%d byte(s) written)\n", item, k);
+}
+
+/* A touch on the second screen: a drag moves the map with the finger (a
+ * fling carries on), a tap goes to alt_tap. Never the menu. */
+static int alt_touch(const Pointer* p) {
+	if (!cfg->map || nScreens != 2) return 0;
+	if (p->screen == game_screen() && !(altDrag && p->kind != 1)) return 0;
+	Uint64 now = SDL_GetPerformanceCounter();
+	if (p->kind == 1) {
+		altDrag = altShown;
+		altDragMoved = false;
+		altTapOk = altShown;
+		altDownX = p->x, altDownY = p->y;
+		altDownVX = altVX, altDownVY = altVY;
+		altPrevX = (float) p->x, altPrevY = (float) p->y, altPrevT = now;
+		altVelX = altVelY = 0;
+		return 1;
+	}
+	if (!altDrag) return 1;
+	float kx, ky;
+	alt_rect(1 - game_screen(), &kx, &ky);
+	if (kx <= 0 || ky <= 0) return 1;
+	if (fabsf((p->x - altDownX) / kx) > 4 || fabsf((p->y - altDownY) / ky) > 4) altDragMoved = true;
+	if (altDragMoved && altPage == 1) {
+		altVX = altDownVX - (p->x - altDownX) / kx * altZoom, altVY = altDownVY - (p->y - altDownY) / ky * altZoom;
+		alt_clamp(&altVX, &altVY);
+		altUser = true;
+		double dt = (double) (now - altPrevT) / SDL_GetPerformanceFrequency();
+		if (dt > 0.004) {
+			float vx = -(p->x - altPrevX) / kx * altZoom / (float) dt, vy = -(p->y - altPrevY) / ky * altZoom / (float) dt;
+			altVelX = altVelX * 0.5f + vx * 0.5f, altVelY = altVelY * 0.5f + vy * 0.5f;
+			altPrevX = (float) p->x, altPrevY = (float) p->y, altPrevT = now;
+		}
+	}
+	if (p->kind != 2) return 1;
+	altDrag = false;
+	if (!altDragMoved) {
+		if (altTapOk) alt_tap(p->x, p->y);
+		return 1;
+	}
+	if (altPage == 1) {
+		if ((double) (now - altPrevT) / SDL_GetPerformanceFrequency() > 0.08) altVelX = altVelY = 0;
+		altStepT = 0;
+	}
+	return 1;
+}
+
 /* The profile, when the second screen takes touch (SM-7) */
 static const MapProfile* touch_prof(void) {
 	const MapProfile* p = mc ? mapcap_profile(mc) : NULL;
@@ -4854,6 +5154,7 @@ static void map_reshow(void) {
  * second screen's; 1: taken; 2: taken, and the view changed (capture). */
 static int map_touch(const Pointer* p) {
 	if (nat) return native_touch(p);
+	if (alt) return alt_touch(p);
 	const MapProfile* tp = touch_prof();
 	if (!tp || (p->screen == game_screen() && !(mapDrag && p->kind != 1))) return 0;
 	if (p->kind == 1) {
@@ -5112,8 +5413,9 @@ static void make_logo_canvas(void) {
 }
 
 static void draw_game(void) {
-	bool mapOn = (mc || nat || logoOnly) && cfg->map; /* logo-only games: the logo stands in for the map */
+	bool mapOn = (mc || nat || alt || logoOnly) && cfg->map; /* logo-only games: the logo stands in for the map */
 	if (nat && natShown) native_step();
+	if (alt && altShown && altPage == 1) alt_step();
 	for (int s = 0; s < nScreens; ++s) {
 		bool showGame = nScreens == 1 ? !(singleShowsMap && mapOn) : (s == game_screen() || !mapOn);
 		SDL_Rect r = screens[s].rect;
@@ -5144,6 +5446,9 @@ static void draw_game(void) {
 		if (nat && natShown) {
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			draw_native(s);
+		} else if (alt && altShown) {
+			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
+			draw_alt(s);
 		} else if (mapShownIdx >= 0 && !logoForced) {
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			ui_image_pixels(s, mapTex, mapW, mapH, cfg->mapScale, SHADER_ON);
@@ -5544,8 +5849,9 @@ static void ss_setup(const char* rom, const char* code) {
 #endif
 		const MapProfile* lp = profile_find(code);
 		native_open(rom, lp);
-		mc = nat ? NULL : mapcap_create(rom, code, true);
+		mc = nat || alt ? NULL : mapcap_create(rom, code, true);
 		if (nat) mapW = SMMAP_W, mapH = SMMAP_H;
+		if (alt) mapW = ALTTP_W, mapH = ALTTP_H;
 		logoOnly = lp && lp->logoOnly;
 		snapProf = logoOnly && lp->snap.showMin ? lp : NULL;
 		snapShow = snapRevert = 0;
@@ -5554,7 +5860,7 @@ static void ss_setup(const char* rom, const char* code) {
 		if (mc) {
 			fprintf(stderr, "map profile: %s\n", mapcap_title(mc));
 			mapcap_size(mc, &mapW, &mapH);
-		} else if (!logoOnly && !nat) {
+		} else if (!logoOnly && !nat && !alt) {
 			fprintf(stderr, "no map profile for %s\n", code);
 		}
 	}
@@ -5568,6 +5874,7 @@ static void ss_textures(void) {
 		SDL_SetTextureBlendMode(mapTex[i], SDL_BLENDMODE_NONE);
 	}
 	native_textures();
+	alt_textures();
 }
 
 /* After the device sleeps (or the renderer is reset), the GPU's copies of
@@ -6541,6 +6848,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		if (modPulse > 0) keys |= modBtn == B_START ? K_START : K_SELECT, --modPulse;
 		if (comboPulse[0] > 0) keys |= K_SELECT, --comboPulse[0];
 		if (comboPulse[1] > 0) keys |= K_START, --comboPulse[1];
+		keys = alt_keys(keys); /* ALTTP-1: X is the second screen's */
 		{
 			static uint32_t lastKeys;
 			if (debug && keys != lastKeys) fprintf(stderr, "frame %llu: game keys %03x\n", (unsigned long long) frameCount, keys);
@@ -6860,6 +7168,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		}
 
 		if (nat) native_tick();
+		if (alt) alt_tick();
 		if (snapProf) update_snapshot();
 
 		Uint64 drawT0 = SDL_GetPerformanceCounter();
@@ -7028,6 +7337,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	mapcap_destroy(mc);
 	mc = NULL;
 	native_free();
+	alt_free(); /* (saves what each file has seen) */
 	emu_rewind_deinit();
 	emu_close(&emu); /* flushes the battery save */
 	for (int i = 0; i < MAP_MAX_FRAMES; ++i) {

@@ -82,6 +82,17 @@ static const MapProfile profiles[] = {
 		 * them off and they pulsed too fast) */
 		.animFrames = 12, .animStep = 1, .mapStill = true, .animCycle = 54,
 	},
+	/* A Link to the Past (docs/games/a-link-to-the-past.md): the items
+	 * screen and the world map made by SNES DS (src/alttp.c), X switching
+	 * between them */
+	{
+		.codes = { "777AAC2F" }, /* USA */
+		.title = "The Legend of Zelda: A Link to the Past",
+		.native = NATIVE_ALTTP,
+		/* ALTTP-9: the title screen once its scenery has come up (frame
+		 * 1200 from power-on): the sword, the lettering and the castle */
+		.logo = { .wait = 1200, .minX = 40, .minY = 32, .maxX = 216, .maxY = 170 },
+	},
 };
 
 const MapProfile* profile_find(const char* gameCode) {
