@@ -360,6 +360,52 @@ static void goal_tiles(Alttp* a) {
 	}
 }
 
+/* The clouds where nothing is seen, as cumulus: round puffs in the
+ * clouds' own colours (cloud_colours) with the fog edge's rims (lit
+ * above left, shaded below right), the lower ones over the upper ones as
+ * a bank of cloud is seen from above, wrapping round the picture's edges
+ * so it repeats without a seam (the owner, Nov 22, 2026: the world map's
+ * scattered puffs on a plain ground looked bad) */
+static void make_cumulus(Alttp* a) {
+	enum { N = 170 };
+	static int px[N], py[N], pr[N];
+	uint32_t seed = 2468;
+	for (int i = 0; i < N; ++i) {
+		seed = seed * 1103515245u + 12345u, px[i] = (int) (seed >> 8) % SKY_W;
+		seed = seed * 1103515245u + 12345u, py[i] = (int) (seed >> 8) % SKY_H;
+		seed = seed * 1103515245u + 12345u, pr[i] = 10 + (int) (seed >> 8) % 15;
+	}
+	/* (top to bottom: each puff drawn over those above it) */
+	for (int i = 1; i < N; ++i) {
+		for (int j = i; j > 0 && py[j] < py[j - 1]; --j) {
+			int t;
+			t = px[j], px[j] = px[j - 1], px[j - 1] = t;
+			t = py[j], py[j] = py[j - 1], py[j - 1] = t;
+			t = pr[j], pr[j] = pr[j - 1], pr[j - 1] = t;
+		}
+	}
+	for (int w = 0; w < 2; ++w) {
+		const uint32_t* cl = a->cloud[w];
+		uint32_t* out = a->sky[w];
+		for (int i = 0; i < SKY_W * SKY_H; ++i) out[i] = cl[0];
+		for (int i = 0; i < N; ++i) {
+			int r = pr[i];
+			for (int dy = -r; dy <= r; ++dy) {
+				for (int dx = -r; dx <= r; ++dx) {
+					float d = r - sqrtf((float) (dx * dx + dy * dy));
+					if (d <= 0) continue;
+					/* lit above left (a thin light edge), shaded below right */
+					uint32_t c = cl[0];
+					if (dx + dy > 0) c = d < 1.5f ? cl[3] : d < 3.5f ? cl[2] : cl[0];
+					else if (d < 1.2f && dx + dy < -r / 2) c = cl[1];
+					int x = ((px[i] + dx) % SKY_W + SKY_W) % SKY_W, y = ((py[i] + dy) % SKY_H + SKY_H) % SKY_H;
+					out[y * SKY_W + x] = c;
+				}
+			}
+		}
+	}
+}
+
 Alttp* alttp_new(uint8_t* rom, size_t size) {
 	if (!rom || size < 0x100000 || crc32_of(rom, size) != ROM_CRC) {
 		free(rom);
@@ -380,6 +426,7 @@ Alttp* alttp_new(uint8_t* rom, size_t size) {
 	a->itemsKey = 1;
 	make_sky(a);
 	cloud_colours(a);
+	make_cumulus(a);
 	goal_tiles(a);
 	for (size_t i = 0; i < ALTTP_W * ALTTP_H; ++i) a->items[i] = 0xFF000000u;
 	return a;
