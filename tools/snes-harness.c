@@ -47,6 +47,7 @@
  *                          the top, else as the game opens it)
  *   alttp piece NAME W I L   the map's piece I of world W at level L as
  *                          the app's GPU map draws it (NAME.png)
+ *   alttp goals            the world map's markers shown now (ALTTP-11)
  *   alttp marker NAME      Link's marker on the map (32 x 32, its middle at
  *                          Link's place) and where it goes on the picture
  *   alttp select ITEM      select Y item ITEM (1 bow ... 20 mirror) as a
@@ -236,6 +237,12 @@ static void alttp_cmd(Emu* e, const char* romPath, const char* line) {
 		bool ok = px && write_png(path, px, n, n, n);
 		printf("alttp piece %s (version %u, %.1f ms): %s\n", path, alttp_piece_version(alt, zoom, x), t1 - t0, ok ? "ok" : "FAILED");
 		free(px);
+	} else if (!strcmp(sub, "goals")) {
+		alt_update(e);
+		const AltGoal* g;
+		int n = alttp_goals(alt, &g);
+		printf("alttp goals: %d\n", n);
+		for (int i = 0; i < n; ++i) printf("  %d,%d size %d from %d,%d\n", g[i].x, g[i].y, g[i].size, g[i].dx, g[i].dy);
 	} else if (!strcmp(sub, "marker")) {
 		alt_update(e);
 		size_t n;

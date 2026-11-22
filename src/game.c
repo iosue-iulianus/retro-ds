@@ -4855,6 +4855,7 @@ static uint32_t* altWOut;
  * floor), and Link's floor when it was picked */
 static int altFloor = ALTTP_FLOOR_AS_GAME, altFloorLink;
 static uint32_t altDunKey; /* what the dungeon map's texture was drawn from (0: nothing) */
+static uint32_t altDunBack = 0xFF000000u; /* its picture's edge colour: the rest of the screen in it */
 /* The view (the map's top left, world pixels): on Link, or the player's
  * from a drag until Link enters another area (ALTTP-3) */
 static float altVX, altVY, altVelX, altVelY;
@@ -5014,8 +5015,8 @@ static void alt_textures(void) {
 		altItemsTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
 		altDunTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
 		altMarkerTex[i] = native_texture(i, 32, 32, SDL_BLENDMODE_BLEND);
-		altGoalTex[i] = native_texture(i, ALTTP_GOALS * 16, 16, SDL_BLENDMODE_BLEND);
-		if (altGoalTex[i]) ui_update_texture(altGoalTex[i], alttp_goal_pictures(alt), ALTTP_GOALS * 16 * 4);
+		altGoalTex[i] = native_texture(i, ALTTP_GOAL_MAX * 16, 16, SDL_BLENDMODE_BLEND);
+		if (altGoalTex[i]) ui_update_texture(altGoalTex[i], alttp_goal_pictures(alt), ALTTP_GOAL_MAX * 16 * 4);
 		for (int w = 0; w < 2; ++w) {
 			altSkyTex[w][i] = native_texture(i, ALTTP_SKY_W, ALTTP_SKY_H, SDL_BLENDMODE_NONE);
 			if (altSkyTex[w][i]) ui_update_texture(altSkyTex[w][i], alttp_sky(alt, w), ALTTP_SKY_W * 4);
@@ -5050,6 +5051,58 @@ static void alt_home(float* vx, float* vy) {
 	alt_clamp(vx, vy);
 }
 
+/* ALTTP-2: the seen record goes with its file. Erased on the game's file
+ * screen: its record set aside (<record>.bak, the one before replaced);
+ * copied: the source's record copied to the new file (the one there set
+ * aside first). */
+static void alt_set_aside(const char* path) {
+	char bak[1200];
+	snprintf(bak, sizeof bak, "%s.bak", path);
+	FILE* f = fopen(path, "rb");
+	if (!f) return;
+	fclose(f);
+	remove(bak);
+	if (rename(path, bak) == 0) fprintf(stderr, "map seen: %s set aside as %s\n", path, bak);
+}
+
+static bool alt_copy_file(const char* from, const char* to) {
+	FILE* in = fopen(from, "rb");
+	if (!in) return false;
+	FILE* out = fopen(to, "wb");
+	bool ok = out != NULL;
+	char buf[65536];
+	size_t n;
+	while (ok && (n = fread(buf, 1, sizeof buf, in)) > 0) ok = fwrite(buf, 1, n, out) == n;
+	fclose(in);
+	if (out && fclose(out) != 0) ok = false;
+	return ok;
+}
+
+static void alt_file_events(void) {
+	AltSlotEvent ev[8];
+	int n = alttp_take_file_events(alt, ev, 8);
+	for (int i = 0; i < n && gp.sav[0]; ++i) {
+		char path[1100], from[1100];
+		alt_seen_path(ev[i].file, path, sizeof path);
+		if (ev[i].kind == ALTTP_FILE_ERASED) {
+			fprintf(stderr, "map seen: the game's file %d erased\n", ev[i].file);
+			alt_set_aside(path);
+			if (altFile == ev[i].file) alttp_clear_seen(alt);
+		} else if (ev[i].kind == ALTTP_FILE_COPIED) {
+			fprintf(stderr, "map seen: the game's file %d copied to %d\n", ev[i].from, ev[i].file);
+			if (altFile == ev[i].from) alt_save_seen(); /* (its file up to date first) */
+			alt_seen_path(ev[i].from, from, sizeof from);
+			alt_set_aside(path);
+			bool ok = alt_copy_file(from, path);
+			fprintf(stderr, "map seen: %s %s\n", ok ? "copied to" : "nothing to copy to", path);
+			if (altFile == ev[i].file) {
+				if (ok) alttp_load_seen(alt, path);
+				else alttp_clear_seen(alt);
+			}
+		}
+	}
+}
+
 /* After the frames of a pass of the loop: the game read again */
 static void alt_tick(void) {
 	size_t n = 0, vn = 0, sn = 0;
@@ -5073,12 +5126,13 @@ static void alt_tick(void) {
 		}
 	}
 	alt_merge_pending();
+	if (ch & ALTTP_FILES) alt_file_events();
 	if (ch & ALTTP_ITEMS) altItemsDirty = true;
 	for (int i = 0; i < nViews && (ch & ALTTP_MARKER); ++i) {
 		if (altMarkerTex[i]) ui_update_texture(altMarkerTex[i], alttp_marker(alt), 32 * 4);
 	}
 	for (int i = 0; i < nViews && (ch & ALTTP_GOALS); ++i) {
-		if (altGoalTex[i]) ui_update_texture(altGoalTex[i], alttp_goal_pictures(alt), ALTTP_GOALS * 16 * 4);
+		if (altGoalTex[i]) ui_update_texture(altGoalTex[i], alttp_goal_pictures(alt), ALTTP_GOAL_MAX * 16 * 4);
 	}
 	if ((ch & ALTTP_AREA) && !altDrag) altUser = false, altVelX = altVelY = 0; /* ALTTP-3: back on Link */
 	if (alttp_ready(alt) && !alttp_in_menu(alt)) altShown = true;
@@ -5097,7 +5151,7 @@ static void alt_tick(void) {
 		uint32_t key = (uint32_t) (w[0x1A] >> 2) | (uint32_t) (altFloor & 0xFF) << 8 | (uint32_t) w[0xA4] << 16 | (uint32_t) w[0xA0] << 24;
 		key ^= (uint32_t) emu_crc32(0, w + 0xF000, 0x500) ^ (uint32_t) (w[0x20] | w[0x22] << 8) * 0x9E3779B1u;
 		const uint32_t* px = key != altDunKey ? alttp_dungeon_map(alt, v && vn >= 0x10000 ? v : NULL, altFloor) : NULL;
-		if (px) altDunKey = key;
+		if (px) altDunKey = key, altDunBack = px[0];
 		for (int i = 0; i < nViews && px; ++i) {
 			if (altDunTex[i]) ui_update_texture(altDunTex[i], px, ALTTP_W * 4);
 		}
@@ -5225,29 +5279,32 @@ static void alt_piece_collect(int v) {
 	SDL_UnlockMutex(altWLock);
 }
 
-/* A piece of the map as a texture of view v (NULL: not made yet); asks
- * the thread for it, or for it again when it has changed (at most every
- * ALT_REMAKE seconds), when the thread is free */
-static SDL_Texture* const* alt_piece_tex(int v, int world, int piece, int level, uint32_t ver) {
+/* A piece of the map as a texture of view v (NULL: not made yet); *want:
+ * it's to be made (again: changed, and made ALT_REMAKE seconds ago or
+ * more) */
+static SDL_Texture* const* alt_piece_tex(int v, int world, int piece, int level, uint32_t ver, bool* want) {
 	AltPiece* e = alt_cache_find(world, piece, level);
 	if (e) e->shown = altFrame;
 	bool have = e && e->tex[v];
-	Uint64 now = SDL_GetPerformanceCounter();
-	bool want = !have || (e->ver != ver && (double) (now - e->madeT) / SDL_GetPerformanceFrequency() >= ALT_REMAKE);
-	if (want && alt_worker_start()) {
-		SDL_LockMutex(altWLock);
-		if (altWState == 0) {
-			altWJob = alttp_piece_job(alt, world, piece);
-			if (altWJob) {
-				altWWorld = world, altWPiece = piece, altWLevel = level, altWVer = ver, altWState = 1;
-				SDL_CondSignal(altWCond);
-				/* (made again no sooner than ALT_REMAKE from now) */
-				if (have) e->madeT = now;
-			}
-		}
-		SDL_UnlockMutex(altWLock);
-	}
+	*want = !have || (e->ver != ver && (double) (SDL_GetPerformanceCounter() - e->madeT) / SDL_GetPerformanceFrequency() >= ALT_REMAKE);
 	return have ? e->tex : NULL;
+}
+
+/* The thread asked for a piece, when it's free */
+static void alt_piece_ask(int world, int piece, int level, uint32_t ver) {
+	if (!alt_worker_start()) return;
+	SDL_LockMutex(altWLock);
+	if (altWState == 0) {
+		altWJob = alttp_piece_job(alt, world, piece);
+		if (altWJob) {
+			altWWorld = world, altWPiece = piece, altWLevel = level, altWVer = ver, altWState = 1;
+			SDL_CondSignal(altWCond);
+			/* (made again no sooner than ALT_REMAKE from now) */
+			AltPiece* e = alt_cache_find(world, piece, level);
+			if (e) e->madeT = SDL_GetPerformanceCounter();
+		}
+	}
+	SDL_UnlockMutex(altWLock);
 }
 
 /* The map (ALTTP-2, ALTTP-3): the whole second screen, whatever its
@@ -5275,6 +5332,11 @@ static void draw_alt_map(int s) {
 	/* the ground */
 	int level = z >= 4 ? 2 : z >= 2 ? 1 : 0;
 	int n = ALTTP_PIECE >> level;
+	/* the piece to make next: the one nearest the view's middle */
+	float cxw = altVX + a.w * z / 2, cyw = altVY + a.h * z / 2;
+	int next = -1;
+	uint32_t nextVer = 0;
+	float nextD = 1e30f;
 	for (int py = 0; py < ALTTP_PIECES; ++py) {
 		/* (each edge rounded once, so pieces meet at any zoom) */
 		int y = oy + (int) lroundf(py * ALTTP_PIECE / z), ph = oy + (int) lroundf((py + 1) * ALTTP_PIECE / z) - y;
@@ -5284,10 +5346,16 @@ static void draw_alt_map(int s) {
 			if (x >= a.x + a.w || x + pw <= a.x) continue;
 			int i = py * ALTTP_PIECES + px;
 			uint32_t ver = alttp_piece_version(alt, world, i);
-			SDL_Texture* const* t = ver ? alt_piece_tex(v, world, i, level, ver) : NULL;
+			bool want = false;
+			SDL_Texture* const* t = ver ? alt_piece_tex(v, world, i, level, ver, &want) : NULL;
 			if (t) ui_image_part(s, t, (SDL_Rect) { 0, 0, n, n }, (SDL_Rect) { x, y, pw, ph });
+			float dx = (px + 0.5f) * ALTTP_PIECE - cxw, dy = (py + 0.5f) * ALTTP_PIECE - cyw;
+			/* (one not made at all before one made but out of date) */
+			float d = dx * dx + dy * dy + (t ? 1e12f : 0);
+			if (want && d < nextD) next = i, nextVer = ver, nextD = d;
 		}
 	}
+	if (next >= 0) alt_piece_ask(world, next, level, nextVer);
 	/* ALTTP-11: the goal markers, then Link: their sprites at three of the
 	 * screen's pixels to one of theirs (1080 lines), whatever the zoom */
 	int m = SDL_max(1, a.h / 360);
@@ -5305,7 +5373,12 @@ static void draw_alt_map(int s) {
 }
 
 static void draw_alt(int s) {
-	if (altPage == 1 && alttp_in_dungeon(alt)) ui_image_pixels(s, altDunTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON);
+	if (altPage == 1 && alttp_in_dungeon(alt)) {
+		/* ALTTP-5: the frame's colour out to the screen's edges, whatever its shape */
+		SDL_Color c = { (Uint8) (altDunBack & 0xFF), (Uint8) (altDunBack >> 8 & 0xFF), (Uint8) (altDunBack >> 16 & 0xFF), 255 };
+		ui_fill(s, (SDL_Rect) { 0, 0, screens[s].rect.w, screens[s].rect.h }, c);
+		ui_image_pixels(s, altDunTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON);
+	}
 	else if (altPage == 1) draw_alt_map(s);
 	else ui_image_pixels(s, altItemsTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON);
 }

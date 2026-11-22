@@ -32,7 +32,7 @@ Alttp* alttp_new(uint8_t* rom, size_t size);
 void alttp_free(Alttp* a);
 
 /* What changed in alttp_update */
-enum { ALTTP_ITEMS = 1, ALTTP_MAP = 2, ALTTP_AREA = 4, ALTTP_FILE = 8, ALTTP_MARKER = 16, ALTTP_GOALS = 32 };
+enum { ALTTP_ITEMS = 1, ALTTP_MAP = 2, ALTTP_AREA = 4, ALTTP_FILE = 8, ALTTP_MARKER = 16, ALTTP_GOALS = 32, ALTTP_FILES = 64 };
 /* Once per pass of the loop, with the game's work RAM (128 KB), its video
  * RAM (64 KB, may be NULL: then nothing is taken for the map) and its
  * cartridge RAM (8 KB, may be NULL; its $1FFE says which file is played).
@@ -95,9 +95,9 @@ const uint32_t* alttp_sky(const Alttp* a, int world);
  * show them now in the world Link is in (blinking as there): each at
  * world pixel (x, y), its picture (size x size, the top left of a 16 x 16
  * place) drawn from (dx, dy) of its own pixels from there; picture i is
- * at (16 i, 0) of alttp_goal_pictures (ALTTP_GOALS * 16 x 16).
+ * at (16 i, 0) of alttp_goal_pictures (ALTTP_GOAL_MAX * 16 x 16).
  * alttp_update says ALTTP_GOALS when they changed. */
-#define ALTTP_GOALS 7
+#define ALTTP_GOAL_MAX 8 /* the 7 goal markers and the mirror's portal */
 typedef struct {
 	int x, y, dx, dy, size;
 } AltGoal;
@@ -117,6 +117,13 @@ bool alttp_marker_on(const Alttp* a);
  * one's loaded, or cleared if the player has just named a new file
  * (alttp_take_new_file, once). alttp_dirty: changed since load or save. */
 int alttp_file(const Alttp* a);
+/* The game's files erased or copied on its file screen since last asked
+ * (alttp_update says ALTTP_FILES): the seen record goes with its file */
+enum { ALTTP_FILE_ERASED = 1, ALTTP_FILE_COPIED = 2 };
+typedef struct {
+	int kind, file, from; /* files 1 to 3; from: a copy's source */
+} AltSlotEvent;
+int alttp_take_file_events(Alttp* a, AltSlotEvent* out, int max);
 bool alttp_take_new_file(Alttp* a);
 void alttp_clear_seen(Alttp* a);
 bool alttp_load_seen(Alttp* a, const char* path);

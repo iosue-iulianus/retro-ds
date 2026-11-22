@@ -108,6 +108,9 @@ class Dump:
         cx, cy = self.camera()
         pal = self.palette()
         bg1 = bool(self.r8(0x1C) & 1)   # BG1 on the main screen
+        # BG1 on the sub screen, added to the backdrop (the pyramid's sky)
+        sub_bg1 = bool(self.r8(0x1D) & 1) and bool(self.r8(0x9A) & 0x20)
+        sx, sy = self.r16(0xE0), self.r16(0xE6)
         out = []
         for y in range(224):
             wy = cy + 1 + y
@@ -117,9 +120,33 @@ class Dump:
                 i = self.bg_pixel(BG1_MAP, wx, wy) if bg1 else 0
                 if not i:
                     i = self.bg_pixel(BG2_MAP, wx, wy)
-                row.append(pal[i])
+                c = pal[i]
+                if not i:
+                    s = self.bg_pixel(BG1_MAP, sx + x, sy + 1 + y) if sub_bg1 else 0
+                    c = self.backdrop_math(c, pal[s] if s else None)
+                row.append(c)
             out.append(row)
         return cx, cy + 1, out
+
+    def backdrop_math(self, back, sub):
+        """The backdrop where the game adds to it (CGADSUB $9A bit 5): the
+        sub screen's BG1 there (sub, at its own scroll) when CGWSEL $99
+        bit 1, else the fixed colour ($9C-$9E); bit 7 subtracts, bit 6
+        halves (not the fixed colour). As backdrop_math in src/alttp.c."""
+        ws, ad = self.r8(0x99), self.r8(0x9A)
+        if not ad & 0x20:
+            return back
+        fixed = not (ws & 2) or sub is None
+        if fixed:
+            sub = (self.r8(0x9C) & 31) | (self.r8(0x9D) & 31) << 5 | (self.r8(0x9E) & 31) << 10
+        out = 0
+        for k in range(3):
+            m, s = back >> (5 * k) & 31, sub >> (5 * k) & 31
+            v = m - s if ad & 0x80 else m + s
+            if ad & 0x40 and not fixed:
+                v >>= 1
+            out |= max(0, min(31, v)) << (5 * k)
+        return out
 
 
 class World:

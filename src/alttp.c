@@ -20,6 +20,12 @@
 #define R_FRAME 0x001A
 #define R_INDOORS 0x001B
 #define R_TM 0x001C
+#define R_TS 0x001D      /* the sub screen's layers */
+#define R_CGWSEL 0x0099  /* colour maths: bit 1, with the sub screen (else the fixed colour) */
+#define R_CGADSUB 0x009A /* bit 5 on the backdrop; bit 6 halved; bit 7 subtracted */
+#define R_COLDATA 0x009C /* the fixed colour: $9C red, $9D green, $9E blue (low 5 bits) */
+#define R_BG1_X 0x00E0
+#define R_BG1_Y 0x00E6
 #define R_LINK_Y 0x0020
 #define R_LINK_X 0x0022
 #define R_AREA 0x008A
@@ -54,6 +60,7 @@
 #define R_PROGRESS 0xF3C5
 #define R_MAP_STAGE 0xF3C7 /* which goal markers the world map shows (the story's stage) */
 #define R_OW_EVENT_5B 0xF2DB /* bit $20: no goal markers any more */
+#define R_PORTAL_X 0x1ABF /* the mirror's portal in the Light World (world pixels): x low, $1ACF x high, $1ADF y low, $1AEF y high; all 0: none */
 
 /* video RAM, word addresses, as the game sets the PPU for play */
 #define V_BG2_MAP 0x0000
@@ -89,6 +96,7 @@
 #define GOAL_POSY 0x0ABDF6u
 #define GOAL_TILE 0x0ABEE0u
 #define GOAL_RED_X 0x0ABF5Eu    /* the red X's 4 frames (8 x 8 tiles) */
+#define PORTAL_PROPS 0x0ABF62u  /* the mirror's portal: its 4 frames' attributes (it turns), tile $6A */
 #define GOAL_NUMBERS 0x0AC515u  /* each crystal's number (8 x 8 tiles) */
 #define PENDANT_BITS 0x0AC5A6u  /* markers 0 to 2's pendants in $7EF374 */
 #define CRYSTAL_BITS 0x0AC5BFu  /* markers 0 to 6's crystals in $7EF37A */
@@ -152,14 +160,19 @@ struct Alttp {
 	/* the goal markers: their tiles ($60 to $7F, video RAM words), the
 	 * ones shown now and their pictures */
 	uint16_t goalChr[32 * 16];
-	AltGoal goal[ALTTP_GOALS];
+	AltGoal goal[ALTTP_GOAL_MAX];
 	int nGoals;
-	uint32_t goalPx[ALTTP_GOALS * 16 * 16];
+	uint32_t goalPx[ALTTP_GOAL_MAX * 16 * 16];
 	uint32_t goalKey;
 	int linkWorld, linkX, linkY;
 	int lastArea;
 	int takenX, takenY, takenWorld, takenAge; /* the last screen taken, and passes since */
 	int file; /* 1 to 3, 0 not known */
+	/* the game's files in its cartridge RAM, as at the last update (ALTTP-2:
+	 * the seen record goes with its file: erased, copied) */
+	bool slotsKnown, slotValid[3];
+	AltSlotEvent slotEv[8];
+	int nSlotEv;
 	bool dirty;
 };
 
@@ -776,23 +789,51 @@ static uint16_t* chunk_for(Alttp* a, int w, int x, int y) {
 	return *c;
 }
 
+/* The backdrop's colour where the game adds to it (colour maths on the
+ * backdrop): the sub screen's BG1 there (at its own scroll), else the
+ * fixed colour; added or subtracted, halved if the game halves it (the
+ * Dark World's red sky over the pyramid, area $5B: BG1 on the sub
+ * screen). 0: no colour maths on the backdrop. */
+static uint16_t backdrop_math(const Alttp* a, uint16_t back, uint8_t subIndex) {
+	uint8_t ws = r8(a, R_CGWSEL), as = r8(a, R_CGADSUB);
+	if (!(as & 0x20)) return back;
+	uint16_t sub;
+	bool fixed = !(ws & 2) || !subIndex;
+	if (!fixed) sub = r16(a, R_PALETTE + subIndex * 2);
+	else sub = (uint16_t) ((r8(a, R_COLDATA) & 31) | (r8(a, R_COLDATA + 1) & 31) << 5 | (r8(a, R_COLDATA + 2) & 31) << 10);
+	int out[3];
+	for (int k = 0; k < 3; ++k) {
+		int m = back >> (5 * k) & 31, s = sub >> (5 * k) & 31;
+		int v = as & 0x80 ? m - s : m + s;
+		/* (halving applies unless the sub screen was its backdrop, the fixed colour) */
+		if ((as & 0x40) && !fixed) v >>= 1;
+		out[k] = v < 0 ? 0 : v > 31 ? 31 : v;
+	}
+	return (uint16_t) (out[0] | out[1] << 5 | out[2] << 10);
+}
+
 static void capture(Alttp* a, const uint8_t* vram) {
 	a->gen += 2;
 	int w = (r8(a, R_AREA) & 0x40) != 0;
 	int cx = r16(a, R_BG2_X), cy = r16(a, R_BG2_Y) + 1; /* line 0 shows row scroll + 1 */
 	bool bg1 = r8(a, R_TM) & 1;
-	uint8_t i2[ALTTP_W], i1[ALTTP_W];
+	bool subBg1 = (r8(a, R_TS) & 1) && (r8(a, R_CGADSUB) & 0x20);
+	int sx = r16(a, R_BG1_X), sy = r16(a, R_BG1_Y) + 1;
+	uint8_t i2[ALTTP_W], i1[ALTTP_W], s1[ALTTP_W];
 	for (int y = 0; y < ALTTP_H; ++y) {
 		int wy = cy + y;
 		if (wy < 0 || wy >= ALTTP_WORLD) continue;
 		bg_row(vram, V_BG2_MAP, cx, wy, ALTTP_W, i2);
 		if (bg1) bg_row(vram, V_BG1_MAP, cx, wy, ALTTP_W, i1);
+		if (subBg1) bg_row(vram, V_BG1_MAP, sx, sy + y, ALTTP_W, s1);
 		for (int x = 0; x < ALTTP_W; ++x) {
 			int wx = cx + x;
 			if (wx < 0 || wx >= ALTTP_WORLD) continue;
 			int i = bg1 && i1[x] ? i1[x] : i2[x];
+			uint16_t col = r16(a, R_PALETTE + i * 2);
+			if (!i) col = backdrop_math(a, col, subBg1 ? s1[x] : 0);
 			uint16_t* c = chunk_for(a, w, wx, wy);
-			if (c) c[(wy % CHUNK) * CHUNK + wx % CHUNK] = (uint16_t) (r16(a, R_PALETTE + i * 2) | 0x8000);
+			if (c) c[(wy % CHUNK) * CHUNK + wx % CHUNK] = (uint16_t) ((col & 0x7FFF) | 0x8000);
 		}
 	}
 	/* whole cells only */
@@ -1179,12 +1220,12 @@ static void goal_sprite(Alttp* a, uint32_t* out, int size, int c, uint8_t attr) 
 
 /* The markers shown now; true if they or their pictures changed */
 static bool goals_update(Alttp* a) {
-	AltGoal g[ALTTP_GOALS];
-	uint8_t chr[ALTTP_GOALS], attr[ALTTP_GOALS];
+	AltGoal g[ALTTP_GOAL_MAX];
+	uint8_t chr[ALTTP_GOAL_MAX], attr[ALTTP_GOAL_MAX];
 	int n = 0, k = r8(a, R_MAP_STAGE), f = r8(a, R_FRAME);
 	bool dark = k >= 6;
 	if (k <= 8 && !(r8(a, R_OW_EVENT_5B) & 0x20) && dark == (a->linkWorld == 1)) {
-		for (int i = 0; i < ALTTP_GOALS; ++i) {
+		for (int i = 0; i < 7; ++i) { /* (the game's 7 goal markers) */
 			int x = rom16(a, GOAL_POSX + i * 0x24 + k * 2), y = rom16(a, GOAL_POSY + i * 0x24 + k * 2);
 			if (x & 0x8000) continue;
 			if (k == 3 && i < 3 && (r8(a, R_PENDANTS) & rom8(a, PENDANT_BITS + i))) continue;
@@ -1206,6 +1247,15 @@ static bool goals_update(Alttp* a) {
 			++n;
 		}
 	}
+	/* the mirror's portal, turning, where Link left the Dark World by the
+	 * mirror (the game's own map shows it in the Light World) */
+	int px = r8(a, R_PORTAL_X) | r8(a, R_PORTAL_X + 0x10) << 8, py = r8(a, R_PORTAL_X + 0x20) | r8(a, R_PORTAL_X + 0x30) << 8;
+	if ((px | py) && a->linkWorld == 0 && n < ALTTP_GOAL_MAX) {
+		AltGoal* o = &g[n];
+		o->x = px, o->y = py, o->size = 16, o->dx = o->dy = -4;
+		chr[n] = 0x6A, attr[n] = rom8(a, PORTAL_PROPS + ((f >> 1) & 3));
+		++n;
+	}
 	uint32_t key = crc32(0, (const Bytef*) g, (uInt) (sizeof g[0] * (size_t) n));
 	key = crc32(key, chr, (uInt) n), key = crc32(key, attr, (uInt) n);
 	key = crc32(key, a->ram + R_PALETTE + 256, 256) ^ (uint32_t) n;
@@ -1219,7 +1269,7 @@ static bool goals_update(Alttp* a) {
 	for (int i = 0; i < n; ++i) {
 		memset(tmp, 0, sizeof tmp);
 		goal_sprite(a, tmp, g[i].size, chr[i], attr[i]);
-		for (int y = 0; y < 16; ++y) memcpy(&a->goalPx[y * ALTTP_GOALS * 16 + i * 16], &tmp[y * 16], 16 * 4);
+		for (int y = 0; y < 16; ++y) memcpy(&a->goalPx[y * ALTTP_GOAL_MAX * 16 + i * 16], &tmp[y * 16], 16 * 4);
 	}
 	return true;
 }
@@ -1242,6 +1292,37 @@ bool alttp_marker_on(const Alttp* a) {
 	return a->markerLink || (r8(a, R_FRAME) & 0x10) != 0;
 }
 
+/* ---- the game's files (ALTTP-2): a file erased on the file screen's
+ * Erase (module $03) or made by its Copy (module $02), seen in the
+ * cartridge RAM: each file is $500 bytes from $500 x (file - 1), valid
+ * while its word at $3E5 is $55AA; a copy is byte for byte its source */
+static void slots_watch(Alttp* a, const uint8_t* sram, uint8_t module) {
+	bool valid[3];
+	for (int k = 0; k < 3; ++k) valid[k] = (sram[k * 0x500 + 0x3E5] | sram[k * 0x500 + 0x3E6] << 8) == 0x55AA;
+	for (int k = 0; k < 3 && a->slotsKnown; ++k) {
+		if (a->nSlotEv >= 8) break;
+		if (a->slotValid[k] && !valid[k] && module == 0x03) {
+			a->slotEv[a->nSlotEv++] = (AltSlotEvent) { ALTTP_FILE_ERASED, k + 1, 0 };
+		} else if (!a->slotValid[k] && valid[k] && module == 0x02) {
+			for (int s = 0; s < 3; ++s) {
+				if (s != k && valid[s] && !memcmp(sram + s * 0x500, sram + k * 0x500, 0x500)) {
+					a->slotEv[a->nSlotEv++] = (AltSlotEvent) { ALTTP_FILE_COPIED, k + 1, s + 1 };
+					break;
+				}
+			}
+		}
+	}
+	memcpy(a->slotValid, valid, sizeof valid);
+	a->slotsKnown = true;
+}
+
+int alttp_take_file_events(Alttp* a, AltSlotEvent* out, int max) {
+	int n = a->nSlotEv < max ? a->nSlotEv : max;
+	memcpy(out, a->slotEv, sizeof out[0] * (size_t) n);
+	a->nSlotEv = 0;
+	return n;
+}
+
 /* ---- once a pass */
 
 int alttp_update(Alttp* a, const uint8_t* wram, const uint8_t* vram, const uint8_t* sram) {
@@ -1251,6 +1332,11 @@ int alttp_update(Alttp* a, const uint8_t* wram, const uint8_t* vram, const uint8
 	uint8_t m = r8(a, R_MODULE);
 	if (m == 0x04) a->namingSeen = true; /* a new file: its record starts empty */
 	if (alttp_playing(a)) a->played = true;
+	if (sram) {
+		int before = a->nSlotEv;
+		slots_watch(a, sram, m);
+		if (a->nSlotEv != before) ch |= ALTTP_FILES;
+	}
 	if (sram && alttp_playing(a)) {
 		int f = sram[0x1FFE] / 2;
 		f = f >= 1 && f <= 3 ? f : 0;
