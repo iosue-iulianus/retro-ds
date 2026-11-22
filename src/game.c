@@ -4757,7 +4757,9 @@ static int native_touch(const Pointer* p) {
 	float kx, ky;
 	native_rect(1 - game_screen(), &kx, &ky);
 	if (kx <= 0 || ky <= 0) return 1;
-	if (abs(p->x - natDownX) > 8 || abs(p->y - natDownY) > 8) natDragMoved = true;
+	/* a tap until the finger has moved 4 SNES pixels (a finger's
+	 * wobble is several screen pixels on a dense screen) */
+	if (fabsf((p->x - natDownX) / kx) > 4 || fabsf((p->y - natDownY) / ky) > 4) natDragMoved = true;
 	if (natDragMoved && !natPage) {
 		/* (the map follows the finger: the view goes the other way) */
 		natVX = natDownVX - (p->x - natDownX) / kx, natVY = natDownVY - (p->y - natDownY) / ky;

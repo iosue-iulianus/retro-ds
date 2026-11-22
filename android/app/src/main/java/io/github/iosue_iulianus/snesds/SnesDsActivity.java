@@ -31,6 +31,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import org.libsdl.app.SDLActivity;
+import org.libsdl.app.SDLSurface;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -70,6 +71,23 @@ public class SnesDsActivity extends SDLActivity {
         return true;
     }
 
+    /**
+     * SDL's surface, its touch handler {@link #onTouch}. SDLSurface makes
+     * itself its own touch listener again on every resume (handleResume),
+     * which undid a listener set on it from here: SDL's positions came
+     * back, mixed with these (a tap's down from one, its up from the
+     * other; a drag jumping between the two).
+     */
+    @Override
+    protected SDLSurface createSDLSurface(Context context) {
+        return new SDLSurface(context) {
+            @Override
+            public boolean onTouch(View v, MotionEvent e) {
+                return SnesDsActivity.this.onTouch(v, e);
+            }
+        };
+    }
+
     private static final String TAG = "SNESDS";
     private SecondScreen second;
 
@@ -106,7 +124,6 @@ public class SnesDsActivity extends SDLActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         LauncherActivity.launchLog(this, mBrokenLibraries ? "native libraries didn't load (SDL shows why)" : "native libraries loaded");
         if (!mBrokenLibraries) openSecondScreen();
-        if (!mBrokenLibraries && mSurface != null) mSurface.setOnTouchListener(this::onTouch);
         IntentFilter f = new IntentFilter(INSTALL_STATUS);
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(installStatus, f, Context.RECEIVER_NOT_EXPORTED);
         else registerReceiver(installStatus, f);
