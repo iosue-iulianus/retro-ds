@@ -5,6 +5,7 @@
 #include "brand.h"
 #include "emu.h"
 #include "mapcap.h"
+#include "smmap.h"
 #include "hotkeys.h"
 #include "paths.h"
 #include "ui.h"
@@ -4529,6 +4530,220 @@ static void load_overlay(int s, int which) {
  * colour picker is open, its colour as it's picked), or in the defaults
  * (a screen without a PNG in Overlays: Custom). Nothing where the picture
  * fills the screen. */
+/* ---- Super Metroid's map, drawn by SNES DS (src/smmap.c; SM-7 to SM-9)
+ * The chrome (frame, name, plate) is a picture like a captured map; the
+ * map's layer and the marker are textures of their own, placed at the
+ * view in screen pixels, so it scrolls smoothly at the display's rate. */
+static SmMap* nat;
+static const MapProfile* natProf;
+static bool natShown;  /* the second screen shows it (else the logo, SM-4) */
+static int natDirty;   /* pictures to upload again (SMMAP_CHROME, SMMAP_LAYER) */
+static SDL_Texture *natChromeTex[2], *natOverTex[2], *natLayerTex[2], *natMarkerTex[2];
+/* The view shown (the game's BG1 scroll, SNES pixels): resting where the
+ * game would open its map (SM-9), gliding there; or the player's, from a
+ * drag (and its fling), until Samus reaches another square (SM-7) */
+static float natVX, natVY, natVelX, natVelY;
+static bool natHaveView, natUser, natDrag, natDragMoved;
+static int natDownX, natDownY;
+static float natDownVX, natDownVY, natPrevX, natPrevY;
+static Uint64 natStepT, natPrevT;
+
+static void native_free(void) {
+	smmap_free(nat);
+	nat = NULL;
+	natProf = NULL;
+	natShown = natHaveView = natUser = natDrag = false;
+	for (int i = 0; i < 2; ++i) {
+		SDL_Texture** t[] = { &natChromeTex[i], &natOverTex[i], &natLayerTex[i], &natMarkerTex[i] };
+		for (int k = 0; k < 4; ++k) {
+			if (*t[k]) SDL_DestroyTexture(*t[k]);
+			*t[k] = NULL;
+		}
+	}
+}
+
+/* The game's profile asks for it: the ROM as played, read again */
+static void native_open(const char* rom, const MapProfile* p) {
+	native_free();
+	if (!p || p->native != NATIVE_SUPER_METROID) return;
+	size_t n = 0;
+	uint8_t* data = emu_rom_read_played(rom, &n, NULL, NULL, NULL);
+	nat = smmap_new(data, n);
+	natProf = nat ? p : NULL;
+	fprintf(stderr, "second screen: %s\n", nat ? "drawn by SNES DS (Super Metroid's map)" : "can't draw Super Metroid's map");
+}
+
+static SDL_Texture* native_texture(int v, int w, int h, SDL_BlendMode blend) {
+	SDL_Texture* t = SDL_CreateTexture(views[v].ren, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, w, h);
+	if (t) SDL_SetTextureBlendMode(t, blend);
+	return t;
+}
+
+static void native_textures(void) {
+	if (!nat) return;
+	for (int i = 0; i < nViews; ++i) {
+		SDL_Texture** t[] = { &natChromeTex[i], &natOverTex[i], &natLayerTex[i], &natMarkerTex[i] };
+		for (int k = 0; k < 4; ++k) {
+			if (*t[k]) SDL_DestroyTexture(*t[k]);
+		}
+		natChromeTex[i] = native_texture(i, SMMAP_W, SMMAP_H, SDL_BLENDMODE_NONE);
+		natOverTex[i] = native_texture(i, SMMAP_W, SMMAP_H, SDL_BLENDMODE_BLEND);
+		natLayerTex[i] = native_texture(i, SMMAP_LW, SMMAP_LH, SDL_BLENDMODE_BLEND);
+		natMarkerTex[i] = native_texture(i, SMMAP_MARKER, SMMAP_MARKER * 3, SDL_BLENDMODE_BLEND);
+	}
+	natDirty = SMMAP_CHROME | SMMAP_LAYER | SMMAP_MARKER_CHANGED;
+}
+
+static void native_upload(void) {
+	for (int i = 0; i < nViews && natDirty; ++i) {
+		if (natDirty & SMMAP_CHROME) {
+			if (natChromeTex[i]) ui_update_texture(natChromeTex[i], smmap_chrome(nat), SMMAP_W * 4);
+			if (natOverTex[i]) ui_update_texture(natOverTex[i], smmap_over(nat), SMMAP_W * 4);
+		}
+		if ((natDirty & SMMAP_LAYER) && natLayerTex[i]) ui_update_texture(natLayerTex[i], smmap_layer(nat), SMMAP_LW * 4);
+		if ((natDirty & SMMAP_MARKER_CHANGED) && natMarkerTex[i]) ui_update_texture(natMarkerTex[i], smmap_markers(nat), SMMAP_MARKER * 4);
+	}
+	natDirty = 0;
+}
+
+/* After the frames of a pass of the loop: the game's RAM read again */
+static void native_tick(void) {
+	size_t n = 0;
+	const uint8_t* w = emu_memory(&emu, EMU_MEM_WRAM, &n);
+	if (!w || n < 0x20000) return;
+	int ch = smmap_update(nat, w);
+	natDirty |= ch & (SMMAP_CHROME | SMMAP_LAYER);
+	if (smmap_live(nat)) {
+		if (!natShown) natShown = true, natHaveView = false, natUser = false;
+	} else if (smmap_in_menu(nat)) {
+		natShown = false; /* SM-4: the logo */
+	}
+	/* SM-7: Samus on another square puts the map back where it rests */
+	if ((ch & SMMAP_SQUARE) && natUser && !natDrag) natUser = false, natVelX = natVelY = 0;
+	/* SM-6, while the map is up */
+	hudHide = natShown && natProf->hide[0].w > 0 && cfg->map && memprobes_match(natProf->hideIf, 3, &emu);
+	native_upload();
+}
+
+/* The chrome's place on screen s, and its scale */
+static SDL_Rect native_rect(int s, float* kx, float* ky) {
+	SDL_Rect img = ui_image_rect(s, SMMAP_W, SMMAP_H, cfg->mapScale);
+	*kx = img.w / (float) SMMAP_W, *ky = img.h / (float) SMMAP_H;
+	return img;
+}
+
+static void native_clamp(float* vx, float* vy, bool stopX[1], bool stopY[1]) {
+	int x0, x1, y0, y1;
+	smmap_limits(nat, &x0, &x1, &y0, &y1);
+	float cx = SDL_clamp(*vx, (float) x0, (float) x1), cy = SDL_clamp(*vy, (float) y0, (float) y1);
+	if (stopX) *stopX = cx != *vx;
+	if (stopY) *stopY = cy != *vy;
+	*vx = cx, *vy = cy;
+}
+
+/* Once a drawn frame: the view moves on (a glide home, a fling) */
+static void native_step(void) {
+	Uint64 now = SDL_GetPerformanceCounter();
+	float dt = natStepT ? (float) ((double) (now - natStepT) / SDL_GetPerformanceFrequency()) : 0;
+	natStepT = now;
+	dt = SDL_min(dt, 0.1f);
+	int hx, hy;
+	smmap_home(nat, &hx, &hy);
+	if (!natHaveView) natVX = (float) hx, natVY = (float) hy, natHaveView = true;
+	if (natDrag) return; /* (the finger holds it) */
+	if (natUser) {
+		/* a fling: slowing down, stopped at the map's limits */
+		if (natVelX == 0 && natVelY == 0) return;
+		natVX += natVelX * dt, natVY += natVelY * dt;
+		float slow = expf(-dt / 0.35f);
+		natVelX *= slow, natVelY *= slow;
+		bool sx, sy;
+		native_clamp(&natVX, &natVY, &sx, &sy);
+		if (sx || fabsf(natVelX) < 4) natVelX = 0;
+		if (sy || fabsf(natVelY) < 4) natVelY = 0;
+		return;
+	}
+	/* gliding to where the map rests (SM-9) */
+	float a = 1 - expf(-dt / 0.09f);
+	natVX += (hx - natVX) * a, natVY += (hy - natVY) * a;
+	if (fabsf(hx - natVX) < 0.02f) natVX = (float) hx;
+	if (fabsf(hy - natVY) < 0.02f) natVY = (float) hy;
+}
+
+/* The second screen: the chrome, then through its window the map's layer
+ * (repeated, as the SNES's is), the marker, and the frame's edge over them */
+static void draw_native(int s) {
+	float kx, ky;
+	SDL_Rect img = native_rect(s, &kx, &ky);
+	ui_image_pixels(s, natChromeTex, SMMAP_W, SMMAP_H, cfg->mapScale, SHADER_ON);
+	int wx0 = img.x + (int) lroundf(SMMAP_WIN_X * kx), wx1 = img.x + (int) lroundf((SMMAP_WIN_X + SMMAP_WIN_W) * kx);
+	int wy0 = img.y + (int) lroundf(SMMAP_WIN_Y * ky), wy1 = img.y + (int) lroundf((SMMAP_WIN_Y + SMMAP_WIN_H) * ky);
+	SDL_Rect clip = { wx0 + screens[s].rect.x, wy0 + screens[s].rect.y, wx1 - wx0, wy1 - wy0 };
+	ui_clip(s, &clip);
+	/* the layer's top left: chrome line y shows map row y + SMMAP_Y0 + view y + 1 */
+	int bx = img.x + (int) lroundf(-natVX * kx), by = img.y + (int) lroundf(-(natVY + SMMAP_Y0 + 1) * ky);
+	int lw = (int) lroundf(SMMAP_LW * kx), lh = (int) lroundf(SMMAP_LH * ky);
+	if (lw > 0 && lh > 0) {
+		int x0 = bx - (int) ceilf((bx - wx0) / (float) lw) * lw, y0 = by - (int) ceilf((by - wy0) / (float) lh) * lh;
+		for (int y = y0; y < wy1; y += lh) {
+			for (int x = x0; x < wx1; x += lw) ui_image_part(s, natLayerTex, (SDL_Rect) { 0, 0, SMMAP_LW, SMMAP_LH }, (SDL_Rect) { x, y, lw, lh });
+		}
+	}
+	/* the marker, in the layer's pixels */
+	int lx, ly, mx, my;
+	smmap_place(nat, 0, 0, &lx, &ly, &mx, &my);
+	int f = smmap_marker_frame(nat);
+	SDL_Rect md = { bx + (int) lroundf((mx - lx) * kx), by + (int) lroundf((my - ly) * ky), (int) lroundf(SMMAP_MARKER * kx), (int) lroundf(SMMAP_MARKER * ky) };
+	ui_image_part(s, natMarkerTex, (SDL_Rect) { 0, f * SMMAP_MARKER, SMMAP_MARKER, SMMAP_MARKER }, md);
+	ui_image_part(s, natOverTex, (SDL_Rect) { 0, 0, SMMAP_W, SMMAP_H }, img);
+	ui_clip(s, NULL);
+}
+
+/* A touch on the second screen (SM-7): a drag moves the map with the
+ * finger, a fling carries on; a tap on the plate switches the page
+ * (SM-10, to come). Never the menu. */
+static int native_touch(const Pointer* p) {
+	if (!cfg->map || nScreens != 2) return 0;
+	if (p->screen == game_screen() && !(natDrag && p->kind != 1)) return 0;
+	Uint64 now = SDL_GetPerformanceCounter();
+	if (p->kind == 1) {
+		natDrag = natShown;
+		natDragMoved = false;
+		natDownX = p->x, natDownY = p->y;
+		natDownVX = natVX, natDownVY = natVY;
+		natPrevX = (float) p->x, natPrevY = (float) p->y, natPrevT = now;
+		natVelX = natVelY = 0;
+		return 1;
+	}
+	if (!natDrag) return 1;
+	float kx, ky;
+	native_rect(1 - game_screen(), &kx, &ky);
+	if (kx <= 0 || ky <= 0) return 1;
+	if (abs(p->x - natDownX) > 8 || abs(p->y - natDownY) > 8) natDragMoved = true;
+	if (natDragMoved) {
+		/* (the map follows the finger: the view goes the other way) */
+		natVX = natDownVX - (p->x - natDownX) / kx, natVY = natDownVY - (p->y - natDownY) / ky;
+		native_clamp(&natVX, &natVY, NULL, NULL);
+		natUser = true;
+		double dt = (double) (now - natPrevT) / SDL_GetPerformanceFrequency();
+		if (dt > 0.004) {
+			/* the finger's speed, smoothed (SNES pixels a second, the view's way) */
+			float vx = -(p->x - natPrevX) / kx / (float) dt, vy = -(p->y - natPrevY) / ky / (float) dt;
+			natVelX = natVelX * 0.5f + vx * 0.5f, natVelY = natVelY * 0.5f + vy * 0.5f;
+			natPrevX = (float) p->x, natPrevY = (float) p->y, natPrevT = now;
+		}
+	}
+	if (p->kind != 2) return 1;
+	natDrag = false;
+	if (natDragMoved) {
+		/* a finger that stopped before lifting: no fling */
+		if ((double) (now - natPrevT) / SDL_GetPerformanceFrequency() > 0.08) natVelX = natVelY = 0;
+		natStepT = 0;
+		if (debug) fprintf(stderr, "map view: %.1f,%.1f, fling %.0f,%.0f\n", natVX, natVY, natVelX, natVelY);
+	}
+	return 1;
+}
+
 /* The profile, when the second screen takes touch (SM-7) */
 static const MapProfile* touch_prof(void) {
 	const MapProfile* p = mc ? mapcap_profile(mc) : NULL;
@@ -4594,6 +4809,7 @@ static void map_reshow(void) {
  * the profile's plate switches the page; never the menu. 0: not the
  * second screen's; 1: taken; 2: taken, and the view changed (capture). */
 static int map_touch(const Pointer* p) {
+	if (nat) return native_touch(p);
 	const MapProfile* tp = touch_prof();
 	if (!tp || (p->screen == game_screen() && !(mapDrag && p->kind != 1))) return 0;
 	if (p->kind == 1) {
@@ -4662,7 +4878,7 @@ static void draw_drag_preview(int s) {
 
 /* The profile's hide rectangles (SM-6), black over the game's picture */
 static void draw_hud_hide(int s) {
-	const MapProfile* p = mc ? mapcap_profile(mc) : NULL;
+	const MapProfile* p = mc ? mapcap_profile(mc) : natProf;
 	if (!hudHide || !p || picW <= 0 || picH <= 0) return;
 	SDL_Rect img = ui_image_rect(s, picW, picH, cfg->scale);
 	for (int i = 0; i < 2 && p->hide[i].w > 0; ++i) {
@@ -4746,7 +4962,7 @@ static void draw_osd(void) {
 	if (!osd || menuOpen || shotPending || barShown > 0) return; /* (the quick bar shows it) */
 	int s = ui_touch_screen();
 	SDL_Rect r = screens[s].rect;
-	bool gameHere = nScreens == 1 || s == game_screen() || !((mc || logoOnly) && cfg->map);
+	bool gameHere = nScreens == 1 || s == game_screen() || !((mc || nat || logoOnly) && cfg->map);
 	SDL_Rect img = ui_image_rect(s, picW, picH, gameHere ? cfg->scale : cfg->mapScale);
 	int gap = r.h - (img.y + img.h);
 	int fpx = small_text_px(s, img.y < gap ? img.y : gap);
@@ -4852,7 +5068,8 @@ static void make_logo_canvas(void) {
 }
 
 static void draw_game(void) {
-	bool mapOn = (mc || logoOnly) && cfg->map; /* logo-only games: the logo stands in for the map */
+	bool mapOn = (mc || nat || logoOnly) && cfg->map; /* logo-only games: the logo stands in for the map */
+	if (nat && natShown) native_step();
 	for (int s = 0; s < nScreens; ++s) {
 		bool showGame = nScreens == 1 ? !(singleShowsMap && mapOn) : (s == game_screen() || !mapOn);
 		SDL_Rect r = screens[s].rect;
@@ -4880,7 +5097,10 @@ static void draw_game(void) {
 			continue;
 		}
 		/* the map screen */
-		if (mapShownIdx >= 0 && !logoForced) {
+		if (nat && natShown) {
+			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
+			draw_native(s);
+		} else if (mapShownIdx >= 0 && !logoForced) {
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			ui_image_pixels(s, mapTex, mapW, mapH, cfg->mapScale, SHADER_ON);
 			draw_drag_preview(s);
@@ -5278,8 +5498,10 @@ static void ss_setup(const char* rom, const char* code) {
 #ifdef __ANDROID__
 		android_set_pinning(cfg->pinCores);
 #endif
-		mc = mapcap_create(rom, code, true);
 		const MapProfile* lp = profile_find(code);
+		native_open(rom, lp);
+		mc = nat ? NULL : mapcap_create(rom, code, true);
+		if (nat) mapW = SMMAP_W, mapH = SMMAP_H;
 		logoOnly = lp && lp->logoOnly;
 		snapProf = logoOnly && lp->snap.showMin ? lp : NULL;
 		snapShow = snapRevert = 0;
@@ -5288,7 +5510,7 @@ static void ss_setup(const char* rom, const char* code) {
 		if (mc) {
 			fprintf(stderr, "map profile: %s\n", mapcap_title(mc));
 			mapcap_size(mc, &mapW, &mapH);
-		} else if (!logoOnly) {
+		} else if (!logoOnly && !nat) {
 			fprintf(stderr, "no map profile for %s\n", code);
 		}
 	}
@@ -5301,6 +5523,7 @@ static void ss_textures(void) {
 		mapTex[i] = SDL_CreateTexture(views[i].ren, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, mapW, mapH);
 		SDL_SetTextureBlendMode(mapTex[i], SDL_BLENDMODE_NONE);
 	}
+	native_textures();
 }
 
 /* After the device sleeps (or the renderer is reset), the GPU's copies of
@@ -6592,6 +6815,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			}
 		}
 
+		if (nat) native_tick();
 		if (snapProf) update_snapshot();
 
 		Uint64 drawT0 = SDL_GetPerformanceCounter();
@@ -6759,6 +6983,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	if (audioConv) SDL_FreeAudioStream(audioConv);
 	mapcap_destroy(mc);
 	mc = NULL;
+	native_free();
 	emu_rewind_deinit();
 	emu_close(&emu); /* flushes the battery save */
 	for (int i = 0; i < MAP_MAX_FRAMES; ++i) {

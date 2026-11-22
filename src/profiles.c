@@ -15,6 +15,11 @@ static const MapProfile profiles[] = {
 	{
 		.codes = { "D63ED5F8" }, /* Japan and USA (one ROM) */
 		.title = "Super Metroid",
+		/* SM-8: the map drawn from the cartridge and the RAM. The
+		 * capture settings below (crop, probes, touch, paint...) are
+		 * what it replaced: not used while it's on, kept until the
+		 * equipment page is drawn too */
+		.native = NATIVE_SUPER_METROID,
 		.open = { { K_START, 4 } },
 		.settleMax = 180, .openWithin = 120,
 		.stableFrames = 8, .maxDiff = 150, /* Samus's marker blinks */

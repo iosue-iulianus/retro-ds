@@ -189,6 +189,11 @@ typedef struct MapProfile {
 	/* (STILL_RED: a spot with red in it at its reddest, others at their
 	 * brightest: a marker that fades red to white) */
 	enum { STILL_BRIGHT, STILL_COVER, STILL_FIRST, STILL_RED } stillPick;
+	/* The second screen drawn by SNES DS itself from the cartridge and
+	 * the game's RAM, instead of captured: NATIVE_SUPER_METROID, its
+	 * pause map (src/smmap.c, SM-8). No hidden copy runs; the profile's
+	 * hide / hideIf (and touch.tap, the plates) still apply. */
+	enum { NATIVE_NONE, NATIVE_SUPER_METROID } native;
 	/* Instead of opening a map: the profile builds the second screen's
 	 * picture itself (crop_w x crop_h, into out) on the shadow core from
 	 * the live game's state; NULL on success, else why not. */

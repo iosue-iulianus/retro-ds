@@ -425,6 +425,14 @@ const uint32_t* smmap_layer(const SmMap* m) {
 	return m->layer;
 }
 
+const uint32_t* smmap_markers(const SmMap* m) {
+	return m->marker[0];
+}
+
+int smmap_marker_frame(const SmMap* m) {
+	return m->markerFrame < 0 ? 0 : m->markerFrame;
+}
+
 const uint32_t* smmap_marker(const SmMap* m) {
 	return m->marker[m->markerFrame < 0 ? 0 : m->markerFrame];
 }

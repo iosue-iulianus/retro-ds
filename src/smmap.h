@@ -58,6 +58,10 @@ const uint32_t* smmap_over(const SmMap* m);
 const uint32_t* smmap_layer(const SmMap* m);
 /* The marker's picture now (SMMAP_MARKER square) */
 const uint32_t* smmap_marker(const SmMap* m);
+/* All three of the marker's pictures, one under the other (SMMAP_MARKER
+ * wide, 3 x SMMAP_MARKER high), and which one shows now */
+const uint32_t* smmap_markers(const SmMap* m);
+int smmap_marker_frame(const SmMap* m);
 
 /* The view the game's pause screen would open on (SM-9) */
 void smmap_home(const SmMap* m, int* vx, int* vy);
