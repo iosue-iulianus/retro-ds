@@ -4807,7 +4807,11 @@ static int altPage;     /* 0 the items screen, 1 the map (ALTTP-1) */
 static int altZoom = 1; /* world pixels a shown pixel (ALTTP-3) */
 static bool altXDown;
 static bool altItemsDirty, altMapDirty;
-static SDL_Texture *altItemsTex[2], *altMapTex[2], *altMarkerTex[2];
+static SDL_Texture *altItemsTex[2], *altMapTex[2], *altMarkerTex[2], *altDunTex[2];
+/* ALTTP-6: the floor shown at the top of the dungeon map (as the game
+ * opens it until the player picks one; back to that when Link changes
+ * floor), and Link's floor when it was picked */
+static int altFloor = ALTTP_FLOOR_AS_GAME, altFloorLink;
 static uint32_t altMapPx[ALT_TW * ALT_TH];
 static int altMapX = INT_MIN, altMapY, altMapZoom, altMapWorld; /* what altMapPx holds */
 /* The view (the map's top left, world pixels): on Link, or the player's
@@ -4840,10 +4844,10 @@ static void alt_free(void) {
 	alttp_free(alt);
 	alt = NULL;
 	altShown = altHaveView = altUser = altDrag = false;
-	altPage = 0, altFile = 0, altMapX = INT_MIN;
+	altPage = 0, altFile = 0, altMapX = INT_MIN, altFloor = ALTTP_FLOOR_AS_GAME;
 	for (int i = 0; i < 2; ++i) {
-		SDL_Texture** t[] = { &altItemsTex[i], &altMapTex[i], &altMarkerTex[i] };
-		for (int k = 0; k < 3; ++k) {
+		SDL_Texture** t[] = { &altItemsTex[i], &altMapTex[i], &altMarkerTex[i], &altDunTex[i] };
+		for (int k = 0; k < 4; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 			*t[k] = NULL;
 		}
@@ -4860,11 +4864,12 @@ static void alt_open(const char* rom) {
 static void alt_textures(void) {
 	if (!alt) return;
 	for (int i = 0; i < nViews; ++i) {
-		SDL_Texture** t[] = { &altItemsTex[i], &altMapTex[i], &altMarkerTex[i] };
-		for (int k = 0; k < 3; ++k) {
+		SDL_Texture** t[] = { &altItemsTex[i], &altMapTex[i], &altMarkerTex[i], &altDunTex[i] };
+		for (int k = 0; k < 4; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 		}
 		altItemsTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
+		altDunTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
 		altMapTex[i] = native_texture(i, ALT_TW, ALT_TH, SDL_BLENDMODE_NONE);
 		altMarkerTex[i] = native_texture(i, 32, 32, SDL_BLENDMODE_BLEND);
 	}
@@ -4918,6 +4923,18 @@ static void alt_tick(void) {
 	Uint64 now = SDL_GetPerformanceCounter();
 	if (!altSavedT) altSavedT = now;
 	if ((double) (now - altSavedT) / SDL_GetPerformanceFrequency() > 60) altSavedT = now, alt_save_seen();
+	/* ALTTP-5: the dungeon map, while it's shown (it blinks as the game's) */
+	if (altPage == 1 && alttp_in_dungeon(alt)) {
+		int lo, hi, link;
+		if (alttp_dungeon_floors(alt, &lo, &hi, &link) && altFloor != ALTTP_FLOOR_AS_GAME && link != altFloorLink)
+			altFloor = ALTTP_FLOOR_AS_GAME; /* ALTTP-6: Link changed floor */
+		const uint32_t* px = alttp_dungeon_map(alt, v && vn >= 0x10000 ? v : NULL, altFloor);
+		for (int i = 0; i < nViews && px; ++i) {
+			if (altDunTex[i]) ui_update_texture(altDunTex[i], px, ALTTP_W * 4);
+		}
+	} else if (!alttp_in_dungeon(alt)) {
+		altFloor = ALTTP_FLOOR_AS_GAME;
+	}
 	if (altItemsDirty) {
 		for (int i = 0; i < nViews; ++i) {
 			if (altItemsTex[i]) ui_update_texture(altItemsTex[i], alttp_items(alt), ALTTP_W * 4);
@@ -4989,7 +5006,8 @@ static void draw_alt_map(int s) {
 }
 
 static void draw_alt(int s) {
-	if (altPage == 1) draw_alt_map(s);
+	if (altPage == 1 && alttp_in_dungeon(alt)) ui_image_pixels(s, altDunTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON);
+	else if (altPage == 1) draw_alt_map(s);
 	else ui_image_pixels(s, altItemsTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON);
 }
 
@@ -5022,6 +5040,16 @@ static void alt_tap(int x, int y) {
 	if (kx <= 0 || ky <= 0) return;
 	int cx = (int) floorf((x - img.x) / kx), cy = (int) floorf((y - img.y) / ky);
 	if (cx < 0 || cy < 0 || cx >= ALTTP_W || cy >= ALTTP_H) return;
+	if (altPage == 1 && alttp_in_dungeon(alt)) {
+		/* ALTTP-6: a floor in the list shown at the top, as Up and Down do */
+		int f = alttp_dungeon_floor_at(alt, cx, cy), lo, hi, link;
+		if (f != ALTTP_FLOOR_AS_GAME && alttp_dungeon_floors(alt, &lo, &hi, &link)) {
+			altFloor = f == link ? ALTTP_FLOOR_AS_GAME : f;
+			altFloorLink = link;
+			fprintf(stderr, "dungeon map: floor %d\n", f);
+		}
+		return;
+	}
 	if (altPage == 1) {
 		/* keep what's in the middle in the middle */
 		float mx = altVX + ALTTP_W * altZoom / 2.0f, my = altVY + ALTTP_H * altZoom / 2.0f;
@@ -5064,7 +5092,7 @@ static int alt_touch(const Pointer* p) {
 	alt_rect(1 - game_screen(), &kx, &ky);
 	if (kx <= 0 || ky <= 0) return 1;
 	if (fabsf((p->x - altDownX) / kx) > 4 || fabsf((p->y - altDownY) / ky) > 4) altDragMoved = true;
-	if (altDragMoved && altPage == 1) {
+	if (altDragMoved && altPage == 1 && !alttp_in_dungeon(alt)) {
 		altVX = altDownVX - (p->x - altDownX) / kx * altZoom, altVY = altDownVY - (p->y - altDownY) / ky * altZoom;
 		alt_clamp(&altVX, &altVY);
 		altUser = true;
@@ -5079,6 +5107,18 @@ static int alt_touch(const Pointer* p) {
 	altDrag = false;
 	if (!altDragMoved) {
 		if (altTapOk) alt_tap(p->x, p->y);
+		return 1;
+	}
+	if (altPage == 1 && alttp_in_dungeon(alt)) {
+		/* ALTTP-6: a swipe down shows the floor above, up the one below */
+		int lo, hi, link;
+		if (alttp_dungeon_floors(alt, &lo, &hi, &link) && hi > lo && fabsf((p->y - altDownY) / ky) > 24) {
+			int top = altFloor == ALTTP_FLOOR_AS_GAME ? (link == lo ? lo + 1 : link) : altFloor;
+			top += p->y > altDownY ? 1 : -1;
+			top = SDL_clamp(top, lo + 1, hi);
+			altFloor = top, altFloorLink = link;
+			fprintf(stderr, "dungeon map: floor %d at the top\n", top);
+		}
 		return 1;
 	}
 	if (altPage == 1) {
@@ -5415,7 +5455,7 @@ static void make_logo_canvas(void) {
 static void draw_game(void) {
 	bool mapOn = (mc || nat || alt || logoOnly) && cfg->map; /* logo-only games: the logo stands in for the map */
 	if (nat && natShown) native_step();
-	if (alt && altShown && altPage == 1) alt_step();
+	if (alt && altShown && altPage == 1 && !alttp_in_dungeon(alt)) alt_step();
 	for (int s = 0; s < nScreens; ++s) {
 		bool showGame = nScreens == 1 ? !(singleShowsMap && mapOn) : (s == game_screen() || !mapOn);
 		SDL_Rect r = screens[s].rect;
