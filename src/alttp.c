@@ -143,6 +143,8 @@ struct Alttp {
 	uint32_t dirPx[4][32 * 32];
 	uint32_t dirKey[4];
 	uint8_t dirHave[4];
+	uint32_t livePx[32 * 32], liveKey; /* as he is now, walking or standing */
+	bool wasBusy;
 	int shownDir, stoodDir, lastDir; /* the way he stood still the update before (-1 not), the way he faced */
 	/* the sprite list's copy as it was the frame before ($1A, frame) and
 	 * this frame: the picture (and the tiles in video RAM) go with the
@@ -1198,6 +1200,10 @@ static void draw_sprite(const Alttp* a, uint32_t* out, const uint8_t* vram, int 
 #define LINK_SLOTS 12
 static bool link_take(Alttp* a, const uint8_t* vram, const uint8_t* list, int first, int n, const int* x, const int* y,
                       const bool* shown, int body, int d, bool standing);
+static uint32_t link_key(const Alttp* a, const uint8_t* vram, const uint8_t* list, int first, int n, const int* x, const int* y,
+                         const bool* shown, int body);
+static void link_draw(const Alttp* a, const uint8_t* vram, const uint8_t* list, int first, int n, const int* x, const int* y,
+                      const bool* shown, int body, uint32_t* pic);
 
 static bool link_marker(Alttp* a, const uint8_t* vram) {
 	/* the copy the shown picture was made from, if the update before
@@ -1221,28 +1227,41 @@ static bool link_marker(Alttp* a, const uint8_t* vram) {
 		shown[i] = o[2] < 0x20 && !(o[3] & 1) && y[i] < 0xE0 && x[i] > -16 && x[i] < 256;
 		if (shown[i] && o[2] == 0x02 && (hi & 2) && body < 0) body = i;
 	}
-	/* ALTTP-4: not animated, only turned: a picture of him for each way he
-	 * faces, taken while he stands still (nothing in hand, no sword out),
-	 * else the first seen that way until then */
+	/* ALTTP-4: as he is while he walks or stands (his gear, his tunic
+	 * too), but not while he swings his sword or uses an item: then his
+	 * picture standing that way (taken while he stands still, else the
+	 * first seen that way) */
 	int d = (r8(a, R_FACING) >> 1) & 3;
-	bool standing = !r8(a, 0x27) && !r8(a, 0x28) && !r8(a, 0x2E) && !r8(a, 0x3A) && !r8(a, 0x5D) && !r8(a, 0x4D) &&
-	                !r8(a, 0x0301) && !r8(a, 0x0308) && !r8(a, 0x037A) && !r8(a, 0x02DA);
-	/* (still for two frames the same way: the sprite list is the frame
-	 * before's, the RAM this frame's) */
-	bool still = standing && a->stoodDir == d, held = a->lastDir == d;
-	a->stoodDir = standing ? d : -1, a->lastDir = d;
-	bool changed = false;
-	if (body >= 0 && (still || (held && !a->dirHave[d]))) changed = link_take(a, vram, list, first, n, x, y, shown, body, d, still);
-	if (!a->dirHave[d] || (!changed && d == a->shownDir && a->markerLink)) return false;
-	memcpy(a->marker, a->dirPx[d], sizeof a->marker);
-	a->shownDir = d, a->markerLink = true;
+	uint8_t handler = r8(a, 0x5D); /* 0 on foot, 4 swimming, $17 a bunny */
+	bool busy = r8(a, 0x3A) || r8(a, 0x4D) || r8(a, 0x0301) || r8(a, 0x0308) || r8(a, 0x037A) || r8(a, 0x02DA) ||
+	            (handler != 0x00 && handler != 0x04 && handler != 0x17);
+	bool standing = !busy && !r8(a, 0x27) && !r8(a, 0x28) && !r8(a, 0x2E);
+	/* (the same for two frames: the sprite list is the frame before's,
+	 * the RAM this frame's) */
+	bool still = standing && a->stoodDir == d, held = a->lastDir == d, wasBusy = a->wasBusy;
+	a->stoodDir = standing ? d : -1, a->lastDir = d, a->wasBusy = busy;
+	if (body >= 0 && (still || (held && !wasBusy && !a->dirHave[d]))) link_take(a, vram, list, first, n, x, y, shown, body, d, still);
+	const uint32_t* show = NULL;
+	if (body >= 0 && held && !busy && !wasBusy) {
+		/* walking or standing: as on the screen */
+		uint32_t k = link_key(a, vram, list, first, n, x, y, shown, body);
+		if (k != a->liveKey) link_draw(a, vram, list, first, n, x, y, shown, body, a->livePx), a->liveKey = k;
+		show = a->livePx;
+	} else if (a->dirHave[d] && (busy || !held)) {
+		show = a->dirPx[d];
+	}
+	if (!show || (a->markerLink && !memcmp(a->marker, show, sizeof a->marker))) return false;
+	memcpy(a->marker, show, sizeof a->marker);
+	a->markerLink = true;
 	return true;
 }
 
 /* Link's picture for way d from this frame's sprites (if it differs from
  * the one kept); true if it changed */
-static bool link_take(Alttp* a, const uint8_t* vram, const uint8_t* list, int first, int n, const int* x, const int* y,
-                      const bool* shown, int body, int d, bool standing) {
+/* what Link's picture is made from: his tiles, the sprite palettes, his
+ * sprites' places round his body */
+static uint32_t link_key(const Alttp* a, const uint8_t* vram, const uint8_t* list, int first, int n, const int* x, const int* y,
+                         const bool* shown, int body) {
 	uint32_t k = crc32(0, vram + V_OBJ_CHR * 2, 0x400);
 	k = crc32(k, a->ram + R_PALETTE + 128 * 2, 256);
 	for (int i = 0; i < n; ++i) {
@@ -1251,13 +1270,12 @@ static bool link_take(Alttp* a, const uint8_t* vram, const uint8_t* list, int fi
 		uint8_t e[5] = { o[2], o[3], (uint8_t) (x[i] - x[body]), (uint8_t) (y[i] - y[body]), list[R_OAM_HIGH - R_OAM + first + i] & 2 };
 		k = crc32(k, e, sizeof e);
 	}
-	k |= 1;
-	if (a->dirHave[d] && k == a->dirKey[d]) {
-		if (standing) a->dirHave[d] = 2;
-		return false;
-	}
-	a->dirKey[d] = k, a->dirHave[d] = standing ? 2 : 1;
-	uint32_t* pic = a->dirPx[d];
+	return k | 1;
+}
+
+/* Link's picture (32 x 32) from this frame's sprites */
+static void link_draw(const Alttp* a, const uint8_t* vram, const uint8_t* list, int first, int n, const int* x, const int* y,
+                      const bool* shown, int body, uint32_t* pic) {
 	for (int i = 0; i < 32 * 32; ++i) pic[i] = 0;
 	/* the body's top left where it is round Link's middle (alttp_link):
 	 * 8 pixels right of Link's x and a line below y + 8; the first slots
@@ -1269,6 +1287,18 @@ static bool link_take(Alttp* a, const uint8_t* vram, const uint8_t* list, int fi
 		if (list[R_OAM_HIGH - R_OAM + first + i] & 2) draw_sprite(a, pic, vram, 16, o[2], o[3], mx, my);
 		else draw_sprite(a, pic, vram, 8, o[2], o[3], mx, my);
 	}
+}
+
+/* His picture for way d taken again if it differs from the one kept */
+static bool link_take(Alttp* a, const uint8_t* vram, const uint8_t* list, int first, int n, const int* x, const int* y,
+                      const bool* shown, int body, int d, bool standing) {
+	uint32_t k = link_key(a, vram, list, first, n, x, y, shown, body);
+	if (a->dirHave[d] && k == a->dirKey[d]) {
+		if (standing) a->dirHave[d] = 2;
+		return false;
+	}
+	a->dirKey[d] = k, a->dirHave[d] = standing ? 2 : 1;
+	link_draw(a, vram, list, first, n, x, y, shown, body, a->dirPx[d]);
 	return true;
 }
 
