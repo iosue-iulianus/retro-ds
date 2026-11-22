@@ -92,7 +92,7 @@ public class SnesDsActivity extends SDLActivity {
             nativeLog(String.format(java.util.Locale.ROOT,
                     "touch event (%s): %s x %.1f y %.1f raw %.1f,%.1f view %dx%d at %d,%d display %d device %d (%s) source 0x%x pointers %d id0 %d tool %d history %d%s",
                     which, what, x, y, e.getRawX(), e.getRawY(), v.getWidth(), v.getHeight(),
-                    at[0], at[1], v.getDisplay() != null ? v.getDisplay().getDisplayId() : -1, e.getDeviceId(), e.getDevice() != null ? e.getDevice().getName() : "?",
+                    at[0], at[1], e.getDisplayId(), e.getDeviceId(), e.getDevice() != null ? e.getDevice().getName() : "?",
                     e.getSource(), e.getPointerCount(), e.getPointerId(0), e.getToolType(0), e.getHistorySize(),
                     e.getPointerCount() > 1 ? String.format(java.util.Locale.ROOT, " pointer 1: id %d at %.1f,%.1f", e.getPointerId(1), e.getX(1), e.getY(1)) : ""));
         } catch (UnsatisfiedLinkError ignored) {
