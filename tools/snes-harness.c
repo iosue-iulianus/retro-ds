@@ -229,10 +229,12 @@ static void alttp_cmd(Emu* e, const char* romPath, const char* line) {
 		/* (zoom, x, y: the world, the piece, the level) */
 		int n = ALTTP_PIECE >> (y < 0 ? 0 : y > 4 ? 4 : y);
 		uint32_t* px = malloc((size_t) ALTTP_PIECE * ALTTP_PIECE * 4);
+		double t0 = now_ms();
 		if (px) alttp_piece(alt, zoom, x, y, px);
+		double t1 = now_ms();
 		out_path(path, sizeof path, name, ".png");
 		bool ok = px && write_png(path, px, n, n, n);
-		printf("alttp piece %s (version %u): %s\n", path, alttp_piece_version(alt, zoom, x), ok ? "ok" : "FAILED");
+		printf("alttp piece %s (version %u, %.1f ms): %s\n", path, alttp_piece_version(alt, zoom, x), t1 - t0, ok ? "ok" : "FAILED");
 		free(px);
 	} else if (!strcmp(sub, "marker")) {
 		alt_update(e);

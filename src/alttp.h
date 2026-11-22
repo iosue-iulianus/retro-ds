@@ -22,7 +22,7 @@
 #define ALTTP_PIECE 512 /* the map is kept in pieces of 512 x 512 world pixels */
 #define ALTTP_PIECES (ALTTP_WORLD / ALTTP_PIECE) /* a row of them */
 #define ALTTP_SKY_W 512 /* the clouds' picture (the fog), repeated */
-#define ALTTP_SKY_H 80
+#define ALTTP_SKY_H 256
 
 typedef struct Alttp Alttp;
 
@@ -76,12 +76,20 @@ void alttp_compose(const Alttp* a, int world, int zoom, int vx, int vy, int w, i
 /* The map in pieces, for drawing it on the GPU: piece i (row by row,
  * ALTTP_PIECES a row) of `world` at level L (each pixel 2^L x 2^L world
  * pixels, averaged), (ALTTP_PIECE >> L) squared pixels into out; what
- * hasn't been seen transparent (partly, where a pixel was partly seen).
+ * hasn't been seen transparent (partly, where a pixel was partly seen),
+ * the fog's edge over the ground by it (the clouds' puffs) and fading out
+ * from it.
  * alttp_piece_version: changes whenever the piece does; 0 while there's
  * nothing in it. alttp_sky: the clouds shown where nothing is seen,
  * ALTTP_SKY_W x ALTTP_SKY_H, in the world's own colours. */
 uint32_t alttp_piece_version(const Alttp* a, int world, int i);
 void alttp_piece(const Alttp* a, int world, int i, int level, uint32_t* out);
+/* The same in two steps, to make it on another thread: alttp_piece_job
+ * copies what the piece is made from (NULL: no memory; free() it), then
+ * alttp_piece_make makes it from the copy alone (any thread). */
+typedef struct AltPieceJob AltPieceJob;
+AltPieceJob* alttp_piece_job(const Alttp* a, int world, int i);
+void alttp_piece_make(const AltPieceJob* j, int level, uint32_t* out);
 const uint32_t* alttp_sky(const Alttp* a, int world);
 /* Link's marker (32 x 32, its middle at Link's place): his sprite as the
  * game draws it (ALTTP-4: facing and moving as he is; alttp_update says

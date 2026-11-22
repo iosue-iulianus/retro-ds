@@ -5,6 +5,7 @@
 #include "alttp.h"
 #include "alttp_dungeon.h"
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -129,6 +130,9 @@ struct Alttp {
 	uint32_t pver[2][CHUNKS * CHUNKS];
 	uint32_t gen;
 	uint32_t sky[2][SKY_W * SKY_H];
+	/* the clouds' own colours (the fog's edge): their body, light edge,
+	 * shaded edge and rim, from the sky's most used ones */
+	uint32_t cloud[2][4];
 	int linkWorld, linkX, linkY;
 	int lastArea;
 	int takenX, takenY, takenWorld, takenAge; /* the last screen taken, and passes since */
@@ -162,13 +166,89 @@ static uint32_t abgr(uint16_t c) {
 	return 0xFF000000u | b << 16 | g << 8 | r;
 }
 
-/* the world map's top 10 tile rows: the clouds, in each world's colours */
+/* The clouds shown where nothing is seen, in each world's colours, made
+ * to repeat without a seam: the world map's clouds are puffs on a plain
+ * tile; each whole puff of the map's (its tiles all cloud tiles, as the
+ * top rows use) is scattered over a picture that wraps round at its
+ * edges, a tile apart at least, in the same order every time. */
 static void make_sky(Alttp* a) {
+	enum { N = 64, TW = SKY_W / 8, TH = SKY_H / 8 };
+	static uint8_t map[N][N];
+	int count[256] = { 0 }, plain = 0;
+	for (int ty = 0; ty < N; ++ty) {
+		for (int tx = 0; tx < N; ++tx) {
+			map[ty][tx] = rom8(a, MAP_TILEMAP + ((tx >= 32) + 2 * (ty >= 32)) * 1024 + (ty & 31) * 32 + (tx & 31));
+			if (ty < 9 && ++count[map[ty][tx]] > count[plain]) plain = map[ty][tx];
+		}
+	}
+	bool cloudTile[256] = { false };
+	for (int ty = 0; ty < 9; ++ty) {
+		for (int tx = 0; tx < N; ++tx) cloudTile[map[ty][tx]] = map[ty][tx] != plain;
+	}
+	/* the puffs: tiles not plain, touching (corners too) */
+	static int8_t mark[N][N];
+	static int puffTile[N * N];
+	int puffStart[64], puffLen[64], nPuffs = 0, nTiles = 0;
+	memset(mark, 0, sizeof mark);
+	for (int sy = 0; sy < N; ++sy) {
+		for (int sx = 0; sx < N; ++sx) {
+			if (map[sy][sx] == plain || mark[sy][sx]) continue;
+			static int stack[N * N];
+			int n = 0, start = nTiles;
+			bool whole = true;
+			stack[n++] = sy * N + sx, mark[sy][sx] = 1;
+			while (n) {
+				int k = stack[--n], y = k / N, x = k % N;
+				puffTile[nTiles++] = k;
+				if (!cloudTile[map[y][x]] || y == 0 || x == 0 || y == N - 1 || x == N - 1) whole = false;
+				for (int dy = -1; dy <= 1; ++dy) {
+					for (int dx = -1; dx <= 1; ++dx) {
+						int ny = y + dy, nx = x + dx;
+						if (ny < 0 || nx < 0 || ny >= N || nx >= N || mark[ny][nx] || map[ny][nx] == plain) continue;
+						mark[ny][nx] = 1, stack[n++] = ny * N + nx;
+					}
+				}
+			}
+			if (whole && nPuffs < 64) puffStart[nPuffs] = start, puffLen[nPuffs++] = nTiles - start;
+			else nTiles = start;
+		}
+	}
+	/* scattered: each puff by turns at the next free place a simple
+	 * sequence picks, until a sixth of the picture's tiles are cloud */
+	static uint8_t sky[TH][TW];
+	static bool used[TH][TW];
+	memset(sky, plain, sizeof sky);
+	memset(used, 0, sizeof used);
+	uint32_t seed = 12345;
+	int filled = 0;
+	for (int tries = 0; tries < 4000 && nPuffs && filled < TW * TH / 6; ++tries) {
+		int p = tries % nPuffs;
+		seed = seed * 1103515245u + 12345u;
+		int ox = (int) (seed >> 8) % TW;
+		seed = seed * 1103515245u + 12345u;
+		int oy = (int) (seed >> 8) % TH;
+		int bx = puffTile[puffStart[p]] % N, by = puffTile[puffStart[p]] / N;
+		bool fits = true;
+		for (int k = 0; k < puffLen[p] && fits; ++k) {
+			int x = puffTile[puffStart[p] + k] % N - bx + ox, y = puffTile[puffStart[p] + k] / N - by + oy;
+			for (int dy = -1; dy <= 1 && fits; ++dy) {
+				for (int dx = -1; dx <= 1; ++dx) {
+					if (used[((y + dy) % TH + TH) % TH][((x + dx) % TW + TW) % TW]) fits = false;
+				}
+			}
+		}
+		if (!fits) continue;
+		for (int k = 0; k < puffLen[p]; ++k) {
+			int t = puffTile[puffStart[p] + k];
+			int x = ((t % N - bx + ox) % TW + TW) % TW, y = ((t / N - by + oy) % TH + TH) % TH;
+			sky[y][x] = map[t / N][t % N], used[y][x] = true;
+			++filled;
+		}
+	}
 	for (int w = 0; w < 2; ++w) {
-		for (int ty = 0; ty < SKY_H / 8; ++ty) {
-			for (int tx = 0; tx < SKY_W / 8; ++tx) {
-				int q = tx >= 32, c = tx & 31;
-				uint8_t ch = rom8(a, MAP_TILEMAP + q * 1024 + ty * 32 + c);
+		for (int ty = 0; ty < TH; ++ty) {
+			for (int tx = 0; tx < TW; ++tx) {
+				uint8_t ch = sky[ty][tx];
 				for (int y = 0; y < 8; ++y) {
 					for (int x = 0; x < 8; ++x) {
 						uint8_t i = rom8(a, MAP_TILES + ch * 64 + y * 8 + x) & 0x7F;
@@ -177,6 +257,42 @@ static void make_sky(Alttp* a) {
 				}
 			}
 		}
+	}
+}
+
+/* the clouds' body (the colour most used), then the lightest, a shade
+ * and the darkest of the next most used, for the fog's edge */
+static void cloud_colours(Alttp* a) {
+	for (int w = 0; w < 2; ++w) {
+		uint32_t col[8] = { 0 };
+		int cnt[8] = { 0 }, n = 0;
+		for (int i = 0; i < SKY_W * SKY_H; ++i) {
+			uint32_t c = a->sky[w][i];
+			int k = 0;
+			while (k < n && col[k] != c) ++k;
+			if (k == n && n < 8) col[n] = c, cnt[n++] = 0;
+			if (k < n) ++cnt[k];
+		}
+		/* by use, most first */
+		for (int i = 0; i < n; ++i) {
+			for (int j = i + 1; j < n; ++j) {
+				if (cnt[j] > cnt[i]) {
+					uint32_t t = col[i];
+					col[i] = col[j], col[j] = t;
+					int u = cnt[i];
+					cnt[i] = cnt[j], cnt[j] = u;
+				}
+			}
+		}
+		int m = n < 5 ? n : 5, light = 0, dark = 0;
+		#define LUM(c) (((c) & 0xFF) + ((c) >> 8 & 0xFF) + ((c) >> 16 & 0xFF))
+		for (int i = 0; i < m; ++i) {
+			if (LUM(col[i]) > LUM(col[light])) light = i;
+			if (LUM(col[i]) < LUM(col[dark])) dark = i;
+		}
+		#undef LUM
+		a->cloud[w][0] = col[0], a->cloud[w][1] = col[light];
+		a->cloud[w][2] = col[m > 1 ? 1 : 0], a->cloud[w][3] = col[dark];
 	}
 }
 
@@ -198,6 +314,7 @@ Alttp* alttp_new(uint8_t* rom, size_t size) {
 	a->takenX = -1;
 	a->itemsKey = 1;
 	make_sky(a);
+	cloud_colours(a);
 	for (size_t i = 0; i < ALTTP_W * ALTTP_H; ++i) a->items[i] = 0xFF000000u;
 	return a;
 }
@@ -702,39 +819,214 @@ void alttp_compose(const Alttp* a, int world, int zoom, int vx, int vy, int w, i
 	}
 }
 
+/* A piece changes with its neighbours too: the fog's edge reaches across */
 uint32_t alttp_piece_version(const Alttp* a, int world, int i) {
 	world &= 1;
-	return i >= 0 && i < CHUNKS * CHUNKS && a->chunk[world][i] ? a->pver[world][i] : 0;
+	if (i < 0 || i >= CHUNKS * CHUNKS) return 0;
+	uint32_t v = 0;
+	bool any = false;
+	for (int dy = -1; dy <= 1; ++dy) {
+		for (int dx = -1; dx <= 1; ++dx) {
+			int x = i % CHUNKS + dx, y = i / CHUNKS + dy;
+			if (x < 0 || y < 0 || x >= CHUNKS || y >= CHUNKS || !a->chunk[world][y * CHUNKS + x]) continue;
+			any = true;
+			v = v * 31 + a->pver[world][y * CHUNKS + x];
+		}
+	}
+	return any ? v | 1 : 0;
 }
 
-void alttp_piece(const Alttp* a, int world, int i, int level, uint32_t* out) {
+/* ---- the fog's edge (ALTTP-2): the clouds puff out over the ground at
+ * the edge of what's been seen, as the game's world map draws its clouds
+ * round the land: round puffs, one on each unseen square by the seen
+ * ones, of a size its own (most small, some large), in the clouds' body
+ * colour with a light edge above left and a shaded one below right, the
+ * puff's shadow on the ground below right of it; and from the edge out,
+ * the clouds' body fading into the clouds' picture (so their pattern
+ * doesn't end on a straight line). Only where seen squares are near. */
+#define FOG_REACH 2   /* squares round a pixel that can reach it */
+#define FOG_FADE 28   /* the fade into the clouds' picture, world pixels */
+#define FOG_SHADOW 3  /* the shadow's offset, below right */
+
+static bool cell_seen(const Alttp* a, int w, int gx, int gy) {
+	if (gx < 0 || gy < 0 || gx >= CELLS || gy >= CELLS) return false;
+	return a->seen[w][(gy * CELLS + gx) >> 3] & (1 << (gx & 7));
+}
+
+/* the puff on unseen square (gx, gy): its radius, world pixels */
+static int puff_radius(int w, int gx, int gy) {
+	uint32_t h = (uint32_t) gx * 73856093u ^ (uint32_t) gy * 19349663u ^ (uint32_t) w * 83492791u;
+	h ^= h >> 13, h *= 0x5bd1e995u, h ^= h >> 15;
+	return h % 4 == 0 ? 20 + (int) (h >> 8) % 8 : 12 + (int) (h >> 8) % 5;
+}
+
+/* A piece's squares and those round it within reach: -1 seen, else the
+ * puff's radius (0: none, deep in the clouds) */
+enum { FOG_S = CHUNK / CELL, FOG_M = FOG_REACH + 1, FOG_G = FOG_S + 2 * FOG_M };
+typedef struct {
+	int x0, y0; /* the piece's top left, world pixels */
+	int8_t g[FOG_G][FOG_G];
+	bool mixed[FOG_S][FOG_S];
+} Fog;
+
+/* What a piece is made from, copied (alttp_piece_job): made on any thread */
+struct AltPieceJob {
+	Fog fog;
+	uint32_t cloud[4];
+	bool hasGround;
+	uint16_t ground[CHUNK * CHUNK];
+};
+
+static void fog_grid(const Alttp* a, int w, int x0, int y0, Fog* f) {
+	f->x0 = x0, f->y0 = y0;
+	int gx0 = x0 / CELL - FOG_M, gy0 = y0 / CELL - FOG_M;
+	for (int y = 0; y < FOG_G; ++y) {
+		for (int x = 0; x < FOG_G; ++x) {
+			int cx = gx0 + x, cy = gy0 + y;
+			if (cell_seen(a, w, cx, cy)) {
+				f->g[y][x] = -1;
+				continue;
+			}
+			/* (a puff only by seen squares: deep in the clouds there's none to see) */
+			bool by = cell_seen(a, w, cx - 1, cy) || cell_seen(a, w, cx + 1, cy) || cell_seen(a, w, cx, cy - 1) || cell_seen(a, w, cx, cy + 1);
+			f->g[y][x] = by ? (int8_t) puff_radius(w, cx, cy) : 0;
+		}
+	}
+	for (int y = 0; y < FOG_S; ++y) {
+		for (int x = 0; x < FOG_S; ++x) {
+			int seen = 0, unseen = 0;
+			for (int dy = -FOG_M; dy <= FOG_M; ++dy) {
+				for (int dx = -FOG_M; dx <= FOG_M; ++dx) {
+					if (f->g[y + FOG_M + dy][x + FOG_M + dx] < 0) ++seen;
+					else ++unseen;
+				}
+			}
+			f->mixed[y][x] = seen && unseen;
+		}
+	}
+}
+
+/* how deep (x, y) (in the piece, may be a little outside) is in the
+ * clouds' puffs (> 0 inside; -1 outside all), and which way the edge
+ * nearest faces: *dir > 0 below right */
+static float puff_depth(const Fog* f, int x, int y, float* dir) {
+	int gx = (x >= 0 ? x / CELL : -1) + FOG_M, gy = (y >= 0 ? y / CELL : -1) + FOG_M;
+	float best = -1, px = x + 0.5f, py = y + 0.5f;
+	*dir = 0;
+	for (int cy = gy - FOG_REACH; cy <= gy + FOG_REACH; ++cy) {
+		if (cy < 0 || cy >= FOG_G) continue;
+		for (int cx = gx - FOG_REACH; cx <= gx + FOG_REACH; ++cx) {
+			if (cx < 0 || cx >= FOG_G) continue;
+			int r = f->g[cy][cx];
+			if (r <= 0) continue;
+			float dx = px - ((cx - FOG_M) * CELL + CELL / 2), dy = py - ((cy - FOG_M) * CELL + CELL / 2);
+			float d2 = dx * dx + dy * dy;
+			if (d2 >= (float) (r * r)) continue;
+			float d = r - sqrtf(d2);
+			if (d > best) best = d, *dir = dx + dy;
+		}
+	}
+	return best;
+}
+
+/* distance from (x, y) to the nearest seen square within reach */
+static float seen_distance(const Fog* f, int x, int y) {
+	int gx = x / CELL + FOG_M, gy = y / CELL + FOG_M;
+	float best = 1e9f;
+	for (int cy = gy - FOG_REACH; cy <= gy + FOG_REACH; ++cy) {
+		for (int cx = gx - FOG_REACH; cx <= gx + FOG_REACH; ++cx) {
+			if (f->g[cy][cx] >= 0) continue;
+			int x0 = (cx - FOG_M) * CELL, y0 = (cy - FOG_M) * CELL;
+			float dx = x < x0 ? x0 - x : x >= x0 + CELL ? x - (x0 + CELL) + 1 : 0;
+			float dy = y < y0 ? y0 - y : y >= y0 + CELL ? y - (y0 + CELL) + 1 : 0;
+			float d2 = dx * dx + dy * dy;
+			if (d2 < best) best = d2;
+		}
+	}
+	return sqrtf(best);
+}
+
+static uint32_t with_alpha(uint32_t c, unsigned al) {
+	return (c & 0xFFFFFFu) | (uint32_t) al << 24;
+}
+
+/* one world pixel of the map as drawn ((x, y) in the piece): the ground,
+ * the fog's edge over it, or the fade into the clouds (alpha 0: the
+ * clouds' picture shows) */
+static uint32_t map_pixel(const AltPieceJob* j, int x, int y) {
+	const Fog* f = &j->fog;
+	const uint16_t* c = j->hasGround ? j->ground : NULL;
+	bool seen = f->g[y / CELL + FOG_M][x / CELL + FOG_M] < 0;
+	uint16_t g = seen && c ? c[y * CHUNK + x] : 0;
+	if (!f->mixed[y / CELL][x / CELL]) return g ? abgr(g) : 0;
+	const uint32_t* cl = j->cloud;
+	if (g) {
+		float dir, d = puff_depth(f, x, y, &dir);
+		if (d > 0) {
+			if (d < 1.5f) return dir > 0 ? cl[3] : cl[1]; /* the rim, lit above left */
+			if (d < 3 && dir > 0) return cl[2];
+			return cl[0];
+		}
+		/* the puffs' shadow */
+		if (puff_depth(f, x - FOG_SHADOW, y - FOG_SHADOW, &dir) > 0) {
+			uint32_t v = abgr(g);
+			return 0xFF000000u | ((v >> 16 & 0xFF) * 3 / 4) << 16 | ((v >> 8 & 0xFF) * 3 / 4) << 8 | (v & 0xFF) * 3 / 4;
+		}
+		return abgr(g);
+	}
+	if (seen) return 0; /* (seen, nothing taken: not drawn) */
+	/* unseen: the clouds' body by the edge, fading into their picture */
+	float d = seen_distance(f, x, y);
+	if (d >= FOG_FADE) return 0;
+	float t = d / FOG_FADE;
+	return with_alpha(cl[0], (unsigned) lroundf(255 * (1 - t * t)));
+}
+
+AltPieceJob* alttp_piece_job(const Alttp* a, int world, int i) {
 	world &= 1;
+	if (i < 0 || i >= CHUNKS * CHUNKS) return NULL;
+	AltPieceJob* j = malloc(sizeof *j);
+	if (!j) return NULL;
+	fog_grid(a, world, (i % CHUNKS) * CHUNK, (i / CHUNKS) * CHUNK, &j->fog);
+	memcpy(j->cloud, a->cloud[world], sizeof j->cloud);
+	j->hasGround = a->chunk[world][i] != NULL;
+	if (j->hasGround) memcpy(j->ground, a->chunk[world][i], sizeof j->ground);
+	return j;
+}
+
+void alttp_piece_make(const AltPieceJob* j, int level, uint32_t* out) {
 	level = level < 0 ? 0 : level > 4 ? 4 : level;
 	int b = 1 << level, n = CHUNK >> level;
-	int x0 = (i % CHUNKS) * CHUNK, y0 = (i / CHUNKS) * CHUNK;
-	const uint16_t* c = i >= 0 && i < CHUNKS * CHUNKS ? a->chunk[world][i] : NULL;
 	for (int oy = 0; oy < n; ++oy) {
 		uint32_t* o = out + (size_t) oy * n;
 		for (int ox = 0; ox < n; ++ox) {
-			unsigned r = 0, g = 0, bl = 0, k = 0;
-			for (int y = oy * b; y < oy * b + b && c; ++y) {
+			if (b == 1) {
+				o[ox] = map_pixel(j, ox, oy);
+				continue;
+			}
+			/* the block's average, weighted by how much of each is there */
+			unsigned r = 0, g = 0, bl = 0, al = 0;
+			for (int y = oy * b; y < oy * b + b; ++y) {
 				for (int x = ox * b; x < ox * b + b; ++x) {
-					uint16_t v = c[y * CHUNK + x];
-					if (!v || !is_seen(a, world, x0 + x, y0 + y)) continue;
-					r += v & 31, g += (v >> 5) & 31, bl += (v >> 10) & 31, ++k;
+					uint32_t v = map_pixel(j, x, y);
+					unsigned va = v >> 24;
+					r += (v & 0xFF) * va, g += (v >> 8 & 0xFF) * va, bl += (v >> 16 & 0xFF) * va, al += va;
 				}
 			}
-			if (!k) {
+			if (!al) {
 				o[ox] = 0;
-			} else if (b == 1) {
-				o[ox] = abgr(c[oy * CHUNK + ox]);
-			} else {
-				/* the block's average, as much there as was seen of it */
-				uint32_t R = r * 255 / (31 * k), G = g * 255 / (31 * k), B = bl * 255 / (31 * k);
-				o[ox] = (uint32_t) (k * 255 / (unsigned) (b * b)) << 24 | B << 16 | G << 8 | R;
+				continue;
 			}
+			o[ox] = (uint32_t) (al / (unsigned) (b * b)) << 24 | (bl / al) << 16 | (g / al) << 8 | r / al;
 		}
 	}
+}
+
+void alttp_piece(const Alttp* a, int world, int i, int level, uint32_t* out) {
+	AltPieceJob* j = alttp_piece_job(a, world, i);
+	if (j) alttp_piece_make(j, level, out);
+	else memset(out, 0, (size_t) (CHUNK >> level) * (CHUNK >> level) * 4);
+	free(j);
 }
 
 const uint32_t* alttp_sky(const Alttp* a, int world) {

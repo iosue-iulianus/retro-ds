@@ -4839,7 +4839,17 @@ typedef struct {
 static AltPiece altCache[ALT_CACHE];
 static size_t altCacheBytes;
 static unsigned altFrame;
-static uint32_t* altPieceBuf;
+/* The pieces are made on a thread of their own, one at a time, from a copy
+ * of what each is made from (alttp_piece_job): the frames never wait on
+ * it. State 0 idle, 1 a piece asked for, 2 being made, 3 made (altWOut). */
+static SDL_Thread* altWorker;
+static SDL_mutex* altWLock;
+static SDL_cond* altWCond;
+static bool altWQuit;
+static int altWState, altWWorld, altWPiece, altWLevel;
+static uint32_t altWVer;
+static AltPieceJob* altWJob;
+static uint32_t* altWOut;
 /* ALTTP-6: the floor shown at the top of the dungeon map (as the game
  * opens it until the player picks one; back to that when Link changes
  * floor), and Link's floor when it was picked */
@@ -4906,6 +4916,54 @@ static void alt_state_restore(const uint8_t* d, uint32_t n) {
 	alt_merge_pending(); /* (now if it's this file's, else once its file is played) */
 }
 
+static int alt_worker_run(void* unused) {
+	(void) unused;
+	SDL_LockMutex(altWLock);
+	for (;;) {
+		while (!altWQuit && altWState != 1) SDL_CondWait(altWCond, altWLock);
+		if (altWQuit) break;
+		AltPieceJob* j = altWJob;
+		int level = altWLevel;
+		altWJob = NULL, altWState = 2;
+		SDL_UnlockMutex(altWLock);
+		alttp_piece_make(j, level, altWOut);
+		free(j);
+		SDL_LockMutex(altWLock);
+		altWState = 3;
+	}
+	SDL_UnlockMutex(altWLock);
+	return 0;
+}
+
+static bool alt_worker_start(void) {
+	if (altWorker) return true;
+	altWOut = malloc((size_t) ALTTP_PIECE * ALTTP_PIECE * 4);
+	altWLock = SDL_CreateMutex(), altWCond = SDL_CreateCond();
+	altWQuit = false, altWState = 0;
+	if (altWOut && altWLock && altWCond) altWorker = SDL_CreateThread(alt_worker_run, "map pieces", NULL);
+	if (!altWorker) fprintf(stderr, "map: no thread for its pieces\n");
+	return altWorker != NULL;
+}
+
+static void alt_worker_stop(void) {
+	if (altWorker) {
+		SDL_LockMutex(altWLock);
+		altWQuit = true;
+		SDL_CondSignal(altWCond);
+		SDL_UnlockMutex(altWLock);
+		SDL_WaitThread(altWorker, NULL);
+		altWorker = NULL;
+	}
+	free(altWJob);
+	altWJob = NULL;
+	if (altWCond) SDL_DestroyCond(altWCond);
+	if (altWLock) SDL_DestroyMutex(altWLock);
+	altWCond = NULL, altWLock = NULL;
+	free(altWOut);
+	altWOut = NULL;
+	altWState = 0;
+}
+
 static void alt_cache_clear(void) {
 	for (int k = 0; k < ALT_CACHE; ++k) {
 		for (int i = 0; i < 2; ++i) {
@@ -4935,8 +4993,7 @@ static void alt_free(void) {
 		}
 	}
 	alt_cache_clear();
-	free(altPieceBuf);
-	altPieceBuf = NULL;
+	alt_worker_stop();
 }
 
 static void alt_open(const char* rom) {
@@ -5102,62 +5159,90 @@ static size_t bytes_of(const AltPiece* e) {
 	return n * n * 4;
 }
 
-static SDL_Texture* const* alt_piece_tex(int v, int world, int piece, int level, uint32_t ver, double* budget) {
-	Uint64 now = SDL_GetPerformanceCounter(), freq = SDL_GetPerformanceFrequency();
-	AltPiece* e = NULL;
-	for (int k = 0; k < ALT_CACHE && !e; ++k) {
-		if (altCache[k].world == world && altCache[k].piece == piece && altCache[k].level == level) e = &altCache[k];
+static AltPiece* alt_cache_find(int world, int piece, int level) {
+	for (int k = 0; k < ALT_CACHE; ++k) {
+		if (altCache[k].world == world && altCache[k].piece == piece && altCache[k].level == level) return &altCache[k];
 	}
-	int n = ALTTP_PIECE >> level;
-	size_t bytes = (size_t) n * n * 4;
-	bool make = !e || !e->tex[v] || (e->ver != ver && (double) (now - e->madeT) / freq >= ALT_REMAKE);
-	if (make && *budget <= 0) return e && e->tex[v] ? e->tex : NULL;
-	if (!e) {
-		/* a free place, else the one shown longest ago (not this frame) */
+	return NULL;
+}
+
+static void alt_cache_drop(AltPiece* e) {
+	for (int i = 0; i < 2; ++i) {
+		if (e->tex[i]) SDL_DestroyTexture(e->tex[i]), altCacheBytes -= bytes_of(e);
+	}
+	memset(e, 0, sizeof *e);
+	e->world = -1;
+}
+
+/* A place for a piece: a free one, else the one shown longest ago (not
+ * this frame); within the budget, the ones shown longest ago let go */
+static AltPiece* alt_cache_take(int world, int piece, int level) {
+	AltPiece* e = alt_cache_find(world, piece, level);
+	if (e) return e;
+	for (int k = 0; k < ALT_CACHE; ++k) {
+		AltPiece* c = &altCache[k];
+		if (c->world < 0) {
+			e = c;
+			break;
+		}
+		if (c->shown != altFrame && (!e || c->shown < e->shown)) e = c;
+	}
+	if (!e) return NULL;
+	alt_cache_drop(e);
+	e->world = world, e->piece = piece, e->level = level;
+	size_t n = (size_t) (ALTTP_PIECE >> level);
+	while (altCacheBytes + n * n * 4 > ALT_BUDGET) {
+		AltPiece* old = NULL;
 		for (int k = 0; k < ALT_CACHE; ++k) {
 			AltPiece* c = &altCache[k];
-			if (c->world < 0) {
-				e = c;
-				break;
-			}
-			if (c->shown != altFrame && (!e || c->shown < e->shown)) e = c;
+			if (c != e && c->world >= 0 && c->shown != altFrame && (!old || c->shown < old->shown)) old = c;
 		}
-		if (!e) return NULL;
-		for (int i = 0; i < 2; ++i) {
-			if (e->tex[i]) SDL_DestroyTexture(e->tex[i]), altCacheBytes -= bytes_of(e);
-		}
-		memset(e, 0, sizeof *e);
-		e->world = world, e->piece = piece, e->level = level;
-		/* within the budget: the ones shown longest ago go */
-		while (altCacheBytes + bytes > ALT_BUDGET) {
-			AltPiece* old = NULL;
-			for (int k = 0; k < ALT_CACHE; ++k) {
-				AltPiece* c = &altCache[k];
-				if (c != e && c->world >= 0 && c->shown != altFrame && (!old || c->shown < old->shown)) old = c;
-			}
-			if (!old) break;
-			for (int i = 0; i < 2; ++i) {
-				if (old->tex[i]) SDL_DestroyTexture(old->tex[i]), altCacheBytes -= bytes_of(old);
-			}
-			memset(old, 0, sizeof *old);
-			old->world = -1;
-		}
+		if (!old) break;
+		alt_cache_drop(old);
 	}
-	e->shown = altFrame;
-	if (make) {
-		if (!e->tex[v]) {
-			e->tex[v] = native_texture(v, n, n, SDL_BLENDMODE_BLEND);
-			if (!e->tex[v]) return NULL;
-			altCacheBytes += bytes;
+	return e;
+}
+
+/* The piece the thread made, onto its texture (view v) */
+static void alt_piece_collect(int v) {
+	if (!altWorker) return;
+	SDL_LockMutex(altWLock);
+	if (altWState == 3) {
+		AltPiece* e = alt_cache_take(altWWorld, altWPiece, altWLevel);
+		int n = ALTTP_PIECE >> altWLevel;
+		if (e && !e->tex[v] && (e->tex[v] = native_texture(v, n, n, SDL_BLENDMODE_BLEND))) altCacheBytes += bytes_of(e);
+		if (e && e->tex[v]) {
+			ui_update_texture(e->tex[v], altWOut, n * 4);
+			e->ver = altWVer, e->madeT = SDL_GetPerformanceCounter();
 		}
-		if (!altPieceBuf) altPieceBuf = malloc((size_t) ALTTP_PIECE * ALTTP_PIECE * 4);
-		if (!altPieceBuf) return NULL;
-		alttp_piece(alt, world, piece, level, altPieceBuf);
-		ui_update_texture(e->tex[v], altPieceBuf, n * 4);
-		e->ver = ver, e->madeT = now;
-		*budget -= (double) (SDL_GetPerformanceCounter() - now) / freq;
+		altWState = 0;
 	}
-	return e->tex;
+	SDL_UnlockMutex(altWLock);
+}
+
+/* A piece of the map as a texture of view v (NULL: not made yet); asks
+ * the thread for it, or for it again when it has changed (at most every
+ * ALT_REMAKE seconds), when the thread is free */
+static SDL_Texture* const* alt_piece_tex(int v, int world, int piece, int level, uint32_t ver) {
+	AltPiece* e = alt_cache_find(world, piece, level);
+	if (e) e->shown = altFrame;
+	bool have = e && e->tex[v];
+	Uint64 now = SDL_GetPerformanceCounter();
+	bool want = !have || (e->ver != ver && (double) (now - e->madeT) / SDL_GetPerformanceFrequency() >= ALT_REMAKE);
+	if (want && alt_worker_start()) {
+		SDL_LockMutex(altWLock);
+		if (altWState == 0) {
+			altWJob = alttp_piece_job(alt, world, piece);
+			if (altWJob) {
+				altWWorld = world, altWPiece = piece, altWLevel = level, altWVer = ver, altWState = 1;
+				SDL_CondSignal(altWCond);
+				/* (made again no sooner than ALT_REMAKE from now) */
+				if (have) e->madeT = now;
+			}
+		}
+		SDL_UnlockMutex(altWLock);
+	}
+	return have ? e->tex : NULL;
 }
 
 /* The map (ALTTP-2, ALTTP-3): the whole second screen, whatever its
@@ -5171,6 +5256,7 @@ static void draw_alt_map(int s) {
 	int v = screens[s].view;
 	float z = ALT_Z;
 	++altFrame;
+	alt_piece_collect(v);
 	SDL_Rect clip = { a.x + screens[s].rect.x, a.y + screens[s].rect.y, a.w, a.h };
 	ui_clip(s, &clip);
 	/* where the world's top left is on the screen */
@@ -5184,7 +5270,6 @@ static void draw_alt_map(int s) {
 	/* the ground */
 	int level = z >= 4 ? 2 : z >= 2 ? 1 : 0;
 	int n = ALTTP_PIECE >> level;
-	double budget = 0.004; /* seconds a frame for making pieces */
 	for (int py = 0; py < ALTTP_PIECES; ++py) {
 		/* (each edge rounded once, so pieces meet at any zoom) */
 		int y = oy + (int) lroundf(py * ALTTP_PIECE / z), ph = oy + (int) lroundf((py + 1) * ALTTP_PIECE / z) - y;
@@ -5194,7 +5279,7 @@ static void draw_alt_map(int s) {
 			if (x >= a.x + a.w || x + pw <= a.x) continue;
 			int i = py * ALTTP_PIECES + px;
 			uint32_t ver = alttp_piece_version(alt, world, i);
-			SDL_Texture* const* t = ver ? alt_piece_tex(v, world, i, level, ver, &budget) : NULL;
+			SDL_Texture* const* t = ver ? alt_piece_tex(v, world, i, level, ver) : NULL;
 			if (t) ui_image_part(s, t, (SDL_Rect) { 0, 0, n, n }, (SDL_Rect) { x, y, pw, ph });
 		}
 	}
