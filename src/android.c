@@ -890,6 +890,14 @@ JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_native
 	SDL_PushEvent(&ev);
 }
 
+/* A line for snes-ds.log from the Java side (SnesDsActivity.logTouch) */
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SnesDsActivity_nativeLog(JNIEnv* env, jclass cls, jstring line) {
+	const char* s = (*env)->GetStringUTFChars(env, line, NULL);
+	if (!s) return;
+	fprintf(stderr, "%s\n", s);
+	(*env)->ReleaseStringUTFChars(env, line, s);
+}
+
 /* The same for the activity's own display (SnesDsActivity.onTouch: SDL's
  * positions there weren't reliable on the Duo) */
 JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SnesDsActivity_nativeMainTouch(JNIEnv* env, jclass cls, jint kind, jfloat x,
