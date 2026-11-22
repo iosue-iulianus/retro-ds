@@ -102,13 +102,13 @@ design is in `docs/custom-assets.md`.
 
 ## Games
 
-Priority: **Super Metroid** (its map and SAMUS page drawn natively from
-ROM and RAM, touch: drag the map, tap items), **Chrono Trigger** (status
-screen), then **A Link to the Past** (like Super Metroid where its data
-allows; the overworld map assembled from the screens the player has seen,
-unexplored parts dark; dungeon maps drawn or captured) and **Final
-Fantasy IV, V, VI** (party / status screens, as the FF Advance profiles
-do). GBA DS's pages for the GBA versions of ALttP and FF
+Priority (owner, Nov 22, 2026): **1. Super Metroid** (its map and SAMUS
+page drawn natively from ROM and RAM, touch: drag the map, tap items),
+**2. A Link to the Past** (like Super Metroid where its data allows; the
+overworld map assembled from the screens the player has seen, unexplored
+parts dark; dungeon maps drawn or captured), **3. Chrono Trigger**
+(status screen), then **Final Fantasy IV, V, VI** (party / status
+screens, as the FF Advance profiles do). GBA DS's pages for the GBA versions of ALttP and FF
 IV/V/VI, and its general rules (GEN-1 and on, the rule format), are kept in
 `docs/reference/gba/` as references; other GBA games' pages are in git
 history (`git show 3b452dc:docs/games/<game>.md`). SNES games get their own
@@ -296,10 +296,11 @@ Device details:
 - **M1 (agreed Nov 21):** SNES games on one screen, desktop and Android:
   GBA-only features removed first, then the core swap, then Android (the
   core three times), with logos from a third core copy. Stop for review.
-- **M2:** Super Metroid's map on the second screen; the game on the
-  Duo's bottom screen by default.
-- **M3:** Chrono Trigger and the FF status screens, logos, custom asset
-  mode (ALttP's overworld).
+- **M2:** Super Metroid's second screen (native map, SAMUS page, touch);
+  the game on the Duo's bottom screen by default.
+- **M3:** A Link to the Past (overworld map assembled from what the
+  player has seen, dungeon maps).
+- **M4:** Chrono Trigger, then the FF status screens.
 - Which screen has the game: `swap`, until the player sets it, follows
   the screens' shapes (the one closer to 4:3 gets the game: the Duo's
   bottom screen). `top_screen` only says which display is physically on
