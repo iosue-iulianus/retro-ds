@@ -13,9 +13,23 @@ Nothing counts as working until it has run on the Duo.
 
 **Status:** M1 (SNES games on one screen) is merged: the emulator is the
 libretro bsnes core and GBA DS's GBA-only features are gone. M2, on
-branch `m2-super-metroid`: Super Metroid's map on the second screen (the
-first profile), the game on the screen closer to 4:3 (the Duo's bottom
-one), overlays (the bezel) off by default. Much of `src/` is
+branch `m2-super-metroid` (draft PR #3): Super Metroid's second screen,
+the game on the screen closer to 4:3 (the Duo's bottom one), overlays
+(the bezel) off by default. Its map is currently captured and stitched
+on the hidden copy (touch: drag, SAMUS / MAP plates); the owner decided
+(Nov 21, 2026) to replace that with a map SNES DS draws itself from the
+ROM and RAM (research done: `docs/games/super-metroid.md` "The map's
+data", `tools/sm_map.py` pixel-exact for the map layer), and a drawn,
+tappable SAMUS page. Next: sprites in `tools/sm_map.py`, then the C
+renderer with smooth GPU scrolling, then the SAMUS page.
+
+**The philosophy below is GBA DS's and is being replaced** (owner, Nov
+22, 2026): SNES DS is as if the SNES were portable with a touch second
+screen. The second screen keeps the game's own style; touch on it is
+welcome; SNES DS may draw second-screen content itself; writing to the
+running game is kept to a minimum. Rewrite `wiki/Philosophy.md` and the
+section below around that, with the owner, before leaning on the old
+rules. Much of `src/` is
 GBA DS's (the game list, menus, settings, Android glue); upstream's session
 notes, with the detail on every inherited subsystem, are
 `git show 3b452dc:CLAUDE.md` (GBA DS v1.5.6, the commit this fork starts
