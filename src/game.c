@@ -5549,7 +5549,29 @@ static void draw_alt(int s) {
 			altDunNew = true;
 		}
 		if (altDunNew && altDunWideTex[v]) {
+			/* the background round the frames black, not the game's brown (the
+			 * owner's choice, Nov 22, 2026): its colour reached from the
+			 * picture's edge (the frames' wood has it too) */
 			uint32_t back = altDunPx[0];
+			static uint8_t out[ALTTP_W * ALTTP_H];
+			static int stack[ALTTP_W * ALTTP_H];
+			memset(out, 0, sizeof out);
+			int n = 0;
+			for (int i = 0; i < ALTTP_W * ALTTP_H; ++i) {
+				int x = i % ALTTP_W, y = i / ALTTP_W;
+				if ((x == 0 || y == 0 || x == ALTTP_W - 1 || y == ALTTP_H - 1) && altDunPx[i] == back) out[i] = 1, stack[n++] = i;
+			}
+			while (n) {
+				int i = stack[--n], x = i % ALTTP_W, y = i / ALTTP_W;
+				const int nb[4] = { x > 0 ? i - 1 : -1, x < ALTTP_W - 1 ? i + 1 : -1, y > 0 ? i - ALTTP_W : -1, y < ALTTP_H - 1 ? i + ALTTP_W : -1 };
+				for (int k = 0; k < 4; ++k) {
+					if (nb[k] >= 0 && !out[nb[k]] && altDunPx[nb[k]] == back) out[nb[k]] = 1, stack[n++] = nb[k];
+				}
+			}
+			for (int i = 0; i < ALTTP_W * ALTTP_H; ++i) {
+				if (out[i]) altDunPx[i] = 0xFF000000u;
+			}
+			back = 0xFF000000u;
 			for (int i = 0; i < W * H; ++i) altDunWide[i] = back;
 			int x0 = (W - ALTTP_W) / 2, y0 = (H - ALTTP_H) / 2;
 			for (int y = 0; y < ALTTP_H; ++y) memcpy(&altDunWide[(y0 + y) * W + x0], &altDunPx[y * ALTTP_W], ALTTP_W * 4);
