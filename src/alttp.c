@@ -30,6 +30,7 @@
 #define R_LINK_X 0x0022
 #define R_FACING 0x002F /* the way Link faces: 0 up, 2 down, 4 left, 6 right */
 #define R_AREA 0x008A
+#define R_AREA_BIG 0x0712 /* the area is 1024 x 1024 (else 512) */
 #define R_BG2_X 0x00E2
 #define R_BG2_Y 0x00E8
 #define R_OAM 0x0800      /* the game's copy of the sprite list, 128 x 4 bytes */
@@ -863,35 +864,49 @@ static uint16_t backdrop_math(const Alttp* a, uint16_t back, uint8_t subIndex) {
 	return (uint16_t) (out[0] | out[1] << 5 | out[2] << 10);
 }
 
+/* The screen's ground, and up to EDGE_REACH pixels past the screen on a
+ * side where the area's edge is that close (the camera stops at an area's
+ * edge, and the last squares by it are never whole on the screen; the
+ * game has the rows between in video RAM already). Never past the area
+ * ($8A's place, 512 or 1024 world pixels square by $0712). */
+#define EDGE_REACH 32
 static void capture(Alttp* a, const uint8_t* vram) {
 	a->gen += 2;
-	int w = (r8(a, R_AREA) & 0x40) != 0;
+	int area = r8(a, R_AREA), w = (area & 0x40) != 0;
+	int size = r16(a, R_AREA_BIG) ? 1024 : 512;
+	int ax0 = (area & 7) * 512, ay0 = ((area & 0x3F) >> 3) * 512, ax1 = ax0 + size, ay1 = ay0 + size;
 	int cx = r16(a, R_BG2_X), cy = r16(a, R_BG2_Y) + 1; /* line 0 shows row scroll + 1 */
+	/* the part taken: the screen, out to the area's edge where it's near */
+	int x0 = cx, x1 = cx + ALTTP_W, y0 = cy, y1 = cy + ALTTP_H;
+	if (x0 - ax0 <= EDGE_REACH) x0 = (x0 - EDGE_REACH > ax0 ? x0 - EDGE_REACH : ax0);
+	if (ax1 - x1 <= EDGE_REACH) x1 = (x1 + EDGE_REACH < ax1 ? x1 + EDGE_REACH : ax1);
+	if (y0 - ay0 <= EDGE_REACH) y0 = (y0 - EDGE_REACH > ay0 ? y0 - EDGE_REACH : ay0);
+	if (ay1 - y1 <= EDGE_REACH) y1 = (y1 + EDGE_REACH < ay1 ? y1 + EDGE_REACH : ay1);
+	x0 = x0 < 0 ? 0 : x0, y0 = y0 < 0 ? 0 : y0;
+	x1 = x1 > ALTTP_WORLD ? ALTTP_WORLD : x1, y1 = y1 > ALTTP_WORLD ? ALTTP_WORLD : y1;
+	if (x1 <= x0 || y1 <= y0) return;
 	bool bg1 = r8(a, R_TM) & 1;
 	bool subBg1 = (r8(a, R_TS) & 1) && (r8(a, R_CGADSUB) & 0x20);
 	int sx = r16(a, R_BG1_X), sy = r16(a, R_BG1_Y) + 1;
-	uint8_t i2[ALTTP_W], i1[ALTTP_W], s1[ALTTP_W];
-	for (int y = 0; y < ALTTP_H; ++y) {
-		int wy = cy + y;
-		if (wy < 0 || wy >= ALTTP_WORLD) continue;
-		bg_row(vram, V_BG2_MAP, cx, wy, ALTTP_W, i2);
-		if (bg1) bg_row(vram, V_BG1_MAP, cx, wy, ALTTP_W, i1);
-		if (subBg1) bg_row(vram, V_BG1_MAP, sx, sy + y, ALTTP_W, s1);
-		for (int x = 0; x < ALTTP_W; ++x) {
-			int wx = cx + x;
-			if (wx < 0 || wx >= ALTTP_WORLD) continue;
-			int i = bg1 && i1[x] ? i1[x] : i2[x];
+	int n = x1 - x0;
+	uint8_t i2[ALTTP_W + 2 * EDGE_REACH], i1[ALTTP_W + 2 * EDGE_REACH], s1[ALTTP_W + 2 * EDGE_REACH];
+	for (int wy = y0; wy < y1; ++wy) {
+		bg_row(vram, V_BG2_MAP, x0, wy, n, i2);
+		if (bg1) bg_row(vram, V_BG1_MAP, x0, wy, n, i1);
+		/* (the sub screen's BG1 at its own scroll, as far from it as BG2's) */
+		if (subBg1) bg_row(vram, V_BG1_MAP, sx + (x0 - cx), sy + (wy - cy), n, s1);
+		for (int k = 0; k < n; ++k) {
+			int wx = x0 + k;
+			int i = bg1 && i1[k] ? i1[k] : i2[k];
 			uint16_t col = r16(a, R_PALETTE + i * 2);
-			if (!i) col = backdrop_math(a, col, subBg1 ? s1[x] : 0);
+			if (!i) col = backdrop_math(a, col, subBg1 ? s1[k] : 0);
 			uint16_t* c = chunk_for(a, w, wx, wy);
 			if (c) c[(wy % CHUNK) * CHUNK + wx % CHUNK] = (uint16_t) ((col & 0x7FFF) | 0x8000);
 		}
 	}
 	/* whole cells only */
-	for (int gy = (cy + CELL - 1) / CELL; gy < (cy + ALTTP_H) / CELL && gy < CELLS; ++gy) {
-		for (int gx = (cx + CELL - 1) / CELL; gx < (cx + ALTTP_W) / CELL && gx < CELLS; ++gx) {
-			if (gx >= 0 && gy >= 0) a->seen[w][(gy * CELLS + gx) >> 3] |= (uint8_t) (1 << (gx & 7));
-		}
+	for (int gy = (y0 + CELL - 1) / CELL; gy < y1 / CELL && gy < CELLS; ++gy) {
+		for (int gx = (x0 + CELL - 1) / CELL; gx < x1 / CELL && gx < CELLS; ++gx) a->seen[w][(gy * CELLS + gx) >> 3] |= (uint8_t) (1 << (gx & 7));
 	}
 	a->dirty = true;
 }
