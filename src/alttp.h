@@ -110,19 +110,6 @@ typedef struct {
 } AltGoal;
 int alttp_goals(const Alttp* a, const AltGoal** list);
 const uint32_t* alttp_goal_pictures(const Alttp* a);
-/* The clouds drifting over the map: the world map's biggest whole puffs
- * (its own tiles, in the world's colours, clear round them), kind 0 to
- * alttp_drift_kinds - 1, each *w x *h of an ALTTP_DRIFT_W-wide picture;
- * and each one's shadow's shape (black) */
-#define ALTTP_DRIFT_W 128
-#define ALTTP_DRIFT_H 64
-#define ALTTP_DRIFT_KINDS 3
-int alttp_drift_kinds(const Alttp* a);
-const uint32_t* alttp_drift_cloud(const Alttp* a, int world, int kind, int* w, int* h);
-const uint32_t* alttp_drift_shadow(const Alttp* a, int kind);
-/* How much of world rectangle (x0, y0)-(x1, y1) has been seen (0 to 1, a
- * few points' worth) */
-float alttp_seen_fraction(const Alttp* a, int world, int x0, int y0, int x1, int y1);
 /* Link's marker (32 x 32, its middle at Link's place): his sprite as the
  * game draws it (ALTTP-4: facing and moving as he is; alttp_update says
  * ALTTP_MARKER when it changed), or the items screen's flashing ring until
