@@ -175,6 +175,7 @@ Next:
 7. The owner's choices: the zoom levels and the one the map starts at (the owner checks on the Duo); what the seen record should survive. *(Link's marker: his sprite, the owner's choice.)*
 8. *(Done: the record in SNES DS's states, merged on loading: checked headless, a state brings its map to a game with no record. Each 512 x 512 piece is kept compressed and compressed again only when it has changed: with both worlds' 128 areas filled (host, synthetic), the record is 2.7 MB, the first save 583 ms, a save with nothing new 3 ms, after one new screen 6 ms, loading 75 ms.)*
 9. The owner's call: a state carries the whole record (up to a few MB once both worlds are explored, on top of the game's 290 KB); if that's too much, states could carry only what changed since the file's record was saved.
+10. Later (the owner, Nov 22, 2026): the fog's edge as the game's world map draws its clouds round the land, puffs that overlap the ground with their shading (as `tools/alttp_map.py`'s flat map of both worlds shows), in place of today's straight edge along the seen squares. The way to look at: the map's own cloud-edge tiles (Mode 7 tiles `$18:C000`, where its tilemap meets the land), placed by which neighbours of each unseen square are seen, at the sky's scale; light clouds in the Light World and dark in the Dark World as now.
 
 ### On the device (what to check)
 
