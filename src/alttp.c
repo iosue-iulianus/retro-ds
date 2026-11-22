@@ -517,6 +517,14 @@ int alttp_select(const Alttp* a, const uint8_t* wram, int item, AltWrite* out, i
 			if (r8(a, R_BOTTLES + i)) bottle = i + 1;
 		}
 		out[n++] = (AltWrite) { R_BOTTLE, (uint8_t) bottle };
+	} else if (item == 16 && r8(a, R_CUR_ITEM) == 16) {
+		/* the bottle tapped again: the next bottle Link has, as Down does
+		 * in the game's bottle menu (Hud_BottleMenu, $0D:E0DF) */
+		int v = bottle - 1;
+		do v = (v + 1) & 3;
+		while (!r8(a, R_BOTTLES + v));
+		bottle = v + 1;
+		out[n++] = (AltWrite) { R_BOTTLE, (uint8_t) bottle };
 	}
 	uint8_t equip = rom8(a, MENU_TO_EQUIP + item);
 	out[n++] = (AltWrite) { R_CUR_ITEM, (uint8_t) item };

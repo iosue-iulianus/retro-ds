@@ -4,11 +4,11 @@
 |---|---|
 | Releases | USA (this page); Japan 1.0 to 1.2 and Europe have their own ROMs and addresses |
 | Dumps | `777AAC2F` "Legend of Zelda, The - A Link to the Past (USA)" (MD5 `608c22b8...`, the ROM spannerisms/usdasm assembles to) |
-| Profile | none yet |
-| Tests | by hand: the harness with the owner's states in `test-data/a-link-to-the-past/` (none yet: see "Test states needed") |
-| Status | researched, draft rules (M3); nothing built |
+| Profile | `src/profiles.c`: the `777AAC2F` entry, native (`src/alttp.c`) |
+| Tests | by hand: the harness (`alttp` commands) and the Python references with the test files in `test-data/a-link-to-the-past/` (`harness-*`, made in the harness from `tools/alttp_save.py`'s saves) |
+| Status | M3 in progress: the items screen, item selection, the world map and X built and checked on the host; not yet on the Duo; the dungeon map not built |
 
-What SNES DS is to do with this game. Each rule is a promise the profile will keep. Change a rule here first when the behaviour is meant to change, then the profile, then the tests. Rule numbers are never reused: a dropped rule stays, marked *retired*. These are drafts for the owner's review: nothing below is built yet.
+What SNES DS does with this game. Each rule is a promise the profile keeps. Change a rule here first when the behaviour is meant to change, then the profile, then the tests. Rule numbers are never reused: a dropped rule stays, marked *retired*. Drafts for the owner's review; built so far: ALTTP-1, 2, 3, 4 (with the ring as the marker), 7, 8, 9, 10. Not yet: ALTTP-5 and 6 (the dungeon map: in a dungeon X shows the world map as it was outdoors for now).
 
 GBA DS's page for the GBA version (`docs/reference/gba/zelda-a-link-to-the-past.md`) is a reference only: it captured the zoomed-out world map and the dungeon map on a hidden copy, still, dimmed when unsure.
 
@@ -22,7 +22,7 @@ GBA DS's page for the GBA version (`docs/reference/gba/zelda-a-link-to-the-past.
 
 **ALTTP-3. Where the map rests.** Centred on Link, inside the world's edges. A drag moves it with the finger, smoothly, at the screen's refresh rate (as SM-7); it stays where it was dragged until Link enters another area, then glides back. A tap on the map switches its zoom (the game's own pixels, or halved, or quartered). *(The zoom levels and which one it starts at: owner's choice.)*
 
-**ALTTP-4. Link on the map.** Link's marker sits where he is and blinks as on the game's map. In the areas reached through a cave or a special entrance (area `$80` and up: the Master Sword's grove, Zora's waterfall), the map shows where he entered them. *(Which marker: the game's world map's Link head needs the game's compressed sprite graphics; to find.)*
+**ALTTP-4. Link on the map.** Link's marker is the items screen's selection ring round where he is, blinking with the game's frame counter as the game's own map blinks his head (16 frames shown, 16 hidden). In houses, caves and the areas the map doesn't take (area `$80` and up: the Master Sword's grove, Zora's waterfall), it stays where he was last outdoors. *(The game's world map's Link head would need the game's compressed sprite graphics: later, if the ring isn't enough.)*
 
 **ALTTP-5. The dungeon map in dungeons.** In a dungeon, X brings up that dungeon's map as the game's own dungeon map screen (X in a dungeon) draws it: the floor list, the floor Link is on, the rooms. Without the dungeon's map only the rooms (and quarters of rooms) Link has seen are drawn; with it, every room, the unseen ones in the game's paler colour; with the compass, the boss's room blinks until the boss is beaten. Link's room blinks. It's live. Drawn by SNES DS from the cartridge and the game's memory; checked pixel for pixel against the game's own screen.
 
@@ -34,7 +34,7 @@ GBA DS's page for the GBA version (`docs/reference/gba/zelda-a-link-to-the-past.
 
 **ALTTP-9. Logo at the menus.** At the title, the attract mode, the file screens, Save and Quit, the ending and the credits, the second screen shows the logo, taken from the title screen.
 
-**ALTTP-10. The items screen, drawn and tappable.** The second screen shows the game's own items screen (START's), drawn by SNES DS from the cartridge, its tiles in the game's video memory and Link's items in its memory: the Y items with the selected one ringed, its name, the pendants or crystals, DO (the abilities, boots, gloves, flippers, moon pearl) and the equipment (sword, shield, mail, the dungeon's map, compass and big key, the heart pieces). The panes are moved for touch: the Y items at the bottom right, DO above them, and on the left the equipment, the pendants or crystals and the selected item's name; each pane is drawn as the game draws it. Tapping an item selects it for Y, as moving the ring to it on the game's own screen would, and the game takes it at once (the HUD's item box too). With bottles, the bottle tapped is the one selected. It's live: a new item appears as Link gets it. START still opens the game's own items screen on the game screen. Checked against the game's own screen: the panes word for word (`tools/alttp_items.py`).
+**ALTTP-10. The items screen, drawn and tappable.** The second screen shows the game's own items screen (START's), drawn by SNES DS from the cartridge, its tiles in the game's video memory and Link's items in its memory: the Y items with the selected one ringed, its name, the pendants or crystals, DO (the abilities, boots, gloves, flippers, moon pearl) and the equipment (sword, shield, mail, the dungeon's map, compass and big key, the heart pieces). The panes are moved for touch: the Y items at the bottom right, DO above them, and on the left the equipment, the pendants or crystals and the selected item's name; each pane is drawn as the game draws it. Tapping an item selects it for Y, as moving the ring to it on the game's own screen would, and the game takes it at once (the HUD's item box too). With bottles, tapping the bottle selects it (the first bottle if none was), and tapping it again goes on to the next bottle Link has, as Down does in the game's bottle menu. It's live: a new item appears as Link gets it. START still opens the game's own items screen on the game screen. Checked against the game's own screen: the panes word for word (`tools/alttp_items.py`).
 
 ## Exceptions
 
