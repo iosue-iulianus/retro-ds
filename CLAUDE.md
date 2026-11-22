@@ -21,7 +21,14 @@ hidden copy runs for Super Metroid): pixel-exact against the game's
 pause screen (`tools/sm_map.py`, the harness's `smmap` and `smtoggle`),
 scrolled smoothly on the GPU (drag, fling, glide), and tapping an item
 on the SAMUS page switches it (the write exception, SM-10). Next: try it
-on the Duo; the reserve mode switch isn't done. Much of `src/` is
+on the Duo; the reserve mode switch isn't done. M3, on branch
+`m3-a-link-to-the-past` (from M2, local): A Link to the Past's second
+screen (`docs/games/a-link-to-the-past.md`), all drawn by SNES DS: the
+items screen (tap to select, a write exception), X for the map: outdoors
+the world assembled from the game's own ground layer as Link sees it
+(video RAM, a core patch), clouds over the rest; in dungeons the
+dungeon map as the game draws it (tiles decompressed from the ROM).
+Checked pixel for pixel on the host; not yet on the Duo. Much of `src/` is
 GBA DS's (the game list, menus, settings, Android glue); upstream's session
 notes, with the detail on every inherited subsystem, are
 `git show 3b452dc:CLAUDE.md` (GBA DS v1.5.6, the commit this fork starts
@@ -235,7 +242,8 @@ Device details:
 - Test states and saves live outside the repo, in
   `/home/joshua/projects/snes-ds/test-data/<game>/` (Super Metroid:
   `crateria-ship.state`, playing at the ship, and
-  `crateria-pause-map.state`). Never delete them; copy new ones from the
+  `crateria-pause-map.state`; A Link to the Past: `harness-*`, made in the
+  harness). Never delete them; copy new ones from the
   Duo there. The app loads one from a script line `TICK LOAD:path`, and
   `SNESDS_SCREENS=1920x1080,1280x960` (with `SNESDS_WINDOW=1920x2040`)
   stands in for the Duo's two screens.
@@ -272,6 +280,11 @@ Device details:
   the game's RAM (map, equipment page, item switching); `game.c`'s
   `native_*` show it (chrome as a picture, the map's layer and marker as
   textures at screen-pixel offsets).
+- `alttp.c`, `alttp_dungeon.c`: A Link to the Past's second screen (the
+  items screen, the world map from the game's screens and its seen record,
+  the dungeon map); `game.c`'s `alt_*` show it. The Python references are
+  `tools/alttp_items.py`, `alttp_world.py`, `alttp_gfx.py`,
+  `alttp_dungeon.py`; `tools/alttp_save.py` makes test saves.
 - `mapcap.c`: map capture on the hidden copy in a background thread, on a
   normalized 256x224 picture (hi-res and interlaced ones halved): profiles
   give coordinates on the SNES screen.

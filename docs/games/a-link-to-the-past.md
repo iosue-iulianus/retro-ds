@@ -6,9 +6,9 @@
 | Dumps | `777AAC2F` "Legend of Zelda, The - A Link to the Past (USA)" (MD5 `608c22b8...`, the ROM spannerisms/usdasm assembles to) |
 | Profile | `src/profiles.c`: the `777AAC2F` entry, native (`src/alttp.c`) |
 | Tests | by hand: the harness (`alttp` commands) and the Python references with the test files in `test-data/a-link-to-the-past/` (`harness-*`, made in the harness from `tools/alttp_save.py`'s saves) |
-| Status | M3 in progress: the items screen, item selection, the world map and X built and checked on the host; not yet on the Duo; the dungeon map not built |
+| Status | M3: every rule built and checked on the host (ALTTP-1 to ALTTP-10); not yet on the Duo |
 
-What SNES DS does with this game. Each rule is a promise the profile keeps. Change a rule here first when the behaviour is meant to change, then the profile, then the tests. Rule numbers are never reused: a dropped rule stays, marked *retired*. Drafts for the owner's review; built so far: ALTTP-1, 2, 3, 4 (with the ring as the marker), 7, 8, 9, 10. Not yet: ALTTP-5 and 6 (the dungeon map: in a dungeon X shows the world map as it was outdoors for now).
+What SNES DS does with this game. Each rule is a promise the profile keeps. Change a rule here first when the behaviour is meant to change, then the profile, then the tests. Rule numbers are never reused: a dropped rule stays, marked *retired*. Drafts for the owner's review, all built (ALTTP-4 with the items screen's ring as Link's marker); checked on the host, not yet on the Duo.
 
 GBA DS's page for the GBA version (`docs/reference/gba/zelda-a-link-to-the-past.md`) is a reference only: it captured the zoomed-out world map and the dungeon map on a hidden copy, still, dimmed when unsure.
 
@@ -24,9 +24,9 @@ GBA DS's page for the GBA version (`docs/reference/gba/zelda-a-link-to-the-past.
 
 **ALTTP-4. Link on the map.** Link's marker is the items screen's selection ring round where he is, blinking with the game's frame counter as the game's own map blinks his head (16 frames shown, 16 hidden). In houses, caves and the areas the map doesn't take (area `$80` and up: the Master Sword's grove, Zora's waterfall), it stays where he was last outdoors. *(The game's world map's Link head would need the game's compressed sprite graphics: later, if the ring isn't enough.)*
 
-**ALTTP-5. The dungeon map in dungeons.** In a dungeon, X brings up that dungeon's map as the game's own dungeon map screen (X in a dungeon) draws it: the floor list, the floor Link is on, the rooms. Without the dungeon's map only the rooms (and quarters of rooms) Link has seen are drawn; with it, every room, the unseen ones in the game's paler colour; with the compass, the boss's room blinks until the boss is beaten. Link's room blinks. It's live. Drawn by SNES DS from the cartridge and the game's memory; checked pixel for pixel against the game's own screen.
+**ALTTP-5. The dungeon map in dungeons.** In a dungeon, X brings up that dungeon's map as the game's own dungeon map screen (X in a dungeon) draws it: the frame with MAP or LEVEL n, the floor list with Link pointing at his floor, two floors' rooms. Without the dungeon's map only the rooms (and quarters of rooms) Link has seen are drawn; with it, every room, the unseen ones in the game's darker colour; with the compass, the boss's skull blinks on its room and by its floor until the boss is beaten. Link's room has its brackets and blinking dot, the shown floors light up in the list, as on the game's screen. It's live. Drawn by SNES DS from the cartridge (its tiles decompressed, its tables) and the game's memory, without opening the game's map; checked pixel for pixel against the game's own screen (`tools/alttp_dungeon.py`, `src/alttp_dungeon.c`).
 
-**ALTTP-6. Floors by touch.** On the dungeon map, a tap on a floor in the list (or a vertical drag) shows that floor, as Up and Down do on the game's screen. The map goes back to Link's floor when he changes floor.
+**ALTTP-6. Floors by touch.** On the dungeon map, a tap on a floor in the list shows it at the top (with the floor below it under it; the lowest floor under the one above), as Up and Down do on the game's screen; a swipe down shows the floor above, a swipe up the one below. The map goes back to the game's own choice (Link's floor at the top) when he changes floor.
 
 **ALTTP-7. Indoors outside dungeons.** In houses and caves (`$040C` is `$FF`), X brings up the world map as it was outdoors, with Link's marker at the door he went in by.
 
@@ -73,6 +73,8 @@ From spannerisms/usdasm (GPL-3.0, a disassembly of exactly this ROM; labels and 
 
 ### The world map (X outdoors)
 
+*(The game's own Mode 7 map isn't what SNES DS shows (ALTTP-2 makes its own from the screens); its clouds are used for what Link hasn't seen, and its data is kept here.)*
+
 - A Mode 7 picture. Its tiles: `$18:C000`, 256 tiles of 8 x 8, a byte a pixel (`$4000` bytes, uncompressed); the game copies them to VRAM's high bytes (`TransferMode7Characters`, `$00:E399`).
 - Its tilemap: `WorldMap_LightWorldTilemap`, `$0A:C727`, 4096 bytes: four quadrants of 32 x 32 tiles (top left, top right, bottom left, bottom right), together 64 x 64 tiles, 512 x 512 pixels, at the top left of Mode 7's 128 x 128 tilemap (the rest is tile `$EF`). The Dark World: `WorldMap_DarkWorldTilemap`, `$0A:D727`, 1024 bytes, 32 x 32 tiles laid over the middle (tiles 16 to 47 both ways); the edges are the Light World's tiles in the Dark World's colours.
 - Colours: `Palettes_LWMAP`, `$0A:DB27`, 128 colours; `Palettes_DWMAP`, `$0A:DC27`, 128 more; the world is picked by `$8A` bit `$40` (`LoadOverworldMapPalette`).
@@ -111,6 +113,18 @@ Measured in the harness, Nov 22, 2026, with test files made by `tools/alttp_save
 - Sprites: Link's head by the current floor (`DungeonMap_DrawLinkPointing`), the blinking room marker at Link's place in the room (`$0A:EB50`; `$22`, `$20` give the place within the room), the floor numbers (`$0A:EC0A`), the blinking floor (`$0A:ECCF`), the boss icon. The "LEVEL n" heading (`$0A:E1A4`).
 - Graphics: the game loads a tile set for the map (`Module0E_03_01_00_PrepMapGraphics`, `$0A:E0E4`: main theme 32, sprite set `$80` + the dungeon) and its palettes (`Palette_Load_DungeonMapBG`, `$1B:EE3A`; `..._DungeonMapSprite`, `$1B:EDDD`). The sets are compressed: SNES DS will need the game's graphics decompression (or the tiles taken from VRAM once, see Risks).
 
+### The dungeon map's picture (ALTTP-5)
+
+Built and checked with `tools/alttp_dungeon.py` (word for word and pixel for pixel) and `src/alttp_dungeon.c`:
+
+- Video RAM as the map has it: BG1 and BG2's tilemaps cleared to `$0300` (words `$0000`-`$1FFF`), BG3's to `$007F` (`$6000`-`$67FF`) (`EraseTileMaps`, `$00:8355`); then the frame stripes (`$0E:DA9C`: the wooden frames and MAP on BG3, the grid on BG1, the panes' frames on BG2).
+- Stripes (`HandleStripes14`, `$00:92A1`): a big-endian VRAM word address, a big-endian word (bit 15 down a column, bit 14 one word repeated, the rest the byte length less one), the words; until a byte with bit 7 set.
+- LEVEL n for the Dark World's dungeons (`$0A:E196`, a byte a dungeon: the numeral x 2, `$FF` for MAP), the floor list's backdrop (`$0A:E1E1`, `$0A:EFD1`; Death Mountain's stripes `$0A:EFDF`) and boxes (`$0A:E2E5`).
+- The rooms: two floors drawn into a buffer of 2048 words (the game's at `$7F:0000`), each floor's name (`$0A:E4E9`, B and F tiles `$1F1C`, `$1F1D`), border (`$0A:E429`...`$0A:E445`) and 5 x 5 rooms (`$0A:E56F` the rows), then copied to BG2's top left screen (the top floor at line 0 of the buffer, the one below it 12 rows lower). Which floors: Link's at the top, or (on the lowest floor) the one above it.
+- Sprites (`DungeonMap_DrawSprites`, `$0A:EAB2`), at OAM 0 and up (and `$40` up for the floor blinker): checked against the game's sprite buffer (`$7E:0800`, high bits `$7E:0A00`). Link's head is tile 0 of the first name table, loaded from Link's own graphics (`$10:A9C0`, uncompressed, a row of 16 tiles is `$200` bytes); the rest are the map's sprite set at `$5000`. Tables in the doc's tool and `src/alttp_dungeon.c`'s defines.
+- The picture: mode 1 with BG3 on top (BGMODE `$09`): BG3 high, sprites 3, BG2 high, sprites 2, BG2 low, sprites 1, BG3 low, sprites 0; BG1 (the grid) is on the sub screen and added only where the main screen shows the backdrop (CGWSEL `$02`, CGADSUB `$20`, the fixed colour black). Picture line y shows BG row y + 1; a sprite with OAM Y starts on picture line Y (a line below BG row Y).
+- Palettes: the HUD's second (`$1B:D6A0`, rows 0-1), the map's BG (`$1B:E544`, rows 2-7), the map's sprite colours (`$1B:D70A`, rows 12-14, colours 1-7); the rest the game's (Link's colours for his head).
+
 ### The items screen (ALTTP-10)
 
 - The game builds its items screen (START) as a 32 x 32 BG3 tilemap in work RAM at `$7E1000` (`ItemMenu_Initialize`, `$0D:DDAB`) and slides it down (BG3's scroll, `$7E00EA`, to `$FF18`); the screen's rows 5 to 29 are the panes. Its tiles are BG3's (VRAM `$7000`, 2 bits a pixel), loaded for the HUD and always there while playing; its colours the palette buffer's first 32 (`$7E:C500`).
@@ -146,43 +160,44 @@ What the game's own items screen leaves when the ring is moved to an item and th
 
 ## The plan
 
-Steps, each small enough to test, rule first:
+Done (Nov 22, 2026, on the host):
 
-1. **States from the owner** (below), pulled into `test-data/a-link-to-the-past/`, read-only.
-2. **Measure** on them: an area change frame by frame, Dark World, stairs, the dungeon map; find the file slot; the world map's sprite sheet and the dungeon map's tile set in VRAM (from the states, as `--check` finds Mode 7's), then where they come from in the ROM.
-3. **`tools/alttp_map.py`** grows: Link's marker and the goal markers, checked against the game's map in the harness where the tilt allows (the zoomed-in map's middle line is close to flat) or through VRAM and OAM in the state; the dungeon map (BG tilemap rebuilt from ROM and RAM, compared word for word with the game's, as SM-10 was), then its sprites, pixel for pixel against the game's screen.
-4. **The graphics decompression** (the game's LZ format) in Python, checked against VRAM, then in C.
-5. **`src/alttpmap.c`** (like `smmap.c`): the world map layer (512 x 512, both worlds), the seen record (per file, its own file beside the battery save, and SNES DS's state block), Link's marker; the harness's `alttpmap NAME [world|dungeon]`, pixel-exact against the Python renderer.
-6. **`game.c`**: the profile's `native` for this game: which screen when (ALTTP-1, 5, 7, 8, 9), the frozen picture over transitions, drag, glide and tap (reusing Super Metroid's), the logo steps. A test build; what to check on the Duo.
-7. **The dungeon map** in C, then floors by touch (ALTTP-6). A test build.
-8. Rules final, CLAUDE.md and Philosophy reworded if decision 1 goes that way.
+1. Test files and states made in the harness (`tools/alttp_save.py`; `test-data/a-link-to-the-past/harness-*`), and dungeons entered through the game's own entrance loading (`$010E` the entrance, `$10` = `0F`, `$010C` = `06`: test only).
+2. The items screen and item selection: `tools/alttp_items.py`, then `src/alttp.c`; word for word, pixel for pixel, and the same RAM as the game's own screen leaves.
+3. The world map from the game's screens: `tools/alttp_world.py`, then `src/alttp.c`; pixel for pixel; the core patch for video RAM.
+4. The dungeon map: `tools/alttp_gfx.py` (tiles), `tools/alttp_dungeon.py` (tilemaps, sprites, picture), then `src/alttp_dungeon.c`; pixel for pixel in 40 frames of 5 dungeons, the tilemaps and sprites in 74 dumps of 12.
+5. `game.c`: the profile's `native`, X, taps, drags, zooms, floors, the seen record, the logo. Headless runs with the Duo's two screens.
+
+Next:
+
+6. A test build on the Duo (the owner): what to check is in "On the device" below.
+7. The owner's choices: the zoom levels and the one the map starts at; whether the ring is enough as Link's marker; what the seen record should survive.
+8. The seen record in SNES DS's states (the SDSX block), so a state brings its map with it; and saving it in the background if it gets slow (it's compressed on the game's thread, 3 ms for a few areas on the host).
+
+### On the device (what to check)
+
+- The items screen on the top screen; a tap on an item selects it (the HUD's box changes, Y uses it); the bottle tapped again goes to the next bottle.
+- X: the map; X again: the items. Outdoors the map grows as you walk, the rest under clouds (light in the Light World, dark in the Dark World); drag it, tap it for the zooms; walk into another area and it comes back to Link.
+- In a dungeon X shows the dungeon map; tap a floor in the list, swipe up and down.
+- Leave the game and come back: what was seen is still there (the file `<battery save>.alttp1` and so on).
+- Smoothness: the map dragging at the screen's rate; the game's speed unchanged.
 
 ### Risks
 
 - **Transitions:** `$8A` is `00` indoors and the coordinates jump to the room's; area changes and the mirror move things at different frames. ALTTP-8 freezes the picture from the module (`$10` not `07` / `09` / `0B`, `$11` not `00`); measure first, as for Super Metroid's doors.
 - **The seen record lives outside the game:** a save made on another emulator, a copied or erased file, or a state from before the record existed all start dark (or wrong). Mitigation: per file slot, cleared when a new file starts, kept in states too.
-- **Compressed graphics:** the markers and the dungeon map's tiles are compressed in the ROM. The format is well known and small to decode, but it's new code to check. A fallback: copy the tiles from the live game's VRAM when the player opens a map (needs the core to expose VRAM, as `bsnes-memory.patch` does for work RAM).
-- **The tilt:** the flat map can't be compared with the game's picture pixel for pixel (Mode 7 with HDMA); it's checked through VRAM and CGRAM instead, and the marker's placement by the world-to-map rule above.
+- **Video RAM from the core:** the world map reads the game's video RAM, which bsnes gives only with its fast PPU (the default; `bsnes-memory.patch`). With the accurate PPU (a core option, or the few games bsnes forces to it) the world map stays empty; the items screen too (its tiles are there).
+- **Special areas:** the map doesn't take the ground in areas `$80` and up (the Master Sword's grove, Zora's waterfall), whose coordinates aren't the world's; not checked in the harness.
 - **Other releases:** Japan (three revisions) and Europe have other addresses; USA only at first.
 - **Randomizers and hacks** move things; the profile is for the clean ROM's CRC only.
 
-### Test states needed
+### Test states
 
-On the Duo, saved as states (slot or auto), with the battery save as it is then:
-
-1. **Light World, outdoors**, after the opening (Link has the sword; any area), standing still. Better two: one near an area's edge to walk across.
-2. **Dark World, outdoors**, any area.
-3. **A special area** (the Master Sword's grove or Zora's waterfall), if handy.
-4. **Inside a house or cave** (not a dungeon), just inside the door.
-5. **A dungeon without its map**, a few rooms in (Eastern Palace is ideal), near stairs if possible.
-6. **The same dungeon with its map** (and, if you get it, the compass): a second state after opening the map's chest.
-7. **The pause screen (item menu, START)** open in a dungeon.
-8. **The game's own maps open:** the world map (X outdoors, Light and Dark if possible) and the dungeon map (X in the dungeon).
-
-The harness made its own scratch states for the measurements above (a new game to the rain outside Link's house); they aren't the owner's and aren't kept.
+Made in the harness (the owner had none), in `test-data/a-link-to-the-past/`, read-only: `harness-castle.srm`, `harness-pendants.srm`, `harness-dark.srm` (battery saves from `tools/alttp_save.py`); states `harness-castle-house`, `harness-pendants-house`, `harness-pendants-outside` (Link free outside his house, the Light World's items), `harness-lw-day-outside`, `harness-dw-pyramid`, `harness-dw-pyramid-free`, `harness-eastern-palace-entrance`, `harness-eastern-palace-dungeon-map-open` (and `-with-map-compass`), `harness-ice-palace-entrance`, `harness-opening-rain-outside`, `harness-opening-worldmap-open`. States from the Duo are still welcome, especially after real play (a long walk, the dungeons as they were played).
 
 ## Not covered yet
 
-- Everything in the plan: nothing is built.
+- The Duo: nothing has run there yet.
 - Europe and Japan releases.
-- The ending, the credits and the attract mode's map scene.
+- Special areas (`$80` and up), the mirror and the flute's flight, the ending and the credits: only what the rules say, not checked.
+- Saving the seen record in states.
