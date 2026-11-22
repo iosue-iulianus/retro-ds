@@ -4922,7 +4922,9 @@ static uint32_t altDunPx[ALTTP_W * ALTTP_H];
 static bool altDunNew;
 static uint32_t* altDunWide;
 static int altDunWW, altDunWH, altDunWView = -1;
-static SDL_Texture* altDunWideTex[2];
+static SDL_Texture *altDunWideTex[2], *altDunWideTexB[2]; /* two, written by turns (below) */
+static bool altDunFlip;                 /* altDunWideTexB the one shown */
+static uint32_t altDunShown[ALTTP_W * ALTTP_H]; /* the picture last sent to the GPU */
 /* The view (the map's top left, world pixels): on Link, or the player's
  * from a drag until Link enters another area (ALTTP-3) */
 static float altVX, altVY, altVelX, altVelY;
@@ -5104,8 +5106,8 @@ static void alt_free(void) {
 	ui_set_pinch(false);
 	altPage = 0, altFile = 0, altFloor = ALTTP_FLOOR_AS_GAME, altDunKey = 0;
 	for (int i = 0; i < 2; ++i) {
-		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunWideTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i], &altTriTex[i], &altZoomTex[i], &altSwordTex[i] };
-		for (int k = 0; k < 9; ++k) {
+		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunWideTex[i], &altDunWideTexB[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i], &altTriTex[i], &altZoomTex[i], &altSwordTex[i] };
+		for (int k = 0; k < 10; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 			*t[k] = NULL;
 		}
@@ -5125,12 +5127,12 @@ static void alt_textures(void) {
 	if (!alt) return;
 	alt_cache_clear();
 	for (int i = 0; i < nViews; ++i) {
-		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunWideTex[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i], &altTriTex[i], &altZoomTex[i] };
-		for (int k = 0; k < 8; ++k) {
+		SDL_Texture** t[] = { &altItemsTex[i], &altMarkerTex[i], &altDunWideTex[i], &altDunWideTexB[i], &altSkyTex[0][i], &altSkyTex[1][i], &altGoalTex[i], &altTriTex[i], &altZoomTex[i] };
+		for (int k = 0; k < 9; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 		}
 		altItemsTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
-		altDunWideTex[i] = NULL; /* (made at its size when shown) */
+		altDunWideTex[i] = altDunWideTexB[i] = NULL; /* (made at its size when shown) */
 		altMarkerTex[i] = native_texture(i, 32, 32, SDL_BLENDMODE_BLEND);
 		altGoalTex[i] = native_texture(i, ALTTP_GOAL_MAX * 16, 16, SDL_BLENDMODE_BLEND);
 		altTriTex[i] = native_texture(i, ALT_TRI_W, ALT_TRI_H, SDL_BLENDMODE_BLEND);
@@ -5585,8 +5587,11 @@ static void draw_alt(int s) {
 			if (!nb) return;
 			altDunWide = nb, altDunWW = W, altDunWH = H, altDunWView = v;
 			if (altDunWideTex[v]) SDL_DestroyTexture(altDunWideTex[v]);
+			if (altDunWideTexB[v]) SDL_DestroyTexture(altDunWideTexB[v]);
 			altDunWideTex[v] = native_texture(v, W, H, SDL_BLENDMODE_NONE);
+			altDunWideTexB[v] = native_texture(v, W, H, SDL_BLENDMODE_NONE);
 			altDunNew = true;
+			memset(altDunShown, 0, sizeof altDunShown); /* (sent again) */
 		}
 		if (altDunNew && altDunWideTex[v]) {
 			/* the background round the frames black, not the game's brown (the
@@ -5611,14 +5616,22 @@ static void draw_alt(int s) {
 			for (int i = 0; i < ALTTP_W * ALTTP_H; ++i) {
 				if (out[i]) altDunPx[i] = 0xFF000000u;
 			}
+			altDunNew = false;
+			/* sent to the GPU only when the picture has changed (most of its
+			 * 4-frame steps change nothing), and into the texture not shown
+			 * last: changing one the GPU may still be drawing from made the
+			 * driver wait for it (frames of 25 ms and more on the Duo) */
+			if (!memcmp(altDunShown, altDunPx, sizeof altDunShown) || !altDunWideTexB[v]) goto shown;
+			memcpy(altDunShown, altDunPx, sizeof altDunShown);
 			back = 0xFF000000u;
 			for (int i = 0; i < W * H; ++i) altDunWide[i] = back;
 			int x0 = (W - ALTTP_W) / 2, y0 = (H - ALTTP_H) / 2;
 			for (int y = 0; y < ALTTP_H; ++y) memcpy(&altDunWide[(y0 + y) * W + x0], &altDunPx[y * ALTTP_W], ALTTP_W * 4);
-			ui_update_texture(altDunWideTex[v], altDunWide, W * 4);
-			altDunNew = false;
+			altDunFlip = !altDunFlip;
+			ui_update_texture(altDunFlip ? altDunWideTexB[v] : altDunWideTex[v], altDunWide, W * 4);
 		}
-		ui_image_pixels(s, altDunWideTex, W, H, cfg->mapScale, SHADER_ON);
+	shown:
+		ui_image_pixels(s, altDunFlip ? altDunWideTexB : altDunWideTex, W, H, cfg->mapScale, SHADER_ON);
 	}
 	else if (altPage == 1) draw_alt_map(s);
 	else ui_image_pixels(s, altItemsTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON);
