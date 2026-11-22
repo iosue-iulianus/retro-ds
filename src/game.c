@@ -4812,6 +4812,7 @@ static SDL_Texture *altItemsTex[2], *altMapTex[2], *altMarkerTex[2], *altDunTex[
  * opens it until the player picks one; back to that when Link changes
  * floor), and Link's floor when it was picked */
 static int altFloor = ALTTP_FLOOR_AS_GAME, altFloorLink;
+static uint32_t altDunKey; /* what the dungeon map's texture was drawn from (0: nothing) */
 static uint32_t altMapPx[ALT_TW * ALT_TH];
 static int altMapX = INT_MIN, altMapY, altMapZoom, altMapWorld; /* what altMapPx holds */
 /* The view (the map's top left, world pixels): on Link, or the player's
@@ -4844,7 +4845,7 @@ static void alt_free(void) {
 	alttp_free(alt);
 	alt = NULL;
 	altShown = altHaveView = altUser = altDrag = false;
-	altPage = 0, altFile = 0, altMapX = INT_MIN, altFloor = ALTTP_FLOOR_AS_GAME;
+	altPage = 0, altFile = 0, altMapX = INT_MIN, altFloor = ALTTP_FLOOR_AS_GAME, altDunKey = 0;
 	for (int i = 0; i < 2; ++i) {
 		SDL_Texture** t[] = { &altItemsTex[i], &altMapTex[i], &altMarkerTex[i], &altDunTex[i] };
 		for (int k = 0; k < 4; ++k) {
@@ -4875,6 +4876,7 @@ static void alt_textures(void) {
 	}
 	altItemsDirty = true;
 	altMapX = INT_MIN;
+	altDunKey = 0;
 }
 
 /* Where the view rests: Link in the middle, inside the world */
@@ -4928,7 +4930,12 @@ static void alt_tick(void) {
 		int lo, hi, link;
 		if (alttp_dungeon_floors(alt, &lo, &hi, &link) && altFloor != ALTTP_FLOOR_AS_GAME && link != altFloorLink)
 			altFloor = ALTTP_FLOOR_AS_GAME; /* ALTTP-6: Link changed floor */
-		const uint32_t* px = alttp_dungeon_map(alt, v && vn >= 0x10000 ? v : NULL, altFloor);
+		/* drawn again when it can have changed: its quickest blink is 4
+		 * frames; the rooms, Link and the items with the save data */
+		uint32_t key = (uint32_t) (w[0x1A] >> 2) | (uint32_t) (altFloor & 0xFF) << 8 | (uint32_t) w[0xA4] << 16 | (uint32_t) w[0xA0] << 24;
+		key ^= (uint32_t) emu_crc32(0, w + 0xF000, 0x500) ^ (uint32_t) (w[0x20] | w[0x22] << 8) * 0x9E3779B1u;
+		const uint32_t* px = key != altDunKey ? alttp_dungeon_map(alt, v && vn >= 0x10000 ? v : NULL, altFloor) : NULL;
+		if (px) altDunKey = key;
 		for (int i = 0; i < nViews && px; ++i) {
 			if (altDunTex[i]) ui_update_texture(altDunTex[i], px, ALTTP_W * 4);
 		}
@@ -5023,6 +5030,7 @@ static uint32_t alt_keys(uint32_t keys) {
 	if (x && !altXDown) {
 		altPage ^= 1;
 		if (altPage) altUser = false, altHaveView = false;
+		altMapDirty = true;
 		fprintf(stderr, "second screen: %s\n", altPage ? "the map" : "the items");
 	}
 	altXDown = x;
