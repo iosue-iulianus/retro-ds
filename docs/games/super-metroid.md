@@ -32,10 +32,13 @@ Every game also follows the general rules GBA DS set out (`docs/reference/gba/RE
 
 **SM-9. Where the map rests.** At the view the game's own pause screen would open on: the area's map centred where it can be, moved just enough to keep Samus's square in view. When she walks out of it, the map glides to the new one.
 
+**SM-10. The equipment page, drawn and tappable.** Tapping SAMUS shows Samus's equipment page as the game's pause screen draws it, drawn by SNES DS from the cartridge and her equipment in the game's memory: the wireframe Samus for her suit and boots, SUPPLY (reserve mode, the reserve tanks and their energy), BEAM, SUIT, MISC. and BOOTS with every item she has, lit when it's on and greyed when it's off. There's no cursor: tapping an item's name switches it on or off, as pressing A on it would on the pause screen (equipping Spazer switches Plasma off and the other way round; Hyper Beam can't be switched), and the game picks it up at once, as it would on unpausing: Samus's colours for the suit, the beam's shots and colours. Tapping MAP goes back to the map, as does Samus reaching another square. The reserve mode (AUTO / MANUAL) isn't switched from here yet. Checked against the game's own page (`tools/snes-harness.c`'s `smmap NAME page`, six sets of items): the same pixels but for the game's cursor.
+
 ## Exceptions
 
 - SM-6: the mini-map is covered (the game's picture changed).
 - SM-7: touch on the second screen, and arrows drawn on the plates.
+- SM-10: switching an item writes to the game being played (the owner's choice, Nov 21, 2026): only when the player taps an item, between two frames, the bytes the game's own equipment screen and unpausing would write and nothing else (see "Switching an item" below). RetroAchievements plays in casual mode only for now; with hardcore, this is to be switched off there.
 
 ## How it's found
 
@@ -67,6 +70,21 @@ Sprites on the map (from the routines named above; drawn by `tools/sm_map.py`, w
 - Samus's marker: x = (`RoomMapX` + high byte of Samus's X) x 8, y = (`RoomMapY` + high byte of Samus's Y + 1) x 8; spritemaps `$5F`, `$60`, `$61`, `$60` for 8, 4, 8, 4 frames; palette bits `$0E00`.
 - Icons (`Draw_Map_Icons`, `$82:B672`): boss icons (spritemap 9; a dead boss, `$7E:D828` a byte an area, a bit an icon, gets the cross, spritemap `$62`, palette `$0E00`, on top of its icon in palette `$0C00`; a live one is shown only while the area's map is collected, `$0789`), missile stations (`$0B`), energy stations (`$0A`), map stations (`$4E`), all palette `$0E00`, each only where its map square is explored (`Check_if_MapPosition_isExplored`); save stations (8, palette `$0400`) only in the area saved in (`$7E:D918`), and only the one the game was loaded from (`$078B`, its bit in `$82:B7C9`) if it's marked used (`$7E:D8F8`, 2 bytes an area, a bit a station). Position tables: 2 words (x, y map pixels) an icon, ending `$FFFF` (`$FFFE` skips a boss); per-area pointers at `$82:C7CB` (bosses), `C7DB` (missile), `C7EB` (energy), `C7FB` (map), `C80B` (save). In Crateria the gunship (spritemap `$63`, palette `$0E00`) at `Crateria_MapIconPositions_savePoints` / `savePoints2`.
 - Elevator destinations (`Display_Map_Elevator_Destinations`, `$82:BB30`-ish): only with the area's map station; per-area pointers `Map_Elevator_Destinations`, 3 words an entry (x, y, spritemap ID `$59`-`$5E`), ending `$FFFF`; palette 0.
+
+## Switching an item (SM-10)
+
+What a tap writes, all in work RAM, between two frames (`smmap_toggle` in `src/smmap.c`):
+
+- The equipped bits: `$09A2` (suit, misc., boots: masks at `$82:C056` and `$82:C062`) or `$09A6` (beams, `$82:C04C`), only for items collected (`$09A4`, `$09A8`). Spazer and Plasma exclude each other (`$82:B068`).
+- A suit changed: `$0A74` (0 power suit, 2 Varia, 4 Gravity, as `$90:ECB6` sets it) and Samus's 16 colours at `$7E:C180` from `$9B:9400`, `9520` or `9800` (`$91:DEBA`). Without it Samus keeps her old colours until the next pause.
+- A beam changed (charge aside): its tiles queued on the game's own VRAM write queue (an entry at `$D0` + `[$0330]`: size `$0100`, source `$9A:[$90:C3B1 + beam x 2]`, VRAM `$6300`; `$0330` += 7), done by the game's next NMI, and its 16 colours at `$7E:C1C0` from `$90:[$90:C3C9 + beam x 2]` (`$90:AC8D`). Without it new shots keep the old beam's look until the next pause.
+
+Checked in the harness (`smtoggle CAT INDEX`): Varia, Gravity and back; Ice, Wave, Spazer and Plasma shots.
+
+## The equipment page's data (SM-10)
+
+- BG1, `$7E:3800` (32 x 32), built when pausing: `Tilemap_EquipmentScreen` (`$B6:E800`); the reserve energy's three digits at words `$188`-`$18A` (`$82:8F70`); the wireframe (17 rows of 8 at word `$EC`) by suit and boots (`$82:B20C`: power `$82:D521`, Hi-Jump `D631`, Varia `D741`, both `D851`); each collected item's name at its place (`$82:C068`...), palette 3 when it's off (`$82:A12B`); AUTO / MANUAL over MODE ([`$82:AB47`]). BG2 as on the map page, with SAMUS greyed instead of MAP.
+- Sprites: the reserve tanks (`$82:B2AA`: full `$1B`, partly full `$20`-`$27`, empty `$20`, the end `$1F`, at x `$82:C1D6`, y `$5F`, in sprite palette 3, which pulses), the cursor (not drawn by SNES DS).
 
 ## Not covered yet
 

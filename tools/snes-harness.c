@@ -27,11 +27,15 @@
  *                          stable=8 maxdiff=64 max=600 blind=1 (frames
  *                          before `until` holds run without drawing)
  *                          verbose=1 (pixels changed, frame by frame)
- *   smmap NAME [VX VY|game]  Super Metroid's map as SNES DS draws it
+ *   smmap NAME [VX VY|game|page]  Super Metroid's map as SNES DS draws it
  *                          (src/smmap.c), from A's RAM: NAME.png, 256 x
  *                          178, at the view given, the game's own ($B1,
  *                          $B3: its pause screen, the blinking as on its
- *                          picture) or where SNES DS rests it
+ *                          picture) or where SNES DS rests it; or its
+ *                          equipment page
+ *   smtoggle CAT INDEX     Super Metroid: switch an item on or off as
+ *                          the drawn equipment page does (src/smmap.c:
+ *                          CAT 1 beams, 2 suit / misc., 3 boots)
  *   bench [FRAMES]         the M0 measurements (see docs/M0-results.md)
  *   context N              savestate context for both (0 normal,
  *                          1 runahead same instance, 2 same binary)
@@ -96,8 +100,28 @@ static void shot(Emu* e, const char* name) {
 
 /* ---- Super Metroid's native map ---- */
 
+static SmMap* sm;
+static bool sm_open(const char* romPath) {
+	if (!sm) {
+		size_t n = 0;
+		uint8_t* rom = emu_rom_read_played(romPath, &n, NULL, NULL, NULL);
+		sm = smmap_new(rom, n);
+		if (!sm) fprintf(stderr, "smmap: not a ROM it knows\n");
+	}
+	return sm != NULL;
+}
+
+static void smtoggle_cmd(Emu* e, const char* romPath, int cat, int index) {
+	size_t n;
+	const uint8_t* w = emu_memory(e, EMU_MEM_WRAM, &n);
+	if (!sm_open(romPath) || !w || n < 0x20000) return;
+	SmWrite out[128];
+	int k = smmap_toggle(sm, w, cat, index, out, 128);
+	for (int i = 0; i < k; ++i) emu_write8(e, 0x7E0000 + out[i].addr, out[i].val);
+	printf("smtoggle %d %d: %d byte(s) written\n", cat, index, k);
+}
+
 static void smmap_cmd(Emu* e, const char* romPath, const char* name, const char* a, const char* b) {
-	static SmMap* sm;
 	if (!sm) {
 		size_t n = 0;
 		uint8_t* rom = emu_rom_read_played(romPath, &n, NULL, NULL, NULL);
@@ -112,7 +136,11 @@ static void smmap_cmd(Emu* e, const char* romPath, const char* name, const char*
 	if (!w || n < 0x20000) return;
 	smmap_update(sm, w);
 	int vx, vy;
-	if (!strcmp(a, "game")) {
+	if (!strcmp(a, "page")) {
+		/* the equipment page, its pulsing as on the game's screen */
+		smmap_set_blink(sm, -1, w[0x074F]);
+		vx = vy = 0;
+	} else if (!strcmp(a, "game")) {
 		vx = (int16_t) (w[0xB1] | w[0xB2] << 8), vy = (int16_t) (w[0xB3] | w[0xB4] << 8);
 		/* the marker as the picture has it: a frame late ($82:B9FC) */
 		static const int seq[4] = { 0, 1, 2, 1 }, delay[4] = { 8, 4, 8, 4 };
@@ -125,7 +153,8 @@ static void smmap_cmd(Emu* e, const char* romPath, const char* name, const char*
 		smmap_home(sm, &vx, &vy);
 	}
 	static uint32_t px[SMMAP_W * SMMAP_H];
-	smmap_compose(sm, vx, vy, px);
+	if (!strcmp(a, "page")) memcpy(px, smmap_page(sm), sizeof(px));
+	else smmap_compose(sm, vx, vy, px);
 	char path[1200];
 	out_path(path, sizeof path, name, ".png");
 	if (!write_png(path, px, SMMAP_W, SMMAP_H, SMMAP_W)) fprintf(stderr, "can't write %s\n", path);
@@ -458,6 +487,8 @@ int main(int argc, char** argv) {
 				for (int i = 0; i < 3; ++i) emu_frame(e, k);
 				for (int i = 0; i < 9; ++i) emu_frame(e, 0);
 			}
+		} else if (!strcmp(cmd, "smtoggle")) {
+			smtoggle_cmd(e, rom, atoi(s1), atoi(s2));
 		} else if (!strcmp(cmd, "smmap")) {
 			smmap_cmd(e, rom, s1, s2, s3);
 		} else if (!strcmp(cmd, "shot")) {

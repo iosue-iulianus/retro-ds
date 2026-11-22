@@ -23,6 +23,12 @@ struct SmMap {
 	uint8_t spTiles[256][64];   /* the menu sprites' tiles ($B6:C000) */
 	uint32_t chrome[SMMAP_W * SMMAP_H];
 	uint32_t over[SMMAP_W * SMMAP_H]; /* the chrome's pixels over the map */
+	uint32_t page[SMMAP_W * SMMAP_H]; /* the equipment page (SM-10) */
+	uint64_t pageKey;
+	bool havePage;
+	int pageRing;
+	/* the equipment, the last update */
+	int eqItems, colItems, eqBeams, colBeams, reserveMode, maxReserve, reserve, hyper;
 	uint32_t layer[SMMAP_LW * SMMAP_LH];
 	uint32_t marker[3][SMMAP_MARKER * SMMAP_MARKER];
 
@@ -280,17 +286,18 @@ static void find_limits(SmMap* m) {
 }
 
 /* ---- the chrome */
-static void build_chrome(SmMap* m) {
-	/* BG2: the frame, the grid, the plates (Tilemap_BG2PauseScreen_..._0,
-	 * $B6:E000), the area's name (AreaLabelTilemaps, $82:965F, 12 tiles
-	 * at row 5, column 10), the plates' colours on the map page
-	 * (Set_PauseScreen_ButtonLabelPalettes_MapScreen, $82:A796) */
-	uint16_t w[1024];
+/* BG2: the frame, the grid, the plates (Tilemap_BG2PauseScreen_..._0,
+ * $B6:E000), the area's name (AreaLabelTilemaps, $82:965F, 12 tiles at
+ * row 5, column 10), the plates' colours: on the map page
+ * (Set_PauseScreen_ButtonLabelPalettes_MapScreen, $82:A796) MAP greyed,
+ * on the equipment page ($82:A628) SAMUS */
+static void bg2_words(const SmMap* m, int page, uint16_t* w) {
 	for (int i = 0; i < 1024; ++i) w[i] = (uint16_t) r16(m, 0xB6E000 + i * 2);
 	uint32_t label = 0x820000u | (uint32_t) r16(m, 0x82965F + m->area * 2);
 	for (int k = 0; k < 12; ++k) w[0xAA + k] = (uint16_t) r16(m, label + (uint32_t) k * 2);
-	static const struct { int off, n, pal; } plates[] = {
-		{ 0x64A, 5, 5 }, { 0x68A, 5, 5 }, { 0x66C, 5, 2 }, { 0x6AC, 5, 2 }, { 0x658, 4, 2 }, { 0x698, 4, 2 },
+	int mapPal = page ? 2 : 5, samusPal = page ? 5 : 2;
+	const struct { int off, n, pal; } plates[] = {
+		{ 0x64A, 5, mapPal }, { 0x68A, 5, mapPal }, { 0x66C, 5, samusPal }, { 0x6AC, 5, samusPal }, { 0x658, 4, 2 }, { 0x698, 4, 2 },
 	};
 	for (size_t p = 0; p < sizeof(plates) / sizeof(plates[0]); ++p) {
 		for (int k = 0; k < plates[p].n; ++k) {
@@ -298,25 +305,49 @@ static void build_chrome(SmMap* m) {
 			w[i] = (uint16_t) ((w[i] & 0xE3FF) | plates[p].pal << 10);
 		}
 	}
+}
+
+/* A 32 x 32 tilemap's pixel at the chrome's (x, y), scroll 0: its colour
+ * number (0: none), *colour and *prio (the tile's priority bit) */
+static int tile_px(const SmMap* m, const uint16_t* w, int x, int y, uint32_t* colour, int* prio) {
+	int row = (SMMAP_Y0 + y + 1) & 255;
+	int word = w[(row >> 3) * 32 + (x >> 3)];
+	int ty = row & 7, tx = x & 7;
+	if (word & 0x8000) ty = 7 - ty;
+	if (word & 0x4000) tx = 7 - tx;
+	int v = m->bgTiles[word & 0x3FF][ty * 8 + tx];
+	if (v) *colour = m->pal[((word >> 10) & 7) * 16 + v], *prio = (word >> 13) & 1;
+	return v;
+}
+
+/* The small arrow in place of the pill's letter (SM-7): the pill's grey
+ * and its letter's purple; x0: 228 (R) or 20 (L) */
+static void draw_arrow(uint32_t* px, int x0, bool left) {
+	static const char* const right[5] = { "....#....", ".....#...", ".######..", ".....#...", "....#...." };
+	static const char* const leftA[5] = { "...#.....", "..#......", ".######..", "..#......", "...#....." };
+	for (int y = 0; y < 5; ++y) {
+		for (int x = 0; x < 9; ++x) {
+			char c = (left ? leftA : right)[y][x];
+			px[(205 - SMMAP_Y0 + y) * SMMAP_W + x0 + x] = c == '#' ? 0xFF8C0042u : 0xFFBDBDBDu;
+		}
+	}
+}
+
+static void build_chrome(SmMap* m) {
+	uint16_t w[1024];
+	bg2_words(m, 0, w);
 	/* the chrome's line y is the screen's SMMAP_Y0 + y, BG row y + 1 */
 	for (int y = 0; y < SMMAP_H; ++y) {
-		int sy = SMMAP_Y0 + y, row = (sy + 1) & 255;
+		int sy = SMMAP_Y0 + y;
 		for (int x = 0; x < SMMAP_W; ++x) {
 			uint32_t c = 0xFF000000u, o = 0;
 			/* the plates' row: only SAMUS and its pill (SM-7) */
 			bool keep = sy < 199 || (x >= 174 && x < 248);
-			if (keep) {
-				int word = w[(row >> 3) * 32 + (x >> 3)];
-				int ty = row & 7, tx = x & 7;
-				if (word & 0x8000) ty = 7 - ty;
-				if (word & 0x4000) tx = 7 - tx;
-				int v = m->bgTiles[word & 0x3FF][ty * 8 + tx];
-				if (v) c = m->pal[((word >> 10) & 7) * 16 + v];
-				/* the frame's tiles have priority over the map's (all
-				 * low): their pixels cover it, their black inner edge
-				 * too; the grid's are under it */
-				if (v && (word & 0x2000)) o = c;
-			}
+			int prio = 0;
+			/* the frame's tiles have priority over the map's (all low):
+			 * their pixels cover it, their black inner edge too; the
+			 * grid's are under it */
+			if (keep && tile_px(m, w, x, y, &c, &prio) && prio) o = c;
 			m->chrome[y * SMMAP_W + x] = c;
 			m->over[y * SMMAP_W + x] = o;
 		}
@@ -324,14 +355,187 @@ static void build_chrome(SmMap* m) {
 	/* the pill's ring (EquipmentScreen_Draw_L_R_Highlight, $82:A59A: at
 	 * x E8, y CF), pulsing in sprite palette 3 */
 	draw_spritemap(m, m->chrome, SMMAP_W, SMMAP_H, 0xE8, 0xCF - SMMAP_Y0, SP_LR_RING, m->ringPal[m->ringFrame < 0 ? 0 : m->ringFrame]);
-	/* a small arrow in place of the R (SM-7): the pill's grey and its
-	 * letter's purple */
-	static const char* const arrow[5] = { "....#....", ".....#...", ".######..", ".....#...", "....#...." };
-	for (int y = 0; y < 5; ++y) {
-		for (int x = 0; x < 9; ++x) {
-			m->chrome[(205 - SMMAP_Y0 + y) * SMMAP_W + 228 + x] = arrow[y][x] == '#' ? 0xFF8C0042u : 0xFFBDBDBDu;
+	draw_arrow(m->chrome, 228, false);
+}
+
+/* ---- the equipment page (SM-10) */
+
+/* Its BG1 ($7E:3800), as the game builds it when pausing: the page
+ * (Tilemap_EquipmentScreen, $B6:E800), the reserve tanks' energy
+ * ($82:8F70), Samus's wireframe for her suit and boots ($82:B20C), every
+ * collected item's name, greyed (palette 3) when it's off
+ * (Load_EquipmentScreen_EquipmentTilemaps, $82:A12B), AUTO or MANUAL
+ * ($82:AB47). Checked word for word against the game's RAM. */
+static void put_tiles(const SmMap* m, uint16_t* w, int ramOff, int src, int bytes, int pal) {
+	int base = (ramOff - 0x3800) / 2;
+	for (int k = 0; k < bytes / 2 && base + k < 1024; ++k) {
+		int v = src ? r16(m, 0x820000u | (uint32_t) ((src + k * 2) & 0xFFFF)) : 0;
+		if (pal >= 0) v = (v & 0xE3FF) | pal;
+		if (base + k >= 0) w[base + k] = (uint16_t) v;
+	}
+}
+
+static void page_words(const SmMap* m, uint16_t* w) {
+	for (int i = 0; i < 1024; ++i) w[i] = (uint16_t) r16(m, 0xB6E800 + i * 2);
+	if (m->maxReserve) {
+		int r = m->reserve;
+		w[0x310 / 2] = (uint16_t) (((r / 100) & 0xFF) + 0x804);
+		w[0x312 / 2] = (uint16_t) ((r % 100) / 10 + 0x804);
+		w[0x314 / 2] = (uint16_t) (r % 10 + 0x804);
+	}
+	static const struct { int bits, addr; } frames[] = { { 0x000, 0xD521 }, { 0x100, 0xD631 }, { 0x001, 0xD741 }, { 0x101, 0xD851 } };
+	int wf = 0xD521;
+	for (int i = 0; i < 4; ++i) {
+		if ((m->eqItems & 0x101) == frames[i].bits) wf = frames[i].addr;
+	}
+	for (int r = 0; r < 17; ++r) {
+		for (int c = 0; c < 8; ++c) w[0x1D8 / 2 + r * 32 + c] = (uint16_t) r16(m, 0x820000u | (uint32_t) (wf + (r * 8 + c) * 2));
+	}
+	const int blank = 0xC01A;
+	if (m->maxReserve) {
+		put_tiles(m, w, r16(m, 0x82C068), r16(m, 0x82C088), 14, -1);
+		put_tiles(m, w, r16(m, 0x82C06A), r16(m, 0x82C08A), 14, -1);
+	}
+	if (m->hyper) {
+		for (int i = 0; i < 6; ++i) put_tiles(m, w, r16(m, 0x82C06C + i * 2), r16(m, 0x82C0A8 + i * 2), 10, -1);
+	} else {
+		/* (six, one past the five beams, as the game does: the suits'
+		 * list writes over the sixth) */
+		for (int i = 0; i < 6; ++i) {
+			int mask = r16(m, 0x82C04C + i * 2), off = r16(m, 0x82C06C + i * 2), src = r16(m, 0x82C08C + i * 2);
+			if (!(mask & m->colBeams)) put_tiles(m, w, off, blank, 10, -1);
+			else put_tiles(m, w, off, src, 10, mask & m->eqBeams ? -1 : 0x0C00);
 		}
 	}
+	static const struct { uint32_t masks, ptrs, offs; int n; } lists[] = {
+		{ 0x82C056, 0x82C096, 0x82C076, 6 }, { 0x82C062, 0x82C0A2, 0x82C082, 3 },
+	};
+	for (int l = 0; l < 2; ++l) {
+		for (int i = 0; i < lists[l].n; ++i) {
+			int mask = r16(m, lists[l].masks + (uint32_t) i * 2), off = r16(m, lists[l].offs + (uint32_t) i * 2);
+			int src = r16(m, lists[l].ptrs + (uint32_t) i * 2);
+			if (!(mask & m->colItems)) put_tiles(m, w, off, blank, 18, -1);
+			else put_tiles(m, w, off, src, 18, mask & m->eqItems ? -1 : 0x0C00);
+		}
+	}
+	if (m->maxReserve && m->reserveMode) {
+		int src = m->reserveMode == 1 ? 0xBF2A : 0xBF22;
+		for (int k = 0; k < 4; ++k) {
+			int i = 0x28E / 2 + k;
+			w[i] = (uint16_t) ((w[i] & 0xFC00) | r16(m, 0x820000u | (uint32_t) (src + k * 2)));
+		}
+	}
+}
+
+/* The reserve tanks ($82:B2AA): full ones, the one being filled (its
+ * level in fourteenths, the last steps blinking), empty ones and the
+ * end, in sprite palette 3 (pulsing) */
+static void draw_reserve_tanks(SmMap* m, uint32_t* px, const uint32_t* colours) {
+	if (!m->maxReserve) return;
+	int tanks = m->maxReserve / 100, full = m->reserve / 100, part = m->reserve % 100;
+	int slot = 0, count = full;
+	const int y = 0x60 - 1 - SMMAP_Y0;
+	for (int i = 0; i < full && slot < 6; ++i, ++slot) {
+		draw_spritemap(m, px, SMMAP_W, SMMAP_H, r16(m, 0x82C1D6 + slot * 2), y, 0x1B, colours);
+	}
+	if (part && slot < 6) {
+		int x = (part / 14) * 2;
+		if (x < 7 && part % 14 && !(m->tick & 4)) x += 2;
+		if (m->reserve >= 100) x += 0x10;
+		draw_spritemap(m, px, SMMAP_W, SMMAP_H, r16(m, 0x82C1D6 + slot * 2), y, r16(m, 0x82B3D9 + x), colours);
+		++count, ++slot;
+	}
+	for (; count < tanks && slot < 6; ++count, ++slot) {
+		draw_spritemap(m, px, SMMAP_W, SMMAP_H, r16(m, 0x82C1D6 + slot * 2), y, 0x20, colours);
+	}
+	if (slot < 6) draw_spritemap(m, px, SMMAP_W, SMMAP_H, r16(m, 0x82C1D6 + slot * 2), y, 0x1F, colours);
+}
+
+/* Copies a rect of px from (dx, dy) away, through a copy (they may overlap) */
+static void copy_rect(uint32_t* px, int x0, int y0, int w, int h, int dx, int dy) {
+	uint32_t tmp[64 * 64];
+	if (w > 64 || h > 64) return;
+	for (int y = 0; y < h; ++y) {
+		for (int x = 0; x < w; ++x) tmp[y * w + x] = px[(y0 + dy + y - SMMAP_Y0) * SMMAP_W + x0 + dx + x];
+	}
+	for (int y = 0; y < h; ++y) {
+		for (int x = 0; x < w; ++x) px[(y0 + y - SMMAP_Y0) * SMMAP_W + x0 + x] = tmp[y * w + x];
+	}
+}
+
+static void fill_rect(uint32_t* px, int x0, int y0, int w, int h, uint32_t c) {
+	for (int y = 0; y < h; ++y) {
+		for (int x = 0; x < w; ++x) px[(y0 + y - SMMAP_Y0) * SMMAP_W + x0 + x] = c;
+	}
+}
+
+static void build_page(SmMap* m) {
+	uint16_t b1[1024], b2[1024];
+	page_words(m, b1);
+	bg2_words(m, 1, b2);
+	/* mode 1: BG1 over BG2 at the same priority, either's high tiles
+	 * over both's low ones */
+	for (int y = 0; y < SMMAP_H; ++y) {
+		int sy = SMMAP_Y0 + y;
+		for (int x = 0; x < SMMAP_W; ++x) {
+			uint32_t c = 0xFF000000u, c1 = 0, c2 = 0;
+			int p1 = 0, p2 = 0;
+			/* the plates' row: only MAP and its pill (SM-7) */
+			if (sy < 199 || (x >= 8 && x < 82)) {
+				bool has1 = tile_px(m, b1, x, y, &c1, &p1), has2 = tile_px(m, b2, x, y, &c2, &p2);
+				int r1 = has1 ? 4 + p1 * 3 : -1, r2 = has2 ? 3 + p2 * 3 : -1;
+				if (r1 >= 0 || r2 >= 0) c = r1 > r2 ? c1 : c2;
+			}
+			m->page[y * SMMAP_W + x] = c;
+		}
+	}
+	const uint32_t* ring = m->ringPal[m->ringFrame < 0 ? 0 : m->ringFrame];
+	draw_reserve_tanks(m, m->page, ring);
+	draw_spritemap(m, m->page, SMMAP_W, SMMAP_H, 0x18, 0xCF - SMMAP_Y0, SP_LR_RING, ring);
+	draw_arrow(m->page, 20, true);
+	/* SM-7: no line from SUPPLY up to the energy row's reserve tanks (not
+	 * shown): the grid seven cells below over it, the frame's top edge
+	 * beside it, the gap it leaves in SUPPLY's wall closed */
+	fill_rect(m->page, 10, 38, 4, 3, 0xFF000000u);
+	copy_rect(m->page, 10, 41, 4, 4, 4, 0);
+	copy_rect(m->page, 10, 45, 4, 52, 0, 56);
+	copy_rect(m->page, 10, 97, 8, 4, 0, 56);
+	copy_rect(m->page, 18, 95, 4, 8, 0, -8);
+	fill_rect(m->page, 22, 97, 2, 4, 0xFF000000u);
+	m->havePage = true;
+}
+
+const uint32_t* smmap_page(const SmMap* m) {
+	return m->page;
+}
+
+int smmap_hit(const SmMap* m, int page, int x, int y, int* category, int* index) {
+	int sy = y + SMMAP_Y0;
+	/* the plate and its pill (SM-7), a little taller for a finger */
+	if (sy >= 196 && sy < 218) {
+		if (!page && x >= 172 && x < 256) return 1;
+		if (page && x < 84) return 1;
+		return 0;
+	}
+	if (!page) return 0;
+	/* an item's name: its row in the page's tilemap (BG row r is on
+	 * line r * 8 - 1), as wide as its name */
+	static const struct { int cat, n; uint32_t offs; int tiles; } lists[] = {
+		{ SMMAP_BEAMS, 5, 0x82C06C, 5 }, { SMMAP_SUITS, 6, 0x82C076, 9 }, { SMMAP_BOOTS, 3, 0x82C082, 9 },
+	};
+	for (int l = 0; l < 3; ++l) {
+		for (int i = 0; i < lists[l].n; ++i) {
+			int word = (r16(m, lists[l].offs + (uint32_t) i * 2) - 0x3800) / 2;
+			int tx = (word & 31) * 8, ty = (word >> 5) * 8 - 1;
+			if (x >= tx && x < tx + lists[l].tiles * 8 && sy >= ty - 1 && sy < ty + 9) {
+				int mask = r16(m, (l == 0 ? 0x82C04C : l == 1 ? 0x82C056 : 0x82C062) + (uint32_t) i * 2);
+				if (!((l == 0 ? m->colBeams : m->colItems) & mask) || (l == 0 && m->hyper)) return 0;
+				*category = lists[l].cat, *index = i;
+				return 2;
+			}
+		}
+	}
+	return 0;
 }
 
 /* ---- the marker */
@@ -370,6 +574,10 @@ int smmap_update(SmMap* m, const uint8_t* wram) {
 	m->usedSaves = ram16(wram, 0xD8F8 + m->area * 2);
 	m->loadStation = ram16(wram, 0x078B) & 0xFF;
 	m->samusX = ram16(wram, 0x0AF6), m->samusY = ram16(wram, 0x0AFA);
+	m->eqItems = ram16(wram, 0x09A2), m->colItems = ram16(wram, 0x09A4);
+	m->eqBeams = ram16(wram, 0x09A6), m->colBeams = ram16(wram, 0x09A8);
+	m->reserveMode = ram16(wram, 0x09C0), m->maxReserve = ram16(wram, 0x09D4);
+	m->reserve = ram16(wram, 0x09D6), m->hyper = ram16(wram, 0x0A76);
 	m->roomX = ram16(wram, 0x07A1), m->roomY = ram16(wram, 0x07A3);
 	int sq = (m->roomX + (m->samusX >> 8)) | (m->roomY + (m->samusY >> 8)) << 8;
 	if (sq != oldSq || m->area != oldArea) changed |= SMMAP_SQUARE;
@@ -396,11 +604,20 @@ int smmap_update(SmMap* m, const uint8_t* wram) {
 	m->markerFrame = mf;
 	int rt = (int) (m->tick % 54);
 	int rf = rt < 15 ? 0 : 1 + (rt - 15) / 3;
-	if (rf != m->ringFrame || m->area != m->chromeArea) {
+	bool newArea = m->area != m->chromeArea;
+	if (rf != m->ringFrame || newArea) {
 		m->ringFrame = rf;
 		m->chromeArea = m->area;
 		build_chrome(m);
 		changed |= SMMAP_CHROME;
+	}
+	int eq[] = { m->eqItems, m->colItems, m->eqBeams, m->colBeams, m->reserveMode, m->maxReserve, m->reserve, m->hyper,
+	             (int) (m->tick & 4) };
+	uint64_t pk = fnv(1469598103934665603ull, eq, sizeof(eq));
+	if (!m->havePage || pk != m->pageKey || rf != m->pageRing || newArea) {
+		m->pageKey = pk, m->pageRing = rf;
+		build_page(m);
+		changed |= SMMAP_PAGE;
 	}
 	return changed;
 }
@@ -480,9 +697,73 @@ void smmap_place(const SmMap* m, int vx, int vy, int* lx, int* ly, int* mx, int*
 	*my = s16(y) + 1 - SMMAP_MARKER / 2 + *ly;
 }
 
+/* ---- switching items (SM-10) */
+typedef struct {
+	SmWrite* out;
+	int n, max;
+} Writes;
+
+static void w8(Writes* w, uint32_t addr, int v) {
+	if (w->n < w->max) w->out[w->n++] = (SmWrite) { addr & 0x1FFFF, (uint8_t) v };
+}
+
+static void w16(Writes* w, uint32_t addr, int v) {
+	w8(w, addr, v & 0xFF);
+	w8(w, addr + 1, (v >> 8) & 0xFF);
+}
+
+int smmap_toggle(const SmMap* m, const uint8_t* wram, int category, int index, SmWrite* out, int max) {
+	Writes w = { out, 0, max };
+	if (category == SMMAP_BEAMS) {
+		if (index < 0 || index >= 5 || ram16(wram, 0x0A76)) return 0; /* (Hyper Beam: nothing to switch) */
+		int mask = r16(m, 0x82C04C + index * 2);
+		int old = ram16(wram, 0x09A6);
+		if (!(ram16(wram, 0x09A8) & mask)) return 0;
+		int now = old ^ mask;
+		/* EquipmentScreen_Main_Weapons_PlasmaSpazerCheck ($82:B068) */
+		if ((now & ~old & 0x0004) && (now & 0x0008)) now &= ~0x0008;
+		if ((now & ~old & 0x0008) && (now & 0x0004)) now &= ~0x0004;
+		w16(&w, 0x09A6, now);
+		if ((now & 0x0FFF) != (old & 0x0FFF)) {
+			/* Update_Beam_Tiles_and_Palette ($90:AC8D): the beam's tiles
+			 * on the game's VRAM write queue ($D0, stack $0330: size,
+			 * source, VRAM $6300), its colours into sprite palette 6 */
+			int beam = (now & 0x0FFF) * 2;
+			int stack = ram16(wram, 0x0330);
+			if (stack + 7 <= 0x0200) {
+				uint32_t e = 0xD0 + (uint32_t) stack;
+				w16(&w, e, 0x0100);
+				w16(&w, e + 2, r16(m, 0x90C3B1 + beam));
+				w8(&w, e + 4, 0x9A);
+				w16(&w, e + 5, 0x6300);
+				w16(&w, 0x0330, stack + 7);
+			}
+			uint32_t pal = 0x900000u | (uint32_t) r16(m, 0x90C3C9 + beam);
+			for (int i = 0; i < 16; ++i) w16(&w, 0xC1C0 + (uint32_t) i * 2, r16(m, pal + (uint32_t) i * 2));
+		}
+		return w.n;
+	}
+	uint32_t masks = category == SMMAP_SUITS ? 0x82C056 : category == SMMAP_BOOTS ? 0x82C062 : 0;
+	int count = category == SMMAP_SUITS ? 6 : 3;
+	if (!masks || index < 0 || index >= count) return 0;
+	int mask = r16(m, masks + (uint32_t) index * 2);
+	if (!(ram16(wram, 0x09A4) & mask)) return 0;
+	int old = ram16(wram, 0x09A2), now = old ^ mask;
+	w16(&w, 0x09A2, now);
+	if ((now & 0x0021) != (old & 0x0021)) {
+		/* Determine_SamusSuitPalette_Index ($90:ECB6), LoadSamusSuitPalette
+		 * ($91:DEBA): gravity, else varia, else the power suit */
+		int idx = now & 0x0020 ? 4 : now & 0x0001 ? 2 : 0;
+		w16(&w, 0x0A74, idx);
+		uint32_t pal = idx == 4 ? 0x9B9800 : idx == 2 ? 0x9B9520 : 0x9B9400;
+		for (int i = 0; i < 16; ++i) w16(&w, 0xC180 + (uint32_t) i * 2, r16(m, pal + (uint32_t) i * 2));
+	}
+	return w.n;
+}
+
 void smmap_set_blink(SmMap* m, int markerFrame, int ringFrame) {
 	if (markerFrame >= 0 && markerFrame < 3) m->markerFrame = markerFrame;
-	if (ringFrame >= 0 && ringFrame < 14 && ringFrame != m->ringFrame) m->ringFrame = ringFrame, build_chrome(m);
+	if (ringFrame >= 0 && ringFrame < 14 && ringFrame != m->ringFrame) m->ringFrame = ringFrame, build_chrome(m), build_page(m);
 }
 
 void smmap_compose(const SmMap* m, int vx, int vy, uint32_t* out) {

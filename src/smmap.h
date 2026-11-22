@@ -40,7 +40,7 @@ SmMap* smmap_new(uint8_t* rom, size_t size);
 void smmap_free(SmMap* m);
 
 /* What changed in smmap_update */
-enum { SMMAP_CHROME = 1, SMMAP_LAYER = 2, SMMAP_MARKER_CHANGED = 4, SMMAP_SQUARE = 8 };
+enum { SMMAP_CHROME = 1, SMMAP_LAYER = 2, SMMAP_MARKER_CHANGED = 4, SMMAP_SQUARE = 8, SMMAP_PAGE = 16 };
 /* Once per emulated frame, with the game's 128 KB of work RAM: reads where
  * Samus is and what she's explored, and moves the blinking on a frame. */
 int smmap_update(SmMap* m, const uint8_t* wram);
@@ -71,6 +71,34 @@ void smmap_limits(const SmMap* m, int* x0, int* x1, int* y0, int* y1);
 /* Where things go in the chrome at view (vx, vy): the layer's top left,
  * and the marker picture's */
 void smmap_place(const SmMap* m, int vx, int vy, int* lx, int* ly, int* mx, int* my);
+
+/* The equipment page (SM-10), SMMAP_W x SMMAP_H like the chrome: the
+ * pause screen's SAMUS page as the game draws it from Samus's equipment,
+ * with the MAP plate to go back */
+const uint32_t* smmap_page(const SmMap* m);
+
+/* What's under a tap at (x, y), chrome pixels: on the map (page 0), 1 for
+ * the SAMUS plate; on the equipment page (page 1), 1 for the MAP plate,
+ * 2 for an item (its category and index set), else 0 */
+int smmap_hit(const SmMap* m, int page, int x, int y, int* category, int* index);
+
+/* The equipment page's items (SM-10): a category (1 beams, 2 suit and
+ * misc., 3 boots, as the game numbers them) and its place in the list */
+enum { SMMAP_BEAMS = 1, SMMAP_SUITS = 2, SMMAP_BOOTS = 3 };
+/* One byte to write to the game's work RAM (an offset in its 128 KB) */
+typedef struct {
+	uint32_t addr;
+	uint8_t val;
+} SmWrite;
+/* Switching an item on or off, as the game's equipment screen does
+ * (EquipmentScreen_Main_ButtonResponse, $82:B568; equipping Spazer
+ * unequips Plasma and the other way round) and then what unpausing
+ * refreshes (the suit's colours, $91:DEBA, $90:ECB6; the beam's tiles
+ * through the game's own VRAM queue and its colours, $90:AC8D). Fills
+ * out (at most max) and returns how many; 0 if the item isn't collected
+ * or can't be switched (Hyper Beam). wram: the RAM now, unchanged. To
+ * be written between two frames. */
+int smmap_toggle(const SmMap* m, const uint8_t* wram, int category, int index, SmWrite* out, int max);
 
 /* Tests: the blinking at a given point (the marker's frame 0 to 2, the
  * ring's palette step 0 to 13), to match a shot of the game */
