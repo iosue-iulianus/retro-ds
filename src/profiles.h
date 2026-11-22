@@ -172,6 +172,14 @@ typedef struct MapProfile {
 		MacroStep steps[24];
 		int minX, minY, maxX, maxY;
 		int rev; /* bump when the logo changes, so cached logos are made again */
+		/* written to the (silent) copy's work RAM just before the frame
+		 * taken, when pokeAddr isn't 0: a game's own copy of the layers
+		 * shown, so only the logo's are (the copy is never played) */
+		uint32_t pokeAddr;
+		uint8_t pokeVal;
+		/* the black round the logo (reached from the box's edge) made
+		 * transparent, but for a pixel's outline next to the logo */
+		bool trimBlack;
 	} logo;
 
 	int animFrames; /* frames to record for the blinking/pulsing marker loop */

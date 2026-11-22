@@ -25,6 +25,54 @@
 
 static volatile bool cancelAll;
 
+/* The black round a logo, reached from the box's edge through black,
+ * made transparent; black next to the logo (a pixel's outline) kept */
+static void trim_black(uint8_t* rgba, int w, int h) {
+	uint8_t* mark = calloc((size_t) w * h, 1);
+	int* stack = malloc(sizeof(int) * (size_t) w * h);
+	if (!mark || !stack) {
+		free(mark), free(stack);
+		return;
+	}
+	#define BLACK(i) (!rgba[(i) * 4] && !rgba[(i) * 4 + 1] && !rgba[(i) * 4 + 2])
+	int n = 0;
+	for (int x = 0; x < w; ++x) {
+		int e[2] = { x, (h - 1) * w + x };
+		for (int k = 0; k < 2; ++k) if (BLACK(e[k]) && !mark[e[k]]) mark[e[k]] = 1, stack[n++] = e[k];
+	}
+	for (int y = 0; y < h; ++y) {
+		int e[2] = { y * w, y * w + w - 1 };
+		for (int k = 0; k < 2; ++k) if (BLACK(e[k]) && !mark[e[k]]) mark[e[k]] = 1, stack[n++] = e[k];
+	}
+	while (n) {
+		int i = stack[--n], x = i % w, y = i / w;
+		const int nb[4][2] = { { x - 1, y }, { x + 1, y }, { x, y - 1 }, { x, y + 1 } };
+		for (int k = 0; k < 4; ++k) {
+			int nx = nb[k][0], ny = nb[k][1];
+			if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+			int j = ny * w + nx;
+			if (!mark[j] && BLACK(j)) mark[j] = 1, stack[n++] = j;
+		}
+	}
+	/* kept: black next to (a corner counts) a pixel that isn't black */
+	for (int y = 0; y < h; ++y) {
+		for (int x = 0; x < w; ++x) {
+			int i = y * w + x;
+			if (!mark[i]) continue;
+			bool edge = false;
+			for (int dy = -1; dy <= 1 && !edge; ++dy) {
+				for (int dx = -1; dx <= 1; ++dx) {
+					int nx = x + dx, ny = y + dy;
+					if (nx >= 0 && ny >= 0 && nx < w && ny < h && !BLACK(ny * w + nx)) edge = true;
+				}
+			}
+			if (!edge) rgba[i * 4 + 3] = 0;
+		}
+	}
+	#undef BLACK
+	free(mark), free(stack);
+}
+
 /* The logo from the game's own title screen: the ROM booted on a silent
  * core and run to its title (the profile's logo.wait, pressStart and wait2,
  * or its steps); the picture inside the profile's box is kept as a PNG. */
@@ -45,6 +93,12 @@ bool logo_extract(const char* romPath, const char* gameCode, const char* outPng)
 			for (int f = 0; f < p->logo.wait2; ++f) emu_frame_blind(&e, 0);
 		}
 	}
+	if (p->logo.pokeAddr) {
+		/* (the game copies it to the PPU at the next frame's start) */
+		emu_write8(&e, p->logo.pokeAddr, p->logo.pokeVal);
+		emu_frame_blind(&e, 0);
+		emu_write8(&e, p->logo.pokeAddr, p->logo.pokeVal);
+	}
 	emu_frame(&e, 0); /* (drawn: the picture taken) */
 	bool ok = false;
 	if (!emu_cancelled(&e)) {
@@ -60,6 +114,7 @@ bool logo_extract(const char* romPath, const char* gameCode, const char* outPng)
 				o[0] = c & 0xFF, o[1] = (c >> 8) & 0xFF, o[2] = (c >> 16) & 0xFF, o[3] = 255;
 			}
 		}
+		if (rgba && p->logo.trimBlack) trim_black(rgba, w, h);
 		char tmp[1100];
 		snprintf(tmp, sizeof(tmp), "%s.tmp", outPng);
 		ok = rgba && stbi_write_png(tmp, w, h, 4, rgba, w * 4) && rename(tmp, outPng) == 0;

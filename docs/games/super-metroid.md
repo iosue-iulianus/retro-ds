@@ -20,7 +20,7 @@ Every game also follows the general rules GBA DS set out (`docs/reference/gba/RE
 
 **SM-3. Last good map stays.** Where the game isn't being played (a cutscene, the game over screen, the ending) or Samus is on Ceres Station, the last map shown stays up.
 
-**SM-4. Logo before the first map.** Until the map is first shown, and at the title screen, the intro, the file select and the options, the second screen shows the logo, taken from the title screen.
+**SM-4. Logo before the first map.** Until the map is first shown, and at the title screen, the intro, the file select and the options, the second screen shows the logo, taken from the title screen: its lettering alone (the game's own main screen layers, `$7E0069`, set to sprites only, `$10`, for the frame taken, on the copy that takes it, never the one played), the black round it trimmed (one pixel of outline kept), on black. *(Nov 22, 2026: until then the room and grid behind the lettering came with it.)*
 
 **SM-5. A still map.** *Retired Nov 22, 2026: the drawn map (SM-8) blinks as the game's does.* (The map was shown still, each part that blinks on the pause screen (Samus's marker, the scroll arrows, the plates) at its brightest. *(Until Nov 21, 2026's test builds the marker blinked, but the recorded loop was shorter than the game's cycles, 24 and 54 frames, and everything that blinks pulsed too fast.)*)
 

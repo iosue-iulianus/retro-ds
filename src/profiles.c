@@ -75,8 +75,11 @@ static const MapProfile profiles[] = {
 		 * door, pauses and unpauses (08 to 12), outside Ceres Station */
 		.hide = { { 206, 4, 46, 28 } },
 		.hideIf = { { 0x7E0998, 0xFF, 0x08, 1, true, 0x12, true }, { 0x7E079F, 0xFF, 0x00, 1, true, 0x05, true } },
-		/* the title screen, its lettering */
-		.logo = { .wait = 600, .pressStart = true, .wait2 = 126, .minX = 44, .minY = 17, .maxX = 224, .maxY = 80 },
+		/* the title screen, its lettering: its sprites alone (the
+		 * game's main screen layers, $7E0069, set to sprites only for the
+		 * frame taken), the black round it trimmed */
+		.logo = { .wait = 600, .pressStart = true, .wait2 = 126, .minX = 42, .minY = 15, .maxX = 226, .maxY = 82, .rev = 1,
+		          .pokeAddr = 0x7E0069, .pokeVal = 0x10, .trimBlack = true },
 		/* SM-5: still (its marker, the scroll arrows and the plates blink
 		 * on 24- and 54-frame cycles: a loop short enough to record cut
 		 * them off and they pulsed too fast) */
@@ -89,9 +92,10 @@ static const MapProfile profiles[] = {
 		.codes = { "777AAC2F" }, /* USA */
 		.title = "The Legend of Zelda: A Link to the Past",
 		.native = NATIVE_ALTTP,
-		/* ALTTP-9: the title screen once its scenery has come up (frame
-		 * 1200 from power-on): the sword, the lettering and the castle */
-		.logo = { .wait = 1200, .minX = 40, .minY = 32, .maxX = 216, .maxY = 170 },
+		/* ALTTP-9: the title's logo the frame the sword has come down,
+		 * on black (frame 858 from power-on; the flashes, then the
+		 * scenery, come next), the black round it trimmed */
+		.logo = { .wait = 857, .minX = 48, .minY = 36, .maxX = 226, .maxY = 168, .rev = 1, .trimBlack = true },
 	},
 };
 
