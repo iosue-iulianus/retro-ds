@@ -69,6 +69,7 @@ typedef struct Config {
 	bool keepSound;    /* the game and its sound go on while the system holds up a frame's present (game.c keeper) */
 	bool perfMax;      /* Linux: CPU, memory and GPU clocks held at their fastest while SNES DS runs (clocks.c); off: the system decides */
 	int ffSpeed;       /* fast-forward multiplier (the menu cycles FF_SPEED_MIN..MAX) */
+	int screenGapMm;   /* the gap between the two screens' pictures (mm), for what crosses it; -1 the device's known one (else 0) */
 	char saveDir[512]; /* battery saves; default: next to the ROM */
 	char saveExt[8];   /* their extension: srm (RetroArch's too, so shared), or sav */
 	char saveFrom[512]; /* where SNES DS kept them before (<game>.sav), carried over: BananaOS */

@@ -51,6 +51,7 @@ void config_defaults(Config* c) {
 	c->audioAuto = true;
 	c->keepSound = true;
 	c->ffSpeed = 3;
+	c->screenGapMm = -1;
 	c->fastForward = true;
 	c->pinCores = false; /* tried on the RG DS Plus: no better (docs/ANDROID.md) */
 	c->autoSave = true;
@@ -165,6 +166,7 @@ static bool set_option(Config* c, const char* key, const char* val) {
 	BOOL("keep_sound", keepSound)
 	BOOL("audio_auto", audioAuto)
 	INT("rewind_seconds", rewindSeconds)
+	INT("screen_gap_mm", screenGapMm)
 	INT("map_interval", mapInterval)
 	BOOL("ab_swap", abSwap)
 	STR("hotkey", hotkey)

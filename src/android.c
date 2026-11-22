@@ -855,6 +855,16 @@ JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_native
 	__android_log_print(ANDROID_LOG_INFO, TAG, "display ppi: %.1f (the app's) / %.1f (second)", app, second);
 }
 
+/* The gap between the two screens' pictures (mm) of the devices whose is
+ * known: the Retroid Pocket Duo's, 25 (the owner's measure, Nov 22, 2026;
+ * the AYN Thor's not known yet); 0 otherwise */
+int android_screen_gap_mm(void) {
+	char model[PROP_VALUE_MAX] = "";
+	__system_property_get("ro.product.model", model);
+	if (!strncmp(model, "Retroid Pocket Duo", 18)) return 25;
+	return 0;
+}
+
 float android_display_ppi(int view) {
 	return view == 0 || view == 1 ? displayPpi[view] : 0;
 }

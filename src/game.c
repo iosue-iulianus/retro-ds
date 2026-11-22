@@ -4866,9 +4866,18 @@ static void draw_alt_title(int s) {
 	if (!altSwordTex[screens[s].view] || !alttp_title_sword(alt, &y)) return;
 	SDL_Rect img = ui_image_rect(g, picW, picH, cfg->scale);
 	float k = picH > 0 ? img.h / (float) picH : 1;
-	int w = (int) lroundf(altSwordW * k), h = (int) lroundf(altSwordH * k);
-	int ty = r.h + img.y + (int) lroundf(y * k);
-	int tx = r.w / 2 + (img.x + (int) lroundf(48 * k) - screens[g].rect.w / 2);
+	/* in millimetres across the two screens: each one's pixels per inch
+	 * (the same when not known), the gap between them (screen_gap_mm) */
+	float pt = 0, pb = 0, gap = cfg->screenGapMm >= 0 ? (float) cfg->screenGapMm : 0;
+#ifdef __ANDROID__
+	pt = android_display_ppi(screens[s].view), pb = android_display_ppi(screens[g].view);
+	if (cfg->screenGapMm < 0) gap = (float) android_screen_gap_mm();
+#endif
+	float ratio = pt > 0 && pb > 0 ? pt / pb : 1, kt = k * ratio; /* top screen pixels to a game pixel */
+	float gapPx = pt > 0 ? gap / 25.4f * pt : 0; /* the gap, in the top screen's pixels */
+	int w = (int) lroundf(altSwordW * kt), h = (int) lroundf(altSwordH * kt);
+	int ty = r.h + (int) lroundf(gapPx + img.y * ratio + y * kt);
+	int tx = r.w / 2 + (int) lroundf((img.x + 48 * k - screens[g].rect.w / 2.0f) * ratio);
 	if (ty >= r.h || ty + h <= 0) return;
 	ui_image_part(s, altSwordTex, (SDL_Rect) { 0, 0, altSwordW, altSwordH }, (SDL_Rect) { tx, ty, w, h });
 } /* the zoom indicator, put together (alt_zoom_indicator) */
