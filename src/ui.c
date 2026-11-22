@@ -1644,7 +1644,7 @@ double ui_last_present_ms(int view) {
 }
 
 #ifdef __ANDROID__
-static int syncWant = -1, syncApplied = -2;
+static int syncWant = -1, syncApplied = -2, syncEvery = 1, syncEveryApplied = 1;
 #endif
 #ifdef __ANDROID__
 static int budgetFirst = -1, deferred;
@@ -1662,17 +1662,24 @@ void ui_present_budget(int first, Uint64 frameStart, double ms) {
 #endif
 }
 
-void ui_sync_view(int view) {
+/* (a swap interval of `every` on the current GL context, after SDL's 1) */
+static void sync_every(int every) {
+	if (every > 1 && SDL_GL_SetSwapInterval(every) != 0) fprintf(stderr, "swap interval %d: %s\n", every, SDL_GetError());
+}
+
+void ui_sync_view(int view, int every) {
 #ifdef __ANDROID__
-	syncWant = view;
+	syncWant = view, syncEvery = every;
 #else
 	/* Present that view in step with its display (vsync), the others not.
 	 * Applied when it changes: a call costs a renderer round trip. */
-	static int applied = -2;
-	if (view == applied) return;
+	static int applied = -2, appliedEvery = 1;
+	if (view == applied && every == appliedEvery) return;
 	for (int i = 0; i < nViews; ++i) {
 		if (views[i].ren) SDL_RenderSetVSync(views[i].ren, view == i ? 1 : 0);
+		if (views[i].ren && view == i) sync_every(every); /* (its context current after SDL's call) */
 	}
+	appliedEvery = every;
 	if (applied != -2 || view >= 0) {
 		fprintf(stderr, "presenting %s in step with its display\n",
 		        view < 0 ? "no screen" : view == screens[0].view ? "the top screen" : "the bottom screen");
@@ -1756,7 +1763,7 @@ void ui_present(void) {
 	static Uint64 handover;
 	static int frames;
 	lastRedraws = 0;
-	if (syncWant != syncApplied) {
+	if (syncWant != syncApplied || syncEvery != syncEveryApplied) {
 		/* Swap interval 1: every frame queued is shown on its own refresh, so a
 		 * frame that took a bit over 16.7 ms is shown one refresh late instead
 		 * of being dropped (interval 0 keeps only the latest at each refresh:
@@ -1769,11 +1776,16 @@ void ui_present(void) {
 		if (syncWant >= 0 && views[syncWant].offwin) syncWant = -1;
 		for (int i = 0; i < nViews; ++i) {
 			if (views[i].offwin) android_second_set_interval(0);
-			else if (views[i].ren) SDL_RenderSetVSync(views[i].ren, syncWant == i ? 1 : 0);
+			else if (views[i].ren) {
+				SDL_RenderSetVSync(views[i].ren, syncWant == i ? 1 : 0);
+				/* (SDL's own surface current: android_second_restore above) */
+				if (syncWant == i) sync_every(syncEvery);
+			}
 		}
 		fprintf(stderr, "presenting %s in step with its display\n",
 		        syncWant < 0 ? "no screen" : syncWant == screens[0].view ? "the top screen" : "the bottom screen");
-		syncApplied = syncWant;
+		if (syncEvery > 1 && syncWant >= 0) fprintf(stderr, "  every %d refreshes\n", syncEvery);
+		syncApplied = syncWant, syncEveryApplied = syncEvery;
 	}
 	int order[2] = { 0, 1 };
 	if (budgetFirst == 1 && nViews == 2) order[0] = 1, order[1] = 0;

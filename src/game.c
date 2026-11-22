@@ -6,6 +6,7 @@
 #include "emu.h"
 #include "mapcap.h"
 #include "alttp.h"
+#include <zlib.h>
 #include "smmap.h"
 #include "hotkeys.h"
 #include "paths.h"
@@ -4220,7 +4221,8 @@ static int game_screen(void) {
  * nobody hears), and presents the game's screen in step with the display
  * (vsync), so each frame gets exactly one refresh. */
 static double frameSec = 1.0 / SNES_FPS_NTSC;
-static double pacedHz;    /* the display's rate when matched, else 0 */
+static double pacedHz;    /* the game's rate when matched to a display (its refresh / pacedEvery), else 0 */
+static int pacedView = -1, pacedEvery = 1; /* the view presented in step, and every how many refreshes */
 static double audioSpeed = 1.0; /* emulated time per real time */
 
 /* ---- Keeping the game and its sound going while a frame's present is held
@@ -4373,13 +4375,26 @@ static void keeper_stop(void) {
 static int pacedMisses, pacedMissSecs;
 
 static void pacing_update(void) {
-	double hz = nScreens > 0 ? ui_display_hz(screens[game_screen()].view) : 0;
-	pacedHz = 0;
+	/* the game's screen's display, else (its rate not known: the Duo's
+	 * second display, a surface of its own) the other screen's */
+	int view = nScreens > 0 ? screens[game_screen()].view : -1;
+	double hz = view >= 0 ? ui_display_hz(view) : 0;
+	if (hz <= 0 && nScreens == 2) view = screens[1 - game_screen()].view, hz = ui_display_hz(view);
+	pacedHz = 0, pacedView = -1, pacedEvery = 1;
 	pacedMisses = pacedMissSecs = 0;
-	if (cfg->matchDisplay && !pacedFallback && hz > 0 && fabs(hz / game_fps() - 1) <= 0.015) pacedHz = hz;
+	/* matched at the display's rate (the setting), or at a half, third or
+	 * quarter of it whatever the setting: a 120 Hz display with the game's
+	 * own clock gave each frame one, two or three refreshes (judder; the
+	 * Duo's 120 Hz mode), matched each frame gets two */
+	for (int k = 1; k <= 4 && !pacedFallback && hz > 0; ++k) {
+		if ((k == 1 ? cfg->matchDisplay : true) && fabs(hz / k / game_fps() - 1) <= 0.015) {
+			pacedHz = hz / k, pacedView = view, pacedEvery = k;
+			break;
+		}
+	}
 	frameSec = 1.0 / (pacedHz > 0 ? pacedHz : game_fps());
 	audioSpeed = pacedHz > 0 ? pacedHz / game_fps() : 1.0;
-	fprintf(stderr, "frame pacing: display %.3f Hz, game %.3f frames a second (%s)\n", hz, 1.0 / frameSec,
+	fprintf(stderr, "frame pacing: display %.3f Hz (every %d refresh(es)), game %.3f frames a second (%s)\n", hz, pacedEvery, 1.0 / frameSec,
 	        pacedHz > 0 ? "matched to the display" : cfg->matchDisplay && pacedFallback ? "the game's rate: frames kept missing the display's refresh" :
 	        cfg->matchDisplay ? "display too far off to match" : "the game's rate");
 }
@@ -4886,6 +4901,55 @@ static void alt_seen_path(int f, char* out, size_t n) {
 	snprintf(out, n, "%s.alttp%d", gp.sav, f);
 }
 
+/* The seen record's pieces compressed ahead of its saves, on a thread of
+ * their own, one at a time (a save used to compress them all at once on
+ * the main thread: a stall of 50 to 70 ms each minute on the Duo) */
+static struct {
+	SDL_Thread* thread;
+	SDL_atomic_t done;
+	int world, piece;
+	uint32_t ver, zn;
+	uint16_t* ground;
+	uint8_t* z;
+} altPack;
+
+static int alt_compress_run(void* unused) {
+	(void) unused;
+	uLongf zn = compressBound(ALTTP_PIECE * ALTTP_PIECE * 2);
+	altPack.z = malloc(zn);
+	if (altPack.z && compress2(altPack.z, &zn, (const Bytef*) altPack.ground, ALTTP_PIECE * ALTTP_PIECE * 2, 6) == Z_OK) altPack.zn = (uint32_t) zn;
+	else free(altPack.z), altPack.z = NULL;
+	SDL_AtomicSet(&altPack.done, 1);
+	return 0;
+}
+
+/* Once a pass: a finished piece handed back, the next started (every
+ * half second at most) */
+static void alt_compress_tick(void) {
+	static Uint64 lastT;
+	if (altPack.thread) {
+		if (!SDL_AtomicGet(&altPack.done)) return;
+		SDL_WaitThread(altPack.thread, NULL);
+		altPack.thread = NULL;
+		if (altPack.z && alt) alttp_put_compressed(alt, altPack.world, altPack.piece, altPack.ver, altPack.z, altPack.zn);
+		else free(altPack.z);
+		altPack.z = NULL;
+	}
+	Uint64 now = SDL_GetPerformanceCounter();
+	if (!alt || (double) (now - lastT) / SDL_GetPerformanceFrequency() < 0.5) return;
+	lastT = now;
+	if (!altPack.ground) altPack.ground = malloc((size_t) ALTTP_PIECE * ALTTP_PIECE * 2);
+	if (!altPack.ground || !alttp_stale_piece(alt, &altPack.world, &altPack.piece, altPack.ground, &altPack.ver)) return;
+	SDL_AtomicSet(&altPack.done, 0);
+	altPack.thread = SDL_CreateThread(alt_compress_run, "map record", NULL);
+}
+
+static void alt_compress_stop(void) {
+	if (altPack.thread) SDL_WaitThread(altPack.thread, NULL), altPack.thread = NULL;
+	free(altPack.z), altPack.z = NULL;
+	free(altPack.ground), altPack.ground = NULL;
+}
+
 static void alt_save_seen(void) {
 	if (!alt || !altFile || !alttp_dirty(alt) || !gp.sav[0]) return;
 	char path[1100];
@@ -4992,6 +5056,7 @@ static void alt_free(void) {
 	free(altPending);
 	altPending = NULL;
 	if (!alt) return;
+	alt_compress_stop();
 	alt_save_seen();
 	alttp_free(alt);
 	alt = NULL;
@@ -5142,6 +5207,7 @@ static void alt_tick(void) {
 		}
 	}
 	alt_merge_pending();
+	alt_compress_tick();
 	if (ch & ALTTP_FILES) alt_file_events();
 	if (ch & ALTTP_ITEMS) altItemsDirty = true, altZoomAt = -1;
 	for (int i = 0; i < nViews && (ch & ALTTP_MARKER); ++i) {
@@ -7753,7 +7819,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		/* (tests, SNESDS_DRAW_SHOTS_ONLY: only the frames a screenshot or a
 		 * touch needs are drawn) */
 		if (!ui_script_quiet()) {
-			ui_sync_view(cfg->vsync || pacedHz > 0 ? screens[game_screen()].view : -1); /* Match Display Rate; vsync: testing (docs/ANDROID.md) */
+			ui_sync_view(pacedHz > 0 ? pacedView : cfg->vsync ? screens[game_screen()].view : -1, pacedHz > 0 ? pacedEvery : 1); /* Match Display Rate; vsync: testing (docs/ANDROID.md) */
 			{
 				/* the other screen's redraw waits a frame if this one is past 70% of its time */
 				static double budget = -1;
@@ -7884,7 +7950,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	ahead_stop(); /* before anything else touches the core */
 	ui_on_background(NULL);
 	ui_on_foreground(NULL);
-	ui_sync_view(-1);
+	ui_sync_view(-1, 1);
 	fprintf(stderr, "leaving game after %llu frames\n", (unsigned long long) frameCount);
 	if (bugPend.pending) {
 		/* (a report waiting for its note: saved with what's typed) */

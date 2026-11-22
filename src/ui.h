@@ -115,7 +115,7 @@ double ui_last_present_ms(int view);
 /* Android: the view whose presents should follow its display's refresh
  * (the one the game is on: each frame is shown, none dropped when one comes
  * a little late); -1 for none. Elsewhere: nothing. */
-void ui_sync_view(int view);
+void ui_sync_view(int view, int every); /* every: refreshes a frame (2 at 120 Hz) */
 bool ui_script_quiet(void);
 /* an input script is running (tests: frame-exact, so nothing may run frames on its own) */
 bool ui_scripted(void);

@@ -140,6 +140,13 @@ bool alttp_dirty(const Alttp* a);
  * state's record merged into the file's: what it had seen added, nothing
  * taken away (ALTTP-2: seen parts stay seen) */
 void* alttp_seen_pack(Alttp* a, size_t* n);
+/* Saving without a stall: a piece whose kept compressed copy is out of
+ * date, its ground (ALTTP_PIECE squared words) copied into out, its
+ * version in *ver (false if none); and its copy compressed (zlib, from
+ * that ground, on any thread), handed back (z taken; dropped if the piece
+ * has changed since). A save then has little left to compress. */
+bool alttp_stale_piece(const Alttp* a, int* world, int* piece, uint16_t* out, uint32_t* ver);
+void alttp_put_compressed(Alttp* a, int world, int piece, uint32_t ver, uint8_t* z, uint32_t n);
 bool alttp_seen_merge(Alttp* a, const void* data, size_t n);
 
 /* The dungeon map (ALTTP-5), as the game's own map screen shows it,

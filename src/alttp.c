@@ -1537,6 +1537,28 @@ void alttp_clear_seen(Alttp* a) {
 	a->dirty = true;
 }
 
+bool alttp_stale_piece(const Alttp* a, int* world, int* piece, uint16_t* out, uint32_t* ver) {
+	for (int w = 0; w < 2; ++w) {
+		for (int i = 0; i < CHUNKS * CHUNKS; ++i) {
+			if (!a->chunk[w][i] || !(a->zstale[w][i] || !a->zchunk[w][i])) continue;
+			memcpy(out, a->chunk[w][i], CHUNK * CHUNK * 2);
+			*world = w, *piece = i, *ver = a->pver[w][i];
+			return true;
+		}
+	}
+	return false;
+}
+
+void alttp_put_compressed(Alttp* a, int world, int piece, uint32_t ver, uint8_t* z, uint32_t n) {
+	world &= 1;
+	if (piece < 0 || piece >= CHUNKS * CHUNKS || !a->chunk[world][piece] || a->pver[world][piece] != ver) {
+		free(z); /* (changed since: made again later) */
+		return;
+	}
+	free(a->zchunk[world][piece]);
+	a->zchunk[world][piece] = z, a->zlen[world][piece] = n, a->zstale[world][piece] = false;
+}
+
 /* The record packed (the file's and the state section's format):
  * "SDSALTP2"; each world's seen squares (a bit each, 8 KB); then for each
  * world the pieces present (64 bits) and each one as a 32-bit length and
