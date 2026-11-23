@@ -4891,7 +4891,12 @@ typedef struct {
 	uint32_t ver;            /* the piece's version it was made from */
 	Uint64 madeT;
 	unsigned shown;          /* the frame it was last shown */
-	SDL_Texture* tex[2];     /* (one view's: the second screen's) */
+	/* two textures (one view's each: the second screen's), made again by
+	 * turns: the one shown is never written, which made drivers wait for
+	 * the GPU to finish drawing from it (the dungeon map's dropped frames
+	 * on the Duo); texB shown when flip */
+	SDL_Texture *tex[2], *texB[2];
+	bool flip;
 } AltPiece;
 #define ALT_CACHE 128
 #define ALT_BUDGET (40u << 20)
@@ -5087,6 +5092,7 @@ static void alt_cache_clear(void) {
 	for (int k = 0; k < ALT_CACHE; ++k) {
 		for (int i = 0; i < 2; ++i) {
 			if (altCache[k].tex[i]) SDL_DestroyTexture(altCache[k].tex[i]);
+			if (altCache[k].texB[i]) SDL_DestroyTexture(altCache[k].texB[i]);
 		}
 		memset(&altCache[k], 0, sizeof altCache[k]);
 		altCache[k].world = -1;
@@ -5353,6 +5359,7 @@ static AltPiece* alt_cache_find(int world, int piece, int level) {
 static void alt_cache_drop(AltPiece* e) {
 	for (int i = 0; i < 2; ++i) {
 		if (e->tex[i]) SDL_DestroyTexture(e->tex[i]), altCacheBytes -= bytes_of(e);
+		if (e->texB[i]) SDL_DestroyTexture(e->texB[i]), altCacheBytes -= bytes_of(e);
 	}
 	memset(e, 0, sizeof *e);
 	e->world = -1;
@@ -5394,9 +5401,13 @@ static void alt_piece_collect(int v) {
 	if (altWState == 3) {
 		AltPiece* e = alt_cache_take(altWWorld, altWPiece, altWLevel);
 		int n = ALTTP_PIECE >> altWLevel;
-		if (e && !e->tex[v] && (e->tex[v] = native_texture(v, n, n, SDL_BLENDMODE_BLEND))) altCacheBytes += bytes_of(e);
-		if (e && e->tex[v]) {
-			ui_update_texture(e->tex[v], altWOut, n * 4);
+		/* (into the texture not shown: the first time, tex) */
+		bool shownAny = e && (e->flip ? e->texB[v] : e->tex[v]);
+		SDL_Texture** t = !e ? NULL : !shownAny ? (e->flip ? &e->texB[v] : &e->tex[v]) : (e->flip ? &e->tex[v] : &e->texB[v]);
+		if (t && !*t && (*t = native_texture(v, n, n, SDL_BLENDMODE_BLEND))) altCacheBytes += bytes_of(e);
+		if (t && *t) {
+			ui_update_texture(*t, altWOut, n * 4);
+			if (shownAny) e->flip = !e->flip;
 			e->ver = altWVer, e->madeT = SDL_GetPerformanceCounter();
 		}
 		altWState = 0;
@@ -5410,9 +5421,10 @@ static void alt_piece_collect(int v) {
 static SDL_Texture* const* alt_piece_tex(int v, int world, int piece, int level, uint32_t ver, bool* want) {
 	AltPiece* e = alt_cache_find(world, piece, level);
 	if (e) e->shown = altFrame;
-	bool have = e && e->tex[v];
+	SDL_Texture* const* shown = e ? (e->flip ? e->texB : e->tex) : NULL;
+	bool have = shown && shown[v];
 	*want = !have || (e->ver != ver && (double) (SDL_GetPerformanceCounter() - e->madeT) / SDL_GetPerformanceFrequency() >= ALT_REMAKE);
-	return have ? e->tex : NULL;
+	return have ? shown : NULL;
 }
 
 /* The thread asked for a piece, when it's free */
