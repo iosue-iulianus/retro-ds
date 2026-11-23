@@ -731,6 +731,10 @@ static void w16(Writes* w, uint32_t addr, int v) {
 
 int smmap_toggle(const SmMap* m, const uint8_t* wram, int category, int index, SmWrite* out, int max) {
 	Writes w = { out, 0, max };
+	/* SM-10: only in plain gameplay (game state $0998 = $08): not in a
+	 * door, nor with the game's own pause menu and equipment screen open,
+	 * whose code changes the same equipment and refresh state */
+	if (wram[0x0998] != 0x08 || wram[0x0999] != 0x00) return 0;
 	if (category == SMMAP_BEAMS) {
 		if (index < 0 || index >= 5 || ram16(wram, 0x0A76)) return 0; /* (Hyper Beam: nothing to switch) */
 		int mask = r16(m, 0x82C04C + index * 2);
