@@ -6771,6 +6771,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	if (nScreens >= 2) ROW(PG_SCREENS, "swap");
 	ROW(PG_SCREENS, "screen_match");
 	ROW(PG_SCREENS, "screen_placement");
+	if (nScreens >= 2) ROW(PG_SCREENS, "screen_gap_mm");
 	ROW(PG_SCREENS, "overlays");
 	ROW(PG_SCREENS, "overlay_screens");
 	ROW(PG_SCREENS, "@overlay");
