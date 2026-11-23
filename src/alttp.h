@@ -23,8 +23,8 @@
 #define ALTTP_WORLD 4096 /* each world is 4096 x 4096 pixels */
 #define ALTTP_PIECE 512 /* the map is kept in pieces of 512 x 512 world pixels */
 #define ALTTP_PIECES (ALTTP_WORLD / ALTTP_PIECE) /* a row of them */
-#define ALTTP_SKY_W 512 /* the clouds' picture (the fog), repeated */
-#define ALTTP_SKY_H 256
+#define ALTTP_SKY_W 1024 /* the clouds' picture (the fog), repeated over the world */
+#define ALTTP_SKY_H 1024
 
 typedef struct Alttp Alttp;
 

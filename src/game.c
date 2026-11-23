@@ -4835,10 +4835,12 @@ static int altZoomI = 2;
 static float altZ = 2;
 #define ALT_Z altZ
 static bool altPinch; /* two fingers on the map */
+static bool altFocus; static float altFocusX, altFocusY; /* ALTTP-3: a tap's place, gliding to the middle */
 static float altPinchSpan, altPinchZ, altPinchWX, altPinchWY; /* at its start: the span, zoom, the world point under the fingers */
 static bool altXDown;
 static bool altItemsDirty;
 static SDL_Texture *altItemsTex[2], *altMarkerTex[2], *altSkyTex[2][2], *altGoalTex[2], *altTriTex[2];
+#define ALT_SKY_TEXEL 2 /* world pixels to one of the clouds' (ALTTP-2) */
 #define ALT_TRI_W 16 /* the zoom indicator's Triforce */
 #define ALT_TRI_H 14
 static const uint32_t* alt_triforce(void);
@@ -5306,13 +5308,18 @@ static void alt_step(void) {
 	float dt = altStepT ? (float) ((double) (now - altStepT) / SDL_GetPerformanceFrequency()) : 0;
 	altStepT = now;
 	dt = SDL_min(dt, 0.1f);
-	if (!altPinch && altZ != altZooms[altZoomI]) {
-		/* the zoom glides to its level round the middle of the screen */
+	if (!altPinch && (altZ != altZooms[altZoomI] || altFocus)) {
+		/* the zoom glides to its level round the middle of the screen, the
+		 * place a tap was at gliding to the middle meanwhile */
 		float w, h;
 		alt_view_size(&w, &h);
 		float mx = altVX + w / 2, my = altVY + h / 2, to = altZooms[altZoomI];
 		float k = 1 - expf(-dt / 0.06f);
 		altZ = fabsf(to - altZ) < 0.002f * to ? to : altZ * powf(to / altZ, k);
+		if (altFocus) {
+			mx += (altFocusX - mx) * k, my += (altFocusY - my) * k;
+			if (fabsf(altFocusX - mx) < 0.5f && fabsf(altFocusY - my) < 0.5f) mx = altFocusX, my = altFocusY, altFocus = false;
+		}
 		alt_view_size(&w, &h);
 		altVX = mx - w / 2, altVY = my - h / 2;
 		if (altUser) alt_clamp(&altVX, &altVY);
@@ -5538,12 +5545,26 @@ static void draw_alt_map(int s) {
 	ui_clip(s, &clip);
 	/* where the world's top left is on the screen */
 	int ox = a.x - (int) lroundf(altVX / z), oy = a.y - (int) lroundf(altVY / z);
-	/* the clouds, fixed to the world, at a size of their own */
-	int k = SDL_max(1, a.h / 540), tw = ALTTP_SKY_W * k, th = ALTTP_SKY_H * k;
-	int x0 = ox - (int) ceilf((ox - a.x) / (float) tw) * tw, y0 = oy - (int) ceilf((oy - a.y) / (float) th) * th;
-	for (int y = y0; y < a.y + a.h; y += th) {
-		for (int x = x0; x < a.x + a.w; x += tw) ui_image_part(s, altSkyTex[world & 1], (SDL_Rect) { 0, 0, ALTTP_SKY_W, ALTTP_SKY_H }, (SDL_Rect) { x, y, tw, th });
+	/* the clouds, fixed to the world and zooming with it: ALT_SKY_TEXEL
+	 * world pixels to one of theirs, the picture repeated every
+	 * ALTTP_SKY_W x that (twice across a world: its repeats don't show,
+	 * and a zoom grows and shrinks them with the ground; drawn at a size of
+	 * their own on the screen, they repeated in a grid that jumped as the
+	 * zoom changed: the owner, Nov 23, 2026) */
+	{
+		const float span = ALTTP_SKY_W * ALT_SKY_TEXEL, spanH = ALTTP_SKY_H * ALT_SKY_TEXEL;
+		int n0 = (int) floorf(altVX / span), n1 = (int) floorf((altVX + a.w * z) / span);
+		int m0 = (int) floorf(altVY / spanH), m1 = (int) floorf((altVY + a.h * z) / spanH);
+		for (int my = m0; my <= m1; ++my) {
+			int y = oy + (int) lroundf(my * spanH / z), yh = oy + (int) lroundf((my + 1) * spanH / z) - y;
+			for (int mx = n0; mx <= n1; ++mx) {
+				int x = ox + (int) lroundf(mx * span / z), xw = ox + (int) lroundf((mx + 1) * span / z) - x;
+				ui_image_part(s, altSkyTex[world & 1], (SDL_Rect) { 0, 0, ALTTP_SKY_W, ALTTP_SKY_H }, (SDL_Rect) { x, y, xw, yh });
+			}
+		}
 	}
+	int k = SDL_max(1, a.h / 540);
+	(void) k;
 	/* the ground */
 	int level = z >= 4 ? 2 : z >= 2 ? 1 : 0;
 	int n = ALTTP_PIECE >> level;
@@ -5662,7 +5683,7 @@ static uint32_t alt_keys(uint32_t keys) {
 	bool x = (keys & K_X) != 0;
 	if (x && !altXDown) {
 		altPage ^= 1;
-		if (altPage) altUser = false, altHaveView = false;
+		if (altPage) altUser = false, altHaveView = false, altFocus = false;
 		fprintf(stderr, "second screen: %s\n", altPage ? "the map" : "the items");
 	}
 	altXDown = x;
@@ -5677,7 +5698,10 @@ static uint32_t alt_keys(uint32_t keys) {
 static void alt_tap(int x, int y) {
 	if (altPage == 1 && alttp_in_special(alt)) return; /* (the logo) */
 	if (altPage == 1 && !alttp_in_dungeon(alt)) {
-		/* (alt_step glides there, what's in the middle kept there) */
+		/* (alt_step glides there, the place tapped gliding to the middle:
+		 * the owner, Nov 23, 2026; a pinch zooms round its fingers) */
+		altFocusX = altVX + x * altZ, altFocusY = altVY + y * altZ, altFocus = true;
+		altUser = true, altVelX = altVelY = 0;
 		altZoomI = (altZoomI + 1) % ALT_ZOOMS;
 		fprintf(stderr, "map zoom: %g world pixels a pixel\n", altZooms[altZoomI]);
 		return;
@@ -5754,6 +5778,7 @@ static int alt_touch(const Pointer* p) {
 	if (p->screen == game_screen() && !(altDrag && p->kind != 1)) return 0;
 	Uint64 now = SDL_GetPerformanceCounter();
 	if (p->kind == 1) {
+		altFocus = false; /* (a finger on the map: it's the finger's now) */
 		altDrag = altShown;
 		altDragMoved = false;
 		altTapOk = altShown;

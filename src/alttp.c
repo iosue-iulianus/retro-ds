@@ -272,7 +272,7 @@ static void make_sky(Alttp* a) {
 	memset(used, 0, sizeof used);
 	uint32_t seed = 12345;
 	int filled = 0;
-	for (int tries = 0; tries < 4000 && nPuffs && filled < TW * TH / 6; ++tries) {
+	for (int tries = 0; tries < 40000 && nPuffs && filled < TW * TH / 6; ++tries) {
 		int p = tries % nPuffs;
 		seed = seed * 1103515245u + 12345u;
 		int ox = (int) (seed >> 8) % TW;
