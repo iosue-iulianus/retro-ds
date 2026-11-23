@@ -14,6 +14,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "writes.h"
+
 /* The SNES screen, as the player sees it: 256 x 224 (239 with overscan).
  * Hi-res pictures are 512 wide and interlaced ones twice as tall, but show
  * at the same size on screen. */
@@ -192,6 +194,11 @@ uint16_t emu_read16(Emu* e, uint32_t addr);
 uint32_t emu_read24(Emu* e, uint32_t addr);
 uint32_t emu_read32(Emu* e, uint32_t addr);
 void emu_write8(Emu* e, uint32_t addr, uint8_t value);
+/* A batch of writes (writes.h), between frames: every address must lie in
+ * one of the game's ranges and in work RAM, else none is written; each
+ * one logged with its old and new value, under `what`. The number
+ * written, -1 if refused. */
+int emu_apply(Emu* e, const char* what, const Write* w, int n, const WriteRange* ok, int nOk);
 void emu_write16(Emu* e, uint32_t addr, uint16_t value);
 
 /* Up to maxFrames stereo frames of audio; returns frames read. */

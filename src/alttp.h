@@ -16,6 +16,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "writes.h"
+
 #define ALTTP_W 256
 #define ALTTP_H 224
 #define ALTTP_WORLD 4096 /* each world is 4096 x 4096 pixels */
@@ -54,17 +56,15 @@ const uint32_t* alttp_items(const Alttp* a);
  * items screen, or 0 */
 int alttp_items_hit(const Alttp* a, int x, int y);
 
-/* One byte to write to the game's work RAM (an offset in its 128 KB) */
-typedef struct {
-	uint32_t addr;
-	uint8_t val;
-} AltWrite;
+/* What alttp_select may write (ALTTP-10; docs/games/a-link-to-the-past.md,
+ * "Selecting an item"), for emu_apply */
+const WriteRange* alttp_write_ranges(int* n);
 /* Selecting Y item `item` as the game's own items screen leaves it when
  * it closes (ItemMenu_Close, $0D:DFBA): the item, the one Y uses, the
  * HUD's item box and its upload. Fills out (at most max) and returns how
  * many; 0 if Link doesn't have it or isn't playable. To be written
  * between two frames. */
-int alttp_select(const Alttp* a, const uint8_t* wram, int item, AltWrite* out, int max);
+int alttp_select(const Alttp* a, const uint8_t* wram, int item, Write* out, int max);
 
 /* The world map. Which world Link is in (0 Light, 1 Dark) and where, in
  * world pixels (the last place outdoors while he's indoors) */

@@ -52,6 +52,8 @@
  *                          Link's place) and where it goes on the picture
  *   alttp select ITEM      select Y item ITEM (1 bow ... 20 mirror) as a
  *                          tap on the items screen would
+ *   alttp offlist          a write off the game's list (the module's
+ *                          $7E0010): emu_apply must refuse it, nothing written
  *   alttp take             take the ground on screen now, whatever the game
  *                          is doing
  *   alttp save PATH / alttp load PATH   the seen record
@@ -137,10 +139,11 @@ static void smtoggle_cmd(Emu* e, const char* romPath, int cat, int index) {
 	size_t n;
 	const uint8_t* w = emu_memory(e, EMU_MEM_WRAM, &n);
 	if (!sm_open(romPath) || !w || n < 0x20000) return;
-	SmWrite out[128];
-	int k = smmap_toggle(sm, w, cat, index, out, 128);
-	for (int i = 0; i < k; ++i) emu_write8(e, 0x7E0000 + out[i].addr, out[i].val);
-	printf("smtoggle %d %d: %d byte(s) written\n", cat, index, k);
+	Write out[128];
+	int k = smmap_toggle(sm, w, cat, index, out, 128), nOk;
+	const WriteRange* ok = smmap_write_ranges(&nOk);
+	int done = k > 0 ? emu_apply(e, "smtoggle", out, k, ok, nOk) : 0;
+	printf("smtoggle %d %d: %d byte(s) written%s\n", cat, index, done < 0 ? 0 : done, done < 0 ? " (REFUSED: off the list)" : "");
 }
 
 static void smmap_cmd(Emu* e, const char* romPath, const char* name, const char* a, const char* b) {
@@ -278,10 +281,22 @@ static void alttp_cmd(Emu* e, const char* romPath, const char* line) {
 		size_t n;
 		alt_update(e);
 		const uint8_t* wr = emu_memory(e, EMU_MEM_WRAM, &n);
-		AltWrite out[32];
-		int k = alttp_select(alt, wr, atoi(name), out, 32);
-		for (int i = 0; i < k; ++i) emu_write8(e, 0x7E0000 + out[i].addr, out[i].val);
-		printf("alttp select %d: %d byte(s) written\n", atoi(name), k);
+		Write out[32];
+		int k = alttp_select(alt, wr, atoi(name), out, 32), nOk;
+		const WriteRange* ok = alttp_write_ranges(&nOk);
+		int done = k > 0 ? emu_apply(e, "alttp select", out, k, ok, nOk) : 0;
+		printf("alttp select %d: %d byte(s) written%s\n", atoi(name), done < 0 ? 0 : done, done < 0 ? " (REFUSED: off the list)" : "");
+	} else if (!strcmp(sub, "offlist")) {
+		size_t n;
+		const uint8_t* wr = emu_memory(e, EMU_MEM_WRAM, &n);
+		uint8_t before = wr ? wr[0x10] : 0;
+		Write w[2] = { { 0x7E0202, 1 }, { 0x7E0010, (uint8_t) (before ^ 0xFF) } }; /* (one listed, one not) */
+		int nOk;
+		const WriteRange* ok = alttp_write_ranges(&nOk);
+		uint8_t item = wr ? wr[0x202] : 0;
+		int done = emu_apply(e, "offlist", w, 2, ok, nOk);
+		printf("alttp offlist: %s; $7E0010 %s, $7E0202 %s\n", done < 0 ? "refused" : "APPLIED", wr && wr[0x10] == before ? "unchanged" : "CHANGED",
+		       wr && wr[0x202] == item ? "unchanged" : "CHANGED");
 	} else if (!strcmp(sub, "take")) {
 		size_t n, vn;
 		const uint8_t* wr = emu_memory(e, EMU_MEM_WRAM, &n);

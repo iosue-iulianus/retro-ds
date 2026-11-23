@@ -74,6 +74,8 @@ Sprites on the map (from the routines named above; drawn by `tools/sm_map.py`, w
 
 ## Switching an item (SM-10)
 
+How it's written (Nov 23, 2026): the module returns the bytes as full SNES addresses (`Write`, `src/writes.h`); the frontend applies them with `emu_apply`, which checks every address against the game's list (`smmap_write_ranges: $09A6, $09A2, $0A74, the game's VRAM queue $00D0 ($200 bytes) and its end $0330, palettes $C180 and $C1C0, 32 bytes each`, the ranges named below) and writes all of a batch or none of it, logging each byte's old and new value with the frame. Checked in the harness: every action's batch is on the list (`smtoggle` for every category and item, twice), and a batch with one address off the list is refused whole, nothing written (`alttp offlist`).
+
 What a tap writes, all in work RAM, between two frames (`smmap_toggle` in `src/smmap.c`):
 
 - The equipped bits: `$09A2` (suit, misc., boots: masks at `$82:C056` and `$82:C062`) or `$09A6` (beams, `$82:C04C`), only for items collected (`$09A4`, `$09A8`). Spazer and Plasma exclude each other (`$82:B068`).

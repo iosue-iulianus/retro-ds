@@ -778,7 +778,23 @@ int alttp_items_hit(const Alttp* a, int x, int y) {
 	return 0;
 }
 
-int alttp_select(const Alttp* a, const uint8_t* wram, int item, AltWrite* out, int max) {
+static const WriteRange altWrites[] = {
+	{ 0x7E0202, 1, "the Y item" },
+	{ 0x7E0303, 1, "the item Y uses" },
+	{ 0x7E034B, 1, "the equipment debug flag" },
+	{ 0x7E020B, 1, "the first debug flag" },
+	{ 0x7E0016, 1, "the HUD's upload" },
+	{ 0x7EF34F, 1, "the bottle selected" },
+	{ 0x7EC74A, 4, "the HUD's item box, top" },
+	{ 0x7EC78A, 4, "the HUD's item box, bottom" },
+};
+
+const WriteRange* alttp_write_ranges(int* n) {
+	*n = (int) (sizeof altWrites / sizeof altWrites[0]);
+	return altWrites;
+}
+
+int alttp_select(const Alttp* a, const uint8_t* wram, int item, Write* out, int max) {
 	(void) wram;
 	if (item < 1 || item > 20 || max < 12 || !alttp_playing(a)) return 0;
 	/* when the game itself would let START open its screen */
@@ -791,7 +807,7 @@ int alttp_select(const Alttp* a, const uint8_t* wram, int item, AltWrite* out, i
 		for (int i = 0; i < 4 && !bottle; ++i) {
 			if (r8(a, R_BOTTLES + i)) bottle = i + 1;
 		}
-		out[n++] = (AltWrite) { R_BOTTLE, (uint8_t) bottle };
+		out[n++] = (Write) { 0x7E0000 | (R_BOTTLE), (uint8_t) bottle };
 	} else if (item == 16 && r8(a, R_CUR_ITEM) == 16) {
 		/* the bottle tapped again: the next bottle Link has, as Down does
 		 * in the game's bottle menu (Hud_BottleMenu, $0D:E0DF) */
@@ -799,13 +815,13 @@ int alttp_select(const Alttp* a, const uint8_t* wram, int item, AltWrite* out, i
 		do v = (v + 1) & 3;
 		while (!r8(a, R_BOTTLES + v));
 		bottle = v + 1;
-		out[n++] = (AltWrite) { R_BOTTLE, (uint8_t) bottle };
+		out[n++] = (Write) { 0x7E0000 | (R_BOTTLE), (uint8_t) bottle };
 	}
 	uint8_t equip = rom8(a, MENU_TO_EQUIP + item);
-	out[n++] = (AltWrite) { R_CUR_ITEM, (uint8_t) item };
-	out[n++] = (AltWrite) { R_EQUIP, equip };
-	out[n++] = (AltWrite) { R_EQ_DEBUG, (uint8_t) (equip == 5 || equip == 6 ? 0 : 2) };
-	if (equip != 5 && equip != 6) out[n++] = (AltWrite) { R_DEBUG_1, 0 };
+	out[n++] = (Write) { 0x7E0000 | (R_CUR_ITEM), (uint8_t) item };
+	out[n++] = (Write) { 0x7E0000 | (R_EQUIP), equip };
+	out[n++] = (Write) { 0x7E0000 | (R_EQ_DEBUG), (uint8_t) (equip == 5 || equip == 6 ? 0 : 2) };
+	if (equip != 5 && equip != 6) out[n++] = (Write) { 0x7E0000 | (R_DEBUG_1), 0 };
 	/* the HUD's item box (UpdateHUDBuffer, $0D:FB3C) and its upload */
 	int level = r8(a, R_ITEMS + item - 1);
 	if (item == 4) level = level != 0;
@@ -814,10 +830,10 @@ int alttp_select(const Alttp* a, const uint8_t* wram, int item, AltWrite* out, i
 	static const uint16_t at[4] = { 0x4A, 0x4C, 0x8A, 0x8C };
 	for (int i = 0; i < 4; ++i) {
 		uint16_t w = rom16(a, t + i * 2);
-		out[n++] = (AltWrite) { R_HUD + at[i], (uint8_t) w };
-		out[n++] = (AltWrite) { R_HUD + at[i] + 1, (uint8_t) (w >> 8) };
+		out[n++] = (Write) { 0x7E0000 | (R_HUD + at[i]), (uint8_t) w };
+		out[n++] = (Write) { 0x7E0000 | (R_HUD + at[i] + 1), (uint8_t) (w >> 8) };
 	}
-	out[n++] = (AltWrite) { R_HUD_UPLOAD, 1 };
+	out[n++] = (Write) { 0x7E0000 | (R_HUD_UPLOAD), 1 };
 	return n;
 }
 

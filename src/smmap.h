@@ -19,6 +19,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "writes.h"
+
 #define SMMAP_W 256
 #define SMMAP_H 178
 #define SMMAP_Y0 38 /* the chrome's first line on the game's screen */
@@ -85,11 +87,9 @@ int smmap_hit(const SmMap* m, int page, int x, int y, int* category, int* index)
 /* The equipment page's items (SM-10): a category (1 beams, 2 suit and
  * misc., 3 boots, as the game numbers them) and its place in the list */
 enum { SMMAP_BEAMS = 1, SMMAP_SUITS = 2, SMMAP_BOOTS = 3 };
-/* One byte to write to the game's work RAM (an offset in its 128 KB) */
-typedef struct {
-	uint32_t addr;
-	uint8_t val;
-} SmWrite;
+/* What smmap_toggle may write (SM-10; docs/games/super-metroid.md,
+ * "Switching an item"), for emu_apply */
+const WriteRange* smmap_write_ranges(int* n);
 /* Switching an item on or off, as the game's equipment screen does
  * (EquipmentScreen_Main_ButtonResponse, $82:B568; equipping Spazer
  * unequips Plasma and the other way round) and then what unpausing
@@ -98,7 +98,7 @@ typedef struct {
  * out (at most max) and returns how many; 0 if the item isn't collected
  * or can't be switched (Hyper Beam). wram: the RAM now, unchanged. To
  * be written between two frames. */
-int smmap_toggle(const SmMap* m, const uint8_t* wram, int category, int index, SmWrite* out, int max);
+int smmap_toggle(const SmMap* m, const uint8_t* wram, int category, int index, Write* out, int max);
 
 /* Tests: the blinking at a given point (the marker's frame 0 to 2, the
  * ring's palette step 0 to 13), to match a shot of the game */

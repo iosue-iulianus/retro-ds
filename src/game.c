@@ -4756,11 +4756,13 @@ static void native_tap(int x, int y) {
 		size_t n = 0;
 		const uint8_t* w = emu_memory(&emu, EMU_MEM_WRAM, &n);
 		if (!w || n < 0x20000) return;
-		SmWrite out[96];
-		int k = smmap_toggle(nat, w, cat, idx, out, 96);
-		for (int i = 0; i < k; ++i) emu_write8(&emu, 0x7E0000 + out[i].addr, out[i].val);
-		if (k) native_tick(); /* (the page shows it now) */
-		fprintf(stderr, "equipment: item %d,%d switched (%d byte(s) written)\n", cat, idx, k);
+		Write out[96];
+		int k = smmap_toggle(nat, w, cat, idx, out, 96), nOk;
+		const WriteRange* ok = smmap_write_ranges(&nOk);
+		char what[96];
+		snprintf(what, sizeof what, "(frame %llu) equipment item %d,%d", (unsigned long long) frameCount, cat, idx);
+		if (k > 0 && emu_apply(&emu, what, out, k, ok, nOk) > 0) native_tick(); /* (the page shows it now) */
+		else if (!k) fprintf(stderr, "equipment: item %d,%d not switched (not collected, or not in plain gameplay)\n", cat, idx);
 	}
 }
 
@@ -5700,11 +5702,13 @@ static void alt_tap(int x, int y) {
 	size_t n = 0;
 	const uint8_t* w = emu_memory(&emu, EMU_MEM_WRAM, &n);
 	if (!w || n < 0x20000) return;
-	AltWrite out[32];
-	int k = alttp_select(alt, w, item, out, 32);
-	for (int i = 0; i < k; ++i) emu_write8(&emu, 0x7E0000 + out[i].addr, out[i].val);
-	if (k) alt_tick(); /* (the items screen shows it now) */
-	fprintf(stderr, "items: item %d selected (%d byte(s) written)\n", item, k);
+	Write out[32];
+	int k = alttp_select(alt, w, item, out, 32), nOk;
+	const WriteRange* ok = alttp_write_ranges(&nOk);
+	char what[96];
+	snprintf(what, sizeof what, "(frame %llu) Y item %d", (unsigned long long) frameCount, item);
+	if (k > 0 && emu_apply(&emu, what, out, k, ok, nOk) > 0) alt_tick(); /* (the items screen shows it now) */
+	else if (!k) fprintf(stderr, "items: item %d not selected (not had, or not playable)\n", item);
 }
 
 /* A touch on the second screen: a drag moves the map with the finger (a

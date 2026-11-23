@@ -46,7 +46,7 @@ GBA DS's page for the GBA version (`docs/reference/gba/zelda-a-link-to-the-past.
 
 - ALTTP-1: X is taken by SNES DS (the owner's choice, Nov 22, 2026).
 - Touch on the second screen (ALTTP-3, ALTTP-6, ALTTP-10), as for Super Metroid.
-- ALTTP-10: selecting an item writes to the game being played (the owner's choice, Nov 22, 2026): only when the player taps an item, between two frames, the bytes the game's own items screen would write and nothing else (see "Selecting an item" below). Off in RetroAchievements hardcore.
+- ALTTP-10: selecting an item writes to the game being played (the owner's choice, Nov 22, 2026): only when the player taps an item, between two frames, the bytes the game's own items screen would write and nothing else (see "Selecting an item" below). Off in RetroAchievements hardcore (hardcore isn't supported yet: RetroAchievements plays casual only, `ra.c`).
 - ALTTP-2 keeps a record the game doesn't: SNES DS saves what each file has seen beside the battery save (`<save>.alttp1` to `.alttp3`, its own files, never the game's) and in its save states (the "ALTP" section of SNES DS's block: the file, then the record). Loading a state adds what it had seen to that file's record, once Link is played from that file; nothing seen is taken away.
 - Nothing on the game screen is covered: A Link to the Past's HUD has no mini-map.
 
@@ -144,6 +144,8 @@ Built and checked with `tools/alttp_dungeon.py` (word for word and pixel for pix
 - **Checked:** `tools/alttp_items.py --check` builds the same tilemap as the game's, word for word (696 words), in nine dumps: three sets of items (the opening's, the Light World's with pendants, the Dark World's with crystals and bottles), the ring on and off.
 
 ### Selecting an item (ALTTP-10)
+
+How it's written (Nov 23, 2026): the module returns the bytes as full SNES addresses (`Write`, `src/writes.h`); the frontend applies them with `emu_apply`, which checks every address against the game's list (`alttp_write_ranges: $0202, $0303, $034B, $020B, $0016, $F34F, the HUD's item box $C74A and $C78A, 4 bytes each`, the ranges named below) and writes all of a batch or none of it, logging each byte's old and new value with the frame. Checked in the harness: every action's batch is on the list (`alttp select` 1 to 20 and the bottles again), and a batch with one address off the list is refused whole, nothing written (`alttp offlist`).
 
 What the game's own items screen leaves when the ring is moved to an item and the screen closed (`ItemMenu_Close`, `$0D:DFBA`, with `UpdateHUD`), and so what a tap writes, between two frames:
 
