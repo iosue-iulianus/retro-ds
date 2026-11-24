@@ -463,25 +463,28 @@ bool debug;
 
 /* ---------------------------------------------------------------- menu */
 
-enum MenuItem { M_RESUME, M_CHEATS, M_PATCHES, M_ACH, M_SHOT, M_SWAP, M_SCALE, M_LCD, M_OVERLAY, M_FPS, M_SAVE, M_LOAD, M_RESTART, M_LIBRARY, M_EXIT, M_FRAMEBUF, M_LOGO, M_MATCH, M_REWIND, M_AUTOSAVE, M_AUTOLOAD, M_BUG, M_SLOT, M_SHAPES, M_FF, M_COLOR, M_GHOST, M_BUTTONS, M_PIXLOGO, M_PLACE };
+enum MenuItem { M_RESUME, M_CHEATS, M_PATCHES, M_ACH, M_SHOT, M_SWAP, M_SCALE, M_LCD, M_OVERLAY, M_FPS, M_SAVE, M_LOAD, M_RESTART, M_LIBRARY, M_EXIT, M_FRAMEBUF, M_LOGO, M_MATCH, M_REWIND, M_AUTOSAVE, M_AUTOLOAD, M_BUG, M_SLOT, M_SHAPES, M_FF, M_COLOR, M_GHOST, M_BUTTONS, M_PIXLOGO, M_PLACE, M_UNDO };
 static const char* menuLabels[] = {
 	/* title case: drawn in Futura from the built-in images (tools/make_brand.py) */
 	[M_RESUME] = N_("Resume"), [M_SWAP] = N_("Swap Screens"), [M_SAVE] = N_("Save State"), [M_SCALE] = "", [M_LCD] = "", [M_FPS] = "", [M_FRAMEBUF] = "", [M_OVERLAY] = "", [M_LOGO] = "", [M_MATCH] = "", [M_REWIND] = "", [M_RESTART] = N_("Restart Game"),
 	[M_LOAD] = N_("Load State"), [M_CHEATS] = "Cheats", [M_PATCHES] = "Patches", [M_BUTTONS] = N_("Buttons"), [M_ACH] = "Achievements", [M_SHOT] = N_("Take Screenshot"), [M_LIBRARY] = N_("Close Game"), [M_EXIT] = N_("Close RetroDS"),
-	[M_AUTOSAVE] = "", [M_AUTOLOAD] = "", [M_BUG] = N_("Submit a Bug Report"), [M_SLOT] = "", [M_FF] = "", [M_COLOR] = "", [M_GHOST] = "", [M_PIXLOGO] = "", [M_PLACE] = "",
+	[M_AUTOSAVE] = "", [M_AUTOLOAD] = "", [M_BUG] = N_("Submit a Bug Report"), [M_SLOT] = "", [M_FF] = "", [M_COLOR] = "", [M_GHOST] = "", [M_PIXLOGO] = "", [M_PLACE] = "", [M_UNDO] = "",
 };
-static int menuItems[12], nMenuItems;
-/* Some buttons are half as wide, two to a row (Save State | Load State):
+#define PAGE_ITEMS 16 /* buttons on a page */
+static enum { UNDO_NONE, UNDO_LOAD, UNDO_SAVE } undoKind; /* what Undo in the menu would undo (user_undo) */
+static int menuItems[PAGE_ITEMS], nMenuItems;
+/* Some buttons are half as wide, two to a row (Resume | Restart Game):
  * each item's row and side (-1: the whole row, 0 left, 1 right). */
-static int itemRow[12], itemSide[12], nMenuRows;
+static int itemRow[PAGE_ITEMS], itemSide[PAGE_ITEMS], nMenuRows;
 static bool half_item(int item) {
 	return item == M_RESUME || item == M_RESTART || item == M_SAVE || item == M_LOAD || item == M_AUTOSAVE || item == M_AUTOLOAD || item == M_REWIND || item == M_FF ||
-	       item == M_COLOR || item == M_GHOST || item == M_CHEATS || item == M_PATCHES || item == M_SHOT || item == M_BUG;
+	       item == M_COLOR || item == M_GHOST || item == M_CHEATS || item == M_PATCHES || item == M_SHOT || item == M_BUG ||
+	       item == M_LIBRARY || item == M_EXIT;
 }
-/* Close Game and Close RetroDS are double height: two rows tall, side by side
- * when both are there, else the one across the whole row */
+/* Save State and Load State are double height (two rows tall) and further
+ * apart than other pairs, so a thumb can't take one for the other */
 static bool tall_item(int item) {
-	return item == M_LIBRARY || item == M_EXIT;
+	return item == M_SAVE || item == M_LOAD;
 }
 static int item_span(int item) {
 	return tall_item(item) ? 2 : 1;
@@ -511,7 +514,7 @@ static int layout_rows(const int* items, int n, int* row, int* side) {
 #define N_PAGES 6
 enum { PG_GAME, PG_DISPLAY, PG_SCREENS, PG_CONTROLS, PG_SPEED, PG_MAP };
 #define ICON_SYSTEM 100 /* a toolbox: Settings > System (not a page) */
-static int pages[N_PAGES][12], pageLen[N_PAGES], curPage;
+static int pages[N_PAGES][PAGE_ITEMS], pageLen[N_PAGES], curPage;
 #define ROW_MAX 16 /* settings on a page */
 #define ROW_VIS 8  /* most shown at once: more scroll */
 static const char* rowKeys[N_PAGES][ROW_MAX]; /* a settings page's rows: the settings' keys, or "@name" for a button that opens something */
@@ -596,7 +599,7 @@ static MenuGeom menu_geom(int scr) {
 	SDL_Rect r = screens[scr].rect;
 	int n = 1;
 	for (int p = 0; p < N_PAGES; ++p) {
-		int row[12], side[12];
+		int row[PAGE_ITEMS], side[PAGE_ITEMS];
 		n = SDL_max(n, page_is_rows(p) ? SDL_min(rowN[p], ROW_VIS) + 1 : SDL_min(layout_rows(pages[p], pageLen[p], row, side), ROW_VIS));
 	}
 	if (r.w == cw && r.h == ch && n == cn) return cache;
@@ -1547,7 +1550,8 @@ static SDL_Rect item_rect(int scr, int i) {
 	MenuGeom g = menu_geom(scr);
 	SDL_Rect r = { g.margin, g.top + (itemRow[i] - itemTop) * (g.h + g.gap), g.w, g.h * item_span(menuItems[i]) + g.gap * (item_span(menuItems[i]) - 1) };
 	if (itemSide[i] >= 0) {
-		int hw = (g.w - g.gap) / 2;
+		int gap = tall_item(menuItems[i]) ? g.gap * 4 : g.gap;
+		int hw = (g.w - gap) / 2;
 		r.x += itemSide[i] * (g.w - hw);
 		r.w = hw;
 	}
@@ -2194,8 +2198,9 @@ static void draw_bar(void) {
 
 static void set_page(int page) {
 	curPage = page;
-	nMenuItems = pageLen[page];
-	memcpy(menuItems, pages[page], sizeof(int) * nMenuItems);
+	nMenuItems = 0;
+	for (int i = 0; i < pageLen[page]; ++i) /* (Undo only when there's something to undo) */
+		if (pages[page][i] != M_UNDO || undoKind != UNDO_NONE) menuItems[nMenuItems++] = pages[page][i];
 	nMenuRows = layout_rows(menuItems, nMenuItems, itemRow, itemSide);
 	menuSel = 0;
 	itemTop = 0;
@@ -3132,6 +3137,7 @@ static void draw_menu(void) {
 			static const char* const ovl[3] = { N_("Overlays: Off"), N_("Overlays: Generated"), N_("Overlays: Custom")};
 			label = ovl[SDL_clamp(cfg->overlayMode, 0, 2)];
 		}
+		if (menuItems[i] == M_UNDO) label = undoKind == UNDO_LOAD ? N_("Undo Load"): N_("Undo Save");
 		if (menuItems[i] == armedItem) label = N_("Are You Sure?");
 		/* (the slot they use: "Save State 3", "Load State 3") */
 		static char slotBtn[2][24];
@@ -3149,10 +3155,13 @@ static void draw_menu(void) {
 		int lc = cap;
 		if (tall_item(menuItems[i])) {
 			/* double height: the text as big as the button and its widest label allow */
-			static const char* const tallLabels[] = { "Close Game", "Close RetroDS", "Are You Sure?" };
+			/* (as translated, with the widest digit: "Spielstand 0 speichern") */
+			char tallLabels[2][64];
+			snprintf(tallLabels[0], sizeof(tallLabels[0]), tr("Save State %d"), 0);
+			snprintf(tallLabels[1], sizeof(tallLabels[1]), tr("Load State %d"), 0);
 			int widest = 1;
-			for (size_t k = 0; k < sizeof(tallLabels) / sizeof(*tallLabels); ++k) widest = SDL_max(widest, ui_label_width(scr, 100, tallLabels[k]));
-			lc = SDL_min(r.h * 2 / 5, (r.w - mg.pad * 2) * 100 / widest);
+			for (int k = 0; k < 2; ++k) widest = SDL_max(widest, ui_label_width(scr, 100, tallLabels[k]));
+			lc = SDL_min(r.h * 3 / 10, (r.w - mg.pad * 2) * 100 / widest);
 		}
 		ui_label(scr, r.x + r.w / 2, r.y + r.h / 2, lc, label, en ? C_TEXT : C_DIS);
 	}
@@ -3395,6 +3404,62 @@ static const char* state_ra_side(const char* path) {
 static bool state_save(const char* path) {
 	bool ok = state_file_save(path);
 	if (ok) ra_state_saved(state_ra_side(path));
+	return ok;
+}
+static bool state_load(const char* path);
+
+/* Undo for the player's own saves and loads (the menu, the quick bar, the
+ * hotkeys), one step back: a load first keeps the game as it was
+ * (<auto state>.undo-load), a save over a state keeps the old one
+ * (<state>.undo). "Undo Load" / "Undo Save" in the menu puts it back. The
+ * files go when the game closes. */
+static char undoPath[1100]; /* the load's: the kept game; the save's: the state saved over */
+static void undo_file(char* out, size_t size) {
+	if (undoKind == UNDO_LOAD) snprintf(out, size, "%s.undo-load", gp.autoState);
+	else snprintf(out, size, "%s.undo", undoPath);
+}
+static void undo_clear(void) {
+	char f[1200];
+	if (undoKind != UNDO_NONE) undo_file(f, sizeof(f)), remove(f);
+	undoKind = UNDO_NONE;
+}
+static bool user_save(const char* path) {
+	undo_clear();
+	char f[1200];
+	snprintf(f, sizeof(f), "%s.undo", path);
+	bool kept = file_exists(path) && rename(path, f) == 0;
+	bool ok = state_save(path);
+	if (!ok && kept) rename(f, path); /* (the old one stays as it was) */
+	if (ok && kept) {
+		undoKind = UNDO_SAVE;
+		snprintf(undoPath, sizeof(undoPath), "%s", path);
+	}
+	return ok;
+}
+static bool user_load(const char* path) {
+	undo_clear();
+	char f[1200];
+	snprintf(f, sizeof(f), "%s.undo-load", gp.autoState);
+	bool kept = state_file_save(f);
+	bool ok = state_load(path);
+	if (ok && kept) undoKind = UNDO_LOAD;
+	else if (kept) remove(f);
+	return ok;
+}
+/* Undo Load: back to where the game was; Undo Save: the old state back */
+static bool user_undo(void) {
+	char f[1200];
+	undo_file(f, sizeof(f));
+	bool ok;
+	if (undoKind == UNDO_LOAD) {
+		ok = state_load(f);
+		remove(f);
+		ui_osd(ok ? "Back to where you were before loading" : "Undo failed");
+	} else {
+		ok = rename(f, undoPath) == 0;
+		ui_osd(ok ? "The state saved over is back" : "Undo failed");
+	}
+	undoKind = UNDO_NONE;
 	return ok;
 }
 
@@ -5234,7 +5299,7 @@ static bool activate(int item, enum GameExit* exitTo) {
 		slot_step(1);
 		break;
 	case M_SAVE:
-		if (state_save(gp.slot[stateSlot])) {
+		if (user_save(gp.slot[stateSlot])) {
 			char m[40];
 			snprintf(m, sizeof(m), tr("State saved to slot %d"), stateSlot);
 			ui_osd(m);
@@ -5243,10 +5308,20 @@ static bool activate(int item, enum GameExit* exitTo) {
 			snprintf(menuNote, sizeof(menuNote), tr("Save failed"));
 		}
 		break;
+	case M_UNDO: {
+		bool wasLoad = undoKind == UNDO_LOAD;
+		bool ok = user_undo();
+		if (wasLoad && ok) {
+			menuOpen = false;
+			return false;
+		}
+		set_page(curPage);
+		break;
+	}
 	case M_LOAD:
 		if (!item_enabled(M_LOAD)) {
 			snprintf(menuNote, sizeof(menuNote), tr("Nothing saved in slot %d yet"), stateSlot);
-		} else if (state_load(gp.slot[stateSlot])) {
+		} else if (user_load(gp.slot[stateSlot])) {
 			char m[40];
 			snprintf(m, sizeof(m), tr("Slot %d loaded"), stateSlot);
 			if (!stateWarned) ui_osd(m);
@@ -5512,6 +5587,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_RESTART;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_SAVE;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_LOAD;
+	pages[PG_GAME][pageLen[PG_GAME]++] = M_UNDO;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_SLOT;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_CHEATS;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_PATCHES;
@@ -5818,12 +5894,12 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 						barSince = SDL_GetTicks();
 						if (bb != BB_EXIT) barExitArmed = 0;
 						if (bb == BB_SAVE) {
-							bool ok = state_save(gp.quick);
+							bool ok = user_save(gp.quick);
 							ui_osd(ok ? "State saved." : "Save failed.");
 							if (ok) barLit = bb, barLitAt = barSince;
 						} else if (bb == BB_LOAD) {
 							if (!file_exists(gp.quick)) ui_osd("No quick state saved yet.");
-							else if (state_load(gp.quick)) { if (!stateWarned) ui_osd("State loaded."); forceMap = true, barLit = bb, barLitAt = barSince; }
+							else if (user_load(gp.quick)) { if (!stateWarned) ui_osd("State loaded."); forceMap = true, barLit = bb, barLitAt = barSince; }
 							else ui_osd("Load failed.");
 						} else if (bb == BB_SETTINGS) {
 							open_menu();
@@ -6130,10 +6206,10 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 				switch (i) {
 				case HK_QUIT: exitTo = GAME_QUIT_APP, done = true; break;
 				/* (the quick state, as the quick bar's buttons) */
-				case HK_SAVE: ui_osd(state_save(gp.quick) ? "State saved." : "Save failed."); break;
+				case HK_SAVE: ui_osd(user_save(gp.quick) ? "State saved." : "Save failed."); break;
 				case HK_LOAD:
 					if (!file_exists(gp.quick)) ui_osd("No quick state saved yet.");
-					else if (state_load(gp.quick)) { if (!stateWarned) ui_osd("State loaded."); forceMap = true; }
+					else if (user_load(gp.quick)) { if (!stateWarned) ui_osd("State loaded."); forceMap = true; }
 					else ui_osd("Load failed.");
 					break;
 				case HK_BAR: bar_toggle(); break;
@@ -6819,6 +6895,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	ui_on_foreground(NULL);
 	ui_sync_view(-1, 1);
 	fprintf(stderr, "leaving game after %llu frames\n", (unsigned long long) frameCount);
+	undo_clear();
 	if (bugPend.pending) {
 		/* (a report waiting for its note: saved with what's typed) */
 		char out[200];

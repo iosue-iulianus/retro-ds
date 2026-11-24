@@ -2097,3 +2097,18 @@ msgstr "Continuar: %s %d, %d:%02d %s"
 #, c-format
 msgid "Continue: %s %d, %d"
 msgstr "Continuar: %s %d, %d"
+
+msgid "Undo Load"
+msgstr "Deshacer carga"
+
+msgid "Undo Save"
+msgstr "Deshacer guardado"
+
+msgid "Back to where you were before loading"
+msgstr "De vuelta a donde estabas antes de cargar"
+
+msgid "The state saved over is back"
+msgstr "El estado sobrescrito ha vuelto"
+
+msgid "Undo failed"
+msgstr "No se pudo deshacer"

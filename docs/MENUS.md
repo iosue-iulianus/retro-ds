@@ -122,7 +122,7 @@ Six tabs (Game, Display, Screens, Controls, Speed, Map; L1 / R1 and taps); a pag
 
 | Tab | Holds |
 |---|---|
-| **Game** | Resume / Restart Game and Save State / Load State (two to a row), the slot, then Cheats / Patches and Take Screenshot / Submit a Bug Report (two to a row; Achievements between them when on), then Close Game and Close RetroDS last, double height and side by side (Close RetroDS alone, full width, when the game wasn't started from the game list) (actions) |
+| **Game** | Resume / Restart Game (two to a row), then Save State / Load State double height and further apart, so one can't be taken for the other; Undo Load or Undo Save under them after a load, or a save over a state (the game as it was before the load, or the state saved over, kept until the game closes; the quick bar and the hotkeys too); the slot, then Cheats / Patches and Take Screenshot / Submit a Bug Report (two to a row; Achievements between them when on), then Close Game and Close RetroDS last, side by side (Close RetroDS alone, full width, when the game wasn't started from the game list) (actions) |
 | **Display** | the Display category's rows; Overlays opens its screen as now |
 | **Controls** | the Controls category's rows; Face buttons becomes four rows here instead of its own screen |
 | **More** | Speed and sound, Second screen and Saves rows that make sense for one game |

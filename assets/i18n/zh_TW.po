@@ -2094,3 +2094,18 @@ msgstr "繼續：%s%d日 %d:%02d %s"
 #, c-format
 msgid "Continue: %s %d, %d"
 msgstr "繼續：%s%d日，%d年"
+
+msgid "Undo Load"
+msgstr "復原讀取"
+
+msgid "Undo Save"
+msgstr "復原儲存"
+
+msgid "Back to where you were before loading"
+msgstr "已回到讀取前的狀態"
+
+msgid "The state saved over is back"
+msgstr "被覆寫的存檔已復原"
+
+msgid "Undo failed"
+msgstr "無法復原"

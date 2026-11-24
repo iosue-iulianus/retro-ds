@@ -2097,3 +2097,18 @@ msgstr "Weiter: %s %d, %d:%02d %s"
 #, c-format
 msgid "Continue: %s %d, %d"
 msgstr "Weiter: %s %d, %d"
+
+msgid "Undo Load"
+msgstr "Laden rückgängig"
+
+msgid "Undo Save"
+msgstr "Speichern rückgängig"
+
+msgid "Back to where you were before loading"
+msgstr "Zurück zu dem Stand vor dem Laden"
+
+msgid "The state saved over is back"
+msgstr "Der überschriebene Spielstand ist wieder da"
+
+msgid "Undo failed"
+msgstr "Rückgängig fehlgeschlagen"

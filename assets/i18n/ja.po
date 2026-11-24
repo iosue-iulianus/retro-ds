@@ -2094,3 +2094,18 @@ msgstr "続きから: %1$s%2$d日 %5$s%3$d:%4$02d"
 #, c-format
 msgid "Continue: %s %d, %d"
 msgstr "続きから: %3$d年%1$s%2$d日"
+
+msgid "Undo Load"
+msgstr "ロードを取り消す"
+
+msgid "Undo Save"
+msgstr "セーブを取り消す"
+
+msgid "Back to where you were before loading"
+msgstr "ロード前の状態に戻りました"
+
+msgid "The state saved over is back"
+msgstr "上書きされたステートを元に戻しました"
+
+msgid "Undo failed"
+msgstr "取り消せませんでした"

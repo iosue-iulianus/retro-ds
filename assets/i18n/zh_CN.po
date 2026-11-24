@@ -2094,3 +2094,18 @@ msgstr "继续：%s%d日 %d:%02d %s"
 #, c-format
 msgid "Continue: %s %d, %d"
 msgstr "继续：%s%d日，%d年"
+
+msgid "Undo Load"
+msgstr "撤销读取"
+
+msgid "Undo Save"
+msgstr "撤销保存"
+
+msgid "Back to where you were before loading"
+msgstr "已回到读取前的状态"
+
+msgid "The state saved over is back"
+msgstr "被覆盖的存档已恢复"
+
+msgid "Undo failed"
+msgstr "无法撤销"

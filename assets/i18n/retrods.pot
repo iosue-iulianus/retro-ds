@@ -64,7 +64,7 @@ msgstr ""
 msgid "%d of %d set for %s, kept in controllers.txt beside RetroDS's save states. The line for it is in retrods.log too: send it in to have it built into RetroDS for this device."
 msgstr ""
 
-#: src/game.c:877
+#: src/game.c:880
 #, c-format
 msgid "%d on"
 msgstr ""
@@ -76,7 +76,7 @@ msgid_plural "%d RetroArch states here"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/game.c:3996 src/game.c:5835 src/game.c:6143
+#: src/game.c:4058 src/game.c:5908 src/game.c:6216
 #, c-format
 msgid "%s"
 msgstr ""
@@ -86,7 +86,7 @@ msgstr ""
 msgid "%s %s. Choose another if RetroArch keeps its states somewhere else."
 msgstr ""
 
-#: src/game.c:1126
+#: src/game.c:1129
 #, c-format
 msgid "%s (beside the ROM)"
 msgstr ""
@@ -136,7 +136,7 @@ msgstr ""
 msgid "%u of %u achievements unlocked"
 msgstr ""
 
-#: src/game.c:689
+#: src/game.c:692
 msgid ", RetroArch"
 msgstr ""
 
@@ -240,7 +240,7 @@ msgstr ""
 msgid "A and B buttons"
 msgstr ""
 
-#: src/game.c:2250
+#: src/game.c:2255
 msgid "A dark line under each row of pixels"
 msgstr ""
 
@@ -256,7 +256,7 @@ msgstr ""
 msgid "A pattern over every pixel, on both screens."
 msgstr ""
 
-#: src/game.c:2899
+#: src/game.c:2904
 msgid "A: the one lit above. Y: all games. X: undo this game's value"
 msgstr ""
 
@@ -264,11 +264,11 @@ msgstr ""
 msgid "ACHIEVEMENT UNLOCKED"
 msgstr ""
 
-#: src/game.c:3026
+#: src/game.c:3031
 msgid "Achievements"
 msgstr ""
 
-#: src/game.c:1711
+#: src/game.c:1715
 msgid "Add a note (optional): what happened, and what you expected to happen."
 msgstr ""
 
@@ -281,32 +281,32 @@ msgstr ""
 msgid "All %u achievements unlocked"
 msgstr ""
 
-#: src/config.c:440 src/game.c:2850
+#: src/config.c:440 src/game.c:2855
 msgid "All games"
 msgstr ""
 
-#: src/game.c:5136
+#: src/game.c:5198
 msgid "Already the value for all games"
 msgstr ""
 
-#: src/game.c:1508
+#: src/game.c:1511
 msgid "Always"
 msgstr ""
 
-#: src/game.c:2874
+#: src/game.c:2879
 msgid "Always on here"
 msgstr ""
 
-#: src/game.c:1127
+#: src/game.c:1130
 #, c-format
 msgid "Always on, applied first (RetroArch's way: a patch named as the ROM). %s"
 msgstr ""
 
-#: src/game.c:697 src/library.c:690
+#: src/game.c:700 src/library.c:690
 msgid "AM"
 msgstr ""
 
-#: src/game.c:1070
+#: src/game.c:1073
 msgid "An xdelta made with compression, which RetroDS can't read: patch the ROM with it beforehand, or make it again without (xdelta3 -S none)"
 msgstr ""
 
@@ -314,24 +314,24 @@ msgstr ""
 msgid "Android's installer couldn't be reached"
 msgstr ""
 
-#: src/game.c:686
+#: src/game.c:689
 msgid "Another emulator's"
 msgstr ""
 
-#: src/game.c:695 src/library.c:688
+#: src/game.c:698 src/library.c:688
 msgid "Apr"
 msgstr ""
 
-#: src/game.c:571 src/game.c:577 src/game.c:3135
+#: src/game.c:574 src/game.c:580 src/game.c:3141
 msgid "Are You Sure?"
 msgstr ""
 
-#: src/game.c:1426
+#: src/game.c:1429
 #, c-format
 msgid "Are you sure? A: switch it %s now and carry on from here. Y: not yet (more changes first). B: call it off"
 msgstr ""
 
-#: src/game.c:1397
+#: src/game.c:1400
 msgid "Are you sure? A: use them now and carry on from here. B: call it off"
 msgstr ""
 
@@ -343,12 +343,12 @@ msgstr ""
 msgid "Are you sure? Reset settings"
 msgstr ""
 
-#: src/game.c:1430
+#: src/game.c:1433
 #, c-format
 msgid "Are you sure? Save your game first. A: restart %s it now. Y: not yet (more changes first). B: call it off"
 msgstr ""
 
-#: src/game.c:1397
+#: src/game.c:1400
 msgid "Are you sure? Save your game first. A: restart now. B: call it off"
 msgstr ""
 
@@ -364,11 +364,11 @@ msgstr ""
 msgid "As fast as it goes"
 msgstr ""
 
-#: src/game.c:1330 src/game.c:1449
+#: src/game.c:1333 src/game.c:1452
 msgid "As the game started"
 msgstr ""
 
-#: src/game.c:695 src/library.c:688
+#: src/game.c:698 src/library.c:688
 msgid "Aug"
 msgstr ""
 
@@ -376,11 +376,11 @@ msgstr ""
 msgid "Auto-load"
 msgstr ""
 
-#: src/game.c:3116
+#: src/game.c:3121
 msgid "Auto-Load: Off"
 msgstr ""
 
-#: src/game.c:3116
+#: src/game.c:3121
 msgid "Auto-Load: On"
 msgstr ""
 
@@ -404,7 +404,7 @@ msgstr ""
 msgid "B (bottom) button"
 msgstr ""
 
-#: src/game.c:832 src/game.c:1479 src/game.c:2547 src/game.c:2638 ...
+#: src/game.c:835 src/game.c:1482 src/game.c:2552 src/game.c:2643 ...
 msgid "Back"
 msgstr ""
 
@@ -415,6 +415,10 @@ msgstr ""
 #: src/hotkeys.c:294
 #, c-format
 msgid "Back to %s and the buttons it started with"
+msgstr ""
+
+#: src/game.c:3454
+msgid "Back to where you were before loading"
 msgstr ""
 
 #: src/config.c:493
@@ -441,15 +445,15 @@ msgstr ""
 msgid "Bottom screen brightness"
 msgstr ""
 
-#: src/game.c:1704
+#: src/game.c:1708
 msgid "Bug Report"
 msgstr ""
 
-#: src/game.c:3998
+#: src/game.c:4060
 msgid "Bug report saved in bug-reports"
 msgstr ""
 
-#: src/game.c:3996
+#: src/game.c:4058
 msgid "Bug report saved in bug-reports."
 msgstr ""
 
@@ -461,11 +465,11 @@ msgstr ""
 msgid "Buttons mapped"
 msgstr ""
 
-#: src/game.c:686
+#: src/game.c:689
 msgid "Can't be read"
 msgstr ""
 
-#: src/game.c:1072
+#: src/game.c:1075
 msgid "Can't be read: not a patch, or damaged"
 msgstr ""
 
@@ -474,7 +478,7 @@ msgstr ""
 msgid "Can't reach RetroDS's folder, using %s for now: %s"
 msgstr ""
 
-#: src/game.c:2113
+#: src/game.c:2117
 msgid "Can't rewind further"
 msgstr ""
 
@@ -487,7 +491,7 @@ msgstr ""
 msgid "Can't save in the chosen folder, files not moved: %s"
 msgstr ""
 
-#: src/folderpick.c:203 src/game.c:2627 src/mapper.c:271
+#: src/folderpick.c:203 src/game.c:2632 src/mapper.c:271
 msgid "Cancel"
 msgstr ""
 
@@ -495,12 +499,12 @@ msgstr ""
 msgid "Centered"
 msgstr ""
 
-#: src/game.c:1193
+#: src/game.c:1196
 #, c-format
 msgid "Changes some of the same bytes as %s, and goes over it there: they may not work together"
 msgstr ""
 
-#: src/game.c:834
+#: src/game.c:837
 msgid "Cheats"
 msgstr ""
 
@@ -520,12 +524,12 @@ msgstr ""
 msgid "Choose a folder in Android's file picker..."
 msgstr ""
 
-#: src/game.c:5209
+#: src/game.c:5271
 #, c-format
 msgid "Choose it again to close %s: %s"
 msgstr ""
 
-#: src/game.c:5208
+#: src/game.c:5270
 msgid "Choose it again to restart: unsaved progress is lost"
 msgstr ""
 
@@ -555,11 +559,11 @@ msgstr ""
 msgid "Chosen here:"
 msgstr ""
 
-#: src/game.c:470 src/game.c:572
+#: src/game.c:470 src/game.c:575
 msgid "Close Game"
 msgstr ""
 
-#: src/game.c:470 src/game.c:572
+#: src/game.c:470 src/game.c:575
 msgid "Close RetroDS"
 msgstr ""
 
@@ -575,7 +579,7 @@ msgstr ""
 msgid "Color"
 msgstr ""
 
-#: src/game.c:2620
+#: src/game.c:2625
 msgid "color"
 msgstr ""
 
@@ -583,11 +587,11 @@ msgstr ""
 msgid "Color correction"
 msgstr ""
 
-#: src/game.c:3113
+#: src/game.c:3118
 msgid "Color Correction: Off"
 msgstr ""
 
-#: src/game.c:3113
+#: src/game.c:3118
 msgid "Color Correction: On"
 msgstr ""
 
@@ -631,7 +635,7 @@ msgstr ""
 msgid "Couldn't load the achievements"
 msgstr ""
 
-#: src/game.c:5469
+#: src/game.c:5541
 msgid "Couldn't load the game"
 msgstr ""
 
@@ -652,7 +656,7 @@ msgstr ""
 msgid "Couldn't save"
 msgstr ""
 
-#: src/game.c:3920 src/game.c:3940 src/game.c:3975
+#: src/game.c:3982 src/game.c:4002 src/game.c:4037
 msgid "Couldn't save the bug report."
 msgstr ""
 
@@ -669,19 +673,19 @@ msgstr ""
 msgid "Custom logos"
 msgstr ""
 
-#: src/game.c:3130
+#: src/game.c:3135
 msgid "Custom Logos: Do Not Use"
 msgstr ""
 
-#: src/game.c:3130
+#: src/game.c:3135
 msgid "Custom Logos: Full Detail"
 msgstr ""
 
-#: src/game.c:3130
+#: src/game.c:3135
 msgid "Custom Logos: Pixelated"
 msgstr ""
 
-#: src/game.c:2619
+#: src/game.c:2624
 msgid "D-pad"
 msgstr ""
 
@@ -713,11 +717,11 @@ msgstr ""
 msgid "Darkens the top screen, in this app only: the device's own brightness is left alone (and this can't go above it)."
 msgstr ""
 
-#: src/game.c:695 src/library.c:688
+#: src/game.c:698 src/library.c:688
 msgid "Dec"
 msgstr ""
 
-#: src/game.c:1642 src/game.c:2481
+#: src/game.c:1646 src/game.c:2486
 msgid "Del"
 msgstr ""
 
@@ -734,15 +738,15 @@ msgstr ""
 msgid "Deleted the settings of 1 game."
 msgstr ""
 
-#: src/game.c:540 src/library.c:1314
+#: src/game.c:543 src/library.c:1314
 msgid "Display"
 msgstr ""
 
-#: src/game.c:1644 src/game.c:2481 src/hotkeys.c:103
+#: src/game.c:1648 src/game.c:2486 src/hotkeys.c:103
 msgid "Done"
 msgstr ""
 
-#: src/game.c:1644
+#: src/game.c:1648
 msgid "Done (No Note)"
 msgstr ""
 
@@ -754,7 +758,7 @@ msgstr ""
 msgid "Downloading"
 msgstr ""
 
-#: src/game.c:2251
+#: src/game.c:2256
 msgid "Each pixel a little darker toward its edges"
 msgstr ""
 
@@ -798,7 +802,7 @@ msgstr ""
 msgid "Every second"
 msgstr ""
 
-#: src/game.c:1508 src/game.c:1510
+#: src/game.c:1511 src/game.c:1513
 msgid "Fails"
 msgstr ""
 
@@ -810,24 +814,24 @@ msgstr ""
 msgid "Fast forward"
 msgstr ""
 
-#: src/game.c:3123
+#: src/game.c:3128
 #, c-format
 msgid "Fast Forward: %dx"
 msgstr ""
 
-#: src/game.c:3122
+#: src/game.c:3127
 msgid "Fast Forward: Max"
 msgstr ""
 
-#: src/game.c:3124
+#: src/game.c:3129
 msgid "Fast Forward: Off"
 msgstr ""
 
-#: src/game.c:2117
+#: src/game.c:2121
 msgid "Fast forwarding..."
 msgstr ""
 
-#: src/game.c:695 src/library.c:688
+#: src/game.c:698 src/library.c:688
 msgid "Feb"
 msgstr ""
 
@@ -855,11 +859,11 @@ msgstr ""
 msgid "Frame buffer"
 msgstr ""
 
-#: src/game.c:3118
+#: src/game.c:3123
 msgid "Frame Buffer: Off"
 msgstr ""
 
-#: src/game.c:3118
+#: src/game.c:3123
 msgid "Frame Buffer: On"
 msgstr ""
 
@@ -879,7 +883,7 @@ msgstr ""
 msgid "Full Width"
 msgstr ""
 
-#: src/game.c:2888 src/game.c:2891
+#: src/game.c:2893 src/game.c:2896
 msgid "Game"
 msgstr ""
 
@@ -895,7 +899,7 @@ msgstr ""
 msgid "Game on top"
 msgstr ""
 
-#: src/game.c:5279
+#: src/game.c:5351
 msgid "Game restarted"
 msgstr ""
 
@@ -945,11 +949,11 @@ msgstr ""
 msgid "Held upright: the two screens one above the other. Either way up."
 msgstr ""
 
-#: src/game.c:2620
+#: src/game.c:2625
 msgid "hex"
 msgstr ""
 
-#: src/game.c:2640
+#: src/game.c:2645
 msgid "Hex Color"
 msgstr ""
 
@@ -993,7 +997,7 @@ msgstr ""
 msgid "How the map or logo fills its screen."
 msgstr ""
 
-#: src/game.c:2620
+#: src/game.c:2625
 msgid "hue"
 msgstr ""
 
@@ -1001,12 +1005,12 @@ msgstr ""
 msgid "In a game, hold the hotkey button and press another"
 msgstr ""
 
-#: src/game.c:1118
+#: src/game.c:1121
 #, c-format
 msgid "In patches/%s"
 msgstr ""
 
-#: src/game.c:2317 src/game.c:2590
+#: src/game.c:2322 src/game.c:2595
 msgid "Inner Bezel Color"
 msgstr ""
 
@@ -1018,19 +1022,19 @@ msgstr ""
 msgid "Installing"
 msgstr ""
 
-#: src/game.c:695 src/library.c:688
+#: src/game.c:698 src/library.c:688
 msgid "Jan"
 msgstr ""
 
-#: src/game.c:695 src/library.c:688
+#: src/game.c:698 src/library.c:688
 msgid "Jul"
 msgstr ""
 
-#: src/game.c:695 src/library.c:688
+#: src/game.c:698 src/library.c:688
 msgid "Jun"
 msgstr ""
 
-#: src/game.c:3127
+#: src/game.c:3132
 msgid "Keep device aspect ratios"
 msgstr ""
 
@@ -1051,27 +1055,27 @@ msgstr ""
 msgid "Kept for every game"
 msgstr ""
 
-#: src/game.c:1037
+#: src/game.c:1040
 #, c-format
 msgid "Known %s patch, tested: %s"
 msgstr ""
 
-#: src/game.c:1038
+#: src/game.c:1041
 #, c-format
 msgid "Known %s patch, untested: %s. The second screen may not work with it"
 msgstr ""
 
-#: src/game.c:1075
+#: src/game.c:1078
 #, c-format
 msgid "Known %s patch: %s, made for %s. This ROM is another version: it may break the game"
 msgstr ""
 
-#: src/game.c:1064
+#: src/game.c:1067
 #, c-format
 msgid "Known %s patch: %s, made for %s: it can't be switched on for this ROM"
 msgstr ""
 
-#: src/game.c:1026
+#: src/game.c:1029
 #, c-format
 msgid "Known romhack: %s, untested"
 msgstr ""
@@ -1097,11 +1101,11 @@ msgstr ""
 msgid "LCD ghosting"
 msgstr ""
 
-#: src/game.c:3114
+#: src/game.c:3119
 msgid "LCD Ghosting: Off"
 msgstr ""
 
-#: src/game.c:3114
+#: src/game.c:3119
 msgid "LCD Ghosting: On"
 msgstr ""
 
@@ -1113,7 +1117,7 @@ msgstr ""
 msgid "Left"
 msgstr ""
 
-#: src/game.c:1203
+#: src/game.c:1206
 msgid "Left out where it is: it's made for the unchanged ROM, so it has to be first (only one such patch can be on). Move it up with X"
 msgstr ""
 
@@ -1145,23 +1149,23 @@ msgstr ""
 msgid "Like an SNES"
 msgstr ""
 
-#: src/game.c:2249
+#: src/game.c:2254
 msgid "Lines between the pixels, like a handheld's LCD"
 msgstr ""
 
-#: src/game.c:5262
+#: src/game.c:5334
 msgid "Load failed"
 msgstr ""
 
-#: src/game.c:5827 src/game.c:6137
+#: src/game.c:5900 src/game.c:6210
 msgid "Load failed."
 msgstr ""
 
-#: src/game.c:470 src/game.c:571 src/game.c:577
+#: src/game.c:470 src/game.c:574 src/game.c:580
 msgid "Load State"
 msgstr ""
 
-#: src/game.c:625 src/game.c:3140
+#: src/game.c:628 src/game.c:3146
 #, c-format
 msgid "Load State %d"
 msgstr ""
@@ -1182,7 +1186,7 @@ msgstr ""
 msgid "machine translated"
 msgstr ""
 
-#: src/game.c:1067
+#: src/game.c:1070
 msgid "Made for another version of the game: it can't be switched on for this ROM"
 msgstr ""
 
@@ -1190,7 +1194,7 @@ msgstr ""
 msgid "Makes RetroDS the emulator for Game Boy Advance games in ES-DE. For a game it doesn't support, choose another in ES-DE (the game's metadata > Alternative emulator)."
 msgstr ""
 
-#: src/game.c:540
+#: src/game.c:543
 msgid "Map"
 msgstr ""
 
@@ -1206,7 +1210,7 @@ msgstr ""
 msgid "Map refresh"
 msgstr ""
 
-#: src/game.c:695 src/library.c:688
+#: src/game.c:698 src/library.c:688
 msgid "Mar"
 msgstr ""
 
@@ -1218,23 +1222,23 @@ msgstr ""
 msgid "Match display rate"
 msgstr ""
 
-#: src/game.c:3126
+#: src/game.c:3131
 msgid "Match Display Rate: Off"
 msgstr ""
 
-#: src/game.c:3126
+#: src/game.c:3131
 msgid "Match Display Rate: Off for now"
 msgstr ""
 
-#: src/game.c:3126
+#: src/game.c:3131
 msgid "Match Display Rate: On"
 msgstr ""
 
-#: src/game.c:3128
+#: src/game.c:3133
 msgid "Match screen aspect ratios"
 msgstr ""
 
-#: src/game.c:3128
+#: src/game.c:3133
 msgid "Match screen sizes and aspect ratios"
 msgstr ""
 
@@ -1246,7 +1250,7 @@ msgstr ""
 msgid "Max: full speed, a warmer device and a shorter battery."
 msgstr ""
 
-#: src/game.c:695 src/library.c:688
+#: src/game.c:698 src/library.c:688
 msgid "May"
 msgstr ""
 
@@ -1258,11 +1262,11 @@ msgstr ""
 msgid "Modified ROM: the second screen may not work"
 msgstr ""
 
-#: src/game.c:1507
+#: src/game.c:1510
 msgid "Move"
 msgstr ""
 
-#: src/game.c:1340
+#: src/game.c:1343
 msgid "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later"
 msgstr ""
 
@@ -1270,7 +1274,7 @@ msgstr ""
 msgid "Moving things leave a short trail, as on an old handheld's LCD."
 msgstr ""
 
-#: src/game.c:2605
+#: src/game.c:2610
 msgid "New"
 msgstr ""
 
@@ -1279,7 +1283,7 @@ msgstr ""
 msgid "No achievements for this ROM (MD5 %s)"
 msgstr ""
 
-#: src/game.c:5227
+#: src/game.c:5289
 msgid "No cheats found (see Cheats in the wiki)"
 msgstr ""
 
@@ -1303,11 +1307,11 @@ msgstr ""
 msgid "No games found"
 msgstr ""
 
-#: src/game.c:1152
+#: src/game.c:1155
 msgid "No patches here yet"
 msgstr ""
 
-#: src/game.c:5825 src/game.c:6135
+#: src/game.c:5898 src/game.c:6208
 msgid "No quick state saved yet."
 msgstr ""
 
@@ -1327,11 +1331,11 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-#: src/game.c:1137
+#: src/game.c:1140
 msgid "Not in the folder any more: it's left out"
 msgstr ""
 
-#: src/game.c:5591
+#: src/game.c:5664
 msgid "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes."
 msgstr ""
 
@@ -1347,24 +1351,24 @@ msgstr ""
 msgid "Nothing mapped"
 msgstr ""
 
-#: src/game.c:5248
+#: src/game.c:5320
 #, c-format
 msgid "Nothing saved in slot %d yet"
 msgstr ""
 
-#: src/game.c:3802
+#: src/game.c:3864
 msgid "Nothing to report yet."
 msgstr ""
 
-#: src/game.c:695 src/library.c:688
+#: src/game.c:698 src/library.c:688
 msgid "Nov"
 msgstr ""
 
-#: src/game.c:2604
+#: src/game.c:2609
 msgid "Now"
 msgstr ""
 
-#: src/game.c:695 src/library.c:688
+#: src/game.c:698 src/library.c:688
 msgid "Oct"
 msgstr ""
 
@@ -1392,15 +1396,15 @@ msgstr ""
 msgid "Offline"
 msgstr ""
 
-#: src/game.c:2629
+#: src/game.c:2634
 msgid "OK"
 msgstr ""
 
-#: src/config.c:439 src/game.c:858
+#: src/config.c:439 src/game.c:861
 msgid "On"
 msgstr ""
 
-#: src/game.c:1427
+#: src/game.c:1430
 msgid "on"
 msgstr ""
 
@@ -1408,11 +1412,11 @@ msgstr ""
 msgid "Only games with a map screen are listed (show_all = 1 lists every one)"
 msgstr ""
 
-#: src/game.c:2839
+#: src/game.c:2844
 msgid "Only one screen: nothing to move"
 msgstr ""
 
-#: src/game.c:1336
+#: src/game.c:1339
 msgid "Only patches that are on have an order, and this is the only one"
 msgstr ""
 
@@ -1424,7 +1428,7 @@ msgstr ""
 msgid "Open quick menu"
 msgstr ""
 
-#: src/game.c:2866
+#: src/game.c:2871
 msgid "Opens the bezel's own page, for whichever the game or all games have"
 msgstr ""
 
@@ -1432,15 +1436,15 @@ msgstr ""
 msgid "Orange"
 msgstr ""
 
-#: src/game.c:2318 src/game.c:2590
+#: src/game.c:2323 src/game.c:2595
 msgid "Outer Bezel Color"
 msgstr ""
 
-#: src/game.c:2864
+#: src/game.c:2869
 msgid "Overlay colors and logo"
 msgstr ""
 
-#: src/config.c:491 src/game.c:2549
+#: src/config.c:491 src/game.c:2554
 msgid "Overlays"
 msgstr ""
 
@@ -1448,19 +1452,19 @@ msgstr ""
 msgid "Overlays on"
 msgstr ""
 
-#: src/game.c:3132
+#: src/game.c:3137
 msgid "Overlays: Custom"
 msgstr ""
 
-#: src/game.c:2312
+#: src/game.c:2317
 msgid "Overlays: Custom (in /overlays)"
 msgstr ""
 
-#: src/game.c:2312 src/game.c:3132
+#: src/game.c:2317 src/game.c:3137
 msgid "Overlays: Generated"
 msgstr ""
 
-#: src/game.c:2312 src/game.c:3132
+#: src/game.c:2317 src/game.c:3137
 msgid "Overlays: Off"
 msgstr ""
 
@@ -1482,19 +1486,19 @@ msgstr ""
 msgid "Patched: the second screen may not work"
 msgstr ""
 
-#: src/game.c:1481
+#: src/game.c:1484
 msgid "Patches"
 msgstr ""
 
-#: src/game.c:5585
+#: src/game.c:5658
 msgid "Patches changed"
 msgstr ""
 
-#: src/game.c:1110
+#: src/game.c:1113
 msgid "Patches changed since the game started"
 msgstr ""
 
-#: src/game.c:5585
+#: src/game.c:5658
 msgid "Patches changed: carrying on from where you were"
 msgstr ""
 
@@ -1502,7 +1506,7 @@ msgstr ""
 msgid "Pattern strength"
 msgstr ""
 
-#: src/game.c:1780 src/game.c:1784
+#: src/game.c:1784 src/game.c:1788
 msgid "Paused"
 msgstr ""
 
@@ -1526,7 +1530,7 @@ msgstr ""
 msgid "Pink"
 msgstr ""
 
-#: src/game.c:5852
+#: src/game.c:5925
 msgid "Pinned: the bar stays up."
 msgstr ""
 
@@ -1554,7 +1558,7 @@ msgstr ""
 msgid "Playing without achievements this time"
 msgstr ""
 
-#: src/game.c:697 src/library.c:690
+#: src/game.c:700 src/library.c:690
 msgid "PM"
 msgstr ""
 
@@ -1570,7 +1574,7 @@ msgstr ""
 msgid "Preparing the game..."
 msgstr ""
 
-#: src/game.c:2620
+#: src/game.c:2625
 msgid "presets"
 msgstr ""
 
@@ -1611,7 +1615,7 @@ msgstr ""
 msgid "Push the stick: buttons don't count for this one."
 msgstr ""
 
-#: src/game.c:1151
+#: src/game.c:1154
 #, c-format
 msgid "Put .ips, .ups, .bps or .xdelta files in %s"
 msgstr ""
@@ -1644,15 +1648,15 @@ msgstr ""
 msgid "Red"
 msgstr ""
 
-#: src/game.c:2252
+#: src/game.c:2257
 msgid "Red, green and blue stripes, gentle: for dim screens"
 msgstr ""
 
-#: src/game.c:2253
+#: src/game.c:2258
 msgid "Red, green and blue stripes, like a handheld's LCD"
 msgstr ""
 
-#: src/game.c:2254
+#: src/game.c:2259
 msgid "Red, green and blue stripes, strong: for bright screens"
 msgstr ""
 
@@ -1660,7 +1664,7 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
-#: src/game.c:2319
+#: src/game.c:2324
 msgid "Reset Bezels"
 msgstr ""
 
@@ -1668,27 +1672,27 @@ msgstr ""
 msgid "Reset settings to defaults"
 msgstr ""
 
-#: src/game.c:1485
+#: src/game.c:1488
 msgid "Restart"
 msgstr ""
 
-#: src/game.c:1449
+#: src/game.c:1452
 msgid "Restart from the top row to play with it (or it's used from the next start)"
 msgstr ""
 
-#: src/game.c:1330
+#: src/game.c:1333
 msgid "Restart from the top row to play with this order"
 msgstr ""
 
-#: src/game.c:469 src/game.c:571 src/game.c:577
+#: src/game.c:469 src/game.c:574 src/game.c:580
 msgid "Restart Game"
 msgstr ""
 
-#: src/game.c:469 src/game.c:571 src/game.c:577
+#: src/game.c:469 src/game.c:574 src/game.c:580
 msgid "Resume"
 msgstr ""
 
-#: src/game.c:5588
+#: src/game.c:5661
 msgid "Resumed. Tap or HOME for the menu"
 msgstr ""
 
@@ -1761,11 +1765,11 @@ msgstr ""
 msgid "RetroDS is out of ES-DE's emulator list. Quit ES-DE and open it again to see it."
 msgstr ""
 
-#: src/game.c:2316
+#: src/game.c:2321
 msgid "RetroDS Logo: Hide"
 msgstr ""
 
-#: src/game.c:2316
+#: src/game.c:2321
 msgid "RetroDS Logo: Show"
 msgstr ""
 
@@ -1818,15 +1822,15 @@ msgstr ""
 msgid "Rewind, fast forward"
 msgstr ""
 
-#: src/game.c:3119
+#: src/game.c:3124
 msgid "Rewind: Off"
 msgstr ""
 
-#: src/game.c:3119
+#: src/game.c:3124
 msgid "Rewind: On"
 msgstr ""
 
-#: src/game.c:2107 src/game.c:2113
+#: src/game.c:2111 src/game.c:2117
 msgid "Rewinding..."
 msgstr ""
 
@@ -1860,15 +1864,15 @@ msgstr ""
 msgid "Run at the display's rate: no small regular stutter."
 msgstr ""
 
-#: src/game.c:5147
+#: src/game.c:5209
 msgid "Same as all games again"
 msgstr ""
 
-#: src/game.c:5243
+#: src/game.c:5305
 msgid "Save failed"
 msgstr ""
 
-#: src/game.c:5822 src/game.c:6133
+#: src/game.c:5895 src/game.c:6206
 msgid "Save failed."
 msgstr ""
 
@@ -1884,19 +1888,19 @@ msgstr ""
 msgid "Save on quit"
 msgstr ""
 
-#: src/game.c:3115
+#: src/game.c:3120
 msgid "Save on Quit: Off"
 msgstr ""
 
-#: src/game.c:3115
+#: src/game.c:3120
 msgid "Save on Quit: On"
 msgstr ""
 
-#: src/game.c:469 src/game.c:571 src/game.c:577
+#: src/game.c:469 src/game.c:574 src/game.c:580
 msgid "Save State"
 msgstr ""
 
-#: src/game.c:625 src/game.c:3140
+#: src/game.c:628 src/game.c:3146
 #, c-format
 msgid "Save State %d"
 msgstr ""
@@ -1909,19 +1913,19 @@ msgstr ""
 msgid "Save States: Shared with RetroArch"
 msgstr ""
 
-#: src/game.c:5258
+#: src/game.c:5330
 msgid "Saved by another emulator: can't load it"
 msgstr ""
 
-#: src/game.c:5072
+#: src/game.c:5134
 msgid "Saved for all games"
 msgstr ""
 
-#: src/game.c:5072
+#: src/game.c:5134
 msgid "Saved for this game"
 msgstr ""
 
-#: src/game.c:1389
+#: src/game.c:1392
 msgid "Saved for when a patch is on"
 msgstr ""
 
@@ -1937,19 +1941,19 @@ msgstr ""
 msgid "Scale, shader, theme, color"
 msgstr ""
 
-#: src/game.c:2788
+#: src/game.c:2793
 msgid "Scale: Full Width"
 msgstr ""
 
-#: src/game.c:2790
+#: src/game.c:2795
 msgid "Scale: Pixel Perfect"
 msgstr ""
 
-#: src/game.c:2790
+#: src/game.c:2795
 msgid "Scale: Stretch"
 msgstr ""
 
-#: src/game.c:2789
+#: src/game.c:2794
 msgid "Scale: Zoom"
 msgstr ""
 
@@ -1961,11 +1965,11 @@ msgstr ""
 msgid "Screen placement"
 msgstr ""
 
-#: src/game.c:3129
+#: src/game.c:3134
 msgid "Screen Placement: Centered"
 msgstr ""
 
-#: src/game.c:3129
+#: src/game.c:3134
 msgid "Screen Placement: Closest to Gap"
 msgstr ""
 
@@ -1977,11 +1981,11 @@ msgstr ""
 msgid "Screens"
 msgstr ""
 
-#: src/game.c:5309
+#: src/game.c:5381
 msgid "Screenshot failed"
 msgstr ""
 
-#: src/game.c:5309
+#: src/game.c:5381
 msgid "Screenshot saved"
 msgstr ""
 
@@ -2001,15 +2005,15 @@ msgstr ""
 msgid "Select or Start still reach the game when tapped on their own, L3 still opens the quick menu"
 msgstr ""
 
-#: src/game.c:695 src/library.c:688
+#: src/game.c:698 src/library.c:688
 msgid "Sep"
 msgstr ""
 
-#: src/game.c:1112
+#: src/game.c:1115
 msgid "Separate battery save"
 msgstr ""
 
-#: src/game.c:1114
+#: src/game.c:1117
 msgid "Separate save states"
 msgstr ""
 
@@ -2042,31 +2046,31 @@ msgstr ""
 msgid "Shader"
 msgstr ""
 
-#: src/game.c:2244
+#: src/game.c:2249
 msgid "Shader: LCD Grid"
 msgstr ""
 
-#: src/game.c:2244
+#: src/game.c:2249
 msgid "Shader: Off"
 msgstr ""
 
-#: src/game.c:2244
+#: src/game.c:2249
 msgid "Shader: Scanlines"
 msgstr ""
 
-#: src/game.c:2244
+#: src/game.c:2249
 msgid "Shader: Soft Cells"
 msgstr ""
 
-#: src/game.c:2245
+#: src/game.c:2250
 msgid "Shader: Subpixels"
 msgstr ""
 
-#: src/game.c:2245
+#: src/game.c:2250
 msgid "Shader: Subpixels (Light)"
 msgstr ""
 
-#: src/game.c:2245
+#: src/game.c:2250
 msgid "Shader: Subpixels (Strong)"
 msgstr ""
 
@@ -2078,11 +2082,11 @@ msgstr ""
 msgid "Show FPS"
 msgstr ""
 
-#: src/game.c:3117
+#: src/game.c:3122
 msgid "Show FPS: Off"
 msgstr ""
 
-#: src/game.c:3117
+#: src/game.c:3122
 msgid "Show FPS: On"
 msgstr ""
 
@@ -2116,7 +2120,7 @@ msgstr ""
 msgid "Single screen only: plays normally"
 msgstr ""
 
-#: src/game.c:1702
+#: src/game.c:1706
 msgid "Skip"
 msgstr ""
 
@@ -2129,27 +2133,27 @@ msgstr ""
 msgid "Skipped in %d s if nothing is pressed"
 msgstr ""
 
-#: src/game.c:5251
+#: src/game.c:5323
 #, c-format
 msgid "Slot %d loaded"
 msgstr ""
 
-#: src/game.c:686
+#: src/game.c:689
 #, c-format
 msgid "Slot %d: %s"
 msgstr ""
 
-#: src/game.c:696
+#: src/game.c:699
 #, c-format
 msgid "Slot %d: %s %d, %d%s"
 msgstr ""
 
-#: src/game.c:697
+#: src/game.c:700
 #, c-format
 msgid "Slot %d: %s %d, %d:%02d %s%s"
 msgstr ""
 
-#: src/game.c:678
+#: src/game.c:681
 #, c-format
 msgid "Slot %d: Empty"
 msgstr ""
@@ -2254,16 +2258,16 @@ msgstr ""
 msgid "Sound delay"
 msgstr ""
 
-#: src/game.c:6401
+#: src/game.c:6474
 #, c-format
 msgid "Sound delay raised to %d ms: the sound kept breaking up"
 msgstr ""
 
-#: src/game.c:1643
+#: src/game.c:1647
 msgid "Space"
 msgstr ""
 
-#: src/game.c:540
+#: src/game.c:543
 msgid "Speed"
 msgstr ""
 
@@ -2279,16 +2283,16 @@ msgstr ""
 msgid "Starting a game picks up where you closed it."
 msgstr ""
 
-#: src/game.c:5826 src/game.c:6136
+#: src/game.c:5899 src/game.c:6209
 msgid "State loaded."
 msgstr ""
 
-#: src/game.c:5239
+#: src/game.c:5301
 #, c-format
 msgid "State saved to slot %d"
 msgstr ""
 
-#: src/game.c:5822 src/game.c:6133
+#: src/game.c:5895 src/game.c:6206
 msgid "State saved."
 msgstr ""
 
@@ -2300,7 +2304,7 @@ msgstr ""
 msgid "Stretch"
 msgstr ""
 
-#: src/game.c:471 src/game.c:572 src/game.c:578
+#: src/game.c:471 src/game.c:575 src/game.c:581
 msgid "Submit a Bug Report"
 msgstr ""
 
@@ -2324,7 +2328,7 @@ msgstr ""
 msgid "Supported games only"
 msgstr ""
 
-#: src/game.c:1507
+#: src/game.c:1510
 msgid "Sure?"
 msgstr ""
 
@@ -2340,7 +2344,7 @@ msgstr ""
 msgid "Swapped"
 msgstr ""
 
-#: src/game.c:2076
+#: src/game.c:2080
 msgid "Swipe up for quick menu"
 msgstr ""
 
@@ -2356,15 +2360,15 @@ msgstr ""
 msgid "Tags in a ROM's file name, like (USA) or (En,Fr,De)."
 msgstr ""
 
-#: src/game.c:470 src/game.c:572 src/game.c:578
+#: src/game.c:470 src/game.c:575 src/game.c:581
 msgid "Take Screenshot"
 msgstr ""
 
-#: src/game.c:5839
+#: src/game.c:5912
 msgid "Tap again to close RetroDS."
 msgstr ""
 
-#: src/game.c:5594
+#: src/game.c:5667
 msgid "Tap the screen or press HOME for the menu"
 msgstr ""
 
@@ -2384,7 +2388,7 @@ msgstr ""
 msgid "Teal"
 msgstr ""
 
-#: src/game.c:1025
+#: src/game.c:1028
 #, c-format
 msgid "Tested romhack: %s"
 msgstr ""
@@ -2414,11 +2418,11 @@ msgstr ""
 msgid "the button that opens RetroDS's menu (Home, Menu or Function)"
 msgstr ""
 
-#: src/game.c:5209
+#: src/game.c:5271
 msgid "the game"
 msgstr ""
 
-#: src/game.c:2248
+#: src/game.c:2253
 msgid "The game's pixels as they are"
 msgstr ""
 
@@ -2447,11 +2451,11 @@ msgstr ""
 msgid "The menus' color for what's selected, with a dark and a light version of each."
 msgstr ""
 
-#: src/game.c:1191
+#: src/game.c:1194
 msgid "the patch beside the ROM"
 msgstr ""
 
-#: src/game.c:1110
+#: src/game.c:1113
 msgid "The patches aren't as the game started: restart it to play with them (or they're used from the next start)"
 msgstr ""
 
@@ -2479,6 +2483,10 @@ msgstr ""
 msgid "the second right shoulder button"
 msgstr ""
 
+#: src/game.c:3457
+msgid "The state saved over is back"
+msgstr ""
+
 #: src/library.c:2143
 msgid "The system sets the speed, as for its other emulators. If games stutter or the sound breaks up, try Set to Max."
 msgstr ""
@@ -2491,11 +2499,11 @@ msgstr ""
 msgid "This folder can't be opened"
 msgstr ""
 
-#: src/game.c:2850
+#: src/game.c:2855
 msgid "This game"
 msgstr ""
 
-#: src/game.c:2895
+#: src/game.c:2900
 msgid "This game has its own value. X, or going on past the last choice: same as all games"
 msgstr ""
 
@@ -2513,16 +2521,16 @@ msgstr ""
 msgid "This is v%s. Look for a new version, and download and install it."
 msgstr ""
 
-#: src/game.c:5260
+#: src/game.c:5332
 msgid "This state can't be read"
 msgstr ""
 
-#: src/game.c:3423
+#: src/game.c:3485
 #, c-format
 msgid "This state was saved %s: it may not work"
 msgstr ""
 
-#: src/game.c:1213
+#: src/game.c:1216
 #, c-format
 msgid "Together: %s"
 msgstr ""
@@ -2555,9 +2563,21 @@ msgstr ""
 msgid "Turbo speed"
 msgstr ""
 
-#: src/game.c:1028
+#: src/game.c:1031
 #, c-format
 msgid "Turns this ROM into another official release: %s"
+msgstr ""
+
+#: src/game.c:3454 src/game.c:3457
+msgid "Undo failed"
+msgstr ""
+
+#: src/game.c:3140
+msgid "Undo Load"
+msgstr ""
+
+#: src/game.c:3140
+msgid "Undo Save"
 msgstr ""
 
 #: src/ra.c:763
@@ -2576,15 +2596,15 @@ msgstr ""
 msgid "Unlocks will be sent when the connection is back"
 msgstr ""
 
-#: src/game.c:5852
+#: src/game.c:5925
 msgid "Unpinned: the bar hides after 5 seconds."
 msgstr ""
 
-#: src/game.c:5207
+#: src/game.c:5269
 msgid "unsaved progress is lost"
 msgstr ""
 
-#: src/game.c:1029
+#: src/game.c:1032
 msgid "Untested: the second screen may not work with it"
 msgstr ""
 
@@ -2592,7 +2612,7 @@ msgstr ""
 msgid "Up"
 msgstr ""
 
-#: src/game.c:1410
+#: src/game.c:1413
 #, c-format
 msgid "Up to %d patches can be on at once"
 msgstr ""
@@ -2618,7 +2638,7 @@ msgstr ""
 msgid "Use This Folder"
 msgstr ""
 
-#: src/game.c:1389
+#: src/game.c:1392
 msgid "Used from the next time the game starts"
 msgstr ""
 
@@ -2683,15 +2703,15 @@ msgstr ""
 msgid "Which screen the game is on."
 msgstr ""
 
-#: src/game.c:2315
+#: src/game.c:2320
 msgid "Which Screen: Both"
 msgstr ""
 
-#: src/game.c:2315
+#: src/game.c:2320
 msgid "Which Screen: Bottom Only"
 msgstr ""
 
-#: src/game.c:2315
+#: src/game.c:2320
 msgid "Which Screen: Top Only"
 msgstr ""
 
@@ -2699,29 +2719,29 @@ msgstr ""
 msgid "Which screens have them."
 msgstr ""
 
-#: src/game.c:1431
+#: src/game.c:1434
 msgid "with"
 msgstr ""
 
-#: src/game.c:3414
+#: src/game.c:3476
 #, c-format
 msgid "with %s"
 msgstr ""
 
-#: src/game.c:1112
+#: src/game.c:1115
 msgid "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's"
 msgstr ""
 
-#: src/game.c:1114
+#: src/game.c:1117
 msgid "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)"
 msgstr ""
 
-#: src/game.c:3419
+#: src/game.c:3481
 #, c-format
 msgid "with another dump of the game (%s)"
 msgstr ""
 
-#: src/game.c:3421
+#: src/game.c:3483
 msgid "with another version of the game (other patches, or another ROM)"
 msgstr ""
 
@@ -2733,16 +2753,16 @@ msgstr ""
 msgid "With tags, like (USA)"
 msgstr ""
 
-#: src/game.c:3419
+#: src/game.c:3481
 #, c-format
 msgid "with the unchanged game (%s)"
 msgstr ""
 
-#: src/game.c:1431
+#: src/game.c:1434
 msgid "without"
 msgstr ""
 
-#: src/game.c:3413
+#: src/game.c:3475
 msgid "without the patches on"
 msgstr ""
 
@@ -2758,15 +2778,15 @@ msgstr ""
 msgid "Your own and scraped logos on the second screen."
 msgstr ""
 
-#: src/game.c:2579
+#: src/game.c:2584
 msgid "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors."
 msgstr ""
 
-#: src/game.c:5207
+#: src/game.c:5269
 msgid "your place is saved"
 msgstr ""
 
-#: src/game.c:2838
+#: src/game.c:2843
 msgid "Your screens are the same shape: nothing to match"
 msgstr ""
 
@@ -2774,10 +2794,10 @@ msgstr ""
 msgid "Zoom"
 msgstr ""
 
-#: src/game.c:2884 src/game.c:3146 src/library.c:1465
+#: src/game.c:2889 src/game.c:3152 src/library.c:1465
 msgid "‹"
 msgstr ""
 
-#: src/game.c:2865 src/game.c:2880 src/game.c:3147 src/library.c:1271 ...
+#: src/game.c:2870 src/game.c:2885 src/game.c:3153 src/library.c:1271 ...
 msgid "›"
 msgstr ""

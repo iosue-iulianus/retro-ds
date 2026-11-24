@@ -2098,3 +2098,18 @@ msgstr "Continuar: %2$d %1$s, %3$d:%4$02d %5$s"
 #, c-format
 msgid "Continue: %s %d, %d"
 msgstr "Continuar: %2$d %1$s %3$d"
+
+msgid "Undo Load"
+msgstr "Desfazer carregamento"
+
+msgid "Undo Save"
+msgstr "Desfazer salvamento"
+
+msgid "Back to where you were before loading"
+msgstr "De volta a onde você estava antes de carregar"
+
+msgid "The state saved over is back"
+msgstr "O estado sobrescrito voltou"
+
+msgid "Undo failed"
+msgstr "Não foi possível desfazer"
