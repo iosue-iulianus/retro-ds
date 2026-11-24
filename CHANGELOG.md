@@ -39,6 +39,12 @@ changelog up to then is `git show 3b452dc:CHANGELOG.md` (and on
   a TV's; they and Stretch become 4:3. Until the player picks, the game goes
   on the screen where a 4:3 picture is physically biggest: the Duo's bottom
   screen, the AYN Thor's 6" top one.
+- A Link to the Past: the items screen floats over the world map and slides
+  up and away with X at the game's own speed, with the game's own opening
+  and closing sounds (in dungeons over black, the dungeon map once it's
+  away); a tap zooms the map in; the zoom indicator is the game's size; and
+  markers: drag the item you'll need (bombs, hammer, glove, hookshot,
+  flippers, boots, a fairy, a heart piece) onto the map to remember a place.
 
 Nothing playable yet: SNES DS still runs GBA games until the emulator is
 swapped. What has changed from GBA DS v1.5.6 so far:

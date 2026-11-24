@@ -102,6 +102,7 @@ static const uint32_t* alt_items_clear(const uint32_t* in) {
 static float altItemsUp = 1;
 static Uint64 altSlideT;
 
+
 /* The map's pieces on the GPU (alttp_piece): made when first shown, made
  * again when the piece changed (at most every ALT_REMAKE seconds while
  * Link walks), the least lately shown let go past ALT_BUDGET bytes. The
@@ -166,6 +167,54 @@ static int altPendingFile;
 /* The seen record of file f, beside the battery save: <save>.alttp<f> */
 static void alt_seen_path(int f, char* out, size_t n) {
 	snprintf(out, n, "%s.alttp%d", gp.sav, f);
+}
+
+/* ALTTP-15: the player's markers, per file of the game's and per world,
+ * in <save>.marks<file> (RetroDS's own: a line each, "world kind x y" in
+ * world pixels) */
+#define ALT_MARKS_MAX 256
+typedef struct {
+	uint8_t world, kind;
+	int16_t x, y;
+} AltMark;
+static AltMark altMarks[ALT_MARKS_MAX];
+static int altMarkN, altMarksFor = -1;   /* how many, and the file they're for */
+static int altMarkDrag = -1, altMarkIdx = -1; /* a marker being dragged: its kind, and which (-1: a new one, from the pane) */
+static int altMarkFX, altMarkFY;          /* the finger dragging it, screen pixels */
+static SDL_Texture *altMarkTex[2], *altMarkPaneTex[2];
+#define ALT_MARK_PANE_W 56
+#define ALT_MARK_PANE_H 96
+static void alt_marks_path(int f, char* out, size_t n) {
+	snprintf(out, n, "%s.marks%d", gp.sav, f);
+}
+static void alt_marks_load(void) {
+	altMarkN = 0, altMarksFor = altFile;
+	if (!altFile || !gp.sav[0]) return;
+	char path[1100], line[128];
+	alt_marks_path(altFile, path, sizeof path);
+	FILE* f = fopen(path, "r");
+	if (!f) return;
+	while (altMarkN < ALT_MARKS_MAX && fgets(line, sizeof line, f)) {
+		int w, k, x, y;
+		if (line[0] == '#' || sscanf(line, "%d %d %d %d", &w, &k, &x, &y) != 4) continue;
+		if (w < 0 || w > 1 || k < 0 || k >= ALTTP_MARK_KINDS) continue;
+		altMarks[altMarkN++] = (AltMark) { (uint8_t) w, (uint8_t) k, (int16_t) x, (int16_t) y };
+	}
+	fclose(f);
+	fprintf(stderr, "markers (file %d): %d from %s\n", altFile, altMarkN, path);
+}
+static void alt_marks_save(void) {
+	if (!altFile || !gp.sav[0] || altMarksFor != altFile) return;
+	char path[1100];
+	alt_marks_path(altFile, path, sizeof path);
+	FILE* f = fopen(path, "w");
+	if (!f) {
+		fprintf(stderr, "markers: can't save %s\n", path);
+		return;
+	}
+	fprintf(f, "# RetroDS: A Link to the Past's markers for this file (world kind x y)\n");
+	for (int i = 0; i < altMarkN; ++i) fprintf(f, "%d %d %d %d\n", altMarks[i].world, altMarks[i].kind, altMarks[i].x, altMarks[i].y);
+	fclose(f);
 }
 
 /* The seen record's pieces compressed ahead of its saves, on a thread of
@@ -392,6 +441,12 @@ void alt_free(void) {
 			*t[k] = NULL;
 		}
 	}
+	for (int i = 0; i < 2; ++i) {
+		if (altMarkTex[i]) SDL_DestroyTexture(altMarkTex[i]);
+		if (altMarkPaneTex[i]) SDL_DestroyTexture(altMarkPaneTex[i]);
+		altMarkTex[i] = altMarkPaneTex[i] = NULL;
+	}
+	altMarkN = 0, altMarksFor = -1, altMarkDrag = altMarkIdx = -1;
 	alt_cache_clear();
 	alt_worker_stop();
 }
@@ -418,6 +473,10 @@ void alt_textures(void) {
 		altTriTex[i] = native_texture(i, ALT_TRI_W, ALT_TRI_H, SDL_BLENDMODE_BLEND);
 		if (altTriTex[i]) ui_update_texture(altTriTex[i], alt_triforce(), ALT_TRI_W * 4);
 		altZoomTex[i] = native_texture(i, ALTTP_ZOOM_PANE_W, ALTTP_ZOOM_PANE_H, SDL_BLENDMODE_BLEND);
+		if (altMarkTex[i]) SDL_DestroyTexture(altMarkTex[i]);
+		if (altMarkPaneTex[i]) SDL_DestroyTexture(altMarkPaneTex[i]);
+		altMarkTex[i] = native_texture(i, ALTTP_MARK_KINDS * 16, 16, SDL_BLENDMODE_BLEND);
+		altMarkPaneTex[i] = native_texture(i, ALT_MARK_PANE_W, ALT_MARK_PANE_H, SDL_BLENDMODE_BLEND);
 		altZoomAt = -1;
 		if (altGoalTex[i]) ui_update_texture(altGoalTex[i], alttp_goal_pictures(alt), ALTTP_GOAL_MAX * 16 * 4);
 		for (int w = 0; w < 2; ++w) {
@@ -492,6 +551,9 @@ static void alt_file_events(void) {
 			fprintf(stderr, "map seen: the game's file %d erased\n", ev[i].file);
 			alt_set_aside(path);
 			if (altFile == ev[i].file) alttp_clear_seen(alt);
+			alt_marks_path(ev[i].file, path, sizeof path); /* ALTTP-15: its markers too */
+			alt_set_aside(path);
+			if (altFile == ev[i].file) altMarksFor = -1;
 		} else if (ev[i].kind == ALTTP_FILE_COPIED) {
 			fprintf(stderr, "map seen: the game's file %d copied to %d\n", ev[i].from, ev[i].file);
 			if (altFile == ev[i].from) alt_save_seen(); /* (its file up to date first) */
@@ -503,6 +565,11 @@ static void alt_file_events(void) {
 				if (ok) alttp_load_seen(alt, path);
 				else alttp_clear_seen(alt);
 			}
+			alt_marks_path(ev[i].from, from, sizeof from); /* ALTTP-15: its markers too */
+			alt_marks_path(ev[i].file, path, sizeof path);
+			alt_set_aside(path);
+			alt_copy_file(from, path);
+			if (altFile == ev[i].file) altMarksFor = -1;
 		}
 	}
 }
@@ -523,6 +590,9 @@ void alt_tick(void) {
 		char path[1100];
 		alt_seen_path(altFile, path, sizeof path);
 		if (alttp_take_new_file(alt)) {
+			char marks[1100];
+			alt_marks_path(altFile, marks, sizeof marks);
+			alt_set_aside(marks); /* ALTTP-15: a new file, no markers */
 			alttp_clear_seen(alt);
 			fprintf(stderr, "map seen (file %d): a new file, starts empty\n", altFile);
 		} else {
@@ -565,6 +635,25 @@ void alt_tick(void) {
 		if (px) altDunKey = key, memcpy(altDunPx, px, sizeof altDunPx), altDunNew = true;
 	} else if (!alttp_in_dungeon(alt)) {
 		altFloor = ALTTP_FLOOR_AS_GAME;
+	}
+	if (altItemsDirty && v && vn >= 0x10000) {
+		/* ALTTP-15: the markers' pictures and their pane, from the same tiles */
+		static uint32_t strip[ALTTP_MARK_KINDS * 16 * 16], pane[ALT_MARK_PANE_W * ALT_MARK_PANE_H], one[16 * 16];
+		alttp_frame_pane(alt, v, ALT_MARK_PANE_W, ALT_MARK_PANE_H, pane);
+		for (int k = 0; k < ALTTP_MARK_KINDS; ++k) {
+			if (!alttp_mark_icon(alt, v, k, one)) continue;
+			int px0 = 10 + (k % 2) * 20, py0 = 10 + (k / 2) * 20;
+			for (int y = 0; y < 16; ++y) {
+				for (int x = 0; x < 16; ++x) {
+					strip[y * ALTTP_MARK_KINDS * 16 + k * 16 + x] = one[y * 16 + x];
+					if (one[y * 16 + x] >> 24) pane[(py0 + y) * ALT_MARK_PANE_W + px0 + x] = one[y * 16 + x];
+				}
+			}
+		}
+		for (int i = 0; i < nViews; ++i) {
+			if (altMarkTex[i]) ui_update_texture(altMarkTex[i], strip, ALTTP_MARK_KINDS * 16 * 4);
+			if (altMarkPaneTex[i]) ui_update_texture(altMarkPaneTex[i], pane, ALT_MARK_PANE_W * 4);
+		}
 	}
 	if (altItemsDirty) {
 		const uint32_t* items = alt_items_clear(alttp_items(alt));
@@ -760,6 +849,31 @@ static const uint32_t* alt_triforce(void) {
 	return px;
 }
 
+/* The second screen's pixels to one of the game's, so its panes are the
+ * game's size on the game screen (by the two screens' pixels per inch, to
+ * a whole number: the owner, Nov 24, 2026; the sizes unknown, the game
+ * screen's pixels as they are) */
+static int alt_game_scale(int s) {
+	int g = game_screen();
+	SDL_Rect gi = ui_image_rect(g, picW, picH, cfg->scale);
+	float gp = picH > 0 ? (float) gi.h / picH : 2, pg = ui_screen_ppi(g), ps = ui_screen_ppi(s);
+	if (pg > 0 && ps > 0) gp *= ps / pg;
+	return SDL_max(1, (int) (gp + 0.5f));
+}
+
+/* ALTTP-15: the markers' pane at the screen's left edge, in the middle;
+ * its icons two across, four down */
+static SDL_Rect alt_mark_pane(int s, int* k) {
+	int h = screens[s].rect.h;
+	*k = alt_game_scale(s);
+	int pw = ALT_MARK_PANE_W * *k, ph = ALT_MARK_PANE_H * *k;
+	if (ph > h * 9 / 10) *k = SDL_max(1, h * 9 / 10 / ALT_MARK_PANE_H), pw = ALT_MARK_PANE_W * *k, ph = ALT_MARK_PANE_H * *k;
+	return (SDL_Rect) { SDL_max(2, h / 54), (h - ph) / 2, pw, ph };
+}
+static SDL_Rect alt_mark_slot(SDL_Rect pane, int k, int kind) {
+	return (SDL_Rect) { pane.x + (10 + (kind % 2) * 20) * k - 2 * k, pane.y + (10 + (kind / 2) * 20) * k - 2 * k, 20 * k, 20 * k };
+}
+
 /* ALTTP-3: the zoom's levels in the screen's bottom right corner, in a
  * pane of the items screen's (its frame from the game's tiles, black
  * inside, solid as the game's panes), the closest at the top: a dot
@@ -798,14 +912,7 @@ static void alt_zoom_indicator(int s, SDL_Rect a) {
 		ui_update_texture(altZoomTex[v], px, W * 4);
 		altZoomAt = at;
 	}
-	/* (its pixels the size of the game's on the game screen, by the two
-	 * screens' pixels per inch, to a whole number: the owner, Nov 24, 2026;
-	 * the sizes unknown, the game screen's pixels as they are) */
-	int g = game_screen();
-	SDL_Rect gi = ui_image_rect(g, picW, picH, cfg->scale);
-	float gp = picH > 0 ? (float) gi.h / picH : 2, pg = ui_screen_ppi(g), ps = ui_screen_ppi(s);
-	if (pg > 0 && ps > 0) gp *= ps / pg;
-	int k = SDL_max(1, (int) (gp + 0.5f)), m = SDL_max(2, a.h / 54);
+	int k = alt_game_scale(s), m = SDL_max(2, a.h / 54);
 	int w = ALTTP_ZOOM_PANE_W * k, h = ALTTP_ZOOM_PANE_H * k;
 	ui_image_part(s, altZoomTex, (SDL_Rect) { 0, 0, ALTTP_ZOOM_PANE_W, ALTTP_ZOOM_PANE_H }, (SDL_Rect) { a.x + a.w - w - m, a.y + a.h - h - m, w, h });
 }
@@ -884,10 +991,26 @@ static void draw_alt_map(int s) {
 		int gx = ox + (int) lroundf(gl[i].x / z) + gl[i].dx * m, gy = oy + (int) lroundf(gl[i].y / z) + gl[i].dy * m;
 		ui_image_part(s, altGoalTex, (SDL_Rect) { i * 16, 0, gl[i].size, gl[i].size }, (SDL_Rect) { gx, gy, gl[i].size * m, gl[i].size * m });
 	}
+	/* ALTTP-15: the player's markers in this world (the one dragged under the finger) */
+	if (altMarksFor != altFile) alt_marks_load();
+	for (int i = 0; i < altMarkN; ++i) {
+		if (altMarks[i].world != (world & 1) || i == altMarkIdx) continue;
+		int gx = ox + (int) lroundf(altMarks[i].x / z) - 8 * m, gy = oy + (int) lroundf(altMarks[i].y / z) - 8 * m;
+		ui_image_part(s, altMarkTex, (SDL_Rect) { altMarks[i].kind * 16, 0, 16, 16 }, (SDL_Rect) { gx, gy, 16 * m, 16 * m });
+	}
 	alt_zoom_indicator(s, a);
 	if (alttp_marker_on(alt)) {
 		int mx = ox + (int) lroundf(lx / z) - 16 * m, my = oy + (int) lroundf(ly / z) - 16 * m;
 		ui_image_part(s, altMarkerTex, (SDL_Rect) { 0, 0, 32, 32 }, (SDL_Rect) { mx, my, 32 * m, 32 * m });
+	}
+	/* ALTTP-15: the pane, while the items are away; then the marker being dragged */
+	if (altPage == 1) {
+		int pk;
+		SDL_Rect pane = alt_mark_pane(s, &pk);
+		ui_image_part(s, altMarkPaneTex, (SDL_Rect) { 0, 0, ALT_MARK_PANE_W, ALT_MARK_PANE_H }, pane);
+	}
+	if (altMarkDrag >= 0) {
+		ui_image_part(s, altMarkTex, (SDL_Rect) { altMarkDrag * 16, 0, 16, 16 }, (SDL_Rect) { altMarkFX - 8 * m, altMarkFY - 8 * m, 16 * m, 16 * m });
 	}
 	ui_clip(s, NULL);
 }
@@ -1055,10 +1178,68 @@ static void alt_tap(int x, int y) {
 	else if (!k) fprintf(stderr, "items: item %d not selected (not had, or not playable)\n", item);
 }
 
+/* ALTTP-15: a finger on the markers: from the pane, a new one; on one on
+ * the map, that one; it follows the finger, and where it's let go it stays
+ * (back on the pane: gone). Returns true when it's the markers' touch. */
+static bool alt_mark_touch(const Pointer* p) {
+	int s = 1 - game_screen();
+	if (p->kind >= 4) return altMarkDrag >= 0; /* (no pinch while one's carried) */
+	if (p->kind == 1) {
+		if (altPage != 1 || alttp_in_dungeon(alt) || alttp_in_special(alt) || !altShown || p->screen != s) return false;
+		if (altMarksFor != altFile) alt_marks_load();
+		int k;
+		SDL_Rect pane = alt_mark_pane(s, &k);
+		SDL_Point pt = { p->x, p->y };
+		for (int i = 0; i < ALTTP_MARK_KINDS; ++i) {
+			SDL_Rect r = alt_mark_slot(pane, k, i);
+			if (SDL_PointInRect(&pt, &r)) {
+				altMarkDrag = i, altMarkIdx = -1, altMarkFX = p->x, altMarkFY = p->y;
+				return true;
+			}
+		}
+		int world, lx, ly;
+		alttp_link(alt, &world, &lx, &ly);
+		int m = SDL_max(1, screens[s].rect.h / 360), slop = 8 * m + m * 4;
+		for (int i = altMarkN - 1; i >= 0; --i) { /* (the one drawn on top first) */
+			if (altMarks[i].world != (world & 1)) continue;
+			float mx = (altMarks[i].x - altVX) / ALT_Z, my = (altMarks[i].y - altVY) / ALT_Z;
+			if (fabsf(p->x - mx) <= slop && fabsf(p->y - my) <= slop) {
+				altMarkDrag = altMarks[i].kind, altMarkIdx = i, altMarkFX = p->x, altMarkFY = p->y;
+				return true;
+			}
+		}
+		return false;
+	}
+	if (altMarkDrag < 0) return false;
+	altMarkFX = p->x, altMarkFY = p->y;
+	if (p->kind != 2) return true;
+	int k, world, lx, ly;
+	SDL_Rect pane = alt_mark_pane(s, &k);
+	SDL_Point pt = { p->x, p->y };
+	alttp_link(alt, &world, &lx, &ly);
+	if (SDL_PointInRect(&pt, &pane)) {
+		if (altMarkIdx >= 0) {
+			fprintf(stderr, "markers: one taken away\n");
+			memmove(&altMarks[altMarkIdx], &altMarks[altMarkIdx + 1], sizeof *altMarks * (size_t) (altMarkN - altMarkIdx - 1));
+			--altMarkN;
+			alt_marks_save();
+		}
+	} else {
+		int wx = SDL_clamp((int) lroundf(altVX + p->x * ALT_Z), 0, ALTTP_WORLD - 1), wy = SDL_clamp((int) lroundf(altVY + p->y * ALT_Z), 0, ALTTP_WORLD - 1);
+		if (altMarkIdx >= 0) altMarks[altMarkIdx].x = (int16_t) wx, altMarks[altMarkIdx].y = (int16_t) wy;
+		else if (altMarkN < ALT_MARKS_MAX) altMarks[altMarkN++] = (AltMark) { (uint8_t) (world & 1), (uint8_t) altMarkDrag, (int16_t) wx, (int16_t) wy };
+		fprintf(stderr, "markers: %d at %d, %d (world %d)\n", altMarkDrag, wx, wy, world & 1);
+		alt_marks_save();
+	}
+	altMarkDrag = altMarkIdx = -1;
+	return true;
+}
+
 /* A touch on the second screen: a drag moves the map with the finger (a
  * fling carries on), a tap goes to alt_tap. Never the menu. */
 int alt_touch(const Pointer* p) {
 	if (nScreens != 2) return 0;
+	if (alt_mark_touch(p)) return 1;
 	if (p->kind >= 4) {
 		/* ALTTP-3: a pinch zooms round the point between the fingers,
 		 * which stays under them; let go, the zoom settles on the nearest
