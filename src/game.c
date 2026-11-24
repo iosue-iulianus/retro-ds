@@ -5166,15 +5166,13 @@ static void rows_note(const char* what, bool all, bool kept) {
 	(void) what;
 }
 
-/* where a setting stands on its list (or its number), to tell when a step wrapped round */
-static int step_pos(const Config* c, const Setting* st) {
-	if (st->nChoices) return config_setting_index(c, st);
-	return *(const int*) ((const char*) c + st->off);
-}
-
-/* step row `key` by dir, for all games or this game. For this game the list has
- * one more place, "same as all games": stepping past either end of the list
- * from a value of this game's own takes it away (row_reset) */
+/* step row `key` by dir, for all games or this game. Either way the whole
+ * list goes round, in the same order both ways; for this game, landing on
+ * the value for all games takes this game's own away (row_reset), so there's
+ * nothing left over to keep. (GBA DS's list had a hidden extra place, "same
+ * as all games", where a step past either end went instead: going right
+ * never reached what was left of the all-games value, going left nothing
+ * right of it.) */
 
 static void row_reset(const char* key);
 static void row_change(const char* key, int dir, bool all) {
@@ -5204,12 +5202,13 @@ static void row_change(const char* key, int dir, bool all) {
 		}
 		rows_note(key, true, kept);
 	} else {
-		int before = step_pos(cfg, st);
 		bool had = game_has(st);
 		if (!config_setting_step(cfg, st, dir)) return;
-		int after = step_pos(cfg, st);
-		if (had && (dir > 0 ? after < before : after > before)) {
-			row_reset(key); /* (round the end of the list: back to the value for all games) */
+		const char *mine = (const char*) cfg + st->off, *theirs = (const char*) &uniCfg + st->off;
+		if (st->field == SF_STR ? !strcmp(mine, theirs) : !memcmp(mine, theirs, st->size)) {
+			/* (the value for all games again: this game needs none of its own) */
+			if (had) row_reset(key);
+			else setting_applied(st);
 			return;
 		}
 		write_setting(gp.settings, gameHeader, cfg, st);
