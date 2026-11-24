@@ -300,3 +300,15 @@ stand-in for GitHub's latest-release API serving a zip you give it:
    `PATH=/nonexistent` tests the libcurl fallback (BananaOS); running a copy
    from elsewhere with `RETRODS_HOME` set tests launch.sh's copied binary
    (both copies are replaced).
+
+## Videos from the headless app
+
+A video of both screens with the game's sound (the A Link to the Past title
+sword, Nov 24, 2026): run the headless app with a `TICK SHOT:file.bmp` line
+for every frame wanted and `RETRODS_AUDIO_DUMP=FILE`, which writes the
+playing game's sound as the core makes it (raw 16-bit stereo, the rate in
+the log's "audio dump" line, 48000 Hz for bsnes) from frame 0, one frame's
+worth per frame, however fast the headless run is. Pass `--audio_latency=192`
+so no "sound delay raised" note lands in the pictures. Then with ffmpeg:
+frames at 60 fps, the sound from (first frame - 1) / 60.0988 s, slowed by
+`atempo=0.998356` (60 / 60.0988) to stay in step.
