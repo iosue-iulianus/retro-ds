@@ -235,7 +235,7 @@ static void set_error(const char* fmt, const char* detail) {
 static int check_thread(void* ud) {
 	bool automatic = ud != NULL;
 	char ua[64], err[200];
-	snprintf(ua, sizeof(ua), "SNES-DS/%s", RETRODS_VERSION);
+	snprintf(ua, sizeof(ua), "RetroDS/%s", RETRODS_VERSION);
 	char* body = NULL;
 	size_t len = 0;
 	int code = http_get(U.url, ua, 20, NULL, &body, &len, err, sizeof(err), NULL);
@@ -343,7 +343,7 @@ static bool install_zip(const char* zip, char* err, size_t errSize) {
 static int install_thread(void* ud) {
 	(void) ud;
 	char zip[1200], err[200] = "", ua[64];
-	snprintf(ua, sizeof(ua), "SNES-DS/%s", RETRODS_VERSION);
+	snprintf(ua, sizeof(ua), "RetroDS/%s", RETRODS_VERSION);
 	mkdirs(U.workDir);
 	snprintf(zip, sizeof(zip), "%s/%s", U.workDir, U.assetName);
 	int code = http_get(U.assetUrl, ua, 600, zip, NULL, NULL, err, sizeof(err), &U.cancel);

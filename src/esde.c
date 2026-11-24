@@ -13,7 +13,7 @@
 #define CMD_OPEN "<command label=\"RetroDS (Standalone)\">"
 /* LauncherActivity reads the extra "rom" as a file path: patches beside the
  * game then work (they don't with a content link, %ROMPROVIDER%) */
-#define CMD_LINE "        " CMD_OPEN "%EMULATOR_SNES-DS% %ACTIVITY_CLEAR_TASK% %ACTIVITY_CLEAR_TOP% %EXTRA_rom%=%ROM%</command>\n"
+#define CMD_LINE "        " CMD_OPEN "%EMULATOR_RETRODS% %ACTIVITY_CLEAR_TASK% %ACTIVITY_CLEAR_TOP% %EXTRA_rom%=%ROM%</command>\n"
 
 #define COPY_MARK "retrods: ES-DE's own gba entry"
 #define COPY_NOTE                                                                                              \
@@ -48,7 +48,7 @@ static const char* const GBA_BODY =
 	"        <platform>gba</platform>\n"
 	"        <theme>gba</theme>\n";
 
-#define RULE_OPEN "<emulator name=\"SNES-DS\">"
+#define RULE_OPEN "<emulator name=\"RETRODS\">"
 static const char* const RULE =
 	"    " RULE_OPEN "\n"
 	"        <!-- retrods: RetroDS, added by RetroDS (Settings > RetroDS in ES-DE); switching that off takes it out -->\n"

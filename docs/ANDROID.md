@@ -345,9 +345,9 @@ CHANGELOG until someone tests them on a more capable device.
     ES-DE's folder is found: /storage/emulated/0/ES-DE, else
     /storage/<volume>/ES-DE, with settings/es_settings.xml;
     RETRODS_ESDE_DIR overrides for the desktop test kit) writes into
-    ES-DE/custom_systems: the SNES-DS find rule (androidpackage
+    ES-DE/custom_systems: the RETRODS find rule (androidpackage
     io.github.iosue_iulianus.retrods/.LauncherActivity) in es_find_rules.xml, and
-    `<command label="RetroDS (Standalone)">%EMULATOR_SNES-DS%
+    `<command label="RetroDS (Standalone)">%EMULATOR_RETRODS%
     %ACTIVITY_CLEAR_TASK% %ACTIVITY_CLEAR_TOP% %EXTRA_rom%=%ROM%</command>`
     first in es_systems.xml's gba system (the default emulator): into the
     player's own gba system, else a copy of ES-DE's (esde.c GBA_BODY, from

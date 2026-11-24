@@ -4,7 +4,7 @@
  * ES-DE reads ES-DE/custom_systems/es_systems.xml and es_find_rules.xml on
  * top of its own lists; a system there replaces ES-DE's own one of the same
  * name. Turning this on:
- * - adds the find rule SNES-DS (this app's LauncherActivity) to
+ * - adds the find rule RETRODS (this app's LauncherActivity) to
  *   es_find_rules.xml, and
  * - puts "RetroDS (Standalone)" first among the gba system's emulators in
  *   es_systems.xml, so it's the default: into the player's own gba entry if

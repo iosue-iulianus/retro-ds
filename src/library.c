@@ -691,7 +691,7 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 		 * (the pixel font's capitals; without https://, so it stays clear
 		 * of a wide game logo on the right) */
 		int vpx = SDL_max(1, px / 2);
-		ui_text(scr, m + px * 2, m + headH + px * 2, vpx, "GITHUB.COM/IOSUE-IULIANUS/SNES-DS", C_DIM);
+		ui_text(scr, m + px * 2, m + headH + px * 2, vpx, "GITHUB.COM/IOSUE-IULIANUS/RETRO-DS", C_DIM);
 	}
 
 	/* button hints along the bottom */

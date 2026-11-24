@@ -159,7 +159,7 @@ public class RetroDsActivity extends SDLActivity {
      * overlays, screenshots, save states), laid out like the ROCKNIX install
      * folder. Needs All files access; without it, the app's own folder.
      * Data from builds that used the app's folder is copied over once, and
-     * so is RetroDS's folder (importSnesDs). This is the default: a folder
+     * so is SNES DS's folder (importSnesDs). This is the default: a folder
      * the player chose instead (Settings > Folders) is set up by the native
      * side (android_data_setup), and then "RetroDS" isn't made.
      */

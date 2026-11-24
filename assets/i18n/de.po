@@ -329,7 +329,7 @@ msgid "Can't be read: not a patch, or damaged"
 msgstr "Nicht lesbar: kein Patch oder beschädigt"
 
 msgid "Can't find the RetroDS folder."
-msgstr "Der SNES-DS-Ordner wurde nicht gefunden."
+msgstr "Der RetroDS-Ordner wurde nicht gefunden."
 
 msgid "Can't reach RetroDS's folder, using %s for now: %s"
 msgstr "Auf den Ordner von RetroDS kann nicht zugegriffen werden, vorerst wird %s verwendet: %s"
@@ -368,7 +368,7 @@ msgid "Choose a folder in Android's file picker..."
 msgstr "Wähle einen Ordner in der Dateiauswahl von Android..."
 
 msgid "Choose RetroDS folder"
-msgstr "SNES-DS-Ordner wählen"
+msgstr "RetroDS-Ordner wählen"
 
 msgid "Choose it again to close %s: %s"
 msgstr "Wähle es erneut, um %s zu schließen: %s"
@@ -719,13 +719,13 @@ msgid "RetroDS is out of ES-DE's emulator list. Quit ES-DE and open it again to 
 msgstr "RetroDS ist nicht mehr in der Emulatorliste von ES-DE. Beende ES-DE und öffne es erneut, um es zu sehen."
 
 msgid "RetroDS Logo: Hide"
-msgstr "SNES-DS-Logo: Ausblenden"
+msgstr "RetroDS-Logo: Ausblenden"
 
 msgid "RetroDS Logo: Show"
-msgstr "SNES-DS-Logo: Anzeigen"
+msgstr "RetroDS-Logo: Anzeigen"
 
 msgid "RetroDS Settings"
-msgstr "SNES-DS-Einstellungen"
+msgstr "RetroDS-Einstellungen"
 
 msgid "RetroDS v%s is out (this is v%s). Update now to download it (%.1f MB) and install it: Android asks you to confirm. Your games, saves, states and settings are kept."
 msgstr "RetroDS v%s ist erschienen (das hier ist v%s). Wähle „Jetzt aktualisieren“, um es herunterzuladen (%.1f MB) und zu installieren: Android bittet um Bestätigung. Deine Spiele, Spielstände und Einstellungen bleiben erhalten."
@@ -1808,7 +1808,7 @@ msgid "The game's pixels as they are"
 msgstr "Die Pixel des Spiels unverändert"
 
 msgid "The RetroDS logo in the generated bezel."
-msgstr "Das SNES-DS-Logo im generierten Rahmen."
+msgstr "Das RetroDS-Logo im generierten Rahmen."
 
 msgid "The hotkey button can be %s, Select, Start or L3"
 msgstr "Die Hotkey-Taste kann %s, Select, Start oder L3 sein"
