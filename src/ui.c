@@ -2789,7 +2789,7 @@ static const SDL_Color accBase[AC_COUNT] = {
 	[AC_LIT_EDGE] = { 75, 58, 130, 255 },
 };
 static const struct { const char* id; float hue; } accents[ACCENT_COUNT] = {
-	{ "purple", 268 }, { "blue", 215 }, { "teal", 175 }, { "green", 135 }, { "red", 352 }, { "orange", 24 }, { "pink", 322 },
+	{ "purple", 268 }, { "blue", 215 }, { "teal", 175 }, { "green", 135 }, { "red", 355.5f }, { "orange", 24 }, { "pink", 322 },
 };
 
 static void rgb_to_hsl(SDL_Color c, float* h, float* s, float* l) {
@@ -2845,6 +2845,20 @@ static void accent_build(void) {
 	}
 	accentSet[AC_HI] = hi;
 	accentSet[AC_HI_INK] = hiInk;
+	if (!strcmp(accents[accentIdx].id, "red")) {
+		/* red is the logo's own (assets/brand/retrods-logo.png, as
+		 * tools/logo_transparent.py prints it): what's selected is that red,
+		 * a touch lighter at the top, in both themes
+		 * (white on it: 4.9:1) */
+		static const SDL_Color logoRed = { 224, 13, 29, 255 };
+		float h, sat, l;
+		rgb_to_hsl(logoRed, &h, &sat, &l);
+		accentSet[AC_SEL_MID] = accentSet[AC_BTN_SEL] = logoRed;
+		accentSet[AC_SEL_HI] = hsl_to_rgb(h, sat, l + 0.08f, 255); /* (ui_key: the face is the low tone, a little lighter at the top) */
+		accentSet[AC_SEL_LO] = logoRed;
+		accentSet[AC_SEL_EDGE] = hsl_to_rgb(h, sat, l * 0.45f, 255);
+		accentSet[AC_SEL_BORDER] = hsl_to_rgb(h, sat, l * 0.2f, 255);
+	}
 	accentValid = true;
 }
 void ui_accent(const char* id) {
