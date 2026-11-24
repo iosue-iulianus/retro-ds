@@ -2086,3 +2086,11 @@ msgstr "SNES X"
 
 msgid "SNES Y"
 msgstr "SNES Y"
+
+#, c-format
+msgid "Continue: %s %d, %d:%02d %s"
+msgstr "继续：%s%d日 %d:%02d %s"
+
+#, c-format
+msgid "Continue: %s %d, %d"
+msgstr "继续：%s%d日，%d年"

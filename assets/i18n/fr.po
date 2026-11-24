@@ -2090,3 +2090,11 @@ msgstr "SNES X"
 
 msgid "SNES Y"
 msgstr "SNES Y"
+
+#, c-format
+msgid "Continue: %s %d, %d:%02d %s"
+msgstr "Reprendre : %2$d %1$s, %3$d:%4$02d %5$s"
+
+#, c-format
+msgid "Continue: %s %d, %d"
+msgstr "Reprendre : %2$d %1$s %3$d"

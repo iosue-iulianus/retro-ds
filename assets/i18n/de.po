@@ -2089,3 +2089,11 @@ msgstr "SNES X"
 
 msgid "SNES Y"
 msgstr "SNES Y"
+
+#, c-format
+msgid "Continue: %s %d, %d:%02d %s"
+msgstr "Weiter: %s %d, %d:%02d %s"
+
+#, c-format
+msgid "Continue: %s %d, %d"
+msgstr "Weiter: %s %d, %d"

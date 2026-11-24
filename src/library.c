@@ -676,23 +676,33 @@ static void load_thumbs(Config* cfg, int idx) {
 	}
 }
 
+/* "Continue: Nov 24, 7:14 PM" (or the year, when it isn't this year's):
+ * when the picture of where the game carries on from was taken */
+static bool continue_label(const GamePaths* gp, char* out, size_t size) {
+	struct stat st;
+	if (stat(gp->autoState, &st) != 0 && stat(gp->thumb, &st) != 0) return false;
+	struct tm t, now;
+	time_t n = time(NULL);
+	localtime_r(&st.st_mtime, &t);
+	localtime_r(&n, &now);
+	static const char* const mon[12] = { N_("Jan"), N_("Feb"), N_("Mar"), N_("Apr"), N_("May"), N_("Jun"), N_("Jul"), N_("Aug"), N_("Sep"), N_("Oct"), N_("Nov"), N_("Dec")};
+	if (t.tm_year != now.tm_year) snprintf(out, size, tr("Continue: %s %d, %d"), tr(mon[t.tm_mon]), t.tm_mday, t.tm_year + 1900);
+	else snprintf(out, size, tr("Continue: %s %d, %d:%02d %s"), tr(mon[t.tm_mon]), t.tm_mday, (t.tm_hour + 11) % 12 + 1, t.tm_min, t.tm_hour < 12 ? tr("AM"): tr("PM"));
+	return true;
+}
+
+/* The game list's other screen: our logo top left, the game's own logo top
+ * right, the picture of where the game carries on from large in the middle
+ * with when it was taken under it, the buttons along the bottom. */
 static void draw_preview(Config* cfg, int scr, int sel) {
 	SDL_Rect r = screens[scr].rect;
 	float px = ui_px(scr);
 	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, r.h }, (SDL_Color) { 0, 0, 0, 255 }); /* black, like the logos */
 	load_brand();
 
-	/* our logo top left, the game's own logo top right, both the same height */
 	int m = px * 6;
-	int headH = px * 21;
+	int headH = px * 18;
 	int ourW = draw_brand(scr, BRAND_LOGO, m, m, headH);
-	{
-		/* where to find us, under our logo, as the version number is drawn
-		 * (the pixel font's capitals; without https://, so it stays clear
-		 * of a wide game logo on the right) */
-		int vpx = SDL_max(1, px / 2);
-		ui_text(scr, m + px * 2, m + headH + px * 2, vpx, "GITHUB.COM/IOSUE-IULIANUS/RETRO-DS", C_DIM);
-	}
 
 	/* button hints along the bottom */
 	int ty = r.h - px * 11, d = px * 10, bx = m;
@@ -718,8 +728,8 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 	}
 	GameEntry* g = &games[sel];
 	load_thumbs(cfg, sel);
+	int gameH = headH * 3 / 2;
 	if (logoTex[0] || logoTex[1]) {
-		int gameH = headH * 2;
 		int maxW = r.w - ourW - m * 3;
 		int w = logoW * gameH / logoH, h = gameH;
 		if (w > maxW) w = maxW, h = logoH * maxW / logoW;
@@ -728,8 +738,8 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 	} else if (g->supported) {
 		/* no logo for it yet (or none extracted for this game): its name in its place */
 		const MapProfile* prof = profile_find(g->code);
-		int gameH = headH * 2, maxW = r.w - ourW - m * 3;
-		if (prof && prof->title) ui_title_block(scr, (SDL_Rect) { r.w - m - maxW, m, maxW, gameH }, prof->title, px * 9, C_TEXT);
+		int maxW = r.w - ourW - m * 3;
+		if (prof && prof->title) ui_title_block(scr, (SDL_Rect) { r.w - m - maxW, m, maxW, gameH }, prof->title, px * 8, C_TEXT);
 	}
 	/* (a game with no profile has no logo either: the note goes where a
 	 * game's logo would, at the top right, beside ours) */
@@ -759,17 +769,28 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 			default: break;
 			}
 		}
-		if (line[0]) ui_font_text(scr, TF_BODY, r.w - m, m + headH * 2 + px * 7, px * 4, line, C_DIM, 1);
+		if (line[0]) ui_font_text(scr, TF_BODY, r.w - m, m + gameH + px * 3, px * 4, line, C_DIM, 1);
 	}
 
-	/* the resume point (the game screen only), or a note that there isn't one,
-	 * with clear space above (below the game's logo) and below (above the hints) */
-	int y = m + headH * 2 + px * 16;
-	SDL_Rect area = { m, y, r.w - m * 2, gy - px * 14 - y };
+	/* the picture of where the game carries on from (the game screen only),
+	 * as large as fits between the logos and the hints, its date under it */
+	int capH = px * 5;
+	int top = m + gameH + px * 7, bottom = gy - px * 6 - capH - px * 4;
 	if (thumbTex[0] || thumbTex[1]) {
-		ui_image(scr, thumbTex, SNES_W, SNES_H, "fit", &area);
+		int aw = r.w - m * 2, ah = bottom - top;
+		int w = aw, h = aw * SNES_H / SNES_W;
+		if (h > ah) h = ah, w = ah * SNES_W / SNES_H;
+		SDL_Rect a = { (r.w - w) / 2, top + (ah - h) / 2, w, h };
+		int f = SDL_max(1, (int) (px / 2)); /* a thin frame, so a dark picture has an edge on the black */
+		ui_fill(scr, (SDL_Rect) { a.x - f, a.y - f, a.w + f * 2, a.h + f * 2 }, C_DIM);
+		ui_fill(scr, a, (SDL_Color) { 0, 0, 0, 255 });
+		ui_image(scr, thumbTex, SNES_W, SNES_H, "stretch", &a);
+		GamePaths gp;
+		char when[120];
+		game_paths(cfg, g->path, &gp);
+		if (continue_label(&gp, when, sizeof(when))) ui_font_text(scr, TF_BODY, r.w / 2, a.y + a.h + px * 6, capH, when, C_DIM, 0);
 	} else {
-		ui_label(scr, r.w / 2, area.y + area.h / 2, px * 7, "no save state yet!", C_TEXT);
+		ui_label(scr, r.w / 2, (top + bottom) / 2, px * 7, "no save state yet!", C_TEXT);
 	}
 }
 
