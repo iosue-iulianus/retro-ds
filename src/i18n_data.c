@@ -581,87 +581,88 @@ static const char* const lang_de_f576[] = { "Turbo A" };
 static const char* const lang_de_f577[] = { "Turbo B" };
 static const char* const lang_de_f578[] = { "Turbo-Geschwindigkeit" };
 static const char* const lang_de_f579[] = { "Macht diese ROM zu einer anderen offiziellen Version: %s" };
-static const char* const lang_de_f580[] = { "Laden r\303\274ckg\303\244ngig" };
-static const char* const lang_de_f581[] = { "Speichern r\303\274ckg\303\244ngig" };
-static const char* const lang_de_f582[] = { "R\303\274ckg\303\244ngig fehlgeschlagen" };
-static const char* const lang_de_f583[] = { "Unbekannte Version dieses Spiels" };
-static const char* const lang_de_f584[] = { "Freigeschaltet" };
-static const char* const lang_de_f585[] = { "Freischaltungen gesendet" };
-static const char* const lang_de_f586[] = { "Freischaltungen werden gesendet, sobald die Verbindung wieder da ist" };
-static const char* const lang_de_f587[] = { "Gel\303\266st: Die Leiste verschwindet nach 5 Sekunden." };
-static const char* const lang_de_f588[] = { "Ungetestet: Der zweite Bildschirm funktioniert damit eventuell nicht" };
-static const char* const lang_de_f589[] = { "Oben" };
-static const char* const lang_de_f590[] = { "Bis zu %d Patches k\303\266nnen gleichzeitig aktiv sein" };
-static const char* const lang_de_f591[] = { "Bis zu %s" };
-static const char* const lang_de_f592[] = { "Jetzt aktualisieren" };
-static const char* const lang_de_f593[] = { "Updates" };
-static const char* const lang_de_f594[] = { "Updates, Integrationen" };
-static const char* const lang_de_f595[] = { "Diesen Ordner verwenden" };
-static const char* const lang_de_f596[] = { "Wird ab dem n\303\244chsten Start des Spiels verwendet" };
-static const char* const lang_de_f597[] = { "Lautst\303\244rke %d%%" };
-static const char* const lang_de_f598[] = { "Was Steuerkreuz unten dem Spiel gibt." };
-static const char* const lang_de_f599[] = { "Was Steuerkreuz links dem Spiel gibt." };
-static const char* const lang_de_f600[] = { "Was Steuerkreuz rechts dem Spiel gibt." };
-static const char* const lang_de_f601[] = { "Was Steuerkreuz oben dem Spiel gibt." };
-static const char* const lang_de_f602[] = { "Was die L-Schultertaste dem Spiel gibt." };
-static const char* const lang_de_f603[] = { "Was die R-Schultertaste dem Spiel gibt." };
-static const char* const lang_de_f604[] = { "Was die untere Taste dem Spiel gibt." };
-static const char* const lang_de_f605[] = { "Was die linke Taste dem Spiel gibt." };
-static const char* const lang_de_f606[] = { "Was die rechte Taste dem Spiel gibt." };
-static const char* const lang_de_f607[] = { "Was die obere Taste dem Spiel gibt." };
-static const char* const lang_de_f608[] = { "Woher Spiele gelesen werden und der Ordner, in dem ihre Spielst\303\244nde liegen." };
-static const char* const lang_de_f609[] = { "Woher Spiele gelesen werden. Ihre Spielst\303\244nde liegen neben ihnen." };
-static const char* const lang_de_f610[] = { "Welcher Bildschirm: Beide" };
-static const char* const lang_de_f611[] = { "Welcher Bildschirm: Nur unten" };
-static const char* const lang_de_f612[] = { "Welcher Bildschirm: Nur oben" };
-static const char* const lang_de_f613[] = { "Welche Spiele, Namen, Speichern" };
-static const char* const lang_de_f614[] = { "Auf welchem Bildschirm das Spiel l\303\244uft." };
-static const char* const lang_de_f615[] = { "Welche Bildschirme sie haben." };
-static const char* const lang_de_f616[] = { "Mit aktivem Patch hat das Spiel seinen eigenen Batteriespeicher (\342\200\236<Spiel> + <Patch>\342\200\234): aus, nutzt es den des Originals" };
-static const char* const lang_de_f617[] = { "Mit aktivem Patch hat das Spiel eigene Spielst\303\244nde: aus, nutzt es die des Originals (ein Spielstand kann im anderen verf\303\244lscht herauskommen)" };
-static const char* const lang_de_f618[] = { "Bei aktiver automatischer Pr\303\274fung sucht RetroDS einmal am Tag beim \303\226ffnen der Spieleliste nach einer neuen Version und fragt, bevor es etwas herunterl\303\244dt. Updates kommen aus den Releases auf github.com/iosue-iulianus/retro-ds." };
-static const char* const lang_de_f619[] = { "Mit Tags, wie (USA)" };
-static const char* const lang_de_f620[] = { "X-Taste (oben)" };
-static const char* const lang_de_f621[] = { "Y-Taste (links)" };
-static const char* const lang_de_f622[] = { "Deine eigenen PNGs in retrods/overlays/. Ein Bildschirm ohne einen bekommt den generierten Rahmen in seinen Standardfarben." };
-static const char* const lang_de_f623[] = { "Deine eigenen und extrahierte Logos auf dem zweiten Bildschirm." };
-static const char* const lang_de_f624[] = { "Deine Bildschirme haben dieselbe Form: nichts anzugleichen" };
-static const char* const lang_de_f625[] = { "Zoom" };
-static const char* const lang_de_f626[] = { "Farbe" };
-static const char* const lang_de_f627[] = { "hex" };
-static const char* const lang_de_f628[] = { "Farbton" };
-static const char* const lang_de_f629[] = { "maschinell \303\274bersetzt" };
-static const char* const lang_de_f630[] = { "noch kein Spielstand gespeichert!" };
-static const char* const lang_de_f631[] = { "aus" };
-static const char* const lang_de_f632[] = { "ein" };
-static const char* const lang_de_f633[] = { "Punkt" };
-static const char* const lang_de_f634[] = { "Punkte" };
-static const char* const lang_de_f635[] = { "Voreinstellungen" };
-static const char* const lang_de_f636[] = { "dr\303\274cke den linken Stick" };
-static const char* const lang_de_f637[] = { "schiebe den linken Stick nach links" };
-static const char* const lang_de_f638[] = { "schiebe den linken Stick nach oben" };
-static const char* const lang_de_f639[] = { "die untere Taste" };
-static const char* const lang_de_f640[] = { "die Taste, die das Men\303\274 von RetroDS \303\266ffnet (Home, Menu oder Function)" };
-static const char* const lang_de_f641[] = { "das Spiel" };
-static const char* const lang_de_f642[] = { "die linke Taste" };
-static const char* const lang_de_f643[] = { "die linke Schultertaste" };
-static const char* const lang_de_f644[] = { "der Patch neben der ROM" };
-static const char* const lang_de_f645[] = { "die rechte Taste" };
-static const char* const lang_de_f646[] = { "die rechte Schultertaste" };
-static const char* const lang_de_f647[] = { "die zweite linke Schultertaste" };
-static const char* const lang_de_f648[] = { "die zweite rechte Schultertaste" };
-static const char* const lang_de_f649[] = { "die obere Taste" };
-static const char* const lang_de_f650[] = { "nicht gespeicherter Fortschritt geht verloren" };
-static const char* const lang_de_f651[] = { "mit ihm" };
-static const char* const lang_de_f652[] = { "mit %s" };
-static const char* const lang_de_f653[] = { "mit einem anderen Dump des Spiels (%s)" };
-static const char* const lang_de_f654[] = { "mit einer anderen Version des Spiels (andere Patches oder eine andere ROM)" };
-static const char* const lang_de_f655[] = { "mit dem unver\303\244nderten Spiel (%s)" };
-static const char* const lang_de_f656[] = { "ohne ihn" };
-static const char* const lang_de_f657[] = { "ohne die aktiven Patches" };
-static const char* const lang_de_f658[] = { "deine Position ist gespeichert" };
-static const char* const lang_de_f659[] = { "\342\200\271" };
-static const char* const lang_de_f660[] = { "\342\200\272" };
+static const char* const lang_de_f580[] = { "R\303\274ckg\303\244ngig" };
+static const char* const lang_de_f581[] = { "Laden r\303\274ckg\303\244ngig" };
+static const char* const lang_de_f582[] = { "Speichern r\303\274ckg\303\244ngig" };
+static const char* const lang_de_f583[] = { "R\303\274ckg\303\244ngig fehlgeschlagen" };
+static const char* const lang_de_f584[] = { "Unbekannte Version dieses Spiels" };
+static const char* const lang_de_f585[] = { "Freigeschaltet" };
+static const char* const lang_de_f586[] = { "Freischaltungen gesendet" };
+static const char* const lang_de_f587[] = { "Freischaltungen werden gesendet, sobald die Verbindung wieder da ist" };
+static const char* const lang_de_f588[] = { "Gel\303\266st: Die Leiste verschwindet nach 5 Sekunden." };
+static const char* const lang_de_f589[] = { "Ungetestet: Der zweite Bildschirm funktioniert damit eventuell nicht" };
+static const char* const lang_de_f590[] = { "Oben" };
+static const char* const lang_de_f591[] = { "Bis zu %d Patches k\303\266nnen gleichzeitig aktiv sein" };
+static const char* const lang_de_f592[] = { "Bis zu %s" };
+static const char* const lang_de_f593[] = { "Jetzt aktualisieren" };
+static const char* const lang_de_f594[] = { "Updates" };
+static const char* const lang_de_f595[] = { "Updates, Integrationen" };
+static const char* const lang_de_f596[] = { "Diesen Ordner verwenden" };
+static const char* const lang_de_f597[] = { "Wird ab dem n\303\244chsten Start des Spiels verwendet" };
+static const char* const lang_de_f598[] = { "Lautst\303\244rke %d%%" };
+static const char* const lang_de_f599[] = { "Was Steuerkreuz unten dem Spiel gibt." };
+static const char* const lang_de_f600[] = { "Was Steuerkreuz links dem Spiel gibt." };
+static const char* const lang_de_f601[] = { "Was Steuerkreuz rechts dem Spiel gibt." };
+static const char* const lang_de_f602[] = { "Was Steuerkreuz oben dem Spiel gibt." };
+static const char* const lang_de_f603[] = { "Was die L-Schultertaste dem Spiel gibt." };
+static const char* const lang_de_f604[] = { "Was die R-Schultertaste dem Spiel gibt." };
+static const char* const lang_de_f605[] = { "Was die untere Taste dem Spiel gibt." };
+static const char* const lang_de_f606[] = { "Was die linke Taste dem Spiel gibt." };
+static const char* const lang_de_f607[] = { "Was die rechte Taste dem Spiel gibt." };
+static const char* const lang_de_f608[] = { "Was die obere Taste dem Spiel gibt." };
+static const char* const lang_de_f609[] = { "Woher Spiele gelesen werden und der Ordner, in dem ihre Spielst\303\244nde liegen." };
+static const char* const lang_de_f610[] = { "Woher Spiele gelesen werden. Ihre Spielst\303\244nde liegen neben ihnen." };
+static const char* const lang_de_f611[] = { "Welcher Bildschirm: Beide" };
+static const char* const lang_de_f612[] = { "Welcher Bildschirm: Nur unten" };
+static const char* const lang_de_f613[] = { "Welcher Bildschirm: Nur oben" };
+static const char* const lang_de_f614[] = { "Welche Spiele, Namen, Speichern" };
+static const char* const lang_de_f615[] = { "Auf welchem Bildschirm das Spiel l\303\244uft." };
+static const char* const lang_de_f616[] = { "Welche Bildschirme sie haben." };
+static const char* const lang_de_f617[] = { "Mit aktivem Patch hat das Spiel seinen eigenen Batteriespeicher (\342\200\236<Spiel> + <Patch>\342\200\234): aus, nutzt es den des Originals" };
+static const char* const lang_de_f618[] = { "Mit aktivem Patch hat das Spiel eigene Spielst\303\244nde: aus, nutzt es die des Originals (ein Spielstand kann im anderen verf\303\244lscht herauskommen)" };
+static const char* const lang_de_f619[] = { "Bei aktiver automatischer Pr\303\274fung sucht RetroDS einmal am Tag beim \303\226ffnen der Spieleliste nach einer neuen Version und fragt, bevor es etwas herunterl\303\244dt. Updates kommen aus den Releases auf github.com/iosue-iulianus/retro-ds." };
+static const char* const lang_de_f620[] = { "Mit Tags, wie (USA)" };
+static const char* const lang_de_f621[] = { "X-Taste (oben)" };
+static const char* const lang_de_f622[] = { "Y-Taste (links)" };
+static const char* const lang_de_f623[] = { "Deine eigenen PNGs in retrods/overlays/. Ein Bildschirm ohne einen bekommt den generierten Rahmen in seinen Standardfarben." };
+static const char* const lang_de_f624[] = { "Deine eigenen und extrahierte Logos auf dem zweiten Bildschirm." };
+static const char* const lang_de_f625[] = { "Deine Bildschirme haben dieselbe Form: nichts anzugleichen" };
+static const char* const lang_de_f626[] = { "Zoom" };
+static const char* const lang_de_f627[] = { "Farbe" };
+static const char* const lang_de_f628[] = { "hex" };
+static const char* const lang_de_f629[] = { "Farbton" };
+static const char* const lang_de_f630[] = { "maschinell \303\274bersetzt" };
+static const char* const lang_de_f631[] = { "noch kein Spielstand gespeichert!" };
+static const char* const lang_de_f632[] = { "aus" };
+static const char* const lang_de_f633[] = { "ein" };
+static const char* const lang_de_f634[] = { "Punkt" };
+static const char* const lang_de_f635[] = { "Punkte" };
+static const char* const lang_de_f636[] = { "Voreinstellungen" };
+static const char* const lang_de_f637[] = { "dr\303\274cke den linken Stick" };
+static const char* const lang_de_f638[] = { "schiebe den linken Stick nach links" };
+static const char* const lang_de_f639[] = { "schiebe den linken Stick nach oben" };
+static const char* const lang_de_f640[] = { "die untere Taste" };
+static const char* const lang_de_f641[] = { "die Taste, die das Men\303\274 von RetroDS \303\266ffnet (Home, Menu oder Function)" };
+static const char* const lang_de_f642[] = { "das Spiel" };
+static const char* const lang_de_f643[] = { "die linke Taste" };
+static const char* const lang_de_f644[] = { "die linke Schultertaste" };
+static const char* const lang_de_f645[] = { "der Patch neben der ROM" };
+static const char* const lang_de_f646[] = { "die rechte Taste" };
+static const char* const lang_de_f647[] = { "die rechte Schultertaste" };
+static const char* const lang_de_f648[] = { "die zweite linke Schultertaste" };
+static const char* const lang_de_f649[] = { "die zweite rechte Schultertaste" };
+static const char* const lang_de_f650[] = { "die obere Taste" };
+static const char* const lang_de_f651[] = { "nicht gespeicherter Fortschritt geht verloren" };
+static const char* const lang_de_f652[] = { "mit ihm" };
+static const char* const lang_de_f653[] = { "mit %s" };
+static const char* const lang_de_f654[] = { "mit einem anderen Dump des Spiels (%s)" };
+static const char* const lang_de_f655[] = { "mit einer anderen Version des Spiels (andere Patches oder eine andere ROM)" };
+static const char* const lang_de_f656[] = { "mit dem unver\303\244nderten Spiel (%s)" };
+static const char* const lang_de_f657[] = { "ohne ihn" };
+static const char* const lang_de_f658[] = { "ohne die aktiven Patches" };
+static const char* const lang_de_f659[] = { "deine Position ist gespeichert" };
+static const char* const lang_de_f660[] = { "\342\200\271" };
+static const char* const lang_de_f661[] = { "\342\200\272" };
 static const I18nEntry lang_de_entries[] = {
 	{ " (patch)", lang_de_f0, 1 },
 	{ " Checking for a new version...", lang_de_f1, 1 },
@@ -1243,87 +1244,88 @@ static const I18nEntry lang_de_entries[] = {
 	{ "Turbo B", lang_de_f577, 1 },
 	{ "Turbo speed", lang_de_f578, 1 },
 	{ "Turns this ROM into another official release: %s", lang_de_f579, 1 },
-	{ "Undo Load", lang_de_f580, 1 },
-	{ "Undo Save", lang_de_f581, 1 },
-	{ "Undo failed", lang_de_f582, 1 },
-	{ "Unknown version of this game", lang_de_f583, 1 },
-	{ "Unlocked", lang_de_f584, 1 },
-	{ "Unlocks sent", lang_de_f585, 1 },
-	{ "Unlocks will be sent when the connection is back", lang_de_f586, 1 },
-	{ "Unpinned: the bar hides after 5 seconds.", lang_de_f587, 1 },
-	{ "Untested: the second screen may not work with it", lang_de_f588, 1 },
-	{ "Up", lang_de_f589, 1 },
-	{ "Up to %d patches can be on at once", lang_de_f590, 1 },
-	{ "Up to %s", lang_de_f591, 1 },
-	{ "Update now", lang_de_f592, 1 },
-	{ "Updates", lang_de_f593, 1 },
-	{ "Updates, integrations", lang_de_f594, 1 },
-	{ "Use This Folder", lang_de_f595, 1 },
-	{ "Used from the next time the game starts", lang_de_f596, 1 },
-	{ "Volume %d%%", lang_de_f597, 1 },
-	{ "What D-pad down gives the game.", lang_de_f598, 1 },
-	{ "What D-pad left gives the game.", lang_de_f599, 1 },
-	{ "What D-pad right gives the game.", lang_de_f600, 1 },
-	{ "What D-pad up gives the game.", lang_de_f601, 1 },
-	{ "What the L shoulder button gives the game.", lang_de_f602, 1 },
-	{ "What the R shoulder button gives the game.", lang_de_f603, 1 },
-	{ "What the bottom face button gives the game.", lang_de_f604, 1 },
-	{ "What the left face button gives the game.", lang_de_f605, 1 },
-	{ "What the right face button gives the game.", lang_de_f606, 1 },
-	{ "What the top face button gives the game.", lang_de_f607, 1 },
-	{ "Where games are read from, and the folder their saves are kept in.", lang_de_f608, 1 },
-	{ "Where games are read from. Their saves are kept next to them.", lang_de_f609, 1 },
-	{ "Which Screen: Both", lang_de_f610, 1 },
-	{ "Which Screen: Bottom Only", lang_de_f611, 1 },
-	{ "Which Screen: Top Only", lang_de_f612, 1 },
-	{ "Which games, names, saving", lang_de_f613, 1 },
-	{ "Which screen the game is on.", lang_de_f614, 1 },
-	{ "Which screens have them.", lang_de_f615, 1 },
-	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_de_f616, 1 },
-	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_de_f617, 1 },
-	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_de_f618, 1 },
-	{ "With tags, like (USA)", lang_de_f619, 1 },
-	{ "X (top) button", lang_de_f620, 1 },
-	{ "Y (left) button", lang_de_f621, 1 },
-	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_de_f622, 1 },
-	{ "Your own and scraped logos on the second screen.", lang_de_f623, 1 },
-	{ "Your screens are the same shape: nothing to match", lang_de_f624, 1 },
-	{ "Zoom", lang_de_f625, 1 },
-	{ "color", lang_de_f626, 1 },
-	{ "hex", lang_de_f627, 1 },
-	{ "hue", lang_de_f628, 1 },
-	{ "machine translated", lang_de_f629, 1 },
-	{ "no save state yet!", lang_de_f630, 1 },
-	{ "off", lang_de_f631, 1 },
-	{ "on", lang_de_f632, 1 },
-	{ "point", lang_de_f633, 1 },
-	{ "points", lang_de_f634, 1 },
-	{ "presets", lang_de_f635, 1 },
-	{ "press the left stick in", lang_de_f636, 1 },
-	{ "push the left stick left", lang_de_f637, 1 },
-	{ "push the left stick up", lang_de_f638, 1 },
-	{ "the bottom face button", lang_de_f639, 1 },
-	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_de_f640, 1 },
-	{ "the game", lang_de_f641, 1 },
-	{ "the left face button", lang_de_f642, 1 },
-	{ "the left shoulder button", lang_de_f643, 1 },
-	{ "the patch beside the ROM", lang_de_f644, 1 },
-	{ "the right face button", lang_de_f645, 1 },
-	{ "the right shoulder button", lang_de_f646, 1 },
-	{ "the second left shoulder button", lang_de_f647, 1 },
-	{ "the second right shoulder button", lang_de_f648, 1 },
-	{ "the top face button", lang_de_f649, 1 },
-	{ "unsaved progress is lost", lang_de_f650, 1 },
-	{ "with", lang_de_f651, 1 },
-	{ "with %s", lang_de_f652, 1 },
-	{ "with another dump of the game (%s)", lang_de_f653, 1 },
-	{ "with another version of the game (other patches, or another ROM)", lang_de_f654, 1 },
-	{ "with the unchanged game (%s)", lang_de_f655, 1 },
-	{ "without", lang_de_f656, 1 },
-	{ "without the patches on", lang_de_f657, 1 },
-	{ "your place is saved", lang_de_f658, 1 },
-	{ "\342\200\271", lang_de_f659, 1 },
-	{ "\342\200\272", lang_de_f660, 1 },
+	{ "Undo", lang_de_f580, 1 },
+	{ "Undo Load", lang_de_f581, 1 },
+	{ "Undo Save", lang_de_f582, 1 },
+	{ "Undo failed", lang_de_f583, 1 },
+	{ "Unknown version of this game", lang_de_f584, 1 },
+	{ "Unlocked", lang_de_f585, 1 },
+	{ "Unlocks sent", lang_de_f586, 1 },
+	{ "Unlocks will be sent when the connection is back", lang_de_f587, 1 },
+	{ "Unpinned: the bar hides after 5 seconds.", lang_de_f588, 1 },
+	{ "Untested: the second screen may not work with it", lang_de_f589, 1 },
+	{ "Up", lang_de_f590, 1 },
+	{ "Up to %d patches can be on at once", lang_de_f591, 1 },
+	{ "Up to %s", lang_de_f592, 1 },
+	{ "Update now", lang_de_f593, 1 },
+	{ "Updates", lang_de_f594, 1 },
+	{ "Updates, integrations", lang_de_f595, 1 },
+	{ "Use This Folder", lang_de_f596, 1 },
+	{ "Used from the next time the game starts", lang_de_f597, 1 },
+	{ "Volume %d%%", lang_de_f598, 1 },
+	{ "What D-pad down gives the game.", lang_de_f599, 1 },
+	{ "What D-pad left gives the game.", lang_de_f600, 1 },
+	{ "What D-pad right gives the game.", lang_de_f601, 1 },
+	{ "What D-pad up gives the game.", lang_de_f602, 1 },
+	{ "What the L shoulder button gives the game.", lang_de_f603, 1 },
+	{ "What the R shoulder button gives the game.", lang_de_f604, 1 },
+	{ "What the bottom face button gives the game.", lang_de_f605, 1 },
+	{ "What the left face button gives the game.", lang_de_f606, 1 },
+	{ "What the right face button gives the game.", lang_de_f607, 1 },
+	{ "What the top face button gives the game.", lang_de_f608, 1 },
+	{ "Where games are read from, and the folder their saves are kept in.", lang_de_f609, 1 },
+	{ "Where games are read from. Their saves are kept next to them.", lang_de_f610, 1 },
+	{ "Which Screen: Both", lang_de_f611, 1 },
+	{ "Which Screen: Bottom Only", lang_de_f612, 1 },
+	{ "Which Screen: Top Only", lang_de_f613, 1 },
+	{ "Which games, names, saving", lang_de_f614, 1 },
+	{ "Which screen the game is on.", lang_de_f615, 1 },
+	{ "Which screens have them.", lang_de_f616, 1 },
+	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_de_f617, 1 },
+	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_de_f618, 1 },
+	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_de_f619, 1 },
+	{ "With tags, like (USA)", lang_de_f620, 1 },
+	{ "X (top) button", lang_de_f621, 1 },
+	{ "Y (left) button", lang_de_f622, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_de_f623, 1 },
+	{ "Your own and scraped logos on the second screen.", lang_de_f624, 1 },
+	{ "Your screens are the same shape: nothing to match", lang_de_f625, 1 },
+	{ "Zoom", lang_de_f626, 1 },
+	{ "color", lang_de_f627, 1 },
+	{ "hex", lang_de_f628, 1 },
+	{ "hue", lang_de_f629, 1 },
+	{ "machine translated", lang_de_f630, 1 },
+	{ "no save state yet!", lang_de_f631, 1 },
+	{ "off", lang_de_f632, 1 },
+	{ "on", lang_de_f633, 1 },
+	{ "point", lang_de_f634, 1 },
+	{ "points", lang_de_f635, 1 },
+	{ "presets", lang_de_f636, 1 },
+	{ "press the left stick in", lang_de_f637, 1 },
+	{ "push the left stick left", lang_de_f638, 1 },
+	{ "push the left stick up", lang_de_f639, 1 },
+	{ "the bottom face button", lang_de_f640, 1 },
+	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_de_f641, 1 },
+	{ "the game", lang_de_f642, 1 },
+	{ "the left face button", lang_de_f643, 1 },
+	{ "the left shoulder button", lang_de_f644, 1 },
+	{ "the patch beside the ROM", lang_de_f645, 1 },
+	{ "the right face button", lang_de_f646, 1 },
+	{ "the right shoulder button", lang_de_f647, 1 },
+	{ "the second left shoulder button", lang_de_f648, 1 },
+	{ "the second right shoulder button", lang_de_f649, 1 },
+	{ "the top face button", lang_de_f650, 1 },
+	{ "unsaved progress is lost", lang_de_f651, 1 },
+	{ "with", lang_de_f652, 1 },
+	{ "with %s", lang_de_f653, 1 },
+	{ "with another dump of the game (%s)", lang_de_f654, 1 },
+	{ "with another version of the game (other patches, or another ROM)", lang_de_f655, 1 },
+	{ "with the unchanged game (%s)", lang_de_f656, 1 },
+	{ "without", lang_de_f657, 1 },
+	{ "without the patches on", lang_de_f658, 1 },
+	{ "your place is saved", lang_de_f659, 1 },
+	{ "\342\200\271", lang_de_f660, 1 },
+	{ "\342\200\272", lang_de_f661, 1 },
 };
 
 static const char* const lang_es_f0[] = { " (parche)" };
@@ -1906,87 +1908,88 @@ static const char* const lang_es_f576[] = { "Turbo A" };
 static const char* const lang_es_f577[] = { "Turbo B" };
 static const char* const lang_es_f578[] = { "Velocidad del turbo" };
 static const char* const lang_es_f579[] = { "Convierte esta ROM en otra versi\303\263n oficial: %s" };
-static const char* const lang_es_f580[] = { "Deshacer carga" };
-static const char* const lang_es_f581[] = { "Deshacer guardado" };
-static const char* const lang_es_f582[] = { "No se pudo deshacer" };
-static const char* const lang_es_f583[] = { "Versi\303\263n desconocida de este juego" };
-static const char* const lang_es_f584[] = { "Desbloqueado" };
-static const char* const lang_es_f585[] = { "Logros enviados" };
-static const char* const lang_es_f586[] = { "Los logros se enviar\303\241n cuando vuelva la conexi\303\263n" };
-static const char* const lang_es_f587[] = { "Suelta: la barra se oculta tras 5 segundos." };
-static const char* const lang_es_f588[] = { "Sin probar: puede que la segunda pantalla no funcione con \303\251l" };
-static const char* const lang_es_f589[] = { "Arriba" };
-static const char* const lang_es_f590[] = { "Se pueden activar hasta %d parches a la vez" };
-static const char* const lang_es_f591[] = { "Hasta %s" };
-static const char* const lang_es_f592[] = { "Actualizar ahora" };
-static const char* const lang_es_f593[] = { "Actualizaciones" };
-static const char* const lang_es_f594[] = { "Actualizaciones, integraciones" };
-static const char* const lang_es_f595[] = { "Usar esta carpeta" };
-static const char* const lang_es_f596[] = { "Se usa desde la pr\303\263xima vez que se inicie el juego" };
-static const char* const lang_es_f597[] = { "Volumen %d%%" };
-static const char* const lang_es_f598[] = { "Lo que da la cruceta abajo al juego." };
-static const char* const lang_es_f599[] = { "Lo que da la cruceta izquierda al juego." };
-static const char* const lang_es_f600[] = { "Lo que da la cruceta derecha al juego." };
-static const char* const lang_es_f601[] = { "Lo que da la cruceta arriba al juego." };
-static const char* const lang_es_f602[] = { "Lo que da el bot\303\263n de hombro L al juego." };
-static const char* const lang_es_f603[] = { "Lo que da el bot\303\263n de hombro R al juego." };
-static const char* const lang_es_f604[] = { "Lo que da el bot\303\263n inferior al juego." };
-static const char* const lang_es_f605[] = { "Lo que da el bot\303\263n izquierdo al juego." };
-static const char* const lang_es_f606[] = { "Lo que da el bot\303\263n derecho al juego." };
-static const char* const lang_es_f607[] = { "Lo que da el bot\303\263n superior al juego." };
-static const char* const lang_es_f608[] = { "De d\303\263nde se leen los juegos y la carpeta donde se guardan sus partidas." };
-static const char* const lang_es_f609[] = { "De d\303\263nde se leen los juegos. Sus partidas se guardan junto a ellos." };
-static const char* const lang_es_f610[] = { "Qu\303\251 pantalla: ambas" };
-static const char* const lang_es_f611[] = { "Qu\303\251 pantalla: solo la inferior" };
-static const char* const lang_es_f612[] = { "Qu\303\251 pantalla: solo la superior" };
-static const char* const lang_es_f613[] = { "Qu\303\251 juegos, nombres, guardado" };
-static const char* const lang_es_f614[] = { "En qu\303\251 pantalla est\303\241 el juego." };
-static const char* const lang_es_f615[] = { "Qu\303\251 pantallas lo tienen." };
-static const char* const lang_es_f616[] = { "Con un parche activado, el juego usa su propia partida guardada (\"<juego> + <parche>\"): desactivado, usa la del original" };
-static const char* const lang_es_f617[] = { "Con un parche activado, el juego usa sus propios estados guardados: desactivado, usa los del original (un estado puede salir corrupto en el otro)" };
-static const char* const lang_es_f618[] = { "Con la comprobaci\303\263n autom\303\241tica activada, RetroDS busca una versi\303\263n nueva una vez al d\303\255a al abrir la lista de juegos, y pregunta antes de descargar nada. Las actualizaciones vienen de las versiones publicadas en github.com/iosue-iulianus/retro-ds." };
-static const char* const lang_es_f619[] = { "Con etiquetas, como (USA)" };
-static const char* const lang_es_f620[] = { "Bot\303\263n X (arriba)" };
-static const char* const lang_es_f621[] = { "Bot\303\263n Y (izquierda)" };
-static const char* const lang_es_f622[] = { "Tus propios PNG en retrods/overlays/. Una pantalla sin uno recibe el marco generado en sus colores por defecto." };
-static const char* const lang_es_f623[] = { "Tus propios logos y los extra\303\255dos en la segunda pantalla." };
-static const char* const lang_es_f624[] = { "Tus pantallas tienen la misma forma: nada que igualar" };
-static const char* const lang_es_f625[] = { "Zoom" };
-static const char* const lang_es_f626[] = { "color" };
-static const char* const lang_es_f627[] = { "hex" };
-static const char* const lang_es_f628[] = { "tono" };
-static const char* const lang_es_f629[] = { "traducci\303\263n autom\303\241tica" };
-static const char* const lang_es_f630[] = { "\302\241a\303\272n no hay estado guardado!" };
-static const char* const lang_es_f631[] = { "desactivado" };
-static const char* const lang_es_f632[] = { "activado" };
-static const char* const lang_es_f633[] = { "punto" };
-static const char* const lang_es_f634[] = { "puntos" };
-static const char* const lang_es_f635[] = { "preajustes" };
-static const char* const lang_es_f636[] = { "pulsa el stick izquierdo" };
-static const char* const lang_es_f637[] = { "empuja el stick izquierdo a la izquierda" };
-static const char* const lang_es_f638[] = { "empuja el stick izquierdo hacia arriba" };
-static const char* const lang_es_f639[] = { "el bot\303\263n inferior" };
-static const char* const lang_es_f640[] = { "el bot\303\263n que abre el men\303\272 de RetroDS (Home, Menu o Function)" };
-static const char* const lang_es_f641[] = { "el juego" };
-static const char* const lang_es_f642[] = { "el bot\303\263n izquierdo" };
-static const char* const lang_es_f643[] = { "el bot\303\263n de hombro izquierdo" };
-static const char* const lang_es_f644[] = { "el parche junto a la ROM" };
-static const char* const lang_es_f645[] = { "el bot\303\263n derecho" };
-static const char* const lang_es_f646[] = { "el bot\303\263n de hombro derecho" };
-static const char* const lang_es_f647[] = { "el segundo bot\303\263n de hombro izquierdo" };
-static const char* const lang_es_f648[] = { "el segundo bot\303\263n de hombro derecho" };
-static const char* const lang_es_f649[] = { "el bot\303\263n superior" };
-static const char* const lang_es_f650[] = { "se pierde el progreso sin guardar" };
-static const char* const lang_es_f651[] = { "con \303\251l" };
-static const char* const lang_es_f652[] = { "con %s" };
-static const char* const lang_es_f653[] = { "con otra copia del juego (%s)" };
-static const char* const lang_es_f654[] = { "con otra versi\303\263n del juego (otros parches u otra ROM)" };
-static const char* const lang_es_f655[] = { "con el juego sin cambios (%s)" };
-static const char* const lang_es_f656[] = { "sin \303\251l" };
-static const char* const lang_es_f657[] = { "sin los parches activados" };
-static const char* const lang_es_f658[] = { "tu posici\303\263n est\303\241 guardada" };
-static const char* const lang_es_f659[] = { "\342\200\271" };
-static const char* const lang_es_f660[] = { "\342\200\272" };
+static const char* const lang_es_f580[] = { "Deshacer" };
+static const char* const lang_es_f581[] = { "Deshacer carga" };
+static const char* const lang_es_f582[] = { "Deshacer guardado" };
+static const char* const lang_es_f583[] = { "No se pudo deshacer" };
+static const char* const lang_es_f584[] = { "Versi\303\263n desconocida de este juego" };
+static const char* const lang_es_f585[] = { "Desbloqueado" };
+static const char* const lang_es_f586[] = { "Logros enviados" };
+static const char* const lang_es_f587[] = { "Los logros se enviar\303\241n cuando vuelva la conexi\303\263n" };
+static const char* const lang_es_f588[] = { "Suelta: la barra se oculta tras 5 segundos." };
+static const char* const lang_es_f589[] = { "Sin probar: puede que la segunda pantalla no funcione con \303\251l" };
+static const char* const lang_es_f590[] = { "Arriba" };
+static const char* const lang_es_f591[] = { "Se pueden activar hasta %d parches a la vez" };
+static const char* const lang_es_f592[] = { "Hasta %s" };
+static const char* const lang_es_f593[] = { "Actualizar ahora" };
+static const char* const lang_es_f594[] = { "Actualizaciones" };
+static const char* const lang_es_f595[] = { "Actualizaciones, integraciones" };
+static const char* const lang_es_f596[] = { "Usar esta carpeta" };
+static const char* const lang_es_f597[] = { "Se usa desde la pr\303\263xima vez que se inicie el juego" };
+static const char* const lang_es_f598[] = { "Volumen %d%%" };
+static const char* const lang_es_f599[] = { "Lo que da la cruceta abajo al juego." };
+static const char* const lang_es_f600[] = { "Lo que da la cruceta izquierda al juego." };
+static const char* const lang_es_f601[] = { "Lo que da la cruceta derecha al juego." };
+static const char* const lang_es_f602[] = { "Lo que da la cruceta arriba al juego." };
+static const char* const lang_es_f603[] = { "Lo que da el bot\303\263n de hombro L al juego." };
+static const char* const lang_es_f604[] = { "Lo que da el bot\303\263n de hombro R al juego." };
+static const char* const lang_es_f605[] = { "Lo que da el bot\303\263n inferior al juego." };
+static const char* const lang_es_f606[] = { "Lo que da el bot\303\263n izquierdo al juego." };
+static const char* const lang_es_f607[] = { "Lo que da el bot\303\263n derecho al juego." };
+static const char* const lang_es_f608[] = { "Lo que da el bot\303\263n superior al juego." };
+static const char* const lang_es_f609[] = { "De d\303\263nde se leen los juegos y la carpeta donde se guardan sus partidas." };
+static const char* const lang_es_f610[] = { "De d\303\263nde se leen los juegos. Sus partidas se guardan junto a ellos." };
+static const char* const lang_es_f611[] = { "Qu\303\251 pantalla: ambas" };
+static const char* const lang_es_f612[] = { "Qu\303\251 pantalla: solo la inferior" };
+static const char* const lang_es_f613[] = { "Qu\303\251 pantalla: solo la superior" };
+static const char* const lang_es_f614[] = { "Qu\303\251 juegos, nombres, guardado" };
+static const char* const lang_es_f615[] = { "En qu\303\251 pantalla est\303\241 el juego." };
+static const char* const lang_es_f616[] = { "Qu\303\251 pantallas lo tienen." };
+static const char* const lang_es_f617[] = { "Con un parche activado, el juego usa su propia partida guardada (\"<juego> + <parche>\"): desactivado, usa la del original" };
+static const char* const lang_es_f618[] = { "Con un parche activado, el juego usa sus propios estados guardados: desactivado, usa los del original (un estado puede salir corrupto en el otro)" };
+static const char* const lang_es_f619[] = { "Con la comprobaci\303\263n autom\303\241tica activada, RetroDS busca una versi\303\263n nueva una vez al d\303\255a al abrir la lista de juegos, y pregunta antes de descargar nada. Las actualizaciones vienen de las versiones publicadas en github.com/iosue-iulianus/retro-ds." };
+static const char* const lang_es_f620[] = { "Con etiquetas, como (USA)" };
+static const char* const lang_es_f621[] = { "Bot\303\263n X (arriba)" };
+static const char* const lang_es_f622[] = { "Bot\303\263n Y (izquierda)" };
+static const char* const lang_es_f623[] = { "Tus propios PNG en retrods/overlays/. Una pantalla sin uno recibe el marco generado en sus colores por defecto." };
+static const char* const lang_es_f624[] = { "Tus propios logos y los extra\303\255dos en la segunda pantalla." };
+static const char* const lang_es_f625[] = { "Tus pantallas tienen la misma forma: nada que igualar" };
+static const char* const lang_es_f626[] = { "Zoom" };
+static const char* const lang_es_f627[] = { "color" };
+static const char* const lang_es_f628[] = { "hex" };
+static const char* const lang_es_f629[] = { "tono" };
+static const char* const lang_es_f630[] = { "traducci\303\263n autom\303\241tica" };
+static const char* const lang_es_f631[] = { "\302\241a\303\272n no hay estado guardado!" };
+static const char* const lang_es_f632[] = { "desactivado" };
+static const char* const lang_es_f633[] = { "activado" };
+static const char* const lang_es_f634[] = { "punto" };
+static const char* const lang_es_f635[] = { "puntos" };
+static const char* const lang_es_f636[] = { "preajustes" };
+static const char* const lang_es_f637[] = { "pulsa el stick izquierdo" };
+static const char* const lang_es_f638[] = { "empuja el stick izquierdo a la izquierda" };
+static const char* const lang_es_f639[] = { "empuja el stick izquierdo hacia arriba" };
+static const char* const lang_es_f640[] = { "el bot\303\263n inferior" };
+static const char* const lang_es_f641[] = { "el bot\303\263n que abre el men\303\272 de RetroDS (Home, Menu o Function)" };
+static const char* const lang_es_f642[] = { "el juego" };
+static const char* const lang_es_f643[] = { "el bot\303\263n izquierdo" };
+static const char* const lang_es_f644[] = { "el bot\303\263n de hombro izquierdo" };
+static const char* const lang_es_f645[] = { "el parche junto a la ROM" };
+static const char* const lang_es_f646[] = { "el bot\303\263n derecho" };
+static const char* const lang_es_f647[] = { "el bot\303\263n de hombro derecho" };
+static const char* const lang_es_f648[] = { "el segundo bot\303\263n de hombro izquierdo" };
+static const char* const lang_es_f649[] = { "el segundo bot\303\263n de hombro derecho" };
+static const char* const lang_es_f650[] = { "el bot\303\263n superior" };
+static const char* const lang_es_f651[] = { "se pierde el progreso sin guardar" };
+static const char* const lang_es_f652[] = { "con \303\251l" };
+static const char* const lang_es_f653[] = { "con %s" };
+static const char* const lang_es_f654[] = { "con otra copia del juego (%s)" };
+static const char* const lang_es_f655[] = { "con otra versi\303\263n del juego (otros parches u otra ROM)" };
+static const char* const lang_es_f656[] = { "con el juego sin cambios (%s)" };
+static const char* const lang_es_f657[] = { "sin \303\251l" };
+static const char* const lang_es_f658[] = { "sin los parches activados" };
+static const char* const lang_es_f659[] = { "tu posici\303\263n est\303\241 guardada" };
+static const char* const lang_es_f660[] = { "\342\200\271" };
+static const char* const lang_es_f661[] = { "\342\200\272" };
 static const I18nEntry lang_es_entries[] = {
 	{ " (patch)", lang_es_f0, 1 },
 	{ " Checking for a new version...", lang_es_f1, 1 },
@@ -2568,87 +2571,88 @@ static const I18nEntry lang_es_entries[] = {
 	{ "Turbo B", lang_es_f577, 1 },
 	{ "Turbo speed", lang_es_f578, 1 },
 	{ "Turns this ROM into another official release: %s", lang_es_f579, 1 },
-	{ "Undo Load", lang_es_f580, 1 },
-	{ "Undo Save", lang_es_f581, 1 },
-	{ "Undo failed", lang_es_f582, 1 },
-	{ "Unknown version of this game", lang_es_f583, 1 },
-	{ "Unlocked", lang_es_f584, 1 },
-	{ "Unlocks sent", lang_es_f585, 1 },
-	{ "Unlocks will be sent when the connection is back", lang_es_f586, 1 },
-	{ "Unpinned: the bar hides after 5 seconds.", lang_es_f587, 1 },
-	{ "Untested: the second screen may not work with it", lang_es_f588, 1 },
-	{ "Up", lang_es_f589, 1 },
-	{ "Up to %d patches can be on at once", lang_es_f590, 1 },
-	{ "Up to %s", lang_es_f591, 1 },
-	{ "Update now", lang_es_f592, 1 },
-	{ "Updates", lang_es_f593, 1 },
-	{ "Updates, integrations", lang_es_f594, 1 },
-	{ "Use This Folder", lang_es_f595, 1 },
-	{ "Used from the next time the game starts", lang_es_f596, 1 },
-	{ "Volume %d%%", lang_es_f597, 1 },
-	{ "What D-pad down gives the game.", lang_es_f598, 1 },
-	{ "What D-pad left gives the game.", lang_es_f599, 1 },
-	{ "What D-pad right gives the game.", lang_es_f600, 1 },
-	{ "What D-pad up gives the game.", lang_es_f601, 1 },
-	{ "What the L shoulder button gives the game.", lang_es_f602, 1 },
-	{ "What the R shoulder button gives the game.", lang_es_f603, 1 },
-	{ "What the bottom face button gives the game.", lang_es_f604, 1 },
-	{ "What the left face button gives the game.", lang_es_f605, 1 },
-	{ "What the right face button gives the game.", lang_es_f606, 1 },
-	{ "What the top face button gives the game.", lang_es_f607, 1 },
-	{ "Where games are read from, and the folder their saves are kept in.", lang_es_f608, 1 },
-	{ "Where games are read from. Their saves are kept next to them.", lang_es_f609, 1 },
-	{ "Which Screen: Both", lang_es_f610, 1 },
-	{ "Which Screen: Bottom Only", lang_es_f611, 1 },
-	{ "Which Screen: Top Only", lang_es_f612, 1 },
-	{ "Which games, names, saving", lang_es_f613, 1 },
-	{ "Which screen the game is on.", lang_es_f614, 1 },
-	{ "Which screens have them.", lang_es_f615, 1 },
-	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_es_f616, 1 },
-	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_es_f617, 1 },
-	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_es_f618, 1 },
-	{ "With tags, like (USA)", lang_es_f619, 1 },
-	{ "X (top) button", lang_es_f620, 1 },
-	{ "Y (left) button", lang_es_f621, 1 },
-	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_es_f622, 1 },
-	{ "Your own and scraped logos on the second screen.", lang_es_f623, 1 },
-	{ "Your screens are the same shape: nothing to match", lang_es_f624, 1 },
-	{ "Zoom", lang_es_f625, 1 },
-	{ "color", lang_es_f626, 1 },
-	{ "hex", lang_es_f627, 1 },
-	{ "hue", lang_es_f628, 1 },
-	{ "machine translated", lang_es_f629, 1 },
-	{ "no save state yet!", lang_es_f630, 1 },
-	{ "off", lang_es_f631, 1 },
-	{ "on", lang_es_f632, 1 },
-	{ "point", lang_es_f633, 1 },
-	{ "points", lang_es_f634, 1 },
-	{ "presets", lang_es_f635, 1 },
-	{ "press the left stick in", lang_es_f636, 1 },
-	{ "push the left stick left", lang_es_f637, 1 },
-	{ "push the left stick up", lang_es_f638, 1 },
-	{ "the bottom face button", lang_es_f639, 1 },
-	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_es_f640, 1 },
-	{ "the game", lang_es_f641, 1 },
-	{ "the left face button", lang_es_f642, 1 },
-	{ "the left shoulder button", lang_es_f643, 1 },
-	{ "the patch beside the ROM", lang_es_f644, 1 },
-	{ "the right face button", lang_es_f645, 1 },
-	{ "the right shoulder button", lang_es_f646, 1 },
-	{ "the second left shoulder button", lang_es_f647, 1 },
-	{ "the second right shoulder button", lang_es_f648, 1 },
-	{ "the top face button", lang_es_f649, 1 },
-	{ "unsaved progress is lost", lang_es_f650, 1 },
-	{ "with", lang_es_f651, 1 },
-	{ "with %s", lang_es_f652, 1 },
-	{ "with another dump of the game (%s)", lang_es_f653, 1 },
-	{ "with another version of the game (other patches, or another ROM)", lang_es_f654, 1 },
-	{ "with the unchanged game (%s)", lang_es_f655, 1 },
-	{ "without", lang_es_f656, 1 },
-	{ "without the patches on", lang_es_f657, 1 },
-	{ "your place is saved", lang_es_f658, 1 },
-	{ "\342\200\271", lang_es_f659, 1 },
-	{ "\342\200\272", lang_es_f660, 1 },
+	{ "Undo", lang_es_f580, 1 },
+	{ "Undo Load", lang_es_f581, 1 },
+	{ "Undo Save", lang_es_f582, 1 },
+	{ "Undo failed", lang_es_f583, 1 },
+	{ "Unknown version of this game", lang_es_f584, 1 },
+	{ "Unlocked", lang_es_f585, 1 },
+	{ "Unlocks sent", lang_es_f586, 1 },
+	{ "Unlocks will be sent when the connection is back", lang_es_f587, 1 },
+	{ "Unpinned: the bar hides after 5 seconds.", lang_es_f588, 1 },
+	{ "Untested: the second screen may not work with it", lang_es_f589, 1 },
+	{ "Up", lang_es_f590, 1 },
+	{ "Up to %d patches can be on at once", lang_es_f591, 1 },
+	{ "Up to %s", lang_es_f592, 1 },
+	{ "Update now", lang_es_f593, 1 },
+	{ "Updates", lang_es_f594, 1 },
+	{ "Updates, integrations", lang_es_f595, 1 },
+	{ "Use This Folder", lang_es_f596, 1 },
+	{ "Used from the next time the game starts", lang_es_f597, 1 },
+	{ "Volume %d%%", lang_es_f598, 1 },
+	{ "What D-pad down gives the game.", lang_es_f599, 1 },
+	{ "What D-pad left gives the game.", lang_es_f600, 1 },
+	{ "What D-pad right gives the game.", lang_es_f601, 1 },
+	{ "What D-pad up gives the game.", lang_es_f602, 1 },
+	{ "What the L shoulder button gives the game.", lang_es_f603, 1 },
+	{ "What the R shoulder button gives the game.", lang_es_f604, 1 },
+	{ "What the bottom face button gives the game.", lang_es_f605, 1 },
+	{ "What the left face button gives the game.", lang_es_f606, 1 },
+	{ "What the right face button gives the game.", lang_es_f607, 1 },
+	{ "What the top face button gives the game.", lang_es_f608, 1 },
+	{ "Where games are read from, and the folder their saves are kept in.", lang_es_f609, 1 },
+	{ "Where games are read from. Their saves are kept next to them.", lang_es_f610, 1 },
+	{ "Which Screen: Both", lang_es_f611, 1 },
+	{ "Which Screen: Bottom Only", lang_es_f612, 1 },
+	{ "Which Screen: Top Only", lang_es_f613, 1 },
+	{ "Which games, names, saving", lang_es_f614, 1 },
+	{ "Which screen the game is on.", lang_es_f615, 1 },
+	{ "Which screens have them.", lang_es_f616, 1 },
+	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_es_f617, 1 },
+	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_es_f618, 1 },
+	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_es_f619, 1 },
+	{ "With tags, like (USA)", lang_es_f620, 1 },
+	{ "X (top) button", lang_es_f621, 1 },
+	{ "Y (left) button", lang_es_f622, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_es_f623, 1 },
+	{ "Your own and scraped logos on the second screen.", lang_es_f624, 1 },
+	{ "Your screens are the same shape: nothing to match", lang_es_f625, 1 },
+	{ "Zoom", lang_es_f626, 1 },
+	{ "color", lang_es_f627, 1 },
+	{ "hex", lang_es_f628, 1 },
+	{ "hue", lang_es_f629, 1 },
+	{ "machine translated", lang_es_f630, 1 },
+	{ "no save state yet!", lang_es_f631, 1 },
+	{ "off", lang_es_f632, 1 },
+	{ "on", lang_es_f633, 1 },
+	{ "point", lang_es_f634, 1 },
+	{ "points", lang_es_f635, 1 },
+	{ "presets", lang_es_f636, 1 },
+	{ "press the left stick in", lang_es_f637, 1 },
+	{ "push the left stick left", lang_es_f638, 1 },
+	{ "push the left stick up", lang_es_f639, 1 },
+	{ "the bottom face button", lang_es_f640, 1 },
+	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_es_f641, 1 },
+	{ "the game", lang_es_f642, 1 },
+	{ "the left face button", lang_es_f643, 1 },
+	{ "the left shoulder button", lang_es_f644, 1 },
+	{ "the patch beside the ROM", lang_es_f645, 1 },
+	{ "the right face button", lang_es_f646, 1 },
+	{ "the right shoulder button", lang_es_f647, 1 },
+	{ "the second left shoulder button", lang_es_f648, 1 },
+	{ "the second right shoulder button", lang_es_f649, 1 },
+	{ "the top face button", lang_es_f650, 1 },
+	{ "unsaved progress is lost", lang_es_f651, 1 },
+	{ "with", lang_es_f652, 1 },
+	{ "with %s", lang_es_f653, 1 },
+	{ "with another dump of the game (%s)", lang_es_f654, 1 },
+	{ "with another version of the game (other patches, or another ROM)", lang_es_f655, 1 },
+	{ "with the unchanged game (%s)", lang_es_f656, 1 },
+	{ "without", lang_es_f657, 1 },
+	{ "without the patches on", lang_es_f658, 1 },
+	{ "your place is saved", lang_es_f659, 1 },
+	{ "\342\200\271", lang_es_f660, 1 },
+	{ "\342\200\272", lang_es_f661, 1 },
 };
 
 static const char* const lang_fr_f0[] = { " (patch)" };
@@ -3231,87 +3235,88 @@ static const char* const lang_fr_f576[] = { "Turbo A" };
 static const char* const lang_fr_f577[] = { "Turbo B" };
 static const char* const lang_fr_f578[] = { "Vitesse du turbo" };
 static const char* const lang_fr_f579[] = { "Transforme cette ROM en une autre version officielle : %s" };
-static const char* const lang_fr_f580[] = { "Annuler le chargement" };
-static const char* const lang_fr_f581[] = { "Annuler la sauvegarde" };
-static const char* const lang_fr_f582[] = { "Impossible d\342\200\231annuler" };
-static const char* const lang_fr_f583[] = { "Version inconnue de ce jeu" };
-static const char* const lang_fr_f584[] = { "D\303\251bloqu\303\251" };
-static const char* const lang_fr_f585[] = { "Succ\303\250s envoy\303\251s" };
-static const char* const lang_fr_f586[] = { "Les succ\303\250s seront envoy\303\251s quand la connexion reviendra" };
-static const char* const lang_fr_f587[] = { "D\303\251tach\303\251e : la barre se masque apr\303\250s 5 secondes." };
-static const char* const lang_fr_f588[] = { "Non test\303\251 : le deuxi\303\250me \303\251cran peut ne pas fonctionner avec lui" };
-static const char* const lang_fr_f589[] = { "Haut" };
-static const char* const lang_fr_f590[] = { "Jusqu'\303\240 %d patchs peuvent \303\252tre activ\303\251s en m\303\252me temps" };
-static const char* const lang_fr_f591[] = { "Jusqu'\303\240 %s" };
-static const char* const lang_fr_f592[] = { "Mettre \303\240 jour" };
-static const char* const lang_fr_f593[] = { "Mises \303\240 jour" };
-static const char* const lang_fr_f594[] = { "Mises \303\240 jour, int\303\251grations" };
-static const char* const lang_fr_f595[] = { "Utiliser ce dossier" };
-static const char* const lang_fr_f596[] = { "Utilis\303\251 \303\240 partir du prochain d\303\251marrage du jeu" };
-static const char* const lang_fr_f597[] = { "Volume %d%%" };
-static const char* const lang_fr_f598[] = { "Ce que la croix directionnelle bas donne au jeu." };
-static const char* const lang_fr_f599[] = { "Ce que la croix directionnelle gauche donne au jeu." };
-static const char* const lang_fr_f600[] = { "Ce que la croix directionnelle droite donne au jeu." };
-static const char* const lang_fr_f601[] = { "Ce que la croix directionnelle haut donne au jeu." };
-static const char* const lang_fr_f602[] = { "Ce que le bouton d'\303\251paule L donne au jeu." };
-static const char* const lang_fr_f603[] = { "Ce que le bouton d'\303\251paule R donne au jeu." };
-static const char* const lang_fr_f604[] = { "Ce que le bouton du bas donne au jeu." };
-static const char* const lang_fr_f605[] = { "Ce que le bouton de gauche donne au jeu." };
-static const char* const lang_fr_f606[] = { "Ce que le bouton de droite donne au jeu." };
-static const char* const lang_fr_f607[] = { "Ce que le bouton du haut donne au jeu." };
-static const char* const lang_fr_f608[] = { "D'o\303\271 les jeux sont lus, et le dossier o\303\271 sont conserv\303\251es leurs sauvegardes." };
-static const char* const lang_fr_f609[] = { "D'o\303\271 les jeux sont lus. Leurs sauvegardes sont conserv\303\251es \303\240 c\303\264t\303\251." };
-static const char* const lang_fr_f610[] = { "Quel \303\251cran : les deux" };
-static const char* const lang_fr_f611[] = { "Quel \303\251cran : bas seulement" };
-static const char* const lang_fr_f612[] = { "Quel \303\251cran : haut seulement" };
-static const char* const lang_fr_f613[] = { "Quels jeux, noms, sauvegarde" };
-static const char* const lang_fr_f614[] = { "Sur quel \303\251cran se trouve le jeu." };
-static const char* const lang_fr_f615[] = { "Quels \303\251crans les ont." };
-static const char* const lang_fr_f616[] = { "Avec un patch activ\303\251, le jeu garde sa propre sauvegarde de batterie (\302\253 <jeu> + <patch> \302\273) : d\303\251sactiv\303\251, il utilise celle de l'original" };
-static const char* const lang_fr_f617[] = { "Avec un patch activ\303\251, le jeu garde ses propres \303\251tats : d\303\251sactiv\303\251, il utilise ceux de l'original (un \303\251tat peut sortir corrompu dans l'autre)" };
-static const char* const lang_fr_f618[] = { "Quand la v\303\251rification automatique est activ\303\251e, RetroDS cherche une nouvelle version une fois par jour \303\240 l'ouverture de la liste des jeux et demande avant de t\303\251l\303\251charger quoi que ce soit. Les mises \303\240 jour viennent des versions publi\303\251es sur github.com/iosue-iulianus/retro-ds." };
-static const char* const lang_fr_f619[] = { "Avec \303\251tiquettes, comme (USA)" };
-static const char* const lang_fr_f620[] = { "Bouton X (haut)" };
-static const char* const lang_fr_f621[] = { "Bouton Y (gauche)" };
-static const char* const lang_fr_f622[] = { "Vos propres PNG dans retrods/overlays/. Un \303\251cran sans PNG re\303\247oit le cadre g\303\251n\303\251r\303\251 dans ses couleurs par d\303\251faut." };
-static const char* const lang_fr_f623[] = { "Vos propres logos et ceux r\303\251cup\303\251r\303\251s sur le deuxi\303\250me \303\251cran." };
-static const char* const lang_fr_f624[] = { "Vos \303\251crans ont la m\303\252me forme : rien \303\240 faire correspondre" };
-static const char* const lang_fr_f625[] = { "Zoom" };
-static const char* const lang_fr_f626[] = { "couleur" };
-static const char* const lang_fr_f627[] = { "hex" };
-static const char* const lang_fr_f628[] = { "teinte" };
-static const char* const lang_fr_f629[] = { "traduction automatique" };
-static const char* const lang_fr_f630[] = { "pas encore d'\303\251tat sauvegard\303\251 !" };
-static const char* const lang_fr_f631[] = { "d\303\251sactiv\303\251" };
-static const char* const lang_fr_f632[] = { "activ\303\251" };
-static const char* const lang_fr_f633[] = { "point" };
-static const char* const lang_fr_f634[] = { "points" };
-static const char* const lang_fr_f635[] = { "pr\303\251r\303\251glages" };
-static const char* const lang_fr_f636[] = { "appuyez sur le stick gauche" };
-static const char* const lang_fr_f637[] = { "poussez le stick gauche vers la gauche" };
-static const char* const lang_fr_f638[] = { "poussez le stick gauche vers le haut" };
-static const char* const lang_fr_f639[] = { "le bouton du bas" };
-static const char* const lang_fr_f640[] = { "le bouton qui ouvre le menu de RetroDS (Home, Menu ou Function)" };
-static const char* const lang_fr_f641[] = { "le jeu" };
-static const char* const lang_fr_f642[] = { "le bouton de gauche" };
-static const char* const lang_fr_f643[] = { "le bouton d'\303\251paule gauche" };
-static const char* const lang_fr_f644[] = { "le patch \303\240 c\303\264t\303\251 de la ROM" };
-static const char* const lang_fr_f645[] = { "le bouton de droite" };
-static const char* const lang_fr_f646[] = { "le bouton d'\303\251paule droite" };
-static const char* const lang_fr_f647[] = { "le deuxi\303\250me bouton d'\303\251paule gauche" };
-static const char* const lang_fr_f648[] = { "le deuxi\303\250me bouton d'\303\251paule droite" };
-static const char* const lang_fr_f649[] = { "le bouton du haut" };
-static const char* const lang_fr_f650[] = { "la progression non sauvegard\303\251e est perdue" };
-static const char* const lang_fr_f651[] = { "avec le patch" };
-static const char* const lang_fr_f652[] = { "avec %s" };
-static const char* const lang_fr_f653[] = { "avec un autre dump du jeu (%s)" };
-static const char* const lang_fr_f654[] = { "avec une autre version du jeu (d'autres patchs, ou une autre ROM)" };
-static const char* const lang_fr_f655[] = { "avec le jeu non modifi\303\251 (%s)" };
-static const char* const lang_fr_f656[] = { "sans le patch" };
-static const char* const lang_fr_f657[] = { "sans les patchs activ\303\251s" };
-static const char* const lang_fr_f658[] = { "votre position est sauvegard\303\251e" };
-static const char* const lang_fr_f659[] = { "\342\200\271" };
-static const char* const lang_fr_f660[] = { "\342\200\272" };
+static const char* const lang_fr_f580[] = { "Annuler" };
+static const char* const lang_fr_f581[] = { "Annuler le chargement" };
+static const char* const lang_fr_f582[] = { "Annuler la sauvegarde" };
+static const char* const lang_fr_f583[] = { "Impossible d\342\200\231annuler" };
+static const char* const lang_fr_f584[] = { "Version inconnue de ce jeu" };
+static const char* const lang_fr_f585[] = { "D\303\251bloqu\303\251" };
+static const char* const lang_fr_f586[] = { "Succ\303\250s envoy\303\251s" };
+static const char* const lang_fr_f587[] = { "Les succ\303\250s seront envoy\303\251s quand la connexion reviendra" };
+static const char* const lang_fr_f588[] = { "D\303\251tach\303\251e : la barre se masque apr\303\250s 5 secondes." };
+static const char* const lang_fr_f589[] = { "Non test\303\251 : le deuxi\303\250me \303\251cran peut ne pas fonctionner avec lui" };
+static const char* const lang_fr_f590[] = { "Haut" };
+static const char* const lang_fr_f591[] = { "Jusqu'\303\240 %d patchs peuvent \303\252tre activ\303\251s en m\303\252me temps" };
+static const char* const lang_fr_f592[] = { "Jusqu'\303\240 %s" };
+static const char* const lang_fr_f593[] = { "Mettre \303\240 jour" };
+static const char* const lang_fr_f594[] = { "Mises \303\240 jour" };
+static const char* const lang_fr_f595[] = { "Mises \303\240 jour, int\303\251grations" };
+static const char* const lang_fr_f596[] = { "Utiliser ce dossier" };
+static const char* const lang_fr_f597[] = { "Utilis\303\251 \303\240 partir du prochain d\303\251marrage du jeu" };
+static const char* const lang_fr_f598[] = { "Volume %d%%" };
+static const char* const lang_fr_f599[] = { "Ce que la croix directionnelle bas donne au jeu." };
+static const char* const lang_fr_f600[] = { "Ce que la croix directionnelle gauche donne au jeu." };
+static const char* const lang_fr_f601[] = { "Ce que la croix directionnelle droite donne au jeu." };
+static const char* const lang_fr_f602[] = { "Ce que la croix directionnelle haut donne au jeu." };
+static const char* const lang_fr_f603[] = { "Ce que le bouton d'\303\251paule L donne au jeu." };
+static const char* const lang_fr_f604[] = { "Ce que le bouton d'\303\251paule R donne au jeu." };
+static const char* const lang_fr_f605[] = { "Ce que le bouton du bas donne au jeu." };
+static const char* const lang_fr_f606[] = { "Ce que le bouton de gauche donne au jeu." };
+static const char* const lang_fr_f607[] = { "Ce que le bouton de droite donne au jeu." };
+static const char* const lang_fr_f608[] = { "Ce que le bouton du haut donne au jeu." };
+static const char* const lang_fr_f609[] = { "D'o\303\271 les jeux sont lus, et le dossier o\303\271 sont conserv\303\251es leurs sauvegardes." };
+static const char* const lang_fr_f610[] = { "D'o\303\271 les jeux sont lus. Leurs sauvegardes sont conserv\303\251es \303\240 c\303\264t\303\251." };
+static const char* const lang_fr_f611[] = { "Quel \303\251cran : les deux" };
+static const char* const lang_fr_f612[] = { "Quel \303\251cran : bas seulement" };
+static const char* const lang_fr_f613[] = { "Quel \303\251cran : haut seulement" };
+static const char* const lang_fr_f614[] = { "Quels jeux, noms, sauvegarde" };
+static const char* const lang_fr_f615[] = { "Sur quel \303\251cran se trouve le jeu." };
+static const char* const lang_fr_f616[] = { "Quels \303\251crans les ont." };
+static const char* const lang_fr_f617[] = { "Avec un patch activ\303\251, le jeu garde sa propre sauvegarde de batterie (\302\253 <jeu> + <patch> \302\273) : d\303\251sactiv\303\251, il utilise celle de l'original" };
+static const char* const lang_fr_f618[] = { "Avec un patch activ\303\251, le jeu garde ses propres \303\251tats : d\303\251sactiv\303\251, il utilise ceux de l'original (un \303\251tat peut sortir corrompu dans l'autre)" };
+static const char* const lang_fr_f619[] = { "Quand la v\303\251rification automatique est activ\303\251e, RetroDS cherche une nouvelle version une fois par jour \303\240 l'ouverture de la liste des jeux et demande avant de t\303\251l\303\251charger quoi que ce soit. Les mises \303\240 jour viennent des versions publi\303\251es sur github.com/iosue-iulianus/retro-ds." };
+static const char* const lang_fr_f620[] = { "Avec \303\251tiquettes, comme (USA)" };
+static const char* const lang_fr_f621[] = { "Bouton X (haut)" };
+static const char* const lang_fr_f622[] = { "Bouton Y (gauche)" };
+static const char* const lang_fr_f623[] = { "Vos propres PNG dans retrods/overlays/. Un \303\251cran sans PNG re\303\247oit le cadre g\303\251n\303\251r\303\251 dans ses couleurs par d\303\251faut." };
+static const char* const lang_fr_f624[] = { "Vos propres logos et ceux r\303\251cup\303\251r\303\251s sur le deuxi\303\250me \303\251cran." };
+static const char* const lang_fr_f625[] = { "Vos \303\251crans ont la m\303\252me forme : rien \303\240 faire correspondre" };
+static const char* const lang_fr_f626[] = { "Zoom" };
+static const char* const lang_fr_f627[] = { "couleur" };
+static const char* const lang_fr_f628[] = { "hex" };
+static const char* const lang_fr_f629[] = { "teinte" };
+static const char* const lang_fr_f630[] = { "traduction automatique" };
+static const char* const lang_fr_f631[] = { "pas encore d'\303\251tat sauvegard\303\251 !" };
+static const char* const lang_fr_f632[] = { "d\303\251sactiv\303\251" };
+static const char* const lang_fr_f633[] = { "activ\303\251" };
+static const char* const lang_fr_f634[] = { "point" };
+static const char* const lang_fr_f635[] = { "points" };
+static const char* const lang_fr_f636[] = { "pr\303\251r\303\251glages" };
+static const char* const lang_fr_f637[] = { "appuyez sur le stick gauche" };
+static const char* const lang_fr_f638[] = { "poussez le stick gauche vers la gauche" };
+static const char* const lang_fr_f639[] = { "poussez le stick gauche vers le haut" };
+static const char* const lang_fr_f640[] = { "le bouton du bas" };
+static const char* const lang_fr_f641[] = { "le bouton qui ouvre le menu de RetroDS (Home, Menu ou Function)" };
+static const char* const lang_fr_f642[] = { "le jeu" };
+static const char* const lang_fr_f643[] = { "le bouton de gauche" };
+static const char* const lang_fr_f644[] = { "le bouton d'\303\251paule gauche" };
+static const char* const lang_fr_f645[] = { "le patch \303\240 c\303\264t\303\251 de la ROM" };
+static const char* const lang_fr_f646[] = { "le bouton de droite" };
+static const char* const lang_fr_f647[] = { "le bouton d'\303\251paule droite" };
+static const char* const lang_fr_f648[] = { "le deuxi\303\250me bouton d'\303\251paule gauche" };
+static const char* const lang_fr_f649[] = { "le deuxi\303\250me bouton d'\303\251paule droite" };
+static const char* const lang_fr_f650[] = { "le bouton du haut" };
+static const char* const lang_fr_f651[] = { "la progression non sauvegard\303\251e est perdue" };
+static const char* const lang_fr_f652[] = { "avec le patch" };
+static const char* const lang_fr_f653[] = { "avec %s" };
+static const char* const lang_fr_f654[] = { "avec un autre dump du jeu (%s)" };
+static const char* const lang_fr_f655[] = { "avec une autre version du jeu (d'autres patchs, ou une autre ROM)" };
+static const char* const lang_fr_f656[] = { "avec le jeu non modifi\303\251 (%s)" };
+static const char* const lang_fr_f657[] = { "sans le patch" };
+static const char* const lang_fr_f658[] = { "sans les patchs activ\303\251s" };
+static const char* const lang_fr_f659[] = { "votre position est sauvegard\303\251e" };
+static const char* const lang_fr_f660[] = { "\342\200\271" };
+static const char* const lang_fr_f661[] = { "\342\200\272" };
 static const I18nEntry lang_fr_entries[] = {
 	{ " (patch)", lang_fr_f0, 1 },
 	{ " Checking for a new version...", lang_fr_f1, 1 },
@@ -3893,87 +3898,88 @@ static const I18nEntry lang_fr_entries[] = {
 	{ "Turbo B", lang_fr_f577, 1 },
 	{ "Turbo speed", lang_fr_f578, 1 },
 	{ "Turns this ROM into another official release: %s", lang_fr_f579, 1 },
-	{ "Undo Load", lang_fr_f580, 1 },
-	{ "Undo Save", lang_fr_f581, 1 },
-	{ "Undo failed", lang_fr_f582, 1 },
-	{ "Unknown version of this game", lang_fr_f583, 1 },
-	{ "Unlocked", lang_fr_f584, 1 },
-	{ "Unlocks sent", lang_fr_f585, 1 },
-	{ "Unlocks will be sent when the connection is back", lang_fr_f586, 1 },
-	{ "Unpinned: the bar hides after 5 seconds.", lang_fr_f587, 1 },
-	{ "Untested: the second screen may not work with it", lang_fr_f588, 1 },
-	{ "Up", lang_fr_f589, 1 },
-	{ "Up to %d patches can be on at once", lang_fr_f590, 1 },
-	{ "Up to %s", lang_fr_f591, 1 },
-	{ "Update now", lang_fr_f592, 1 },
-	{ "Updates", lang_fr_f593, 1 },
-	{ "Updates, integrations", lang_fr_f594, 1 },
-	{ "Use This Folder", lang_fr_f595, 1 },
-	{ "Used from the next time the game starts", lang_fr_f596, 1 },
-	{ "Volume %d%%", lang_fr_f597, 1 },
-	{ "What D-pad down gives the game.", lang_fr_f598, 1 },
-	{ "What D-pad left gives the game.", lang_fr_f599, 1 },
-	{ "What D-pad right gives the game.", lang_fr_f600, 1 },
-	{ "What D-pad up gives the game.", lang_fr_f601, 1 },
-	{ "What the L shoulder button gives the game.", lang_fr_f602, 1 },
-	{ "What the R shoulder button gives the game.", lang_fr_f603, 1 },
-	{ "What the bottom face button gives the game.", lang_fr_f604, 1 },
-	{ "What the left face button gives the game.", lang_fr_f605, 1 },
-	{ "What the right face button gives the game.", lang_fr_f606, 1 },
-	{ "What the top face button gives the game.", lang_fr_f607, 1 },
-	{ "Where games are read from, and the folder their saves are kept in.", lang_fr_f608, 1 },
-	{ "Where games are read from. Their saves are kept next to them.", lang_fr_f609, 1 },
-	{ "Which Screen: Both", lang_fr_f610, 1 },
-	{ "Which Screen: Bottom Only", lang_fr_f611, 1 },
-	{ "Which Screen: Top Only", lang_fr_f612, 1 },
-	{ "Which games, names, saving", lang_fr_f613, 1 },
-	{ "Which screen the game is on.", lang_fr_f614, 1 },
-	{ "Which screens have them.", lang_fr_f615, 1 },
-	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_fr_f616, 1 },
-	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_fr_f617, 1 },
-	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_fr_f618, 1 },
-	{ "With tags, like (USA)", lang_fr_f619, 1 },
-	{ "X (top) button", lang_fr_f620, 1 },
-	{ "Y (left) button", lang_fr_f621, 1 },
-	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_fr_f622, 1 },
-	{ "Your own and scraped logos on the second screen.", lang_fr_f623, 1 },
-	{ "Your screens are the same shape: nothing to match", lang_fr_f624, 1 },
-	{ "Zoom", lang_fr_f625, 1 },
-	{ "color", lang_fr_f626, 1 },
-	{ "hex", lang_fr_f627, 1 },
-	{ "hue", lang_fr_f628, 1 },
-	{ "machine translated", lang_fr_f629, 1 },
-	{ "no save state yet!", lang_fr_f630, 1 },
-	{ "off", lang_fr_f631, 1 },
-	{ "on", lang_fr_f632, 1 },
-	{ "point", lang_fr_f633, 1 },
-	{ "points", lang_fr_f634, 1 },
-	{ "presets", lang_fr_f635, 1 },
-	{ "press the left stick in", lang_fr_f636, 1 },
-	{ "push the left stick left", lang_fr_f637, 1 },
-	{ "push the left stick up", lang_fr_f638, 1 },
-	{ "the bottom face button", lang_fr_f639, 1 },
-	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_fr_f640, 1 },
-	{ "the game", lang_fr_f641, 1 },
-	{ "the left face button", lang_fr_f642, 1 },
-	{ "the left shoulder button", lang_fr_f643, 1 },
-	{ "the patch beside the ROM", lang_fr_f644, 1 },
-	{ "the right face button", lang_fr_f645, 1 },
-	{ "the right shoulder button", lang_fr_f646, 1 },
-	{ "the second left shoulder button", lang_fr_f647, 1 },
-	{ "the second right shoulder button", lang_fr_f648, 1 },
-	{ "the top face button", lang_fr_f649, 1 },
-	{ "unsaved progress is lost", lang_fr_f650, 1 },
-	{ "with", lang_fr_f651, 1 },
-	{ "with %s", lang_fr_f652, 1 },
-	{ "with another dump of the game (%s)", lang_fr_f653, 1 },
-	{ "with another version of the game (other patches, or another ROM)", lang_fr_f654, 1 },
-	{ "with the unchanged game (%s)", lang_fr_f655, 1 },
-	{ "without", lang_fr_f656, 1 },
-	{ "without the patches on", lang_fr_f657, 1 },
-	{ "your place is saved", lang_fr_f658, 1 },
-	{ "\342\200\271", lang_fr_f659, 1 },
-	{ "\342\200\272", lang_fr_f660, 1 },
+	{ "Undo", lang_fr_f580, 1 },
+	{ "Undo Load", lang_fr_f581, 1 },
+	{ "Undo Save", lang_fr_f582, 1 },
+	{ "Undo failed", lang_fr_f583, 1 },
+	{ "Unknown version of this game", lang_fr_f584, 1 },
+	{ "Unlocked", lang_fr_f585, 1 },
+	{ "Unlocks sent", lang_fr_f586, 1 },
+	{ "Unlocks will be sent when the connection is back", lang_fr_f587, 1 },
+	{ "Unpinned: the bar hides after 5 seconds.", lang_fr_f588, 1 },
+	{ "Untested: the second screen may not work with it", lang_fr_f589, 1 },
+	{ "Up", lang_fr_f590, 1 },
+	{ "Up to %d patches can be on at once", lang_fr_f591, 1 },
+	{ "Up to %s", lang_fr_f592, 1 },
+	{ "Update now", lang_fr_f593, 1 },
+	{ "Updates", lang_fr_f594, 1 },
+	{ "Updates, integrations", lang_fr_f595, 1 },
+	{ "Use This Folder", lang_fr_f596, 1 },
+	{ "Used from the next time the game starts", lang_fr_f597, 1 },
+	{ "Volume %d%%", lang_fr_f598, 1 },
+	{ "What D-pad down gives the game.", lang_fr_f599, 1 },
+	{ "What D-pad left gives the game.", lang_fr_f600, 1 },
+	{ "What D-pad right gives the game.", lang_fr_f601, 1 },
+	{ "What D-pad up gives the game.", lang_fr_f602, 1 },
+	{ "What the L shoulder button gives the game.", lang_fr_f603, 1 },
+	{ "What the R shoulder button gives the game.", lang_fr_f604, 1 },
+	{ "What the bottom face button gives the game.", lang_fr_f605, 1 },
+	{ "What the left face button gives the game.", lang_fr_f606, 1 },
+	{ "What the right face button gives the game.", lang_fr_f607, 1 },
+	{ "What the top face button gives the game.", lang_fr_f608, 1 },
+	{ "Where games are read from, and the folder their saves are kept in.", lang_fr_f609, 1 },
+	{ "Where games are read from. Their saves are kept next to them.", lang_fr_f610, 1 },
+	{ "Which Screen: Both", lang_fr_f611, 1 },
+	{ "Which Screen: Bottom Only", lang_fr_f612, 1 },
+	{ "Which Screen: Top Only", lang_fr_f613, 1 },
+	{ "Which games, names, saving", lang_fr_f614, 1 },
+	{ "Which screen the game is on.", lang_fr_f615, 1 },
+	{ "Which screens have them.", lang_fr_f616, 1 },
+	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_fr_f617, 1 },
+	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_fr_f618, 1 },
+	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_fr_f619, 1 },
+	{ "With tags, like (USA)", lang_fr_f620, 1 },
+	{ "X (top) button", lang_fr_f621, 1 },
+	{ "Y (left) button", lang_fr_f622, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_fr_f623, 1 },
+	{ "Your own and scraped logos on the second screen.", lang_fr_f624, 1 },
+	{ "Your screens are the same shape: nothing to match", lang_fr_f625, 1 },
+	{ "Zoom", lang_fr_f626, 1 },
+	{ "color", lang_fr_f627, 1 },
+	{ "hex", lang_fr_f628, 1 },
+	{ "hue", lang_fr_f629, 1 },
+	{ "machine translated", lang_fr_f630, 1 },
+	{ "no save state yet!", lang_fr_f631, 1 },
+	{ "off", lang_fr_f632, 1 },
+	{ "on", lang_fr_f633, 1 },
+	{ "point", lang_fr_f634, 1 },
+	{ "points", lang_fr_f635, 1 },
+	{ "presets", lang_fr_f636, 1 },
+	{ "press the left stick in", lang_fr_f637, 1 },
+	{ "push the left stick left", lang_fr_f638, 1 },
+	{ "push the left stick up", lang_fr_f639, 1 },
+	{ "the bottom face button", lang_fr_f640, 1 },
+	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_fr_f641, 1 },
+	{ "the game", lang_fr_f642, 1 },
+	{ "the left face button", lang_fr_f643, 1 },
+	{ "the left shoulder button", lang_fr_f644, 1 },
+	{ "the patch beside the ROM", lang_fr_f645, 1 },
+	{ "the right face button", lang_fr_f646, 1 },
+	{ "the right shoulder button", lang_fr_f647, 1 },
+	{ "the second left shoulder button", lang_fr_f648, 1 },
+	{ "the second right shoulder button", lang_fr_f649, 1 },
+	{ "the top face button", lang_fr_f650, 1 },
+	{ "unsaved progress is lost", lang_fr_f651, 1 },
+	{ "with", lang_fr_f652, 1 },
+	{ "with %s", lang_fr_f653, 1 },
+	{ "with another dump of the game (%s)", lang_fr_f654, 1 },
+	{ "with another version of the game (other patches, or another ROM)", lang_fr_f655, 1 },
+	{ "with the unchanged game (%s)", lang_fr_f656, 1 },
+	{ "without", lang_fr_f657, 1 },
+	{ "without the patches on", lang_fr_f658, 1 },
+	{ "your place is saved", lang_fr_f659, 1 },
+	{ "\342\200\271", lang_fr_f660, 1 },
+	{ "\342\200\272", lang_fr_f661, 1 },
 };
 
 static const char* const lang_it_f0[] = { " (patch)" };
@@ -4556,87 +4562,88 @@ static const char* const lang_it_f576[] = { "Turbo A" };
 static const char* const lang_it_f577[] = { "Turbo B" };
 static const char* const lang_it_f578[] = { "Velocit\303\240 del turbo" };
 static const char* const lang_it_f579[] = { "Trasforma questa ROM in un'altra versione ufficiale: %s" };
-static const char* const lang_it_f580[] = { "Annulla caricamento" };
-static const char* const lang_it_f581[] = { "Annulla salvataggio" };
-static const char* const lang_it_f582[] = { "Annullamento non riuscito" };
-static const char* const lang_it_f583[] = { "Versione sconosciuta di questo gioco" };
-static const char* const lang_it_f584[] = { "Sbloccato" };
-static const char* const lang_it_f585[] = { "Sblocchi inviati" };
-static const char* const lang_it_f586[] = { "Gli sblocchi verranno inviati quando torner\303\240 la connessione" };
-static const char* const lang_it_f587[] = { "Sganciata: la barra si nasconde dopo 5 secondi." };
-static const char* const lang_it_f588[] = { "Non testata: il secondo schermo potrebbe non funzionare con essa" };
-static const char* const lang_it_f589[] = { "Su" };
-static const char* const lang_it_f590[] = { "Si possono attivare fino a %d patch alla volta" };
-static const char* const lang_it_f591[] = { "Fino a %s" };
-static const char* const lang_it_f592[] = { "Aggiorna ora" };
-static const char* const lang_it_f593[] = { "Aggiornamenti" };
-static const char* const lang_it_f594[] = { "Aggiornamenti, integrazioni" };
-static const char* const lang_it_f595[] = { "Usa questa cartella" };
-static const char* const lang_it_f596[] = { "Usato dal prossimo avvio del gioco" };
-static const char* const lang_it_f597[] = { "Volume %d%%" };
-static const char* const lang_it_f598[] = { "Cosa d\303\240 la croce direzionale gi\303\271 al gioco." };
-static const char* const lang_it_f599[] = { "Cosa d\303\240 la croce direzionale sinistra al gioco." };
-static const char* const lang_it_f600[] = { "Cosa d\303\240 la croce direzionale destra al gioco." };
-static const char* const lang_it_f601[] = { "Cosa d\303\240 la croce direzionale su al gioco." };
-static const char* const lang_it_f602[] = { "Cosa d\303\240 il pulsante dorsale L al gioco." };
-static const char* const lang_it_f603[] = { "Cosa d\303\240 il pulsante dorsale R al gioco." };
-static const char* const lang_it_f604[] = { "Cosa d\303\240 il pulsante in basso al gioco." };
-static const char* const lang_it_f605[] = { "Cosa d\303\240 il pulsante a sinistra al gioco." };
-static const char* const lang_it_f606[] = { "Cosa d\303\240 il pulsante a destra al gioco." };
-static const char* const lang_it_f607[] = { "Cosa d\303\240 il pulsante in alto al gioco." };
-static const char* const lang_it_f608[] = { "Da dove vengono letti i giochi, e la cartella in cui sono tenuti i loro salvataggi." };
-static const char* const lang_it_f609[] = { "Da dove vengono letti i giochi. I loro salvataggi sono tenuti accanto a loro." };
-static const char* const lang_it_f610[] = { "Quale schermo: entrambi" };
-static const char* const lang_it_f611[] = { "Quale schermo: solo in basso" };
-static const char* const lang_it_f612[] = { "Quale schermo: solo in alto" };
-static const char* const lang_it_f613[] = { "Quali giochi, nomi, salvataggio" };
-static const char* const lang_it_f614[] = { "Su quale schermo sta il gioco." };
-static const char* const lang_it_f615[] = { "Quali schermi li hanno." };
-static const char* const lang_it_f616[] = { "Con una patch attiva, il gioco tiene un proprio salvataggio della batteria (\302\253<gioco> + <patch>\302\273): disattivato, usa quello dell'originale" };
-static const char* const lang_it_f617[] = { "Con una patch attiva, il gioco tiene propri stati: disattivato, usa quelli dell'originale (uno stato pu\303\262 risultare corrotto nell'altro)" };
-static const char* const lang_it_f618[] = { "Con il controllo automatico attivo, RetroDS cerca una nuova versione una volta al giorno all'apertura dell'elenco giochi e chiede prima di scaricare qualsiasi cosa. Gli aggiornamenti arrivano dalle release su github.com/iosue-iulianus/retro-ds." };
-static const char* const lang_it_f619[] = { "Con i tag, come (USA)" };
-static const char* const lang_it_f620[] = { "Pulsante X (alto)" };
-static const char* const lang_it_f621[] = { "Pulsante Y (sinistra)" };
-static const char* const lang_it_f622[] = { "I tuoi PNG in retrods/overlays/. Uno schermo senza ne riceve la cornice generata nei suoi colori predefiniti." };
-static const char* const lang_it_f623[] = { "I tuoi loghi e quelli recuperati sul secondo schermo." };
-static const char* const lang_it_f624[] = { "I tuoi schermi hanno la stessa forma: niente da abbinare" };
-static const char* const lang_it_f625[] = { "Zoom" };
-static const char* const lang_it_f626[] = { "colore" };
-static const char* const lang_it_f627[] = { "hex" };
-static const char* const lang_it_f628[] = { "tonalit\303\240" };
-static const char* const lang_it_f629[] = { "traduzione automatica" };
-static const char* const lang_it_f630[] = { "nessuno stato salvato!" };
-static const char* const lang_it_f631[] = { "disattivato" };
-static const char* const lang_it_f632[] = { "attivato" };
-static const char* const lang_it_f633[] = { "punto" };
-static const char* const lang_it_f634[] = { "punti" };
-static const char* const lang_it_f635[] = { "preset" };
-static const char* const lang_it_f636[] = { "premi lo stick sinistro" };
-static const char* const lang_it_f637[] = { "spingi lo stick sinistro a sinistra" };
-static const char* const lang_it_f638[] = { "spingi lo stick sinistro in su" };
-static const char* const lang_it_f639[] = { "il pulsante in basso" };
-static const char* const lang_it_f640[] = { "il pulsante che apre il menu di RetroDS (Home, Menu o Function)" };
-static const char* const lang_it_f641[] = { "il gioco" };
-static const char* const lang_it_f642[] = { "il pulsante a sinistra" };
-static const char* const lang_it_f643[] = { "il pulsante dorsale sinistro" };
-static const char* const lang_it_f644[] = { "la patch accanto alla ROM" };
-static const char* const lang_it_f645[] = { "il pulsante a destra" };
-static const char* const lang_it_f646[] = { "il pulsante dorsale destro" };
-static const char* const lang_it_f647[] = { "il secondo pulsante dorsale sinistro" };
-static const char* const lang_it_f648[] = { "il secondo pulsante dorsale destro" };
-static const char* const lang_it_f649[] = { "il pulsante in alto" };
-static const char* const lang_it_f650[] = { "i progressi non salvati vanno persi" };
-static const char* const lang_it_f651[] = { "con la patch" };
-static const char* const lang_it_f652[] = { "con %s" };
-static const char* const lang_it_f653[] = { "con un altro dump del gioco (%s)" };
-static const char* const lang_it_f654[] = { "con un'altra versione del gioco (altre patch, o un'altra ROM)" };
-static const char* const lang_it_f655[] = { "con il gioco non modificato (%s)" };
-static const char* const lang_it_f656[] = { "senza la patch" };
-static const char* const lang_it_f657[] = { "senza le patch attive" };
-static const char* const lang_it_f658[] = { "la tua posizione \303\250 salvata" };
-static const char* const lang_it_f659[] = { "\342\200\271" };
-static const char* const lang_it_f660[] = { "\342\200\272" };
+static const char* const lang_it_f580[] = { "Annulla" };
+static const char* const lang_it_f581[] = { "Annulla caricamento" };
+static const char* const lang_it_f582[] = { "Annulla salvataggio" };
+static const char* const lang_it_f583[] = { "Annullamento non riuscito" };
+static const char* const lang_it_f584[] = { "Versione sconosciuta di questo gioco" };
+static const char* const lang_it_f585[] = { "Sbloccato" };
+static const char* const lang_it_f586[] = { "Sblocchi inviati" };
+static const char* const lang_it_f587[] = { "Gli sblocchi verranno inviati quando torner\303\240 la connessione" };
+static const char* const lang_it_f588[] = { "Sganciata: la barra si nasconde dopo 5 secondi." };
+static const char* const lang_it_f589[] = { "Non testata: il secondo schermo potrebbe non funzionare con essa" };
+static const char* const lang_it_f590[] = { "Su" };
+static const char* const lang_it_f591[] = { "Si possono attivare fino a %d patch alla volta" };
+static const char* const lang_it_f592[] = { "Fino a %s" };
+static const char* const lang_it_f593[] = { "Aggiorna ora" };
+static const char* const lang_it_f594[] = { "Aggiornamenti" };
+static const char* const lang_it_f595[] = { "Aggiornamenti, integrazioni" };
+static const char* const lang_it_f596[] = { "Usa questa cartella" };
+static const char* const lang_it_f597[] = { "Usato dal prossimo avvio del gioco" };
+static const char* const lang_it_f598[] = { "Volume %d%%" };
+static const char* const lang_it_f599[] = { "Cosa d\303\240 la croce direzionale gi\303\271 al gioco." };
+static const char* const lang_it_f600[] = { "Cosa d\303\240 la croce direzionale sinistra al gioco." };
+static const char* const lang_it_f601[] = { "Cosa d\303\240 la croce direzionale destra al gioco." };
+static const char* const lang_it_f602[] = { "Cosa d\303\240 la croce direzionale su al gioco." };
+static const char* const lang_it_f603[] = { "Cosa d\303\240 il pulsante dorsale L al gioco." };
+static const char* const lang_it_f604[] = { "Cosa d\303\240 il pulsante dorsale R al gioco." };
+static const char* const lang_it_f605[] = { "Cosa d\303\240 il pulsante in basso al gioco." };
+static const char* const lang_it_f606[] = { "Cosa d\303\240 il pulsante a sinistra al gioco." };
+static const char* const lang_it_f607[] = { "Cosa d\303\240 il pulsante a destra al gioco." };
+static const char* const lang_it_f608[] = { "Cosa d\303\240 il pulsante in alto al gioco." };
+static const char* const lang_it_f609[] = { "Da dove vengono letti i giochi, e la cartella in cui sono tenuti i loro salvataggi." };
+static const char* const lang_it_f610[] = { "Da dove vengono letti i giochi. I loro salvataggi sono tenuti accanto a loro." };
+static const char* const lang_it_f611[] = { "Quale schermo: entrambi" };
+static const char* const lang_it_f612[] = { "Quale schermo: solo in basso" };
+static const char* const lang_it_f613[] = { "Quale schermo: solo in alto" };
+static const char* const lang_it_f614[] = { "Quali giochi, nomi, salvataggio" };
+static const char* const lang_it_f615[] = { "Su quale schermo sta il gioco." };
+static const char* const lang_it_f616[] = { "Quali schermi li hanno." };
+static const char* const lang_it_f617[] = { "Con una patch attiva, il gioco tiene un proprio salvataggio della batteria (\302\253<gioco> + <patch>\302\273): disattivato, usa quello dell'originale" };
+static const char* const lang_it_f618[] = { "Con una patch attiva, il gioco tiene propri stati: disattivato, usa quelli dell'originale (uno stato pu\303\262 risultare corrotto nell'altro)" };
+static const char* const lang_it_f619[] = { "Con il controllo automatico attivo, RetroDS cerca una nuova versione una volta al giorno all'apertura dell'elenco giochi e chiede prima di scaricare qualsiasi cosa. Gli aggiornamenti arrivano dalle release su github.com/iosue-iulianus/retro-ds." };
+static const char* const lang_it_f620[] = { "Con i tag, come (USA)" };
+static const char* const lang_it_f621[] = { "Pulsante X (alto)" };
+static const char* const lang_it_f622[] = { "Pulsante Y (sinistra)" };
+static const char* const lang_it_f623[] = { "I tuoi PNG in retrods/overlays/. Uno schermo senza ne riceve la cornice generata nei suoi colori predefiniti." };
+static const char* const lang_it_f624[] = { "I tuoi loghi e quelli recuperati sul secondo schermo." };
+static const char* const lang_it_f625[] = { "I tuoi schermi hanno la stessa forma: niente da abbinare" };
+static const char* const lang_it_f626[] = { "Zoom" };
+static const char* const lang_it_f627[] = { "colore" };
+static const char* const lang_it_f628[] = { "hex" };
+static const char* const lang_it_f629[] = { "tonalit\303\240" };
+static const char* const lang_it_f630[] = { "traduzione automatica" };
+static const char* const lang_it_f631[] = { "nessuno stato salvato!" };
+static const char* const lang_it_f632[] = { "disattivato" };
+static const char* const lang_it_f633[] = { "attivato" };
+static const char* const lang_it_f634[] = { "punto" };
+static const char* const lang_it_f635[] = { "punti" };
+static const char* const lang_it_f636[] = { "preset" };
+static const char* const lang_it_f637[] = { "premi lo stick sinistro" };
+static const char* const lang_it_f638[] = { "spingi lo stick sinistro a sinistra" };
+static const char* const lang_it_f639[] = { "spingi lo stick sinistro in su" };
+static const char* const lang_it_f640[] = { "il pulsante in basso" };
+static const char* const lang_it_f641[] = { "il pulsante che apre il menu di RetroDS (Home, Menu o Function)" };
+static const char* const lang_it_f642[] = { "il gioco" };
+static const char* const lang_it_f643[] = { "il pulsante a sinistra" };
+static const char* const lang_it_f644[] = { "il pulsante dorsale sinistro" };
+static const char* const lang_it_f645[] = { "la patch accanto alla ROM" };
+static const char* const lang_it_f646[] = { "il pulsante a destra" };
+static const char* const lang_it_f647[] = { "il pulsante dorsale destro" };
+static const char* const lang_it_f648[] = { "il secondo pulsante dorsale sinistro" };
+static const char* const lang_it_f649[] = { "il secondo pulsante dorsale destro" };
+static const char* const lang_it_f650[] = { "il pulsante in alto" };
+static const char* const lang_it_f651[] = { "i progressi non salvati vanno persi" };
+static const char* const lang_it_f652[] = { "con la patch" };
+static const char* const lang_it_f653[] = { "con %s" };
+static const char* const lang_it_f654[] = { "con un altro dump del gioco (%s)" };
+static const char* const lang_it_f655[] = { "con un'altra versione del gioco (altre patch, o un'altra ROM)" };
+static const char* const lang_it_f656[] = { "con il gioco non modificato (%s)" };
+static const char* const lang_it_f657[] = { "senza la patch" };
+static const char* const lang_it_f658[] = { "senza le patch attive" };
+static const char* const lang_it_f659[] = { "la tua posizione \303\250 salvata" };
+static const char* const lang_it_f660[] = { "\342\200\271" };
+static const char* const lang_it_f661[] = { "\342\200\272" };
 static const I18nEntry lang_it_entries[] = {
 	{ " (patch)", lang_it_f0, 1 },
 	{ " Checking for a new version...", lang_it_f1, 1 },
@@ -5218,87 +5225,88 @@ static const I18nEntry lang_it_entries[] = {
 	{ "Turbo B", lang_it_f577, 1 },
 	{ "Turbo speed", lang_it_f578, 1 },
 	{ "Turns this ROM into another official release: %s", lang_it_f579, 1 },
-	{ "Undo Load", lang_it_f580, 1 },
-	{ "Undo Save", lang_it_f581, 1 },
-	{ "Undo failed", lang_it_f582, 1 },
-	{ "Unknown version of this game", lang_it_f583, 1 },
-	{ "Unlocked", lang_it_f584, 1 },
-	{ "Unlocks sent", lang_it_f585, 1 },
-	{ "Unlocks will be sent when the connection is back", lang_it_f586, 1 },
-	{ "Unpinned: the bar hides after 5 seconds.", lang_it_f587, 1 },
-	{ "Untested: the second screen may not work with it", lang_it_f588, 1 },
-	{ "Up", lang_it_f589, 1 },
-	{ "Up to %d patches can be on at once", lang_it_f590, 1 },
-	{ "Up to %s", lang_it_f591, 1 },
-	{ "Update now", lang_it_f592, 1 },
-	{ "Updates", lang_it_f593, 1 },
-	{ "Updates, integrations", lang_it_f594, 1 },
-	{ "Use This Folder", lang_it_f595, 1 },
-	{ "Used from the next time the game starts", lang_it_f596, 1 },
-	{ "Volume %d%%", lang_it_f597, 1 },
-	{ "What D-pad down gives the game.", lang_it_f598, 1 },
-	{ "What D-pad left gives the game.", lang_it_f599, 1 },
-	{ "What D-pad right gives the game.", lang_it_f600, 1 },
-	{ "What D-pad up gives the game.", lang_it_f601, 1 },
-	{ "What the L shoulder button gives the game.", lang_it_f602, 1 },
-	{ "What the R shoulder button gives the game.", lang_it_f603, 1 },
-	{ "What the bottom face button gives the game.", lang_it_f604, 1 },
-	{ "What the left face button gives the game.", lang_it_f605, 1 },
-	{ "What the right face button gives the game.", lang_it_f606, 1 },
-	{ "What the top face button gives the game.", lang_it_f607, 1 },
-	{ "Where games are read from, and the folder their saves are kept in.", lang_it_f608, 1 },
-	{ "Where games are read from. Their saves are kept next to them.", lang_it_f609, 1 },
-	{ "Which Screen: Both", lang_it_f610, 1 },
-	{ "Which Screen: Bottom Only", lang_it_f611, 1 },
-	{ "Which Screen: Top Only", lang_it_f612, 1 },
-	{ "Which games, names, saving", lang_it_f613, 1 },
-	{ "Which screen the game is on.", lang_it_f614, 1 },
-	{ "Which screens have them.", lang_it_f615, 1 },
-	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_it_f616, 1 },
-	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_it_f617, 1 },
-	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_it_f618, 1 },
-	{ "With tags, like (USA)", lang_it_f619, 1 },
-	{ "X (top) button", lang_it_f620, 1 },
-	{ "Y (left) button", lang_it_f621, 1 },
-	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_it_f622, 1 },
-	{ "Your own and scraped logos on the second screen.", lang_it_f623, 1 },
-	{ "Your screens are the same shape: nothing to match", lang_it_f624, 1 },
-	{ "Zoom", lang_it_f625, 1 },
-	{ "color", lang_it_f626, 1 },
-	{ "hex", lang_it_f627, 1 },
-	{ "hue", lang_it_f628, 1 },
-	{ "machine translated", lang_it_f629, 1 },
-	{ "no save state yet!", lang_it_f630, 1 },
-	{ "off", lang_it_f631, 1 },
-	{ "on", lang_it_f632, 1 },
-	{ "point", lang_it_f633, 1 },
-	{ "points", lang_it_f634, 1 },
-	{ "presets", lang_it_f635, 1 },
-	{ "press the left stick in", lang_it_f636, 1 },
-	{ "push the left stick left", lang_it_f637, 1 },
-	{ "push the left stick up", lang_it_f638, 1 },
-	{ "the bottom face button", lang_it_f639, 1 },
-	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_it_f640, 1 },
-	{ "the game", lang_it_f641, 1 },
-	{ "the left face button", lang_it_f642, 1 },
-	{ "the left shoulder button", lang_it_f643, 1 },
-	{ "the patch beside the ROM", lang_it_f644, 1 },
-	{ "the right face button", lang_it_f645, 1 },
-	{ "the right shoulder button", lang_it_f646, 1 },
-	{ "the second left shoulder button", lang_it_f647, 1 },
-	{ "the second right shoulder button", lang_it_f648, 1 },
-	{ "the top face button", lang_it_f649, 1 },
-	{ "unsaved progress is lost", lang_it_f650, 1 },
-	{ "with", lang_it_f651, 1 },
-	{ "with %s", lang_it_f652, 1 },
-	{ "with another dump of the game (%s)", lang_it_f653, 1 },
-	{ "with another version of the game (other patches, or another ROM)", lang_it_f654, 1 },
-	{ "with the unchanged game (%s)", lang_it_f655, 1 },
-	{ "without", lang_it_f656, 1 },
-	{ "without the patches on", lang_it_f657, 1 },
-	{ "your place is saved", lang_it_f658, 1 },
-	{ "\342\200\271", lang_it_f659, 1 },
-	{ "\342\200\272", lang_it_f660, 1 },
+	{ "Undo", lang_it_f580, 1 },
+	{ "Undo Load", lang_it_f581, 1 },
+	{ "Undo Save", lang_it_f582, 1 },
+	{ "Undo failed", lang_it_f583, 1 },
+	{ "Unknown version of this game", lang_it_f584, 1 },
+	{ "Unlocked", lang_it_f585, 1 },
+	{ "Unlocks sent", lang_it_f586, 1 },
+	{ "Unlocks will be sent when the connection is back", lang_it_f587, 1 },
+	{ "Unpinned: the bar hides after 5 seconds.", lang_it_f588, 1 },
+	{ "Untested: the second screen may not work with it", lang_it_f589, 1 },
+	{ "Up", lang_it_f590, 1 },
+	{ "Up to %d patches can be on at once", lang_it_f591, 1 },
+	{ "Up to %s", lang_it_f592, 1 },
+	{ "Update now", lang_it_f593, 1 },
+	{ "Updates", lang_it_f594, 1 },
+	{ "Updates, integrations", lang_it_f595, 1 },
+	{ "Use This Folder", lang_it_f596, 1 },
+	{ "Used from the next time the game starts", lang_it_f597, 1 },
+	{ "Volume %d%%", lang_it_f598, 1 },
+	{ "What D-pad down gives the game.", lang_it_f599, 1 },
+	{ "What D-pad left gives the game.", lang_it_f600, 1 },
+	{ "What D-pad right gives the game.", lang_it_f601, 1 },
+	{ "What D-pad up gives the game.", lang_it_f602, 1 },
+	{ "What the L shoulder button gives the game.", lang_it_f603, 1 },
+	{ "What the R shoulder button gives the game.", lang_it_f604, 1 },
+	{ "What the bottom face button gives the game.", lang_it_f605, 1 },
+	{ "What the left face button gives the game.", lang_it_f606, 1 },
+	{ "What the right face button gives the game.", lang_it_f607, 1 },
+	{ "What the top face button gives the game.", lang_it_f608, 1 },
+	{ "Where games are read from, and the folder their saves are kept in.", lang_it_f609, 1 },
+	{ "Where games are read from. Their saves are kept next to them.", lang_it_f610, 1 },
+	{ "Which Screen: Both", lang_it_f611, 1 },
+	{ "Which Screen: Bottom Only", lang_it_f612, 1 },
+	{ "Which Screen: Top Only", lang_it_f613, 1 },
+	{ "Which games, names, saving", lang_it_f614, 1 },
+	{ "Which screen the game is on.", lang_it_f615, 1 },
+	{ "Which screens have them.", lang_it_f616, 1 },
+	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_it_f617, 1 },
+	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_it_f618, 1 },
+	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_it_f619, 1 },
+	{ "With tags, like (USA)", lang_it_f620, 1 },
+	{ "X (top) button", lang_it_f621, 1 },
+	{ "Y (left) button", lang_it_f622, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_it_f623, 1 },
+	{ "Your own and scraped logos on the second screen.", lang_it_f624, 1 },
+	{ "Your screens are the same shape: nothing to match", lang_it_f625, 1 },
+	{ "Zoom", lang_it_f626, 1 },
+	{ "color", lang_it_f627, 1 },
+	{ "hex", lang_it_f628, 1 },
+	{ "hue", lang_it_f629, 1 },
+	{ "machine translated", lang_it_f630, 1 },
+	{ "no save state yet!", lang_it_f631, 1 },
+	{ "off", lang_it_f632, 1 },
+	{ "on", lang_it_f633, 1 },
+	{ "point", lang_it_f634, 1 },
+	{ "points", lang_it_f635, 1 },
+	{ "presets", lang_it_f636, 1 },
+	{ "press the left stick in", lang_it_f637, 1 },
+	{ "push the left stick left", lang_it_f638, 1 },
+	{ "push the left stick up", lang_it_f639, 1 },
+	{ "the bottom face button", lang_it_f640, 1 },
+	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_it_f641, 1 },
+	{ "the game", lang_it_f642, 1 },
+	{ "the left face button", lang_it_f643, 1 },
+	{ "the left shoulder button", lang_it_f644, 1 },
+	{ "the patch beside the ROM", lang_it_f645, 1 },
+	{ "the right face button", lang_it_f646, 1 },
+	{ "the right shoulder button", lang_it_f647, 1 },
+	{ "the second left shoulder button", lang_it_f648, 1 },
+	{ "the second right shoulder button", lang_it_f649, 1 },
+	{ "the top face button", lang_it_f650, 1 },
+	{ "unsaved progress is lost", lang_it_f651, 1 },
+	{ "with", lang_it_f652, 1 },
+	{ "with %s", lang_it_f653, 1 },
+	{ "with another dump of the game (%s)", lang_it_f654, 1 },
+	{ "with another version of the game (other patches, or another ROM)", lang_it_f655, 1 },
+	{ "with the unchanged game (%s)", lang_it_f656, 1 },
+	{ "without", lang_it_f657, 1 },
+	{ "without the patches on", lang_it_f658, 1 },
+	{ "your place is saved", lang_it_f659, 1 },
+	{ "\342\200\271", lang_it_f660, 1 },
+	{ "\342\200\272", lang_it_f661, 1 },
 };
 
 static const char* const lang_ja_f0[] = { " (\343\203\221\343\203\203\343\203\201)" };
@@ -5881,87 +5889,88 @@ static const char* const lang_ja_f576[] = { "Turbo A" };
 static const char* const lang_ja_f577[] = { "Turbo B" };
 static const char* const lang_ja_f578[] = { "\343\202\277\343\203\274\343\203\234\351\200\237\345\272\246" };
 static const char* const lang_ja_f579[] = { "\343\201\223\343\201\256 ROM \343\202\222\345\210\245\343\201\256\345\205\254\345\274\217\343\203\252\343\203\252\343\203\274\343\202\271\343\201\253\343\201\227\343\201\276\343\201\231: %s" };
-static const char* const lang_ja_f580[] = { "\343\203\255\343\203\274\343\203\211\343\202\222\345\217\226\343\202\212\346\266\210\343\201\231" };
-static const char* const lang_ja_f581[] = { "\343\202\273\343\203\274\343\203\226\343\202\222\345\217\226\343\202\212\346\266\210\343\201\231" };
-static const char* const lang_ja_f582[] = { "\345\217\226\343\202\212\346\266\210\343\201\233\343\201\276\343\201\233\343\202\223\343\201\247\343\201\227\343\201\237" };
-static const char* const lang_ja_f583[] = { "\343\201\223\343\201\256\343\202\262\343\203\274\343\203\240\343\201\256\344\270\215\346\230\216\343\201\252\343\203\220\343\203\274\343\202\270\343\203\247\343\203\263" };
-static const char* const lang_ja_f584[] = { "\350\247\243\351\231\244\346\270\210\343\201\277" };
-static const char* const lang_ja_f585[] = { "\350\247\243\351\231\244\343\202\222\351\200\201\344\277\241\343\201\227\343\201\276\343\201\227\343\201\237" };
-static const char* const lang_ja_f586[] = { "\346\216\245\347\266\232\343\201\214\346\210\273\343\201\243\343\201\237\343\202\211\350\247\243\351\231\244\343\202\222\351\200\201\344\277\241\343\201\227\343\201\276\343\201\231" };
-static const char* const lang_ja_f587[] = { "\345\233\272\345\256\232\350\247\243\351\231\244: \343\203\220\343\203\274\343\201\257 5 \347\247\222\345\276\214\343\201\253\351\232\240\343\202\214\343\201\276\343\201\231\343\200\202" };
-static const char* const lang_ja_f588[] = { "\346\234\252\347\242\272\350\252\215: 2 \347\224\273\351\235\242\347\233\256\343\201\214\345\213\225\343\201\213\343\201\252\343\201\204\345\240\264\345\220\210\343\201\214\343\201\202\343\202\212\343\201\276\343\201\231" };
-static const char* const lang_ja_f589[] = { "\344\270\212" };
-static const char* const lang_ja_f590[] = { "\345\220\214\346\231\202\343\201\253\343\202\252\343\203\263\343\201\253\343\201\247\343\201\215\343\202\213\343\203\221\343\203\203\343\203\201\343\201\257\346\234\200\345\244\247 %d \345\200\213\343\201\247\343\201\231" };
-static const char* const lang_ja_f591[] = { "\346\234\200\345\244\247 %s" };
-static const char* const lang_ja_f592[] = { "\344\273\212\343\201\231\343\201\220\346\233\264\346\226\260" };
-static const char* const lang_ja_f593[] = { "\346\233\264\346\226\260" };
-static const char* const lang_ja_f594[] = { "\346\233\264\346\226\260\343\200\201\351\200\243\346\220\272" };
-static const char* const lang_ja_f595[] = { "\343\201\223\343\201\256\343\203\225\343\202\251\343\203\253\343\203\200\343\202\222\344\275\277\343\201\206" };
-static const char* const lang_ja_f596[] = { "\346\254\241\343\201\253\343\202\262\343\203\274\343\203\240\343\202\222\350\265\267\345\213\225\343\201\227\343\201\237\343\201\250\343\201\215\343\201\213\343\202\211\344\275\277\343\202\217\343\202\214\343\201\276\343\201\231" };
-static const char* const lang_ja_f597[] = { "\351\237\263\351\207\217 %d%%" };
-static const char* const lang_ja_f598[] = { "\345\215\201\345\255\227\343\202\255\343\203\274\344\270\213\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
-static const char* const lang_ja_f599[] = { "\345\215\201\345\255\227\343\202\255\343\203\274\345\267\246\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
-static const char* const lang_ja_f600[] = { "\345\215\201\345\255\227\343\202\255\343\203\274\345\217\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
-static const char* const lang_ja_f601[] = { "\345\215\201\345\255\227\343\202\255\343\203\274\344\270\212\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
-static const char* const lang_ja_f602[] = { "L \343\202\267\343\203\247\343\203\253\343\203\200\343\203\274\343\203\234\343\202\277\343\203\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
-static const char* const lang_ja_f603[] = { "R \343\202\267\343\203\247\343\203\253\343\203\200\343\203\274\343\203\234\343\202\277\343\203\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
-static const char* const lang_ja_f604[] = { "\344\270\213\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
-static const char* const lang_ja_f605[] = { "\345\267\246\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
-static const char* const lang_ja_f606[] = { "\345\217\263\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
-static const char* const lang_ja_f607[] = { "\344\270\212\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
-static const char* const lang_ja_f608[] = { "\343\202\262\343\203\274\343\203\240\343\201\256\350\252\255\343\201\277\350\276\274\343\201\277\345\205\203\343\201\250\343\200\201\343\202\273\343\203\274\343\203\226\343\201\256\344\277\235\345\255\230\345\205\210\343\203\225\343\202\251\343\203\253\343\203\200\343\200\202" };
-static const char* const lang_ja_f609[] = { "\343\202\262\343\203\274\343\203\240\343\201\256\350\252\255\343\201\277\350\276\274\343\201\277\345\205\203\343\200\202\343\202\273\343\203\274\343\203\226\343\201\257\343\202\262\343\203\274\343\203\240\343\201\256\351\232\243\343\201\253\344\277\235\345\255\230\343\201\225\343\202\214\343\201\276\343\201\231\343\200\202" };
-static const char* const lang_ja_f610[] = { "\350\241\250\347\244\272\347\224\273\351\235\242: \344\270\241\346\226\271" };
-static const char* const lang_ja_f611[] = { "\350\241\250\347\244\272\347\224\273\351\235\242: \344\270\213\343\201\256\343\201\277" };
-static const char* const lang_ja_f612[] = { "\350\241\250\347\244\272\347\224\273\351\235\242: \344\270\212\343\201\256\343\201\277" };
-static const char* const lang_ja_f613[] = { "\350\241\250\347\244\272\343\201\231\343\202\213\343\202\262\343\203\274\343\203\240\343\200\201\345\220\215\345\211\215\343\200\201\343\202\273\343\203\274\343\203\226" };
-static const char* const lang_ja_f614[] = { "\343\202\262\343\203\274\343\203\240\343\202\222\350\241\250\347\244\272\343\201\231\343\202\213\347\224\273\351\235\242\343\200\202" };
-static const char* const lang_ja_f615[] = { "\343\201\235\343\202\214\343\202\211\343\202\222\346\214\201\343\201\244\347\224\273\351\235\242\343\200\202" };
-static const char* const lang_ja_f616[] = { "\343\203\221\343\203\203\343\203\201\343\201\214\343\202\252\343\203\263\343\201\256\343\201\250\343\201\215\343\200\201\343\202\262\343\203\274\343\203\240\343\201\257\347\213\254\350\207\252\343\201\256\343\203\220\343\203\203\343\203\206\343\203\252\343\203\274\343\202\273\343\203\274\343\203\226 (\343\200\214<\343\202\262\343\203\274\343\203\240> + <\343\203\221\343\203\203\343\203\201>\343\200\215) \343\202\222\344\275\277\343\201\204\343\201\276\343\201\231\343\200\202\343\202\252\343\203\225\343\201\247\343\201\257\345\205\203\343\201\256\343\202\202\343\201\256\343\202\222\344\275\277\343\201\204\343\201\276\343\201\231" };
-static const char* const lang_ja_f617[] = { "\343\203\221\343\203\203\343\203\201\343\201\214\343\202\252\343\203\263\343\201\256\343\201\250\343\201\215\343\200\201\343\202\262\343\203\274\343\203\240\343\201\257\347\213\254\350\207\252\343\201\256\343\202\271\343\203\206\343\203\274\343\203\210\343\202\222\344\275\277\343\201\204\343\201\276\343\201\231\343\200\202\343\202\252\343\203\225\343\201\247\343\201\257\345\205\203\343\201\256\343\202\202\343\201\256\343\202\222\344\275\277\343\201\204\343\201\276\343\201\231 (\343\202\202\343\201\206\344\270\200\346\226\271\343\201\247\343\202\271\343\203\206\343\203\274\343\203\210\343\201\214\346\226\207\345\255\227\345\214\226\343\201\221\343\201\231\343\202\213\343\201\223\343\201\250\343\201\214\343\201\202\343\202\212\343\201\276\343\201\231)" };
-static const char* const lang_ja_f618[] = { "\350\207\252\345\213\225\343\203\201\343\202\247\343\203\203\343\202\257\343\201\214\343\202\252\343\203\263\343\201\256\345\240\264\345\220\210\343\200\201RetroDS \343\201\257\343\202\262\343\203\274\343\203\240\343\203\252\343\202\271\343\203\210\343\202\222\351\226\213\343\201\217\343\201\250\343\201\215\343\201\253 1 \346\227\245 1 \345\233\236\346\226\260\343\201\227\343\201\204\343\203\220\343\203\274\343\202\270\343\203\247\343\203\263\343\202\222\347\242\272\350\252\215\343\201\227\343\200\201\343\203\200\343\202\246\343\203\263\343\203\255\343\203\274\343\203\211\343\201\231\343\202\213\345\211\215\343\201\253\347\242\272\350\252\215\343\202\222\346\261\202\343\202\201\343\201\276\343\201\231\343\200\202\346\233\264\346\226\260\343\201\257 github.com/iosue-iulianus/retro-ds \343\201\256\343\203\252\343\203\252\343\203\274\343\202\271\343\201\213\343\202\211\345\217\226\345\276\227\343\201\227\343\201\276\343\201\231\343\200\202" };
-static const char* const lang_ja_f619[] = { "\343\202\277\343\202\260\343\201\202\343\202\212 (\344\276\213: (USA))" };
-static const char* const lang_ja_f620[] = { "X \343\203\234\343\202\277\343\203\263 (\344\270\212)" };
-static const char* const lang_ja_f621[] = { "Y \343\203\234\343\202\277\343\203\263 (\345\267\246)" };
-static const char* const lang_ja_f622[] = { "retrods/overlays/ \345\206\205\343\201\256\347\213\254\350\207\252\343\201\256 PNG\343\200\202PNG \343\201\256\343\201\252\343\201\204\347\224\273\351\235\242\343\201\253\343\201\257\343\200\201\346\227\242\345\256\232\343\201\256\350\211\262\343\201\247\347\224\237\346\210\220\343\201\227\343\201\237\343\203\231\343\202\274\343\203\253\343\202\222\344\275\277\343\201\204\343\201\276\343\201\231\343\200\202" };
-static const char* const lang_ja_f623[] = { "\347\213\254\350\207\252\343\201\256\343\203\255\343\202\264\343\201\250\345\217\226\345\276\227\343\201\227\343\201\237\343\203\255\343\202\264\343\202\222 2 \347\224\273\351\235\242\347\233\256\343\201\253\350\241\250\347\244\272\343\201\227\343\201\276\343\201\231\343\200\202" };
-static const char* const lang_ja_f624[] = { "2 \343\201\244\343\201\256\347\224\273\351\235\242\343\201\257\345\220\214\343\201\230\345\275\242\343\201\247\343\201\231\343\200\202\345\220\210\343\202\217\343\201\233\343\202\213\343\202\202\343\201\256\343\201\257\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223" };
-static const char* const lang_ja_f625[] = { "\343\202\272\343\203\274\343\203\240" };
-static const char* const lang_ja_f626[] = { "\350\211\262" };
-static const char* const lang_ja_f627[] = { "hex" };
-static const char* const lang_ja_f628[] = { "\350\211\262\347\233\270" };
-static const char* const lang_ja_f629[] = { "\346\251\237\346\242\260\347\277\273\350\250\263" };
-static const char* const lang_ja_f630[] = { "\343\202\273\343\203\274\343\203\226\343\201\227\343\201\237\343\202\271\343\203\206\343\203\274\343\203\210\343\201\214\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223\357\274\201" };
-static const char* const lang_ja_f631[] = { "\343\202\252\343\203\225" };
-static const char* const lang_ja_f632[] = { "\343\202\252\343\203\263" };
-static const char* const lang_ja_f633[] = { "\343\203\235\343\202\244\343\203\263\343\203\210" };
+static const char* const lang_ja_f580[] = { "\345\217\226\343\202\212\346\266\210\343\201\231" };
+static const char* const lang_ja_f581[] = { "\343\203\255\343\203\274\343\203\211\343\202\222\345\217\226\343\202\212\346\266\210\343\201\231" };
+static const char* const lang_ja_f582[] = { "\343\202\273\343\203\274\343\203\226\343\202\222\345\217\226\343\202\212\346\266\210\343\201\231" };
+static const char* const lang_ja_f583[] = { "\345\217\226\343\202\212\346\266\210\343\201\233\343\201\276\343\201\233\343\202\223\343\201\247\343\201\227\343\201\237" };
+static const char* const lang_ja_f584[] = { "\343\201\223\343\201\256\343\202\262\343\203\274\343\203\240\343\201\256\344\270\215\346\230\216\343\201\252\343\203\220\343\203\274\343\202\270\343\203\247\343\203\263" };
+static const char* const lang_ja_f585[] = { "\350\247\243\351\231\244\346\270\210\343\201\277" };
+static const char* const lang_ja_f586[] = { "\350\247\243\351\231\244\343\202\222\351\200\201\344\277\241\343\201\227\343\201\276\343\201\227\343\201\237" };
+static const char* const lang_ja_f587[] = { "\346\216\245\347\266\232\343\201\214\346\210\273\343\201\243\343\201\237\343\202\211\350\247\243\351\231\244\343\202\222\351\200\201\344\277\241\343\201\227\343\201\276\343\201\231" };
+static const char* const lang_ja_f588[] = { "\345\233\272\345\256\232\350\247\243\351\231\244: \343\203\220\343\203\274\343\201\257 5 \347\247\222\345\276\214\343\201\253\351\232\240\343\202\214\343\201\276\343\201\231\343\200\202" };
+static const char* const lang_ja_f589[] = { "\346\234\252\347\242\272\350\252\215: 2 \347\224\273\351\235\242\347\233\256\343\201\214\345\213\225\343\201\213\343\201\252\343\201\204\345\240\264\345\220\210\343\201\214\343\201\202\343\202\212\343\201\276\343\201\231" };
+static const char* const lang_ja_f590[] = { "\344\270\212" };
+static const char* const lang_ja_f591[] = { "\345\220\214\346\231\202\343\201\253\343\202\252\343\203\263\343\201\253\343\201\247\343\201\215\343\202\213\343\203\221\343\203\203\343\203\201\343\201\257\346\234\200\345\244\247 %d \345\200\213\343\201\247\343\201\231" };
+static const char* const lang_ja_f592[] = { "\346\234\200\345\244\247 %s" };
+static const char* const lang_ja_f593[] = { "\344\273\212\343\201\231\343\201\220\346\233\264\346\226\260" };
+static const char* const lang_ja_f594[] = { "\346\233\264\346\226\260" };
+static const char* const lang_ja_f595[] = { "\346\233\264\346\226\260\343\200\201\351\200\243\346\220\272" };
+static const char* const lang_ja_f596[] = { "\343\201\223\343\201\256\343\203\225\343\202\251\343\203\253\343\203\200\343\202\222\344\275\277\343\201\206" };
+static const char* const lang_ja_f597[] = { "\346\254\241\343\201\253\343\202\262\343\203\274\343\203\240\343\202\222\350\265\267\345\213\225\343\201\227\343\201\237\343\201\250\343\201\215\343\201\213\343\202\211\344\275\277\343\202\217\343\202\214\343\201\276\343\201\231" };
+static const char* const lang_ja_f598[] = { "\351\237\263\351\207\217 %d%%" };
+static const char* const lang_ja_f599[] = { "\345\215\201\345\255\227\343\202\255\343\203\274\344\270\213\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
+static const char* const lang_ja_f600[] = { "\345\215\201\345\255\227\343\202\255\343\203\274\345\267\246\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
+static const char* const lang_ja_f601[] = { "\345\215\201\345\255\227\343\202\255\343\203\274\345\217\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
+static const char* const lang_ja_f602[] = { "\345\215\201\345\255\227\343\202\255\343\203\274\344\270\212\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
+static const char* const lang_ja_f603[] = { "L \343\202\267\343\203\247\343\203\253\343\203\200\343\203\274\343\203\234\343\202\277\343\203\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
+static const char* const lang_ja_f604[] = { "R \343\202\267\343\203\247\343\203\253\343\203\200\343\203\274\343\203\234\343\202\277\343\203\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
+static const char* const lang_ja_f605[] = { "\344\270\213\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
+static const char* const lang_ja_f606[] = { "\345\267\246\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
+static const char* const lang_ja_f607[] = { "\345\217\263\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
+static const char* const lang_ja_f608[] = { "\344\270\212\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263\343\201\214\343\202\262\343\203\274\343\203\240\343\201\253\346\270\241\343\201\231\345\206\205\345\256\271\343\200\202" };
+static const char* const lang_ja_f609[] = { "\343\202\262\343\203\274\343\203\240\343\201\256\350\252\255\343\201\277\350\276\274\343\201\277\345\205\203\343\201\250\343\200\201\343\202\273\343\203\274\343\203\226\343\201\256\344\277\235\345\255\230\345\205\210\343\203\225\343\202\251\343\203\253\343\203\200\343\200\202" };
+static const char* const lang_ja_f610[] = { "\343\202\262\343\203\274\343\203\240\343\201\256\350\252\255\343\201\277\350\276\274\343\201\277\345\205\203\343\200\202\343\202\273\343\203\274\343\203\226\343\201\257\343\202\262\343\203\274\343\203\240\343\201\256\351\232\243\343\201\253\344\277\235\345\255\230\343\201\225\343\202\214\343\201\276\343\201\231\343\200\202" };
+static const char* const lang_ja_f611[] = { "\350\241\250\347\244\272\347\224\273\351\235\242: \344\270\241\346\226\271" };
+static const char* const lang_ja_f612[] = { "\350\241\250\347\244\272\347\224\273\351\235\242: \344\270\213\343\201\256\343\201\277" };
+static const char* const lang_ja_f613[] = { "\350\241\250\347\244\272\347\224\273\351\235\242: \344\270\212\343\201\256\343\201\277" };
+static const char* const lang_ja_f614[] = { "\350\241\250\347\244\272\343\201\231\343\202\213\343\202\262\343\203\274\343\203\240\343\200\201\345\220\215\345\211\215\343\200\201\343\202\273\343\203\274\343\203\226" };
+static const char* const lang_ja_f615[] = { "\343\202\262\343\203\274\343\203\240\343\202\222\350\241\250\347\244\272\343\201\231\343\202\213\347\224\273\351\235\242\343\200\202" };
+static const char* const lang_ja_f616[] = { "\343\201\235\343\202\214\343\202\211\343\202\222\346\214\201\343\201\244\347\224\273\351\235\242\343\200\202" };
+static const char* const lang_ja_f617[] = { "\343\203\221\343\203\203\343\203\201\343\201\214\343\202\252\343\203\263\343\201\256\343\201\250\343\201\215\343\200\201\343\202\262\343\203\274\343\203\240\343\201\257\347\213\254\350\207\252\343\201\256\343\203\220\343\203\203\343\203\206\343\203\252\343\203\274\343\202\273\343\203\274\343\203\226 (\343\200\214<\343\202\262\343\203\274\343\203\240> + <\343\203\221\343\203\203\343\203\201>\343\200\215) \343\202\222\344\275\277\343\201\204\343\201\276\343\201\231\343\200\202\343\202\252\343\203\225\343\201\247\343\201\257\345\205\203\343\201\256\343\202\202\343\201\256\343\202\222\344\275\277\343\201\204\343\201\276\343\201\231" };
+static const char* const lang_ja_f618[] = { "\343\203\221\343\203\203\343\203\201\343\201\214\343\202\252\343\203\263\343\201\256\343\201\250\343\201\215\343\200\201\343\202\262\343\203\274\343\203\240\343\201\257\347\213\254\350\207\252\343\201\256\343\202\271\343\203\206\343\203\274\343\203\210\343\202\222\344\275\277\343\201\204\343\201\276\343\201\231\343\200\202\343\202\252\343\203\225\343\201\247\343\201\257\345\205\203\343\201\256\343\202\202\343\201\256\343\202\222\344\275\277\343\201\204\343\201\276\343\201\231 (\343\202\202\343\201\206\344\270\200\346\226\271\343\201\247\343\202\271\343\203\206\343\203\274\343\203\210\343\201\214\346\226\207\345\255\227\345\214\226\343\201\221\343\201\231\343\202\213\343\201\223\343\201\250\343\201\214\343\201\202\343\202\212\343\201\276\343\201\231)" };
+static const char* const lang_ja_f619[] = { "\350\207\252\345\213\225\343\203\201\343\202\247\343\203\203\343\202\257\343\201\214\343\202\252\343\203\263\343\201\256\345\240\264\345\220\210\343\200\201RetroDS \343\201\257\343\202\262\343\203\274\343\203\240\343\203\252\343\202\271\343\203\210\343\202\222\351\226\213\343\201\217\343\201\250\343\201\215\343\201\253 1 \346\227\245 1 \345\233\236\346\226\260\343\201\227\343\201\204\343\203\220\343\203\274\343\202\270\343\203\247\343\203\263\343\202\222\347\242\272\350\252\215\343\201\227\343\200\201\343\203\200\343\202\246\343\203\263\343\203\255\343\203\274\343\203\211\343\201\231\343\202\213\345\211\215\343\201\253\347\242\272\350\252\215\343\202\222\346\261\202\343\202\201\343\201\276\343\201\231\343\200\202\346\233\264\346\226\260\343\201\257 github.com/iosue-iulianus/retro-ds \343\201\256\343\203\252\343\203\252\343\203\274\343\202\271\343\201\213\343\202\211\345\217\226\345\276\227\343\201\227\343\201\276\343\201\231\343\200\202" };
+static const char* const lang_ja_f620[] = { "\343\202\277\343\202\260\343\201\202\343\202\212 (\344\276\213: (USA))" };
+static const char* const lang_ja_f621[] = { "X \343\203\234\343\202\277\343\203\263 (\344\270\212)" };
+static const char* const lang_ja_f622[] = { "Y \343\203\234\343\202\277\343\203\263 (\345\267\246)" };
+static const char* const lang_ja_f623[] = { "retrods/overlays/ \345\206\205\343\201\256\347\213\254\350\207\252\343\201\256 PNG\343\200\202PNG \343\201\256\343\201\252\343\201\204\347\224\273\351\235\242\343\201\253\343\201\257\343\200\201\346\227\242\345\256\232\343\201\256\350\211\262\343\201\247\347\224\237\346\210\220\343\201\227\343\201\237\343\203\231\343\202\274\343\203\253\343\202\222\344\275\277\343\201\204\343\201\276\343\201\231\343\200\202" };
+static const char* const lang_ja_f624[] = { "\347\213\254\350\207\252\343\201\256\343\203\255\343\202\264\343\201\250\345\217\226\345\276\227\343\201\227\343\201\237\343\203\255\343\202\264\343\202\222 2 \347\224\273\351\235\242\347\233\256\343\201\253\350\241\250\347\244\272\343\201\227\343\201\276\343\201\231\343\200\202" };
+static const char* const lang_ja_f625[] = { "2 \343\201\244\343\201\256\347\224\273\351\235\242\343\201\257\345\220\214\343\201\230\345\275\242\343\201\247\343\201\231\343\200\202\345\220\210\343\202\217\343\201\233\343\202\213\343\202\202\343\201\256\343\201\257\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223" };
+static const char* const lang_ja_f626[] = { "\343\202\272\343\203\274\343\203\240" };
+static const char* const lang_ja_f627[] = { "\350\211\262" };
+static const char* const lang_ja_f628[] = { "hex" };
+static const char* const lang_ja_f629[] = { "\350\211\262\347\233\270" };
+static const char* const lang_ja_f630[] = { "\346\251\237\346\242\260\347\277\273\350\250\263" };
+static const char* const lang_ja_f631[] = { "\343\202\273\343\203\274\343\203\226\343\201\227\343\201\237\343\202\271\343\203\206\343\203\274\343\203\210\343\201\214\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223\357\274\201" };
+static const char* const lang_ja_f632[] = { "\343\202\252\343\203\225" };
+static const char* const lang_ja_f633[] = { "\343\202\252\343\203\263" };
 static const char* const lang_ja_f634[] = { "\343\203\235\343\202\244\343\203\263\343\203\210" };
-static const char* const lang_ja_f635[] = { "\343\203\227\343\203\252\343\202\273\343\203\203\343\203\210" };
-static const char* const lang_ja_f636[] = { "\345\267\246\343\202\271\343\203\206\343\202\243\343\203\203\343\202\257\343\202\222\346\212\274\343\201\227\350\276\274\343\202\200" };
-static const char* const lang_ja_f637[] = { "\345\267\246\343\202\271\343\203\206\343\202\243\343\203\203\343\202\257\343\202\222\345\267\246\343\201\253\345\200\222\343\201\231" };
-static const char* const lang_ja_f638[] = { "\345\267\246\343\202\271\343\203\206\343\202\243\343\203\203\343\202\257\343\202\222\344\270\212\343\201\253\345\200\222\343\201\231" };
-static const char* const lang_ja_f639[] = { "\344\270\213\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263" };
-static const char* const lang_ja_f640[] = { "RetroDS \343\201\256\343\203\241\343\203\213\343\203\245\343\203\274\343\202\222\351\226\213\343\201\217\343\203\234\343\202\277\343\203\263 (Home\343\200\201Menu\343\200\201Function)" };
-static const char* const lang_ja_f641[] = { "\343\202\262\343\203\274\343\203\240" };
-static const char* const lang_ja_f642[] = { "\345\267\246\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263" };
-static const char* const lang_ja_f643[] = { "\345\267\246\343\201\256\343\202\267\343\203\247\343\203\253\343\203\200\343\203\274\343\203\234\343\202\277\343\203\263" };
-static const char* const lang_ja_f644[] = { "ROM \343\201\256\351\232\243\343\201\253\343\201\202\343\202\213\343\203\221\343\203\203\343\203\201" };
-static const char* const lang_ja_f645[] = { "\345\217\263\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263" };
-static const char* const lang_ja_f646[] = { "\345\217\263\343\201\256\343\202\267\343\203\247\343\203\253\343\203\200\343\203\274\343\203\234\343\202\277\343\203\263" };
-static const char* const lang_ja_f647[] = { "2 \343\201\244\347\233\256\343\201\256\345\267\246\343\202\267\343\203\247\343\203\253\343\203\200\343\203\274\343\203\234\343\202\277\343\203\263" };
-static const char* const lang_ja_f648[] = { "2 \343\201\244\347\233\256\343\201\256\345\217\263\343\202\267\343\203\247\343\203\253\343\203\200\343\203\274\343\203\234\343\202\277\343\203\263" };
-static const char* const lang_ja_f649[] = { "\344\270\212\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263" };
-static const char* const lang_ja_f650[] = { "\346\234\252\343\202\273\343\203\274\343\203\226\343\201\256\351\200\262\350\241\214\343\201\257\345\244\261\343\202\217\343\202\214\343\201\276\343\201\231" };
-static const char* const lang_ja_f651[] = { "\343\203\221\343\203\203\343\203\201\343\201\202\343\202\212" };
-static const char* const lang_ja_f652[] = { "%s \343\201\202\343\202\212" };
-static const char* const lang_ja_f653[] = { "\343\202\262\343\203\274\343\203\240\343\201\256\345\210\245\343\201\256\343\203\200\343\203\263\343\203\227 (%s) \343\201\202\343\202\212" };
-static const char* const lang_ja_f654[] = { "\343\202\262\343\203\274\343\203\240\343\201\256\345\210\245\343\201\256\343\203\220\343\203\274\343\202\270\343\203\247\343\203\263 (\345\210\245\343\201\256\343\203\221\343\203\203\343\203\201\343\202\204\345\210\245\343\201\256 ROM) \343\201\202\343\202\212" };
-static const char* const lang_ja_f655[] = { "\345\244\211\346\233\264\343\201\252\343\201\227\343\201\256\343\202\262\343\203\274\343\203\240 (%s) \343\201\202\343\202\212" };
-static const char* const lang_ja_f656[] = { "\343\203\221\343\203\203\343\203\201\343\201\252\343\201\227" };
-static const char* const lang_ja_f657[] = { "\343\202\252\343\203\263\343\201\256\343\203\221\343\203\203\343\203\201\343\201\252\343\201\227" };
-static const char* const lang_ja_f658[] = { "\347\217\276\345\234\250\344\275\215\347\275\256\343\201\257\343\202\273\343\203\274\343\203\226\343\201\225\343\202\214\343\201\246\343\201\204\343\201\276\343\201\231" };
-static const char* const lang_ja_f659[] = { "\342\200\271" };
-static const char* const lang_ja_f660[] = { "\342\200\272" };
+static const char* const lang_ja_f635[] = { "\343\203\235\343\202\244\343\203\263\343\203\210" };
+static const char* const lang_ja_f636[] = { "\343\203\227\343\203\252\343\202\273\343\203\203\343\203\210" };
+static const char* const lang_ja_f637[] = { "\345\267\246\343\202\271\343\203\206\343\202\243\343\203\203\343\202\257\343\202\222\346\212\274\343\201\227\350\276\274\343\202\200" };
+static const char* const lang_ja_f638[] = { "\345\267\246\343\202\271\343\203\206\343\202\243\343\203\203\343\202\257\343\202\222\345\267\246\343\201\253\345\200\222\343\201\231" };
+static const char* const lang_ja_f639[] = { "\345\267\246\343\202\271\343\203\206\343\202\243\343\203\203\343\202\257\343\202\222\344\270\212\343\201\253\345\200\222\343\201\231" };
+static const char* const lang_ja_f640[] = { "\344\270\213\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263" };
+static const char* const lang_ja_f641[] = { "RetroDS \343\201\256\343\203\241\343\203\213\343\203\245\343\203\274\343\202\222\351\226\213\343\201\217\343\203\234\343\202\277\343\203\263 (Home\343\200\201Menu\343\200\201Function)" };
+static const char* const lang_ja_f642[] = { "\343\202\262\343\203\274\343\203\240" };
+static const char* const lang_ja_f643[] = { "\345\267\246\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263" };
+static const char* const lang_ja_f644[] = { "\345\267\246\343\201\256\343\202\267\343\203\247\343\203\253\343\203\200\343\203\274\343\203\234\343\202\277\343\203\263" };
+static const char* const lang_ja_f645[] = { "ROM \343\201\256\351\232\243\343\201\253\343\201\202\343\202\213\343\203\221\343\203\203\343\203\201" };
+static const char* const lang_ja_f646[] = { "\345\217\263\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263" };
+static const char* const lang_ja_f647[] = { "\345\217\263\343\201\256\343\202\267\343\203\247\343\203\253\343\203\200\343\203\274\343\203\234\343\202\277\343\203\263" };
+static const char* const lang_ja_f648[] = { "2 \343\201\244\347\233\256\343\201\256\345\267\246\343\202\267\343\203\247\343\203\253\343\203\200\343\203\274\343\203\234\343\202\277\343\203\263" };
+static const char* const lang_ja_f649[] = { "2 \343\201\244\347\233\256\343\201\256\345\217\263\343\202\267\343\203\247\343\203\253\343\203\200\343\203\274\343\203\234\343\202\277\343\203\263" };
+static const char* const lang_ja_f650[] = { "\344\270\212\343\201\256\343\203\225\343\202\247\343\202\244\343\202\271\343\203\234\343\202\277\343\203\263" };
+static const char* const lang_ja_f651[] = { "\346\234\252\343\202\273\343\203\274\343\203\226\343\201\256\351\200\262\350\241\214\343\201\257\345\244\261\343\202\217\343\202\214\343\201\276\343\201\231" };
+static const char* const lang_ja_f652[] = { "\343\203\221\343\203\203\343\203\201\343\201\202\343\202\212" };
+static const char* const lang_ja_f653[] = { "%s \343\201\202\343\202\212" };
+static const char* const lang_ja_f654[] = { "\343\202\262\343\203\274\343\203\240\343\201\256\345\210\245\343\201\256\343\203\200\343\203\263\343\203\227 (%s) \343\201\202\343\202\212" };
+static const char* const lang_ja_f655[] = { "\343\202\262\343\203\274\343\203\240\343\201\256\345\210\245\343\201\256\343\203\220\343\203\274\343\202\270\343\203\247\343\203\263 (\345\210\245\343\201\256\343\203\221\343\203\203\343\203\201\343\202\204\345\210\245\343\201\256 ROM) \343\201\202\343\202\212" };
+static const char* const lang_ja_f656[] = { "\345\244\211\346\233\264\343\201\252\343\201\227\343\201\256\343\202\262\343\203\274\343\203\240 (%s) \343\201\202\343\202\212" };
+static const char* const lang_ja_f657[] = { "\343\203\221\343\203\203\343\203\201\343\201\252\343\201\227" };
+static const char* const lang_ja_f658[] = { "\343\202\252\343\203\263\343\201\256\343\203\221\343\203\203\343\203\201\343\201\252\343\201\227" };
+static const char* const lang_ja_f659[] = { "\347\217\276\345\234\250\344\275\215\347\275\256\343\201\257\343\202\273\343\203\274\343\203\226\343\201\225\343\202\214\343\201\246\343\201\204\343\201\276\343\201\231" };
+static const char* const lang_ja_f660[] = { "\342\200\271" };
+static const char* const lang_ja_f661[] = { "\342\200\272" };
 static const I18nEntry lang_ja_entries[] = {
 	{ " (patch)", lang_ja_f0, 1 },
 	{ " Checking for a new version...", lang_ja_f1, 1 },
@@ -6543,87 +6552,88 @@ static const I18nEntry lang_ja_entries[] = {
 	{ "Turbo B", lang_ja_f577, 1 },
 	{ "Turbo speed", lang_ja_f578, 1 },
 	{ "Turns this ROM into another official release: %s", lang_ja_f579, 1 },
-	{ "Undo Load", lang_ja_f580, 1 },
-	{ "Undo Save", lang_ja_f581, 1 },
-	{ "Undo failed", lang_ja_f582, 1 },
-	{ "Unknown version of this game", lang_ja_f583, 1 },
-	{ "Unlocked", lang_ja_f584, 1 },
-	{ "Unlocks sent", lang_ja_f585, 1 },
-	{ "Unlocks will be sent when the connection is back", lang_ja_f586, 1 },
-	{ "Unpinned: the bar hides after 5 seconds.", lang_ja_f587, 1 },
-	{ "Untested: the second screen may not work with it", lang_ja_f588, 1 },
-	{ "Up", lang_ja_f589, 1 },
-	{ "Up to %d patches can be on at once", lang_ja_f590, 1 },
-	{ "Up to %s", lang_ja_f591, 1 },
-	{ "Update now", lang_ja_f592, 1 },
-	{ "Updates", lang_ja_f593, 1 },
-	{ "Updates, integrations", lang_ja_f594, 1 },
-	{ "Use This Folder", lang_ja_f595, 1 },
-	{ "Used from the next time the game starts", lang_ja_f596, 1 },
-	{ "Volume %d%%", lang_ja_f597, 1 },
-	{ "What D-pad down gives the game.", lang_ja_f598, 1 },
-	{ "What D-pad left gives the game.", lang_ja_f599, 1 },
-	{ "What D-pad right gives the game.", lang_ja_f600, 1 },
-	{ "What D-pad up gives the game.", lang_ja_f601, 1 },
-	{ "What the L shoulder button gives the game.", lang_ja_f602, 1 },
-	{ "What the R shoulder button gives the game.", lang_ja_f603, 1 },
-	{ "What the bottom face button gives the game.", lang_ja_f604, 1 },
-	{ "What the left face button gives the game.", lang_ja_f605, 1 },
-	{ "What the right face button gives the game.", lang_ja_f606, 1 },
-	{ "What the top face button gives the game.", lang_ja_f607, 1 },
-	{ "Where games are read from, and the folder their saves are kept in.", lang_ja_f608, 1 },
-	{ "Where games are read from. Their saves are kept next to them.", lang_ja_f609, 1 },
-	{ "Which Screen: Both", lang_ja_f610, 1 },
-	{ "Which Screen: Bottom Only", lang_ja_f611, 1 },
-	{ "Which Screen: Top Only", lang_ja_f612, 1 },
-	{ "Which games, names, saving", lang_ja_f613, 1 },
-	{ "Which screen the game is on.", lang_ja_f614, 1 },
-	{ "Which screens have them.", lang_ja_f615, 1 },
-	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_ja_f616, 1 },
-	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_ja_f617, 1 },
-	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_ja_f618, 1 },
-	{ "With tags, like (USA)", lang_ja_f619, 1 },
-	{ "X (top) button", lang_ja_f620, 1 },
-	{ "Y (left) button", lang_ja_f621, 1 },
-	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_ja_f622, 1 },
-	{ "Your own and scraped logos on the second screen.", lang_ja_f623, 1 },
-	{ "Your screens are the same shape: nothing to match", lang_ja_f624, 1 },
-	{ "Zoom", lang_ja_f625, 1 },
-	{ "color", lang_ja_f626, 1 },
-	{ "hex", lang_ja_f627, 1 },
-	{ "hue", lang_ja_f628, 1 },
-	{ "machine translated", lang_ja_f629, 1 },
-	{ "no save state yet!", lang_ja_f630, 1 },
-	{ "off", lang_ja_f631, 1 },
-	{ "on", lang_ja_f632, 1 },
-	{ "point", lang_ja_f633, 1 },
-	{ "points", lang_ja_f634, 1 },
-	{ "presets", lang_ja_f635, 1 },
-	{ "press the left stick in", lang_ja_f636, 1 },
-	{ "push the left stick left", lang_ja_f637, 1 },
-	{ "push the left stick up", lang_ja_f638, 1 },
-	{ "the bottom face button", lang_ja_f639, 1 },
-	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_ja_f640, 1 },
-	{ "the game", lang_ja_f641, 1 },
-	{ "the left face button", lang_ja_f642, 1 },
-	{ "the left shoulder button", lang_ja_f643, 1 },
-	{ "the patch beside the ROM", lang_ja_f644, 1 },
-	{ "the right face button", lang_ja_f645, 1 },
-	{ "the right shoulder button", lang_ja_f646, 1 },
-	{ "the second left shoulder button", lang_ja_f647, 1 },
-	{ "the second right shoulder button", lang_ja_f648, 1 },
-	{ "the top face button", lang_ja_f649, 1 },
-	{ "unsaved progress is lost", lang_ja_f650, 1 },
-	{ "with", lang_ja_f651, 1 },
-	{ "with %s", lang_ja_f652, 1 },
-	{ "with another dump of the game (%s)", lang_ja_f653, 1 },
-	{ "with another version of the game (other patches, or another ROM)", lang_ja_f654, 1 },
-	{ "with the unchanged game (%s)", lang_ja_f655, 1 },
-	{ "without", lang_ja_f656, 1 },
-	{ "without the patches on", lang_ja_f657, 1 },
-	{ "your place is saved", lang_ja_f658, 1 },
-	{ "\342\200\271", lang_ja_f659, 1 },
-	{ "\342\200\272", lang_ja_f660, 1 },
+	{ "Undo", lang_ja_f580, 1 },
+	{ "Undo Load", lang_ja_f581, 1 },
+	{ "Undo Save", lang_ja_f582, 1 },
+	{ "Undo failed", lang_ja_f583, 1 },
+	{ "Unknown version of this game", lang_ja_f584, 1 },
+	{ "Unlocked", lang_ja_f585, 1 },
+	{ "Unlocks sent", lang_ja_f586, 1 },
+	{ "Unlocks will be sent when the connection is back", lang_ja_f587, 1 },
+	{ "Unpinned: the bar hides after 5 seconds.", lang_ja_f588, 1 },
+	{ "Untested: the second screen may not work with it", lang_ja_f589, 1 },
+	{ "Up", lang_ja_f590, 1 },
+	{ "Up to %d patches can be on at once", lang_ja_f591, 1 },
+	{ "Up to %s", lang_ja_f592, 1 },
+	{ "Update now", lang_ja_f593, 1 },
+	{ "Updates", lang_ja_f594, 1 },
+	{ "Updates, integrations", lang_ja_f595, 1 },
+	{ "Use This Folder", lang_ja_f596, 1 },
+	{ "Used from the next time the game starts", lang_ja_f597, 1 },
+	{ "Volume %d%%", lang_ja_f598, 1 },
+	{ "What D-pad down gives the game.", lang_ja_f599, 1 },
+	{ "What D-pad left gives the game.", lang_ja_f600, 1 },
+	{ "What D-pad right gives the game.", lang_ja_f601, 1 },
+	{ "What D-pad up gives the game.", lang_ja_f602, 1 },
+	{ "What the L shoulder button gives the game.", lang_ja_f603, 1 },
+	{ "What the R shoulder button gives the game.", lang_ja_f604, 1 },
+	{ "What the bottom face button gives the game.", lang_ja_f605, 1 },
+	{ "What the left face button gives the game.", lang_ja_f606, 1 },
+	{ "What the right face button gives the game.", lang_ja_f607, 1 },
+	{ "What the top face button gives the game.", lang_ja_f608, 1 },
+	{ "Where games are read from, and the folder their saves are kept in.", lang_ja_f609, 1 },
+	{ "Where games are read from. Their saves are kept next to them.", lang_ja_f610, 1 },
+	{ "Which Screen: Both", lang_ja_f611, 1 },
+	{ "Which Screen: Bottom Only", lang_ja_f612, 1 },
+	{ "Which Screen: Top Only", lang_ja_f613, 1 },
+	{ "Which games, names, saving", lang_ja_f614, 1 },
+	{ "Which screen the game is on.", lang_ja_f615, 1 },
+	{ "Which screens have them.", lang_ja_f616, 1 },
+	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_ja_f617, 1 },
+	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_ja_f618, 1 },
+	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_ja_f619, 1 },
+	{ "With tags, like (USA)", lang_ja_f620, 1 },
+	{ "X (top) button", lang_ja_f621, 1 },
+	{ "Y (left) button", lang_ja_f622, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_ja_f623, 1 },
+	{ "Your own and scraped logos on the second screen.", lang_ja_f624, 1 },
+	{ "Your screens are the same shape: nothing to match", lang_ja_f625, 1 },
+	{ "Zoom", lang_ja_f626, 1 },
+	{ "color", lang_ja_f627, 1 },
+	{ "hex", lang_ja_f628, 1 },
+	{ "hue", lang_ja_f629, 1 },
+	{ "machine translated", lang_ja_f630, 1 },
+	{ "no save state yet!", lang_ja_f631, 1 },
+	{ "off", lang_ja_f632, 1 },
+	{ "on", lang_ja_f633, 1 },
+	{ "point", lang_ja_f634, 1 },
+	{ "points", lang_ja_f635, 1 },
+	{ "presets", lang_ja_f636, 1 },
+	{ "press the left stick in", lang_ja_f637, 1 },
+	{ "push the left stick left", lang_ja_f638, 1 },
+	{ "push the left stick up", lang_ja_f639, 1 },
+	{ "the bottom face button", lang_ja_f640, 1 },
+	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_ja_f641, 1 },
+	{ "the game", lang_ja_f642, 1 },
+	{ "the left face button", lang_ja_f643, 1 },
+	{ "the left shoulder button", lang_ja_f644, 1 },
+	{ "the patch beside the ROM", lang_ja_f645, 1 },
+	{ "the right face button", lang_ja_f646, 1 },
+	{ "the right shoulder button", lang_ja_f647, 1 },
+	{ "the second left shoulder button", lang_ja_f648, 1 },
+	{ "the second right shoulder button", lang_ja_f649, 1 },
+	{ "the top face button", lang_ja_f650, 1 },
+	{ "unsaved progress is lost", lang_ja_f651, 1 },
+	{ "with", lang_ja_f652, 1 },
+	{ "with %s", lang_ja_f653, 1 },
+	{ "with another dump of the game (%s)", lang_ja_f654, 1 },
+	{ "with another version of the game (other patches, or another ROM)", lang_ja_f655, 1 },
+	{ "with the unchanged game (%s)", lang_ja_f656, 1 },
+	{ "without", lang_ja_f657, 1 },
+	{ "without the patches on", lang_ja_f658, 1 },
+	{ "your place is saved", lang_ja_f659, 1 },
+	{ "\342\200\271", lang_ja_f660, 1 },
+	{ "\342\200\272", lang_ja_f661, 1 },
 };
 
 static const char* const lang_ko_f0[] = { " (\355\214\250\354\271\230)" };
@@ -7206,87 +7216,88 @@ static const char* const lang_ko_f576[] = { "Turbo A" };
 static const char* const lang_ko_f577[] = { "Turbo B" };
 static const char* const lang_ko_f578[] = { "\355\204\260\353\263\264 \354\206\215\353\217\204" };
 static const char* const lang_ko_f579[] = { "\354\235\264 ROM\354\235\204 \353\213\244\353\245\270 \352\263\265\354\213\235 \353\262\204\354\240\204\354\234\274\353\241\234 \353\260\224\352\277\211\353\213\210\353\213\244: %s" };
-static const char* const lang_ko_f580[] = { "\353\266\210\353\237\254\354\230\244\352\270\260 \354\267\250\354\206\214" };
-static const char* const lang_ko_f581[] = { "\354\240\200\354\236\245 \354\267\250\354\206\214" };
-static const char* const lang_ko_f582[] = { "\354\267\250\354\206\214\355\225\230\354\247\200 \353\252\273\355\226\210\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f583[] = { "\354\235\264 \352\262\214\354\236\204\354\235\230 \354\225\214 \354\210\230 \354\227\206\353\212\224 \353\262\204\354\240\204" };
-static const char* const lang_ko_f584[] = { "\353\213\254\354\204\261\355\225\250" };
-static const char* const lang_ko_f585[] = { "\353\213\254\354\204\261 \353\202\264\354\227\255\354\235\204 \354\240\204\354\206\241\355\225\250" };
-static const char* const lang_ko_f586[] = { "\354\227\260\352\262\260\354\235\264 \353\217\214\354\225\204\354\230\244\353\251\264 \353\213\254\354\204\261 \353\202\264\354\227\255\354\235\204 \354\240\204\354\206\241\355\225\251\353\213\210\353\213\244" };
-static const char* const lang_ko_f587[] = { "\352\263\240\354\240\225 \355\225\264\354\240\234\353\220\250: \353\260\224\352\260\200 5\354\264\210 \355\233\204 \354\210\250\352\262\250\354\247\221\353\213\210\353\213\244." };
-static const char* const lang_ko_f588[] = { "\355\205\214\354\212\244\355\212\270\353\220\230\354\247\200 \354\225\212\354\235\214: \353\221\220 \353\262\210\354\247\270 \355\231\224\353\251\264\354\235\264 \354\236\221\353\217\231\355\225\230\354\247\200 \354\225\212\354\235\204 \354\210\230 \354\236\210\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f589[] = { "\354\234\204" };
-static const char* const lang_ko_f590[] = { "\355\225\234 \353\262\210\354\227\220 \354\265\234\353\214\200 %d\352\260\234\354\235\230 \355\214\250\354\271\230\353\245\274 \354\274\244 \354\210\230 \354\236\210\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f591[] = { "\354\265\234\353\214\200 %s" };
-static const char* const lang_ko_f592[] = { "\354\247\200\352\270\210 \354\227\205\353\215\260\354\235\264\355\212\270" };
-static const char* const lang_ko_f593[] = { "\354\227\205\353\215\260\354\235\264\355\212\270" };
-static const char* const lang_ko_f594[] = { "\354\227\205\353\215\260\354\235\264\355\212\270, \354\227\260\353\217\231" };
-static const char* const lang_ko_f595[] = { "\354\235\264 \355\217\264\353\215\224 \354\202\254\354\232\251" };
-static const char* const lang_ko_f596[] = { "\353\213\244\354\235\214\354\227\220 \352\262\214\354\236\204\354\235\204 \354\213\234\354\236\221\355\225\240 \353\225\214\353\266\200\355\204\260 \354\202\254\354\232\251\353\220\251\353\213\210\353\213\244" };
-static const char* const lang_ko_f597[] = { "\353\263\274\353\245\250 %d%%" };
-static const char* const lang_ko_f598[] = { "\354\213\255\354\236\220\355\202\244 \354\225\204\353\236\230\352\260\200 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
-static const char* const lang_ko_f599[] = { "\354\213\255\354\236\220\355\202\244 \354\231\274\354\252\275\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
-static const char* const lang_ko_f600[] = { "\354\213\255\354\236\220\355\202\244 \354\230\244\353\245\270\354\252\275\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
-static const char* const lang_ko_f601[] = { "\354\213\255\354\236\220\355\202\244 \354\234\204\352\260\200 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
-static const char* const lang_ko_f602[] = { "L \354\226\264\352\271\250 \353\262\204\355\212\274\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
-static const char* const lang_ko_f603[] = { "R \354\226\264\352\271\250 \353\262\204\355\212\274\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
-static const char* const lang_ko_f604[] = { "\354\225\204\353\236\230 \353\262\204\355\212\274\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
-static const char* const lang_ko_f605[] = { "\354\231\274\354\252\275 \353\262\204\355\212\274\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
-static const char* const lang_ko_f606[] = { "\354\230\244\353\245\270\354\252\275 \353\262\204\355\212\274\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
-static const char* const lang_ko_f607[] = { "\354\234\204 \353\262\204\355\212\274\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
-static const char* const lang_ko_f608[] = { "\352\262\214\354\236\204\354\235\204 \354\235\275\354\226\264 \354\230\244\353\212\224 \352\263\263\352\263\274 \354\240\200\354\236\245 \353\215\260\354\235\264\355\204\260\353\245\274 \353\263\264\352\264\200\355\225\230\353\212\224 \355\217\264\353\215\224." };
-static const char* const lang_ko_f609[] = { "\352\262\214\354\236\204\354\235\204 \354\235\275\354\226\264 \354\230\244\353\212\224 \352\263\263. \354\240\200\354\236\245 \353\215\260\354\235\264\355\204\260\353\212\224 \352\262\214\354\236\204 \354\230\206\354\227\220 \353\263\264\352\264\200\353\220\251\353\213\210\353\213\244." };
-static const char* const lang_ko_f610[] = { "\355\231\224\353\251\264: \353\221\220 \355\231\224\353\251\264 \353\252\250\353\221\220" };
-static const char* const lang_ko_f611[] = { "\355\231\224\353\251\264: \354\225\204\353\236\230 \355\231\224\353\251\264\353\247\214" };
-static const char* const lang_ko_f612[] = { "\355\231\224\353\251\264: \354\234\204 \355\231\224\353\251\264\353\247\214" };
-static const char* const lang_ko_f613[] = { "\355\221\234\354\213\234\355\225\240 \352\262\214\354\236\204, \354\235\264\353\246\204, \354\240\200\354\236\245" };
-static const char* const lang_ko_f614[] = { "\352\262\214\354\236\204\354\235\264 \353\206\223\354\235\264\353\212\224 \355\231\224\353\251\264." };
-static const char* const lang_ko_f615[] = { "\354\226\264\353\212\220 \355\231\224\353\251\264\354\227\220 \354\236\210\353\212\224\354\247\200." };
-static const char* const lang_ko_f616[] = { "\355\214\250\354\271\230\353\245\274 \354\274\234\353\251\264 \352\262\214\354\236\204\354\235\264 \354\236\220\354\262\264 \353\260\260\355\204\260\353\246\254 \354\240\200\354\236\245 \353\215\260\354\235\264\355\204\260(\"<\352\262\214\354\236\204> + <\355\214\250\354\271\230>\")\353\245\274 \353\263\264\352\264\200\355\225\230\352\263\240, \353\201\204\353\251\264 \354\233\220\353\263\270\354\235\230 \352\262\203\354\235\204 \354\202\254\354\232\251\355\225\251\353\213\210\353\213\244" };
-static const char* const lang_ko_f617[] = { "\355\214\250\354\271\230\353\245\274 \354\274\234\353\251\264 \352\262\214\354\236\204\354\235\264 \354\236\220\354\262\264 \354\203\201\355\203\234\353\245\274 \353\263\264\352\264\200\355\225\230\352\263\240, \353\201\204\353\251\264 \354\233\220\353\263\270\354\235\230 \352\262\203\354\235\204 \354\202\254\354\232\251\355\225\251\353\213\210\353\213\244 (\354\203\201\355\203\234\352\260\200 \353\213\244\353\245\270 \354\252\275\354\227\220\354\204\234 \352\271\250\354\247\210 \354\210\230 \354\236\210\354\235\214)" };
-static const char* const lang_ko_f618[] = { "\354\236\220\353\217\231 \355\231\225\354\235\270\354\235\204 \354\274\234\353\251\264 RetroDS\352\260\200 \352\262\214\354\236\204 \353\252\251\353\241\235\354\235\204 \354\227\264 \353\225\214 \355\225\230\353\243\250\354\227\220 \355\225\234 \353\262\210 \354\203\210 \353\262\204\354\240\204\354\235\204 \355\231\225\354\235\270\355\225\230\352\263\240, \353\213\244\354\232\264\353\241\234\353\223\234\355\225\230\352\270\260 \354\240\204\354\227\220 \353\250\274\354\240\200 \353\254\273\354\212\265\353\213\210\353\213\244. \354\227\205\353\215\260\354\235\264\355\212\270\353\212\224 github.com/iosue-iulianus/retro-ds\354\227\220 \352\263\265\352\260\234\353\220\234 \353\262\204\354\240\204\354\227\220\354\204\234 \352\260\200\354\240\270\354\230\265\353\213\210\353\213\244." };
-static const char* const lang_ko_f619[] = { "\355\203\234\352\267\270 \355\217\254\355\225\250, \354\230\210: (USA)" };
-static const char* const lang_ko_f620[] = { "X \353\262\204\355\212\274 (\354\234\204)" };
-static const char* const lang_ko_f621[] = { "Y \353\262\204\355\212\274 (\354\231\274\354\252\275)" };
-static const char* const lang_ko_f622[] = { "retrods/overlays/ \354\225\210\354\235\230 \354\247\201\354\240\221 \353\247\214\353\223\240 PNG. PNG\352\260\200 \354\227\206\353\212\224 \355\231\224\353\251\264\354\227\220\353\212\224 \352\270\260\353\263\270 \354\203\211\354\203\201\354\235\230 \354\203\235\354\204\261\353\220\234 \353\262\240\354\240\244\354\235\264 \355\221\234\354\213\234\353\220\251\353\213\210\353\213\244." };
-static const char* const lang_ko_f623[] = { "\354\247\201\354\240\221 \353\247\214\353\223\240 \353\241\234\352\263\240\354\231\200 \353\221\220 \353\262\210\354\247\270 \355\231\224\353\251\264\354\227\220\354\204\234 \352\260\200\354\240\270\354\230\250 \353\241\234\352\263\240." };
-static const char* const lang_ko_f624[] = { "\355\231\224\353\251\264\354\235\230 \353\252\250\354\226\221\354\235\264 \352\260\231\354\212\265\353\213\210\353\213\244: \353\247\236\354\266\234 \352\262\203\354\235\264 \354\227\206\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f625[] = { "\355\231\225\353\214\200" };
-static const char* const lang_ko_f626[] = { "\354\203\211\354\203\201" };
-static const char* const lang_ko_f627[] = { "hex" };
-static const char* const lang_ko_f628[] = { "\354\203\211\354\241\260" };
-static const char* const lang_ko_f629[] = { "\352\270\260\352\263\204 \353\262\210\354\227\255" };
-static const char* const lang_ko_f630[] = { "\354\225\204\354\247\201 \354\240\200\354\236\245\353\220\234 \354\203\201\355\203\234\352\260\200 \354\227\206\354\212\265\353\213\210\353\213\244!" };
-static const char* const lang_ko_f631[] = { "\352\272\274\354\247\220" };
-static const char* const lang_ko_f632[] = { "\354\274\234\354\247\220" };
-static const char* const lang_ko_f633[] = { "\354\240\220" };
+static const char* const lang_ko_f580[] = { "\354\267\250\354\206\214" };
+static const char* const lang_ko_f581[] = { "\353\266\210\353\237\254\354\230\244\352\270\260 \354\267\250\354\206\214" };
+static const char* const lang_ko_f582[] = { "\354\240\200\354\236\245 \354\267\250\354\206\214" };
+static const char* const lang_ko_f583[] = { "\354\267\250\354\206\214\355\225\230\354\247\200 \353\252\273\355\226\210\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f584[] = { "\354\235\264 \352\262\214\354\236\204\354\235\230 \354\225\214 \354\210\230 \354\227\206\353\212\224 \353\262\204\354\240\204" };
+static const char* const lang_ko_f585[] = { "\353\213\254\354\204\261\355\225\250" };
+static const char* const lang_ko_f586[] = { "\353\213\254\354\204\261 \353\202\264\354\227\255\354\235\204 \354\240\204\354\206\241\355\225\250" };
+static const char* const lang_ko_f587[] = { "\354\227\260\352\262\260\354\235\264 \353\217\214\354\225\204\354\230\244\353\251\264 \353\213\254\354\204\261 \353\202\264\354\227\255\354\235\204 \354\240\204\354\206\241\355\225\251\353\213\210\353\213\244" };
+static const char* const lang_ko_f588[] = { "\352\263\240\354\240\225 \355\225\264\354\240\234\353\220\250: \353\260\224\352\260\200 5\354\264\210 \355\233\204 \354\210\250\352\262\250\354\247\221\353\213\210\353\213\244." };
+static const char* const lang_ko_f589[] = { "\355\205\214\354\212\244\355\212\270\353\220\230\354\247\200 \354\225\212\354\235\214: \353\221\220 \353\262\210\354\247\270 \355\231\224\353\251\264\354\235\264 \354\236\221\353\217\231\355\225\230\354\247\200 \354\225\212\354\235\204 \354\210\230 \354\236\210\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f590[] = { "\354\234\204" };
+static const char* const lang_ko_f591[] = { "\355\225\234 \353\262\210\354\227\220 \354\265\234\353\214\200 %d\352\260\234\354\235\230 \355\214\250\354\271\230\353\245\274 \354\274\244 \354\210\230 \354\236\210\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f592[] = { "\354\265\234\353\214\200 %s" };
+static const char* const lang_ko_f593[] = { "\354\247\200\352\270\210 \354\227\205\353\215\260\354\235\264\355\212\270" };
+static const char* const lang_ko_f594[] = { "\354\227\205\353\215\260\354\235\264\355\212\270" };
+static const char* const lang_ko_f595[] = { "\354\227\205\353\215\260\354\235\264\355\212\270, \354\227\260\353\217\231" };
+static const char* const lang_ko_f596[] = { "\354\235\264 \355\217\264\353\215\224 \354\202\254\354\232\251" };
+static const char* const lang_ko_f597[] = { "\353\213\244\354\235\214\354\227\220 \352\262\214\354\236\204\354\235\204 \354\213\234\354\236\221\355\225\240 \353\225\214\353\266\200\355\204\260 \354\202\254\354\232\251\353\220\251\353\213\210\353\213\244" };
+static const char* const lang_ko_f598[] = { "\353\263\274\353\245\250 %d%%" };
+static const char* const lang_ko_f599[] = { "\354\213\255\354\236\220\355\202\244 \354\225\204\353\236\230\352\260\200 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
+static const char* const lang_ko_f600[] = { "\354\213\255\354\236\220\355\202\244 \354\231\274\354\252\275\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
+static const char* const lang_ko_f601[] = { "\354\213\255\354\236\220\355\202\244 \354\230\244\353\245\270\354\252\275\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
+static const char* const lang_ko_f602[] = { "\354\213\255\354\236\220\355\202\244 \354\234\204\352\260\200 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
+static const char* const lang_ko_f603[] = { "L \354\226\264\352\271\250 \353\262\204\355\212\274\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
+static const char* const lang_ko_f604[] = { "R \354\226\264\352\271\250 \353\262\204\355\212\274\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
+static const char* const lang_ko_f605[] = { "\354\225\204\353\236\230 \353\262\204\355\212\274\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
+static const char* const lang_ko_f606[] = { "\354\231\274\354\252\275 \353\262\204\355\212\274\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
+static const char* const lang_ko_f607[] = { "\354\230\244\353\245\270\354\252\275 \353\262\204\355\212\274\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
+static const char* const lang_ko_f608[] = { "\354\234\204 \353\262\204\355\212\274\354\235\264 \352\262\214\354\236\204\354\227\220 \354\243\274\353\212\224 \352\262\203." };
+static const char* const lang_ko_f609[] = { "\352\262\214\354\236\204\354\235\204 \354\235\275\354\226\264 \354\230\244\353\212\224 \352\263\263\352\263\274 \354\240\200\354\236\245 \353\215\260\354\235\264\355\204\260\353\245\274 \353\263\264\352\264\200\355\225\230\353\212\224 \355\217\264\353\215\224." };
+static const char* const lang_ko_f610[] = { "\352\262\214\354\236\204\354\235\204 \354\235\275\354\226\264 \354\230\244\353\212\224 \352\263\263. \354\240\200\354\236\245 \353\215\260\354\235\264\355\204\260\353\212\224 \352\262\214\354\236\204 \354\230\206\354\227\220 \353\263\264\352\264\200\353\220\251\353\213\210\353\213\244." };
+static const char* const lang_ko_f611[] = { "\355\231\224\353\251\264: \353\221\220 \355\231\224\353\251\264 \353\252\250\353\221\220" };
+static const char* const lang_ko_f612[] = { "\355\231\224\353\251\264: \354\225\204\353\236\230 \355\231\224\353\251\264\353\247\214" };
+static const char* const lang_ko_f613[] = { "\355\231\224\353\251\264: \354\234\204 \355\231\224\353\251\264\353\247\214" };
+static const char* const lang_ko_f614[] = { "\355\221\234\354\213\234\355\225\240 \352\262\214\354\236\204, \354\235\264\353\246\204, \354\240\200\354\236\245" };
+static const char* const lang_ko_f615[] = { "\352\262\214\354\236\204\354\235\264 \353\206\223\354\235\264\353\212\224 \355\231\224\353\251\264." };
+static const char* const lang_ko_f616[] = { "\354\226\264\353\212\220 \355\231\224\353\251\264\354\227\220 \354\236\210\353\212\224\354\247\200." };
+static const char* const lang_ko_f617[] = { "\355\214\250\354\271\230\353\245\274 \354\274\234\353\251\264 \352\262\214\354\236\204\354\235\264 \354\236\220\354\262\264 \353\260\260\355\204\260\353\246\254 \354\240\200\354\236\245 \353\215\260\354\235\264\355\204\260(\"<\352\262\214\354\236\204> + <\355\214\250\354\271\230>\")\353\245\274 \353\263\264\352\264\200\355\225\230\352\263\240, \353\201\204\353\251\264 \354\233\220\353\263\270\354\235\230 \352\262\203\354\235\204 \354\202\254\354\232\251\355\225\251\353\213\210\353\213\244" };
+static const char* const lang_ko_f618[] = { "\355\214\250\354\271\230\353\245\274 \354\274\234\353\251\264 \352\262\214\354\236\204\354\235\264 \354\236\220\354\262\264 \354\203\201\355\203\234\353\245\274 \353\263\264\352\264\200\355\225\230\352\263\240, \353\201\204\353\251\264 \354\233\220\353\263\270\354\235\230 \352\262\203\354\235\204 \354\202\254\354\232\251\355\225\251\353\213\210\353\213\244 (\354\203\201\355\203\234\352\260\200 \353\213\244\353\245\270 \354\252\275\354\227\220\354\204\234 \352\271\250\354\247\210 \354\210\230 \354\236\210\354\235\214)" };
+static const char* const lang_ko_f619[] = { "\354\236\220\353\217\231 \355\231\225\354\235\270\354\235\204 \354\274\234\353\251\264 RetroDS\352\260\200 \352\262\214\354\236\204 \353\252\251\353\241\235\354\235\204 \354\227\264 \353\225\214 \355\225\230\353\243\250\354\227\220 \355\225\234 \353\262\210 \354\203\210 \353\262\204\354\240\204\354\235\204 \355\231\225\354\235\270\355\225\230\352\263\240, \353\213\244\354\232\264\353\241\234\353\223\234\355\225\230\352\270\260 \354\240\204\354\227\220 \353\250\274\354\240\200 \353\254\273\354\212\265\353\213\210\353\213\244. \354\227\205\353\215\260\354\235\264\355\212\270\353\212\224 github.com/iosue-iulianus/retro-ds\354\227\220 \352\263\265\352\260\234\353\220\234 \353\262\204\354\240\204\354\227\220\354\204\234 \352\260\200\354\240\270\354\230\265\353\213\210\353\213\244." };
+static const char* const lang_ko_f620[] = { "\355\203\234\352\267\270 \355\217\254\355\225\250, \354\230\210: (USA)" };
+static const char* const lang_ko_f621[] = { "X \353\262\204\355\212\274 (\354\234\204)" };
+static const char* const lang_ko_f622[] = { "Y \353\262\204\355\212\274 (\354\231\274\354\252\275)" };
+static const char* const lang_ko_f623[] = { "retrods/overlays/ \354\225\210\354\235\230 \354\247\201\354\240\221 \353\247\214\353\223\240 PNG. PNG\352\260\200 \354\227\206\353\212\224 \355\231\224\353\251\264\354\227\220\353\212\224 \352\270\260\353\263\270 \354\203\211\354\203\201\354\235\230 \354\203\235\354\204\261\353\220\234 \353\262\240\354\240\244\354\235\264 \355\221\234\354\213\234\353\220\251\353\213\210\353\213\244." };
+static const char* const lang_ko_f624[] = { "\354\247\201\354\240\221 \353\247\214\353\223\240 \353\241\234\352\263\240\354\231\200 \353\221\220 \353\262\210\354\247\270 \355\231\224\353\251\264\354\227\220\354\204\234 \352\260\200\354\240\270\354\230\250 \353\241\234\352\263\240." };
+static const char* const lang_ko_f625[] = { "\355\231\224\353\251\264\354\235\230 \353\252\250\354\226\221\354\235\264 \352\260\231\354\212\265\353\213\210\353\213\244: \353\247\236\354\266\234 \352\262\203\354\235\264 \354\227\206\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f626[] = { "\355\231\225\353\214\200" };
+static const char* const lang_ko_f627[] = { "\354\203\211\354\203\201" };
+static const char* const lang_ko_f628[] = { "hex" };
+static const char* const lang_ko_f629[] = { "\354\203\211\354\241\260" };
+static const char* const lang_ko_f630[] = { "\352\270\260\352\263\204 \353\262\210\354\227\255" };
+static const char* const lang_ko_f631[] = { "\354\225\204\354\247\201 \354\240\200\354\236\245\353\220\234 \354\203\201\355\203\234\352\260\200 \354\227\206\354\212\265\353\213\210\353\213\244!" };
+static const char* const lang_ko_f632[] = { "\352\272\274\354\247\220" };
+static const char* const lang_ko_f633[] = { "\354\274\234\354\247\220" };
 static const char* const lang_ko_f634[] = { "\354\240\220" };
-static const char* const lang_ko_f635[] = { "\355\224\204\353\246\254\354\205\213" };
-static const char* const lang_ko_f636[] = { "\354\231\274\354\252\275 \354\212\244\355\213\261\354\235\204 \353\210\204\353\245\264\354\204\270\354\232\224" };
-static const char* const lang_ko_f637[] = { "\354\231\274\354\252\275 \354\212\244\355\213\261\354\235\204 \354\231\274\354\252\275\354\234\274\353\241\234 \353\257\270\354\204\270\354\232\224" };
-static const char* const lang_ko_f638[] = { "\354\231\274\354\252\275 \354\212\244\355\213\261\354\235\204 \354\234\204\353\241\234 \353\257\270\354\204\270\354\232\224" };
-static const char* const lang_ko_f639[] = { "\354\225\204\353\236\230 \353\262\204\355\212\274" };
-static const char* const lang_ko_f640[] = { "RetroDS \353\251\224\353\211\264\353\245\274 \354\227\254\353\212\224 \353\262\204\355\212\274 (Home, Menu \353\230\220\353\212\224 Function)" };
-static const char* const lang_ko_f641[] = { "\352\262\214\354\236\204" };
-static const char* const lang_ko_f642[] = { "\354\231\274\354\252\275 \353\262\204\355\212\274" };
-static const char* const lang_ko_f643[] = { "\354\231\274\354\252\275 \354\226\264\352\271\250 \353\262\204\355\212\274" };
-static const char* const lang_ko_f644[] = { "ROM \354\230\206\354\235\230 \355\214\250\354\271\230" };
-static const char* const lang_ko_f645[] = { "\354\230\244\353\245\270\354\252\275 \353\262\204\355\212\274" };
-static const char* const lang_ko_f646[] = { "\354\230\244\353\245\270\354\252\275 \354\226\264\352\271\250 \353\262\204\355\212\274" };
-static const char* const lang_ko_f647[] = { "\353\221\220 \353\262\210\354\247\270 \354\231\274\354\252\275 \354\226\264\352\271\250 \353\262\204\355\212\274" };
-static const char* const lang_ko_f648[] = { "\353\221\220 \353\262\210\354\247\270 \354\230\244\353\245\270\354\252\275 \354\226\264\352\271\250 \353\262\204\355\212\274" };
-static const char* const lang_ko_f649[] = { "\354\234\204 \353\262\204\355\212\274" };
-static const char* const lang_ko_f650[] = { "\354\240\200\354\236\245\355\225\230\354\247\200 \354\225\212\354\235\200 \354\247\204\355\226\211 \354\203\201\355\231\251\354\235\200 \354\202\254\353\235\274\354\247\221\353\213\210\353\213\244" };
-static const char* const lang_ko_f651[] = { "\355\214\250\354\271\230\354\231\200 \355\225\250\352\273\230" };
-static const char* const lang_ko_f652[] = { "%s\354\231\200(\352\263\274) \355\225\250\352\273\230" };
-static const char* const lang_ko_f653[] = { "\352\262\214\354\236\204\354\235\230 \353\213\244\353\245\270 \353\215\244\355\224\204\354\231\200 \355\225\250\352\273\230 (%s)" };
-static const char* const lang_ko_f654[] = { "\352\262\214\354\236\204\354\235\230 \353\213\244\353\245\270 \353\262\204\354\240\204\352\263\274 \355\225\250\352\273\230 (\353\213\244\353\245\270 \355\214\250\354\271\230 \353\230\220\353\212\224 \353\213\244\353\245\270 ROM)" };
-static const char* const lang_ko_f655[] = { "\353\263\200\352\262\275\353\220\230\354\247\200 \354\225\212\354\235\200 \352\262\214\354\236\204\352\263\274 \355\225\250\352\273\230 (%s)" };
-static const char* const lang_ko_f656[] = { "\355\214\250\354\271\230 \354\227\206\354\235\264" };
-static const char* const lang_ko_f657[] = { "\354\274\234\354\247\204 \355\214\250\354\271\230 \354\227\206\354\235\264" };
-static const char* const lang_ko_f658[] = { "\354\234\204\354\271\230\352\260\200 \354\240\200\354\236\245\353\220\230\354\226\264 \354\236\210\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f659[] = { "\342\200\271" };
-static const char* const lang_ko_f660[] = { "\342\200\272" };
+static const char* const lang_ko_f635[] = { "\354\240\220" };
+static const char* const lang_ko_f636[] = { "\355\224\204\353\246\254\354\205\213" };
+static const char* const lang_ko_f637[] = { "\354\231\274\354\252\275 \354\212\244\355\213\261\354\235\204 \353\210\204\353\245\264\354\204\270\354\232\224" };
+static const char* const lang_ko_f638[] = { "\354\231\274\354\252\275 \354\212\244\355\213\261\354\235\204 \354\231\274\354\252\275\354\234\274\353\241\234 \353\257\270\354\204\270\354\232\224" };
+static const char* const lang_ko_f639[] = { "\354\231\274\354\252\275 \354\212\244\355\213\261\354\235\204 \354\234\204\353\241\234 \353\257\270\354\204\270\354\232\224" };
+static const char* const lang_ko_f640[] = { "\354\225\204\353\236\230 \353\262\204\355\212\274" };
+static const char* const lang_ko_f641[] = { "RetroDS \353\251\224\353\211\264\353\245\274 \354\227\254\353\212\224 \353\262\204\355\212\274 (Home, Menu \353\230\220\353\212\224 Function)" };
+static const char* const lang_ko_f642[] = { "\352\262\214\354\236\204" };
+static const char* const lang_ko_f643[] = { "\354\231\274\354\252\275 \353\262\204\355\212\274" };
+static const char* const lang_ko_f644[] = { "\354\231\274\354\252\275 \354\226\264\352\271\250 \353\262\204\355\212\274" };
+static const char* const lang_ko_f645[] = { "ROM \354\230\206\354\235\230 \355\214\250\354\271\230" };
+static const char* const lang_ko_f646[] = { "\354\230\244\353\245\270\354\252\275 \353\262\204\355\212\274" };
+static const char* const lang_ko_f647[] = { "\354\230\244\353\245\270\354\252\275 \354\226\264\352\271\250 \353\262\204\355\212\274" };
+static const char* const lang_ko_f648[] = { "\353\221\220 \353\262\210\354\247\270 \354\231\274\354\252\275 \354\226\264\352\271\250 \353\262\204\355\212\274" };
+static const char* const lang_ko_f649[] = { "\353\221\220 \353\262\210\354\247\270 \354\230\244\353\245\270\354\252\275 \354\226\264\352\271\250 \353\262\204\355\212\274" };
+static const char* const lang_ko_f650[] = { "\354\234\204 \353\262\204\355\212\274" };
+static const char* const lang_ko_f651[] = { "\354\240\200\354\236\245\355\225\230\354\247\200 \354\225\212\354\235\200 \354\247\204\355\226\211 \354\203\201\355\231\251\354\235\200 \354\202\254\353\235\274\354\247\221\353\213\210\353\213\244" };
+static const char* const lang_ko_f652[] = { "\355\214\250\354\271\230\354\231\200 \355\225\250\352\273\230" };
+static const char* const lang_ko_f653[] = { "%s\354\231\200(\352\263\274) \355\225\250\352\273\230" };
+static const char* const lang_ko_f654[] = { "\352\262\214\354\236\204\354\235\230 \353\213\244\353\245\270 \353\215\244\355\224\204\354\231\200 \355\225\250\352\273\230 (%s)" };
+static const char* const lang_ko_f655[] = { "\352\262\214\354\236\204\354\235\230 \353\213\244\353\245\270 \353\262\204\354\240\204\352\263\274 \355\225\250\352\273\230 (\353\213\244\353\245\270 \355\214\250\354\271\230 \353\230\220\353\212\224 \353\213\244\353\245\270 ROM)" };
+static const char* const lang_ko_f656[] = { "\353\263\200\352\262\275\353\220\230\354\247\200 \354\225\212\354\235\200 \352\262\214\354\236\204\352\263\274 \355\225\250\352\273\230 (%s)" };
+static const char* const lang_ko_f657[] = { "\355\214\250\354\271\230 \354\227\206\354\235\264" };
+static const char* const lang_ko_f658[] = { "\354\274\234\354\247\204 \355\214\250\354\271\230 \354\227\206\354\235\264" };
+static const char* const lang_ko_f659[] = { "\354\234\204\354\271\230\352\260\200 \354\240\200\354\236\245\353\220\230\354\226\264 \354\236\210\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f660[] = { "\342\200\271" };
+static const char* const lang_ko_f661[] = { "\342\200\272" };
 static const I18nEntry lang_ko_entries[] = {
 	{ " (patch)", lang_ko_f0, 1 },
 	{ " Checking for a new version...", lang_ko_f1, 1 },
@@ -7868,87 +7879,88 @@ static const I18nEntry lang_ko_entries[] = {
 	{ "Turbo B", lang_ko_f577, 1 },
 	{ "Turbo speed", lang_ko_f578, 1 },
 	{ "Turns this ROM into another official release: %s", lang_ko_f579, 1 },
-	{ "Undo Load", lang_ko_f580, 1 },
-	{ "Undo Save", lang_ko_f581, 1 },
-	{ "Undo failed", lang_ko_f582, 1 },
-	{ "Unknown version of this game", lang_ko_f583, 1 },
-	{ "Unlocked", lang_ko_f584, 1 },
-	{ "Unlocks sent", lang_ko_f585, 1 },
-	{ "Unlocks will be sent when the connection is back", lang_ko_f586, 1 },
-	{ "Unpinned: the bar hides after 5 seconds.", lang_ko_f587, 1 },
-	{ "Untested: the second screen may not work with it", lang_ko_f588, 1 },
-	{ "Up", lang_ko_f589, 1 },
-	{ "Up to %d patches can be on at once", lang_ko_f590, 1 },
-	{ "Up to %s", lang_ko_f591, 1 },
-	{ "Update now", lang_ko_f592, 1 },
-	{ "Updates", lang_ko_f593, 1 },
-	{ "Updates, integrations", lang_ko_f594, 1 },
-	{ "Use This Folder", lang_ko_f595, 1 },
-	{ "Used from the next time the game starts", lang_ko_f596, 1 },
-	{ "Volume %d%%", lang_ko_f597, 1 },
-	{ "What D-pad down gives the game.", lang_ko_f598, 1 },
-	{ "What D-pad left gives the game.", lang_ko_f599, 1 },
-	{ "What D-pad right gives the game.", lang_ko_f600, 1 },
-	{ "What D-pad up gives the game.", lang_ko_f601, 1 },
-	{ "What the L shoulder button gives the game.", lang_ko_f602, 1 },
-	{ "What the R shoulder button gives the game.", lang_ko_f603, 1 },
-	{ "What the bottom face button gives the game.", lang_ko_f604, 1 },
-	{ "What the left face button gives the game.", lang_ko_f605, 1 },
-	{ "What the right face button gives the game.", lang_ko_f606, 1 },
-	{ "What the top face button gives the game.", lang_ko_f607, 1 },
-	{ "Where games are read from, and the folder their saves are kept in.", lang_ko_f608, 1 },
-	{ "Where games are read from. Their saves are kept next to them.", lang_ko_f609, 1 },
-	{ "Which Screen: Both", lang_ko_f610, 1 },
-	{ "Which Screen: Bottom Only", lang_ko_f611, 1 },
-	{ "Which Screen: Top Only", lang_ko_f612, 1 },
-	{ "Which games, names, saving", lang_ko_f613, 1 },
-	{ "Which screen the game is on.", lang_ko_f614, 1 },
-	{ "Which screens have them.", lang_ko_f615, 1 },
-	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_ko_f616, 1 },
-	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_ko_f617, 1 },
-	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_ko_f618, 1 },
-	{ "With tags, like (USA)", lang_ko_f619, 1 },
-	{ "X (top) button", lang_ko_f620, 1 },
-	{ "Y (left) button", lang_ko_f621, 1 },
-	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_ko_f622, 1 },
-	{ "Your own and scraped logos on the second screen.", lang_ko_f623, 1 },
-	{ "Your screens are the same shape: nothing to match", lang_ko_f624, 1 },
-	{ "Zoom", lang_ko_f625, 1 },
-	{ "color", lang_ko_f626, 1 },
-	{ "hex", lang_ko_f627, 1 },
-	{ "hue", lang_ko_f628, 1 },
-	{ "machine translated", lang_ko_f629, 1 },
-	{ "no save state yet!", lang_ko_f630, 1 },
-	{ "off", lang_ko_f631, 1 },
-	{ "on", lang_ko_f632, 1 },
-	{ "point", lang_ko_f633, 1 },
-	{ "points", lang_ko_f634, 1 },
-	{ "presets", lang_ko_f635, 1 },
-	{ "press the left stick in", lang_ko_f636, 1 },
-	{ "push the left stick left", lang_ko_f637, 1 },
-	{ "push the left stick up", lang_ko_f638, 1 },
-	{ "the bottom face button", lang_ko_f639, 1 },
-	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_ko_f640, 1 },
-	{ "the game", lang_ko_f641, 1 },
-	{ "the left face button", lang_ko_f642, 1 },
-	{ "the left shoulder button", lang_ko_f643, 1 },
-	{ "the patch beside the ROM", lang_ko_f644, 1 },
-	{ "the right face button", lang_ko_f645, 1 },
-	{ "the right shoulder button", lang_ko_f646, 1 },
-	{ "the second left shoulder button", lang_ko_f647, 1 },
-	{ "the second right shoulder button", lang_ko_f648, 1 },
-	{ "the top face button", lang_ko_f649, 1 },
-	{ "unsaved progress is lost", lang_ko_f650, 1 },
-	{ "with", lang_ko_f651, 1 },
-	{ "with %s", lang_ko_f652, 1 },
-	{ "with another dump of the game (%s)", lang_ko_f653, 1 },
-	{ "with another version of the game (other patches, or another ROM)", lang_ko_f654, 1 },
-	{ "with the unchanged game (%s)", lang_ko_f655, 1 },
-	{ "without", lang_ko_f656, 1 },
-	{ "without the patches on", lang_ko_f657, 1 },
-	{ "your place is saved", lang_ko_f658, 1 },
-	{ "\342\200\271", lang_ko_f659, 1 },
-	{ "\342\200\272", lang_ko_f660, 1 },
+	{ "Undo", lang_ko_f580, 1 },
+	{ "Undo Load", lang_ko_f581, 1 },
+	{ "Undo Save", lang_ko_f582, 1 },
+	{ "Undo failed", lang_ko_f583, 1 },
+	{ "Unknown version of this game", lang_ko_f584, 1 },
+	{ "Unlocked", lang_ko_f585, 1 },
+	{ "Unlocks sent", lang_ko_f586, 1 },
+	{ "Unlocks will be sent when the connection is back", lang_ko_f587, 1 },
+	{ "Unpinned: the bar hides after 5 seconds.", lang_ko_f588, 1 },
+	{ "Untested: the second screen may not work with it", lang_ko_f589, 1 },
+	{ "Up", lang_ko_f590, 1 },
+	{ "Up to %d patches can be on at once", lang_ko_f591, 1 },
+	{ "Up to %s", lang_ko_f592, 1 },
+	{ "Update now", lang_ko_f593, 1 },
+	{ "Updates", lang_ko_f594, 1 },
+	{ "Updates, integrations", lang_ko_f595, 1 },
+	{ "Use This Folder", lang_ko_f596, 1 },
+	{ "Used from the next time the game starts", lang_ko_f597, 1 },
+	{ "Volume %d%%", lang_ko_f598, 1 },
+	{ "What D-pad down gives the game.", lang_ko_f599, 1 },
+	{ "What D-pad left gives the game.", lang_ko_f600, 1 },
+	{ "What D-pad right gives the game.", lang_ko_f601, 1 },
+	{ "What D-pad up gives the game.", lang_ko_f602, 1 },
+	{ "What the L shoulder button gives the game.", lang_ko_f603, 1 },
+	{ "What the R shoulder button gives the game.", lang_ko_f604, 1 },
+	{ "What the bottom face button gives the game.", lang_ko_f605, 1 },
+	{ "What the left face button gives the game.", lang_ko_f606, 1 },
+	{ "What the right face button gives the game.", lang_ko_f607, 1 },
+	{ "What the top face button gives the game.", lang_ko_f608, 1 },
+	{ "Where games are read from, and the folder their saves are kept in.", lang_ko_f609, 1 },
+	{ "Where games are read from. Their saves are kept next to them.", lang_ko_f610, 1 },
+	{ "Which Screen: Both", lang_ko_f611, 1 },
+	{ "Which Screen: Bottom Only", lang_ko_f612, 1 },
+	{ "Which Screen: Top Only", lang_ko_f613, 1 },
+	{ "Which games, names, saving", lang_ko_f614, 1 },
+	{ "Which screen the game is on.", lang_ko_f615, 1 },
+	{ "Which screens have them.", lang_ko_f616, 1 },
+	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_ko_f617, 1 },
+	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_ko_f618, 1 },
+	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_ko_f619, 1 },
+	{ "With tags, like (USA)", lang_ko_f620, 1 },
+	{ "X (top) button", lang_ko_f621, 1 },
+	{ "Y (left) button", lang_ko_f622, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_ko_f623, 1 },
+	{ "Your own and scraped logos on the second screen.", lang_ko_f624, 1 },
+	{ "Your screens are the same shape: nothing to match", lang_ko_f625, 1 },
+	{ "Zoom", lang_ko_f626, 1 },
+	{ "color", lang_ko_f627, 1 },
+	{ "hex", lang_ko_f628, 1 },
+	{ "hue", lang_ko_f629, 1 },
+	{ "machine translated", lang_ko_f630, 1 },
+	{ "no save state yet!", lang_ko_f631, 1 },
+	{ "off", lang_ko_f632, 1 },
+	{ "on", lang_ko_f633, 1 },
+	{ "point", lang_ko_f634, 1 },
+	{ "points", lang_ko_f635, 1 },
+	{ "presets", lang_ko_f636, 1 },
+	{ "press the left stick in", lang_ko_f637, 1 },
+	{ "push the left stick left", lang_ko_f638, 1 },
+	{ "push the left stick up", lang_ko_f639, 1 },
+	{ "the bottom face button", lang_ko_f640, 1 },
+	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_ko_f641, 1 },
+	{ "the game", lang_ko_f642, 1 },
+	{ "the left face button", lang_ko_f643, 1 },
+	{ "the left shoulder button", lang_ko_f644, 1 },
+	{ "the patch beside the ROM", lang_ko_f645, 1 },
+	{ "the right face button", lang_ko_f646, 1 },
+	{ "the right shoulder button", lang_ko_f647, 1 },
+	{ "the second left shoulder button", lang_ko_f648, 1 },
+	{ "the second right shoulder button", lang_ko_f649, 1 },
+	{ "the top face button", lang_ko_f650, 1 },
+	{ "unsaved progress is lost", lang_ko_f651, 1 },
+	{ "with", lang_ko_f652, 1 },
+	{ "with %s", lang_ko_f653, 1 },
+	{ "with another dump of the game (%s)", lang_ko_f654, 1 },
+	{ "with another version of the game (other patches, or another ROM)", lang_ko_f655, 1 },
+	{ "with the unchanged game (%s)", lang_ko_f656, 1 },
+	{ "without", lang_ko_f657, 1 },
+	{ "without the patches on", lang_ko_f658, 1 },
+	{ "your place is saved", lang_ko_f659, 1 },
+	{ "\342\200\271", lang_ko_f660, 1 },
+	{ "\342\200\272", lang_ko_f661, 1 },
 };
 
 static const char* const lang_pt_f0[] = { " (patch)" };
@@ -8531,87 +8543,88 @@ static const char* const lang_pt_f576[] = { "Turbo A" };
 static const char* const lang_pt_f577[] = { "Turbo B" };
 static const char* const lang_pt_f578[] = { "Velocidade do turbo" };
 static const char* const lang_pt_f579[] = { "Transforma esta ROM em outra vers\303\243o oficial: %s" };
-static const char* const lang_pt_f580[] = { "Desfazer carregamento" };
-static const char* const lang_pt_f581[] = { "Desfazer salvamento" };
-static const char* const lang_pt_f582[] = { "N\303\243o foi poss\303\255vel desfazer" };
-static const char* const lang_pt_f583[] = { "Vers\303\243o desconhecida deste jogo" };
-static const char* const lang_pt_f584[] = { "Desbloqueado" };
-static const char* const lang_pt_f585[] = { "Desbloqueios enviados" };
-static const char* const lang_pt_f586[] = { "Os desbloqueios ser\303\243o enviados quando a conex\303\243o voltar" };
-static const char* const lang_pt_f587[] = { "Solta: a barra se esconde ap\303\263s 5 segundos." };
-static const char* const lang_pt_f588[] = { "N\303\243o testado: a segunda tela pode n\303\243o funcionar com ele" };
-static const char* const lang_pt_f589[] = { "Cima" };
-static const char* const lang_pt_f590[] = { "At\303\251 %d patches podem estar ativados ao mesmo tempo" };
-static const char* const lang_pt_f591[] = { "At\303\251 %s" };
-static const char* const lang_pt_f592[] = { "Atualizar agora" };
-static const char* const lang_pt_f593[] = { "Atualiza\303\247\303\265es" };
-static const char* const lang_pt_f594[] = { "Atualiza\303\247\303\265es, integra\303\247\303\265es" };
-static const char* const lang_pt_f595[] = { "Usar esta pasta" };
-static const char* const lang_pt_f596[] = { "Usado a partir da pr\303\263xima vez que o jogo iniciar" };
-static const char* const lang_pt_f597[] = { "Volume %d%%" };
-static const char* const lang_pt_f598[] = { "O que o direcional para baixo d\303\241 ao jogo." };
-static const char* const lang_pt_f599[] = { "O que o direcional para a esquerda d\303\241 ao jogo." };
-static const char* const lang_pt_f600[] = { "O que o direcional para a direita d\303\241 ao jogo." };
-static const char* const lang_pt_f601[] = { "O que o direcional para cima d\303\241 ao jogo." };
-static const char* const lang_pt_f602[] = { "O que o bot\303\243o de ombro L d\303\241 ao jogo." };
-static const char* const lang_pt_f603[] = { "O que o bot\303\243o de ombro R d\303\241 ao jogo." };
-static const char* const lang_pt_f604[] = { "O que o bot\303\243o de baixo d\303\241 ao jogo." };
-static const char* const lang_pt_f605[] = { "O que o bot\303\243o da esquerda d\303\241 ao jogo." };
-static const char* const lang_pt_f606[] = { "O que o bot\303\243o da direita d\303\241 ao jogo." };
-static const char* const lang_pt_f607[] = { "O que o bot\303\243o de cima d\303\241 ao jogo." };
-static const char* const lang_pt_f608[] = { "De onde os jogos s\303\243o lidos, e a pasta onde seus saves ficam." };
-static const char* const lang_pt_f609[] = { "De onde os jogos s\303\243o lidos. Os saves ficam ao lado deles." };
-static const char* const lang_pt_f610[] = { "Qual tela: ambas" };
-static const char* const lang_pt_f611[] = { "Qual tela: s\303\263 a de baixo" };
-static const char* const lang_pt_f612[] = { "Qual tela: s\303\263 a de cima" };
-static const char* const lang_pt_f613[] = { "Quais jogos, nomes, salvamento" };
-static const char* const lang_pt_f614[] = { "Em qual tela o jogo fica." };
-static const char* const lang_pt_f615[] = { "Quais telas os t\303\252m." };
-static const char* const lang_pt_f616[] = { "Com um patch ativado, o jogo guarda seu pr\303\263prio save de bateria (\"<jogo> + <patch>\"): desativado, usa o do original" };
-static const char* const lang_pt_f617[] = { "Com um patch ativado, o jogo guarda seus pr\303\263prios estados: desativado, usa os do original (um estado pode sair corrompido no outro)" };
-static const char* const lang_pt_f618[] = { "Com a verifica\303\247\303\243o autom\303\241tica ativada, o RetroDS procura uma nova vers\303\243o uma vez por dia ao abrir a lista de jogos e pergunta antes de baixar qualquer coisa. As atualiza\303\247\303\265es v\303\252m das vers\303\265es publicadas em github.com/iosue-iulianus/retro-ds." };
-static const char* const lang_pt_f619[] = { "Com tags, como (USA)" };
-static const char* const lang_pt_f620[] = { "Bot\303\243o X (cima)" };
-static const char* const lang_pt_f621[] = { "Bot\303\243o Y (esquerda)" };
-static const char* const lang_pt_f622[] = { "Seus pr\303\263prios PNGs em retrods/overlays/. Uma tela sem um recebe a moldura gerada em suas cores padr\303\243o." };
-static const char* const lang_pt_f623[] = { "Seus pr\303\263prios logos e os obtidos na segunda tela." };
-static const char* const lang_pt_f624[] = { "Suas telas t\303\252m o mesmo formato: nada para igualar" };
-static const char* const lang_pt_f625[] = { "Zoom" };
-static const char* const lang_pt_f626[] = { "cor" };
-static const char* const lang_pt_f627[] = { "hex" };
-static const char* const lang_pt_f628[] = { "matiz" };
-static const char* const lang_pt_f629[] = { "tradu\303\247\303\243o autom\303\241tica" };
-static const char* const lang_pt_f630[] = { "nenhum estado salvo ainda!" };
-static const char* const lang_pt_f631[] = { "desativado" };
-static const char* const lang_pt_f632[] = { "ativado" };
-static const char* const lang_pt_f633[] = { "ponto" };
-static const char* const lang_pt_f634[] = { "pontos" };
-static const char* const lang_pt_f635[] = { "predefini\303\247\303\265es" };
-static const char* const lang_pt_f636[] = { "pressione o anal\303\263gico esquerdo" };
-static const char* const lang_pt_f637[] = { "empurre o anal\303\263gico esquerdo para a esquerda" };
-static const char* const lang_pt_f638[] = { "empurre o anal\303\263gico esquerdo para cima" };
-static const char* const lang_pt_f639[] = { "o bot\303\243o de baixo" };
-static const char* const lang_pt_f640[] = { "o bot\303\243o que abre o menu do RetroDS (Home, Menu ou Function)" };
-static const char* const lang_pt_f641[] = { "o jogo" };
-static const char* const lang_pt_f642[] = { "o bot\303\243o da esquerda" };
-static const char* const lang_pt_f643[] = { "o bot\303\243o de ombro esquerdo" };
-static const char* const lang_pt_f644[] = { "o patch ao lado da ROM" };
-static const char* const lang_pt_f645[] = { "o bot\303\243o da direita" };
-static const char* const lang_pt_f646[] = { "o bot\303\243o de ombro direito" };
-static const char* const lang_pt_f647[] = { "o segundo bot\303\243o de ombro esquerdo" };
-static const char* const lang_pt_f648[] = { "o segundo bot\303\243o de ombro direito" };
-static const char* const lang_pt_f649[] = { "o bot\303\243o de cima" };
-static const char* const lang_pt_f650[] = { "o progresso n\303\243o salvo ser\303\241 perdido" };
-static const char* const lang_pt_f651[] = { "com o patch" };
-static const char* const lang_pt_f652[] = { "com %s" };
-static const char* const lang_pt_f653[] = { "com outro dump do jogo (%s)" };
-static const char* const lang_pt_f654[] = { "com outra vers\303\243o do jogo (outros patches, ou outra ROM)" };
-static const char* const lang_pt_f655[] = { "com o jogo sem altera\303\247\303\265es (%s)" };
-static const char* const lang_pt_f656[] = { "sem o patch" };
-static const char* const lang_pt_f657[] = { "sem os patches ativados" };
-static const char* const lang_pt_f658[] = { "sua posi\303\247\303\243o est\303\241 salva" };
-static const char* const lang_pt_f659[] = { "\342\200\271" };
-static const char* const lang_pt_f660[] = { "\342\200\272" };
+static const char* const lang_pt_f580[] = { "Desfazer" };
+static const char* const lang_pt_f581[] = { "Desfazer carregamento" };
+static const char* const lang_pt_f582[] = { "Desfazer salvamento" };
+static const char* const lang_pt_f583[] = { "N\303\243o foi poss\303\255vel desfazer" };
+static const char* const lang_pt_f584[] = { "Vers\303\243o desconhecida deste jogo" };
+static const char* const lang_pt_f585[] = { "Desbloqueado" };
+static const char* const lang_pt_f586[] = { "Desbloqueios enviados" };
+static const char* const lang_pt_f587[] = { "Os desbloqueios ser\303\243o enviados quando a conex\303\243o voltar" };
+static const char* const lang_pt_f588[] = { "Solta: a barra se esconde ap\303\263s 5 segundos." };
+static const char* const lang_pt_f589[] = { "N\303\243o testado: a segunda tela pode n\303\243o funcionar com ele" };
+static const char* const lang_pt_f590[] = { "Cima" };
+static const char* const lang_pt_f591[] = { "At\303\251 %d patches podem estar ativados ao mesmo tempo" };
+static const char* const lang_pt_f592[] = { "At\303\251 %s" };
+static const char* const lang_pt_f593[] = { "Atualizar agora" };
+static const char* const lang_pt_f594[] = { "Atualiza\303\247\303\265es" };
+static const char* const lang_pt_f595[] = { "Atualiza\303\247\303\265es, integra\303\247\303\265es" };
+static const char* const lang_pt_f596[] = { "Usar esta pasta" };
+static const char* const lang_pt_f597[] = { "Usado a partir da pr\303\263xima vez que o jogo iniciar" };
+static const char* const lang_pt_f598[] = { "Volume %d%%" };
+static const char* const lang_pt_f599[] = { "O que o direcional para baixo d\303\241 ao jogo." };
+static const char* const lang_pt_f600[] = { "O que o direcional para a esquerda d\303\241 ao jogo." };
+static const char* const lang_pt_f601[] = { "O que o direcional para a direita d\303\241 ao jogo." };
+static const char* const lang_pt_f602[] = { "O que o direcional para cima d\303\241 ao jogo." };
+static const char* const lang_pt_f603[] = { "O que o bot\303\243o de ombro L d\303\241 ao jogo." };
+static const char* const lang_pt_f604[] = { "O que o bot\303\243o de ombro R d\303\241 ao jogo." };
+static const char* const lang_pt_f605[] = { "O que o bot\303\243o de baixo d\303\241 ao jogo." };
+static const char* const lang_pt_f606[] = { "O que o bot\303\243o da esquerda d\303\241 ao jogo." };
+static const char* const lang_pt_f607[] = { "O que o bot\303\243o da direita d\303\241 ao jogo." };
+static const char* const lang_pt_f608[] = { "O que o bot\303\243o de cima d\303\241 ao jogo." };
+static const char* const lang_pt_f609[] = { "De onde os jogos s\303\243o lidos, e a pasta onde seus saves ficam." };
+static const char* const lang_pt_f610[] = { "De onde os jogos s\303\243o lidos. Os saves ficam ao lado deles." };
+static const char* const lang_pt_f611[] = { "Qual tela: ambas" };
+static const char* const lang_pt_f612[] = { "Qual tela: s\303\263 a de baixo" };
+static const char* const lang_pt_f613[] = { "Qual tela: s\303\263 a de cima" };
+static const char* const lang_pt_f614[] = { "Quais jogos, nomes, salvamento" };
+static const char* const lang_pt_f615[] = { "Em qual tela o jogo fica." };
+static const char* const lang_pt_f616[] = { "Quais telas os t\303\252m." };
+static const char* const lang_pt_f617[] = { "Com um patch ativado, o jogo guarda seu pr\303\263prio save de bateria (\"<jogo> + <patch>\"): desativado, usa o do original" };
+static const char* const lang_pt_f618[] = { "Com um patch ativado, o jogo guarda seus pr\303\263prios estados: desativado, usa os do original (um estado pode sair corrompido no outro)" };
+static const char* const lang_pt_f619[] = { "Com a verifica\303\247\303\243o autom\303\241tica ativada, o RetroDS procura uma nova vers\303\243o uma vez por dia ao abrir a lista de jogos e pergunta antes de baixar qualquer coisa. As atualiza\303\247\303\265es v\303\252m das vers\303\265es publicadas em github.com/iosue-iulianus/retro-ds." };
+static const char* const lang_pt_f620[] = { "Com tags, como (USA)" };
+static const char* const lang_pt_f621[] = { "Bot\303\243o X (cima)" };
+static const char* const lang_pt_f622[] = { "Bot\303\243o Y (esquerda)" };
+static const char* const lang_pt_f623[] = { "Seus pr\303\263prios PNGs em retrods/overlays/. Uma tela sem um recebe a moldura gerada em suas cores padr\303\243o." };
+static const char* const lang_pt_f624[] = { "Seus pr\303\263prios logos e os obtidos na segunda tela." };
+static const char* const lang_pt_f625[] = { "Suas telas t\303\252m o mesmo formato: nada para igualar" };
+static const char* const lang_pt_f626[] = { "Zoom" };
+static const char* const lang_pt_f627[] = { "cor" };
+static const char* const lang_pt_f628[] = { "hex" };
+static const char* const lang_pt_f629[] = { "matiz" };
+static const char* const lang_pt_f630[] = { "tradu\303\247\303\243o autom\303\241tica" };
+static const char* const lang_pt_f631[] = { "nenhum estado salvo ainda!" };
+static const char* const lang_pt_f632[] = { "desativado" };
+static const char* const lang_pt_f633[] = { "ativado" };
+static const char* const lang_pt_f634[] = { "ponto" };
+static const char* const lang_pt_f635[] = { "pontos" };
+static const char* const lang_pt_f636[] = { "predefini\303\247\303\265es" };
+static const char* const lang_pt_f637[] = { "pressione o anal\303\263gico esquerdo" };
+static const char* const lang_pt_f638[] = { "empurre o anal\303\263gico esquerdo para a esquerda" };
+static const char* const lang_pt_f639[] = { "empurre o anal\303\263gico esquerdo para cima" };
+static const char* const lang_pt_f640[] = { "o bot\303\243o de baixo" };
+static const char* const lang_pt_f641[] = { "o bot\303\243o que abre o menu do RetroDS (Home, Menu ou Function)" };
+static const char* const lang_pt_f642[] = { "o jogo" };
+static const char* const lang_pt_f643[] = { "o bot\303\243o da esquerda" };
+static const char* const lang_pt_f644[] = { "o bot\303\243o de ombro esquerdo" };
+static const char* const lang_pt_f645[] = { "o patch ao lado da ROM" };
+static const char* const lang_pt_f646[] = { "o bot\303\243o da direita" };
+static const char* const lang_pt_f647[] = { "o bot\303\243o de ombro direito" };
+static const char* const lang_pt_f648[] = { "o segundo bot\303\243o de ombro esquerdo" };
+static const char* const lang_pt_f649[] = { "o segundo bot\303\243o de ombro direito" };
+static const char* const lang_pt_f650[] = { "o bot\303\243o de cima" };
+static const char* const lang_pt_f651[] = { "o progresso n\303\243o salvo ser\303\241 perdido" };
+static const char* const lang_pt_f652[] = { "com o patch" };
+static const char* const lang_pt_f653[] = { "com %s" };
+static const char* const lang_pt_f654[] = { "com outro dump do jogo (%s)" };
+static const char* const lang_pt_f655[] = { "com outra vers\303\243o do jogo (outros patches, ou outra ROM)" };
+static const char* const lang_pt_f656[] = { "com o jogo sem altera\303\247\303\265es (%s)" };
+static const char* const lang_pt_f657[] = { "sem o patch" };
+static const char* const lang_pt_f658[] = { "sem os patches ativados" };
+static const char* const lang_pt_f659[] = { "sua posi\303\247\303\243o est\303\241 salva" };
+static const char* const lang_pt_f660[] = { "\342\200\271" };
+static const char* const lang_pt_f661[] = { "\342\200\272" };
 static const I18nEntry lang_pt_entries[] = {
 	{ " (patch)", lang_pt_f0, 1 },
 	{ " Checking for a new version...", lang_pt_f1, 1 },
@@ -9193,87 +9206,88 @@ static const I18nEntry lang_pt_entries[] = {
 	{ "Turbo B", lang_pt_f577, 1 },
 	{ "Turbo speed", lang_pt_f578, 1 },
 	{ "Turns this ROM into another official release: %s", lang_pt_f579, 1 },
-	{ "Undo Load", lang_pt_f580, 1 },
-	{ "Undo Save", lang_pt_f581, 1 },
-	{ "Undo failed", lang_pt_f582, 1 },
-	{ "Unknown version of this game", lang_pt_f583, 1 },
-	{ "Unlocked", lang_pt_f584, 1 },
-	{ "Unlocks sent", lang_pt_f585, 1 },
-	{ "Unlocks will be sent when the connection is back", lang_pt_f586, 1 },
-	{ "Unpinned: the bar hides after 5 seconds.", lang_pt_f587, 1 },
-	{ "Untested: the second screen may not work with it", lang_pt_f588, 1 },
-	{ "Up", lang_pt_f589, 1 },
-	{ "Up to %d patches can be on at once", lang_pt_f590, 1 },
-	{ "Up to %s", lang_pt_f591, 1 },
-	{ "Update now", lang_pt_f592, 1 },
-	{ "Updates", lang_pt_f593, 1 },
-	{ "Updates, integrations", lang_pt_f594, 1 },
-	{ "Use This Folder", lang_pt_f595, 1 },
-	{ "Used from the next time the game starts", lang_pt_f596, 1 },
-	{ "Volume %d%%", lang_pt_f597, 1 },
-	{ "What D-pad down gives the game.", lang_pt_f598, 1 },
-	{ "What D-pad left gives the game.", lang_pt_f599, 1 },
-	{ "What D-pad right gives the game.", lang_pt_f600, 1 },
-	{ "What D-pad up gives the game.", lang_pt_f601, 1 },
-	{ "What the L shoulder button gives the game.", lang_pt_f602, 1 },
-	{ "What the R shoulder button gives the game.", lang_pt_f603, 1 },
-	{ "What the bottom face button gives the game.", lang_pt_f604, 1 },
-	{ "What the left face button gives the game.", lang_pt_f605, 1 },
-	{ "What the right face button gives the game.", lang_pt_f606, 1 },
-	{ "What the top face button gives the game.", lang_pt_f607, 1 },
-	{ "Where games are read from, and the folder their saves are kept in.", lang_pt_f608, 1 },
-	{ "Where games are read from. Their saves are kept next to them.", lang_pt_f609, 1 },
-	{ "Which Screen: Both", lang_pt_f610, 1 },
-	{ "Which Screen: Bottom Only", lang_pt_f611, 1 },
-	{ "Which Screen: Top Only", lang_pt_f612, 1 },
-	{ "Which games, names, saving", lang_pt_f613, 1 },
-	{ "Which screen the game is on.", lang_pt_f614, 1 },
-	{ "Which screens have them.", lang_pt_f615, 1 },
-	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_pt_f616, 1 },
-	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_pt_f617, 1 },
-	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_pt_f618, 1 },
-	{ "With tags, like (USA)", lang_pt_f619, 1 },
-	{ "X (top) button", lang_pt_f620, 1 },
-	{ "Y (left) button", lang_pt_f621, 1 },
-	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_pt_f622, 1 },
-	{ "Your own and scraped logos on the second screen.", lang_pt_f623, 1 },
-	{ "Your screens are the same shape: nothing to match", lang_pt_f624, 1 },
-	{ "Zoom", lang_pt_f625, 1 },
-	{ "color", lang_pt_f626, 1 },
-	{ "hex", lang_pt_f627, 1 },
-	{ "hue", lang_pt_f628, 1 },
-	{ "machine translated", lang_pt_f629, 1 },
-	{ "no save state yet!", lang_pt_f630, 1 },
-	{ "off", lang_pt_f631, 1 },
-	{ "on", lang_pt_f632, 1 },
-	{ "point", lang_pt_f633, 1 },
-	{ "points", lang_pt_f634, 1 },
-	{ "presets", lang_pt_f635, 1 },
-	{ "press the left stick in", lang_pt_f636, 1 },
-	{ "push the left stick left", lang_pt_f637, 1 },
-	{ "push the left stick up", lang_pt_f638, 1 },
-	{ "the bottom face button", lang_pt_f639, 1 },
-	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_pt_f640, 1 },
-	{ "the game", lang_pt_f641, 1 },
-	{ "the left face button", lang_pt_f642, 1 },
-	{ "the left shoulder button", lang_pt_f643, 1 },
-	{ "the patch beside the ROM", lang_pt_f644, 1 },
-	{ "the right face button", lang_pt_f645, 1 },
-	{ "the right shoulder button", lang_pt_f646, 1 },
-	{ "the second left shoulder button", lang_pt_f647, 1 },
-	{ "the second right shoulder button", lang_pt_f648, 1 },
-	{ "the top face button", lang_pt_f649, 1 },
-	{ "unsaved progress is lost", lang_pt_f650, 1 },
-	{ "with", lang_pt_f651, 1 },
-	{ "with %s", lang_pt_f652, 1 },
-	{ "with another dump of the game (%s)", lang_pt_f653, 1 },
-	{ "with another version of the game (other patches, or another ROM)", lang_pt_f654, 1 },
-	{ "with the unchanged game (%s)", lang_pt_f655, 1 },
-	{ "without", lang_pt_f656, 1 },
-	{ "without the patches on", lang_pt_f657, 1 },
-	{ "your place is saved", lang_pt_f658, 1 },
-	{ "\342\200\271", lang_pt_f659, 1 },
-	{ "\342\200\272", lang_pt_f660, 1 },
+	{ "Undo", lang_pt_f580, 1 },
+	{ "Undo Load", lang_pt_f581, 1 },
+	{ "Undo Save", lang_pt_f582, 1 },
+	{ "Undo failed", lang_pt_f583, 1 },
+	{ "Unknown version of this game", lang_pt_f584, 1 },
+	{ "Unlocked", lang_pt_f585, 1 },
+	{ "Unlocks sent", lang_pt_f586, 1 },
+	{ "Unlocks will be sent when the connection is back", lang_pt_f587, 1 },
+	{ "Unpinned: the bar hides after 5 seconds.", lang_pt_f588, 1 },
+	{ "Untested: the second screen may not work with it", lang_pt_f589, 1 },
+	{ "Up", lang_pt_f590, 1 },
+	{ "Up to %d patches can be on at once", lang_pt_f591, 1 },
+	{ "Up to %s", lang_pt_f592, 1 },
+	{ "Update now", lang_pt_f593, 1 },
+	{ "Updates", lang_pt_f594, 1 },
+	{ "Updates, integrations", lang_pt_f595, 1 },
+	{ "Use This Folder", lang_pt_f596, 1 },
+	{ "Used from the next time the game starts", lang_pt_f597, 1 },
+	{ "Volume %d%%", lang_pt_f598, 1 },
+	{ "What D-pad down gives the game.", lang_pt_f599, 1 },
+	{ "What D-pad left gives the game.", lang_pt_f600, 1 },
+	{ "What D-pad right gives the game.", lang_pt_f601, 1 },
+	{ "What D-pad up gives the game.", lang_pt_f602, 1 },
+	{ "What the L shoulder button gives the game.", lang_pt_f603, 1 },
+	{ "What the R shoulder button gives the game.", lang_pt_f604, 1 },
+	{ "What the bottom face button gives the game.", lang_pt_f605, 1 },
+	{ "What the left face button gives the game.", lang_pt_f606, 1 },
+	{ "What the right face button gives the game.", lang_pt_f607, 1 },
+	{ "What the top face button gives the game.", lang_pt_f608, 1 },
+	{ "Where games are read from, and the folder their saves are kept in.", lang_pt_f609, 1 },
+	{ "Where games are read from. Their saves are kept next to them.", lang_pt_f610, 1 },
+	{ "Which Screen: Both", lang_pt_f611, 1 },
+	{ "Which Screen: Bottom Only", lang_pt_f612, 1 },
+	{ "Which Screen: Top Only", lang_pt_f613, 1 },
+	{ "Which games, names, saving", lang_pt_f614, 1 },
+	{ "Which screen the game is on.", lang_pt_f615, 1 },
+	{ "Which screens have them.", lang_pt_f616, 1 },
+	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_pt_f617, 1 },
+	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_pt_f618, 1 },
+	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_pt_f619, 1 },
+	{ "With tags, like (USA)", lang_pt_f620, 1 },
+	{ "X (top) button", lang_pt_f621, 1 },
+	{ "Y (left) button", lang_pt_f622, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_pt_f623, 1 },
+	{ "Your own and scraped logos on the second screen.", lang_pt_f624, 1 },
+	{ "Your screens are the same shape: nothing to match", lang_pt_f625, 1 },
+	{ "Zoom", lang_pt_f626, 1 },
+	{ "color", lang_pt_f627, 1 },
+	{ "hex", lang_pt_f628, 1 },
+	{ "hue", lang_pt_f629, 1 },
+	{ "machine translated", lang_pt_f630, 1 },
+	{ "no save state yet!", lang_pt_f631, 1 },
+	{ "off", lang_pt_f632, 1 },
+	{ "on", lang_pt_f633, 1 },
+	{ "point", lang_pt_f634, 1 },
+	{ "points", lang_pt_f635, 1 },
+	{ "presets", lang_pt_f636, 1 },
+	{ "press the left stick in", lang_pt_f637, 1 },
+	{ "push the left stick left", lang_pt_f638, 1 },
+	{ "push the left stick up", lang_pt_f639, 1 },
+	{ "the bottom face button", lang_pt_f640, 1 },
+	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_pt_f641, 1 },
+	{ "the game", lang_pt_f642, 1 },
+	{ "the left face button", lang_pt_f643, 1 },
+	{ "the left shoulder button", lang_pt_f644, 1 },
+	{ "the patch beside the ROM", lang_pt_f645, 1 },
+	{ "the right face button", lang_pt_f646, 1 },
+	{ "the right shoulder button", lang_pt_f647, 1 },
+	{ "the second left shoulder button", lang_pt_f648, 1 },
+	{ "the second right shoulder button", lang_pt_f649, 1 },
+	{ "the top face button", lang_pt_f650, 1 },
+	{ "unsaved progress is lost", lang_pt_f651, 1 },
+	{ "with", lang_pt_f652, 1 },
+	{ "with %s", lang_pt_f653, 1 },
+	{ "with another dump of the game (%s)", lang_pt_f654, 1 },
+	{ "with another version of the game (other patches, or another ROM)", lang_pt_f655, 1 },
+	{ "with the unchanged game (%s)", lang_pt_f656, 1 },
+	{ "without", lang_pt_f657, 1 },
+	{ "without the patches on", lang_pt_f658, 1 },
+	{ "your place is saved", lang_pt_f659, 1 },
+	{ "\342\200\271", lang_pt_f660, 1 },
+	{ "\342\200\272", lang_pt_f661, 1 },
 };
 
 static const char* const lang_zh_CN_f0[] = { "\357\274\210\350\241\245\344\270\201\357\274\211" };
@@ -9856,87 +9870,88 @@ static const char* const lang_zh_CN_f576[] = { "\350\277\236\345\217\221 A" };
 static const char* const lang_zh_CN_f577[] = { "\350\277\236\345\217\221 B" };
 static const char* const lang_zh_CN_f578[] = { "\350\277\236\345\217\221\351\200\237\345\272\246" };
 static const char* const lang_zh_CN_f579[] = { "\346\212\212\350\277\231\344\270\252 ROM \345\217\230\346\210\220\345\217\246\344\270\200\344\270\252\345\256\230\346\226\271\347\211\210\346\234\254\357\274\232%s" };
-static const char* const lang_zh_CN_f580[] = { "\346\222\244\351\224\200\350\257\273\345\217\226" };
-static const char* const lang_zh_CN_f581[] = { "\346\222\244\351\224\200\344\277\235\345\255\230" };
-static const char* const lang_zh_CN_f582[] = { "\346\227\240\346\263\225\346\222\244\351\224\200" };
-static const char* const lang_zh_CN_f583[] = { "\350\277\231\344\270\252\346\270\270\346\210\217\347\232\204\347\211\210\346\234\254\346\234\252\347\237\245" };
-static const char* const lang_zh_CN_f584[] = { "\345\267\262\350\247\243\351\224\201" };
-static const char* const lang_zh_CN_f585[] = { "\350\247\243\351\224\201\350\256\260\345\275\225\345\267\262\345\217\221\351\200\201" };
-static const char* const lang_zh_CN_f586[] = { "\346\201\242\345\244\215\350\201\224\347\275\221\345\220\216\345\260\206\345\217\221\351\200\201\350\247\243\351\224\201\350\256\260\345\275\225" };
-static const char* const lang_zh_CN_f587[] = { "\345\267\262\345\217\226\346\266\210\345\233\272\345\256\232\357\274\232\345\277\253\346\215\267\346\240\217 5 \347\247\222\345\220\216\351\232\220\350\227\217\343\200\202" };
-static const char* const lang_zh_CN_f588[] = { "\346\234\252\346\265\213\350\257\225\357\274\232\345\211\257\345\261\217\345\217\257\350\203\275\344\270\215\350\265\267\344\275\234\347\224\250" };
-static const char* const lang_zh_CN_f589[] = { "\344\270\212" };
-static const char* const lang_zh_CN_f590[] = { "\346\234\200\345\244\232\345\217\257\345\220\214\346\227\266\345\274\200\345\220\257 %d \344\270\252\350\241\245\344\270\201" };
-static const char* const lang_zh_CN_f591[] = { "\344\270\212\344\270\200\347\272\247\357\274\232%s" };
-static const char* const lang_zh_CN_f592[] = { "\347\216\260\345\234\250\346\233\264\346\226\260" };
-static const char* const lang_zh_CN_f593[] = { "\346\233\264\346\226\260" };
-static const char* const lang_zh_CN_f594[] = { "\346\233\264\346\226\260\343\200\201\351\233\206\346\210\220" };
-static const char* const lang_zh_CN_f595[] = { "\347\224\250\350\277\231\344\270\252\346\226\207\344\273\266\345\244\271" };
-static const char* const lang_zh_CN_f596[] = { "\344\270\213\346\254\241\346\270\270\346\210\217\345\220\257\345\212\250\346\227\266\344\275\277\347\224\250" };
-static const char* const lang_zh_CN_f597[] = { "\351\237\263\351\207\217 %d%%" };
-static const char* const lang_zh_CN_f598[] = { "\345\215\201\345\255\227\351\224\256\344\270\213\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
-static const char* const lang_zh_CN_f599[] = { "\345\215\201\345\255\227\351\224\256\345\267\246\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
-static const char* const lang_zh_CN_f600[] = { "\345\215\201\345\255\227\351\224\256\345\217\263\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
-static const char* const lang_zh_CN_f601[] = { "\345\215\201\345\255\227\351\224\256\344\270\212\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
-static const char* const lang_zh_CN_f602[] = { "L \350\202\251\351\224\256\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
-static const char* const lang_zh_CN_f603[] = { "R \350\202\251\351\224\256\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
-static const char* const lang_zh_CN_f604[] = { "\344\270\213\351\224\256\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
-static const char* const lang_zh_CN_f605[] = { "\345\267\246\351\224\256\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
-static const char* const lang_zh_CN_f606[] = { "\345\217\263\351\235\242\351\224\256\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
-static const char* const lang_zh_CN_f607[] = { "\344\270\212\351\224\256\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
-static const char* const lang_zh_CN_f608[] = { "\344\273\216\345\223\252\351\207\214\350\257\273\345\217\226\346\270\270\346\210\217\357\274\214\344\273\245\345\217\212\345\255\230\346\241\243\344\277\235\345\255\230\345\234\250\345\223\252\344\270\252\346\226\207\344\273\266\345\244\271\343\200\202" };
-static const char* const lang_zh_CN_f609[] = { "\344\273\216\345\223\252\351\207\214\350\257\273\345\217\226\346\270\270\346\210\217\343\200\202\345\255\230\346\241\243\344\277\235\345\255\230\345\234\250\346\270\270\346\210\217\346\227\201\350\276\271\343\200\202" };
-static const char* const lang_zh_CN_f610[] = { "\345\223\252\345\235\227\345\261\217\345\271\225\357\274\232\344\270\244\345\235\227\351\203\275" };
-static const char* const lang_zh_CN_f611[] = { "\345\223\252\345\235\227\345\261\217\345\271\225\357\274\232\344\273\205\344\270\213\345\261\217" };
-static const char* const lang_zh_CN_f612[] = { "\345\223\252\345\235\227\345\261\217\345\271\225\357\274\232\344\273\205\344\270\212\345\261\217" };
-static const char* const lang_zh_CN_f613[] = { "\346\270\270\346\210\217\343\200\201\345\220\215\347\247\260\343\200\201\345\255\230\346\241\243" };
-static const char* const lang_zh_CN_f614[] = { "\346\270\270\346\210\217\345\234\250\345\223\252\345\235\227\345\261\217\345\271\225\344\270\212\343\200\202" };
-static const char* const lang_zh_CN_f615[] = { "\345\223\252\345\235\227\345\261\217\345\271\225\346\234\211\350\246\206\347\233\226\345\261\202\343\200\202" };
-static const char* const lang_zh_CN_f616[] = { "\345\274\200\347\235\200\350\241\245\344\270\201\346\227\266\357\274\214\346\270\270\346\210\217\347\224\250\350\207\252\345\267\261\347\213\254\347\253\213\347\232\204\347\224\265\346\261\240\345\255\230\346\241\243\357\274\210\342\200\234<game> + <patch>\342\200\235\357\274\211\357\274\233\345\205\263\346\216\211\345\260\261\347\224\250\345\216\237\347\211\210\347\232\204" };
-static const char* const lang_zh_CN_f617[] = { "\345\274\200\347\235\200\350\241\245\344\270\201\346\227\266\357\274\214\346\270\270\346\210\217\347\224\250\350\207\252\345\267\261\347\213\254\347\253\213\347\232\204\345\215\263\346\227\266\345\255\230\346\241\243\357\274\233\345\205\263\346\216\211\345\260\261\347\224\250\345\216\237\347\211\210\347\232\204\357\274\210\344\270\244\350\276\271\346\267\267\347\235\200\347\224\250\345\217\257\350\203\275\350\257\273\345\217\226\345\207\272\351\224\231\357\274\211" };
-static const char* const lang_zh_CN_f618[] = { "\345\274\200\345\220\257\350\207\252\345\212\250\346\243\200\346\237\245\345\220\216\357\274\214RetroDS \346\257\217\345\244\251\345\234\250\346\211\223\345\274\200\346\270\270\346\210\217\345\210\227\350\241\250\346\227\266\346\237\245\346\211\276\344\270\200\346\254\241\346\226\260\347\211\210\346\234\254\357\274\214\344\270\213\350\275\275\345\211\215\344\274\232\345\205\210\350\257\242\351\227\256\343\200\202\346\233\264\346\226\260\346\235\245\350\207\252 github.com/iosue-iulianus/retro-ds \347\232\204\345\217\221\345\270\203\351\241\265\343\200\202" };
-static const char* const lang_zh_CN_f619[] = { "\345\270\246\346\240\207\347\255\276\357\274\214\345\246\202 (USA)" };
-static const char* const lang_zh_CN_f620[] = { "X\357\274\210\344\270\212\357\274\211\351\224\256" };
-static const char* const lang_zh_CN_f621[] = { "Y\357\274\210\345\267\246\357\274\211\351\224\256" };
-static const char* const lang_zh_CN_f622[] = { "\344\275\240\350\207\252\345\267\261\347\232\204 PNG \346\224\276\345\234\250 retrods/overlays/\343\200\202\346\237\220\345\235\227\345\261\217\345\271\225\346\262\241\346\234\211\345\260\261\347\224\250\351\273\230\350\256\244\351\242\234\350\211\262\347\232\204\347\224\237\346\210\220\350\276\271\346\241\206\343\200\202" };
-static const char* const lang_zh_CN_f623[] = { "\345\211\257\345\261\217\344\270\212\346\230\276\347\244\272\344\275\240\350\207\252\345\267\261\347\232\204\346\210\226\346\212\223\345\217\226\346\235\245\347\232\204\345\276\275\346\240\207\343\200\202" };
-static const char* const lang_zh_CN_f624[] = { "\344\270\244\345\235\227\345\261\217\345\271\225\345\275\242\347\212\266\347\233\270\345\220\214\357\274\232\346\227\240\351\234\200\345\214\271\351\205\215" };
-static const char* const lang_zh_CN_f625[] = { "\346\224\276\345\244\247" };
-static const char* const lang_zh_CN_f626[] = { "\351\242\234\350\211\262" };
-static const char* const lang_zh_CN_f627[] = { "\345\215\201\345\205\255\350\277\233\345\210\266" };
-static const char* const lang_zh_CN_f628[] = { "\350\211\262\347\233\270" };
-static const char* const lang_zh_CN_f629[] = { "\346\234\272\345\231\250\347\277\273\350\257\221" };
-static const char* const lang_zh_CN_f630[] = { "\350\277\230\346\262\241\346\234\211\345\215\263\346\227\266\345\255\230\346\241\243\357\274\201" };
-static const char* const lang_zh_CN_f631[] = { "\345\205\263" };
-static const char* const lang_zh_CN_f632[] = { "\345\274\200" };
-static const char* const lang_zh_CN_f633[] = { "\345\210\206" };
+static const char* const lang_zh_CN_f580[] = { "\346\222\244\351\224\200" };
+static const char* const lang_zh_CN_f581[] = { "\346\222\244\351\224\200\350\257\273\345\217\226" };
+static const char* const lang_zh_CN_f582[] = { "\346\222\244\351\224\200\344\277\235\345\255\230" };
+static const char* const lang_zh_CN_f583[] = { "\346\227\240\346\263\225\346\222\244\351\224\200" };
+static const char* const lang_zh_CN_f584[] = { "\350\277\231\344\270\252\346\270\270\346\210\217\347\232\204\347\211\210\346\234\254\346\234\252\347\237\245" };
+static const char* const lang_zh_CN_f585[] = { "\345\267\262\350\247\243\351\224\201" };
+static const char* const lang_zh_CN_f586[] = { "\350\247\243\351\224\201\350\256\260\345\275\225\345\267\262\345\217\221\351\200\201" };
+static const char* const lang_zh_CN_f587[] = { "\346\201\242\345\244\215\350\201\224\347\275\221\345\220\216\345\260\206\345\217\221\351\200\201\350\247\243\351\224\201\350\256\260\345\275\225" };
+static const char* const lang_zh_CN_f588[] = { "\345\267\262\345\217\226\346\266\210\345\233\272\345\256\232\357\274\232\345\277\253\346\215\267\346\240\217 5 \347\247\222\345\220\216\351\232\220\350\227\217\343\200\202" };
+static const char* const lang_zh_CN_f589[] = { "\346\234\252\346\265\213\350\257\225\357\274\232\345\211\257\345\261\217\345\217\257\350\203\275\344\270\215\350\265\267\344\275\234\347\224\250" };
+static const char* const lang_zh_CN_f590[] = { "\344\270\212" };
+static const char* const lang_zh_CN_f591[] = { "\346\234\200\345\244\232\345\217\257\345\220\214\346\227\266\345\274\200\345\220\257 %d \344\270\252\350\241\245\344\270\201" };
+static const char* const lang_zh_CN_f592[] = { "\344\270\212\344\270\200\347\272\247\357\274\232%s" };
+static const char* const lang_zh_CN_f593[] = { "\347\216\260\345\234\250\346\233\264\346\226\260" };
+static const char* const lang_zh_CN_f594[] = { "\346\233\264\346\226\260" };
+static const char* const lang_zh_CN_f595[] = { "\346\233\264\346\226\260\343\200\201\351\233\206\346\210\220" };
+static const char* const lang_zh_CN_f596[] = { "\347\224\250\350\277\231\344\270\252\346\226\207\344\273\266\345\244\271" };
+static const char* const lang_zh_CN_f597[] = { "\344\270\213\346\254\241\346\270\270\346\210\217\345\220\257\345\212\250\346\227\266\344\275\277\347\224\250" };
+static const char* const lang_zh_CN_f598[] = { "\351\237\263\351\207\217 %d%%" };
+static const char* const lang_zh_CN_f599[] = { "\345\215\201\345\255\227\351\224\256\344\270\213\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
+static const char* const lang_zh_CN_f600[] = { "\345\215\201\345\255\227\351\224\256\345\267\246\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
+static const char* const lang_zh_CN_f601[] = { "\345\215\201\345\255\227\351\224\256\345\217\263\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
+static const char* const lang_zh_CN_f602[] = { "\345\215\201\345\255\227\351\224\256\344\270\212\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
+static const char* const lang_zh_CN_f603[] = { "L \350\202\251\351\224\256\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
+static const char* const lang_zh_CN_f604[] = { "R \350\202\251\351\224\256\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
+static const char* const lang_zh_CN_f605[] = { "\344\270\213\351\224\256\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
+static const char* const lang_zh_CN_f606[] = { "\345\267\246\351\224\256\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
+static const char* const lang_zh_CN_f607[] = { "\345\217\263\351\235\242\351\224\256\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
+static const char* const lang_zh_CN_f608[] = { "\344\270\212\351\224\256\347\273\231\346\270\270\346\210\217\344\273\200\344\271\210\343\200\202" };
+static const char* const lang_zh_CN_f609[] = { "\344\273\216\345\223\252\351\207\214\350\257\273\345\217\226\346\270\270\346\210\217\357\274\214\344\273\245\345\217\212\345\255\230\346\241\243\344\277\235\345\255\230\345\234\250\345\223\252\344\270\252\346\226\207\344\273\266\345\244\271\343\200\202" };
+static const char* const lang_zh_CN_f610[] = { "\344\273\216\345\223\252\351\207\214\350\257\273\345\217\226\346\270\270\346\210\217\343\200\202\345\255\230\346\241\243\344\277\235\345\255\230\345\234\250\346\270\270\346\210\217\346\227\201\350\276\271\343\200\202" };
+static const char* const lang_zh_CN_f611[] = { "\345\223\252\345\235\227\345\261\217\345\271\225\357\274\232\344\270\244\345\235\227\351\203\275" };
+static const char* const lang_zh_CN_f612[] = { "\345\223\252\345\235\227\345\261\217\345\271\225\357\274\232\344\273\205\344\270\213\345\261\217" };
+static const char* const lang_zh_CN_f613[] = { "\345\223\252\345\235\227\345\261\217\345\271\225\357\274\232\344\273\205\344\270\212\345\261\217" };
+static const char* const lang_zh_CN_f614[] = { "\346\270\270\346\210\217\343\200\201\345\220\215\347\247\260\343\200\201\345\255\230\346\241\243" };
+static const char* const lang_zh_CN_f615[] = { "\346\270\270\346\210\217\345\234\250\345\223\252\345\235\227\345\261\217\345\271\225\344\270\212\343\200\202" };
+static const char* const lang_zh_CN_f616[] = { "\345\223\252\345\235\227\345\261\217\345\271\225\346\234\211\350\246\206\347\233\226\345\261\202\343\200\202" };
+static const char* const lang_zh_CN_f617[] = { "\345\274\200\347\235\200\350\241\245\344\270\201\346\227\266\357\274\214\346\270\270\346\210\217\347\224\250\350\207\252\345\267\261\347\213\254\347\253\213\347\232\204\347\224\265\346\261\240\345\255\230\346\241\243\357\274\210\342\200\234<game> + <patch>\342\200\235\357\274\211\357\274\233\345\205\263\346\216\211\345\260\261\347\224\250\345\216\237\347\211\210\347\232\204" };
+static const char* const lang_zh_CN_f618[] = { "\345\274\200\347\235\200\350\241\245\344\270\201\346\227\266\357\274\214\346\270\270\346\210\217\347\224\250\350\207\252\345\267\261\347\213\254\347\253\213\347\232\204\345\215\263\346\227\266\345\255\230\346\241\243\357\274\233\345\205\263\346\216\211\345\260\261\347\224\250\345\216\237\347\211\210\347\232\204\357\274\210\344\270\244\350\276\271\346\267\267\347\235\200\347\224\250\345\217\257\350\203\275\350\257\273\345\217\226\345\207\272\351\224\231\357\274\211" };
+static const char* const lang_zh_CN_f619[] = { "\345\274\200\345\220\257\350\207\252\345\212\250\346\243\200\346\237\245\345\220\216\357\274\214RetroDS \346\257\217\345\244\251\345\234\250\346\211\223\345\274\200\346\270\270\346\210\217\345\210\227\350\241\250\346\227\266\346\237\245\346\211\276\344\270\200\346\254\241\346\226\260\347\211\210\346\234\254\357\274\214\344\270\213\350\275\275\345\211\215\344\274\232\345\205\210\350\257\242\351\227\256\343\200\202\346\233\264\346\226\260\346\235\245\350\207\252 github.com/iosue-iulianus/retro-ds \347\232\204\345\217\221\345\270\203\351\241\265\343\200\202" };
+static const char* const lang_zh_CN_f620[] = { "\345\270\246\346\240\207\347\255\276\357\274\214\345\246\202 (USA)" };
+static const char* const lang_zh_CN_f621[] = { "X\357\274\210\344\270\212\357\274\211\351\224\256" };
+static const char* const lang_zh_CN_f622[] = { "Y\357\274\210\345\267\246\357\274\211\351\224\256" };
+static const char* const lang_zh_CN_f623[] = { "\344\275\240\350\207\252\345\267\261\347\232\204 PNG \346\224\276\345\234\250 retrods/overlays/\343\200\202\346\237\220\345\235\227\345\261\217\345\271\225\346\262\241\346\234\211\345\260\261\347\224\250\351\273\230\350\256\244\351\242\234\350\211\262\347\232\204\347\224\237\346\210\220\350\276\271\346\241\206\343\200\202" };
+static const char* const lang_zh_CN_f624[] = { "\345\211\257\345\261\217\344\270\212\346\230\276\347\244\272\344\275\240\350\207\252\345\267\261\347\232\204\346\210\226\346\212\223\345\217\226\346\235\245\347\232\204\345\276\275\346\240\207\343\200\202" };
+static const char* const lang_zh_CN_f625[] = { "\344\270\244\345\235\227\345\261\217\345\271\225\345\275\242\347\212\266\347\233\270\345\220\214\357\274\232\346\227\240\351\234\200\345\214\271\351\205\215" };
+static const char* const lang_zh_CN_f626[] = { "\346\224\276\345\244\247" };
+static const char* const lang_zh_CN_f627[] = { "\351\242\234\350\211\262" };
+static const char* const lang_zh_CN_f628[] = { "\345\215\201\345\205\255\350\277\233\345\210\266" };
+static const char* const lang_zh_CN_f629[] = { "\350\211\262\347\233\270" };
+static const char* const lang_zh_CN_f630[] = { "\346\234\272\345\231\250\347\277\273\350\257\221" };
+static const char* const lang_zh_CN_f631[] = { "\350\277\230\346\262\241\346\234\211\345\215\263\346\227\266\345\255\230\346\241\243\357\274\201" };
+static const char* const lang_zh_CN_f632[] = { "\345\205\263" };
+static const char* const lang_zh_CN_f633[] = { "\345\274\200" };
 static const char* const lang_zh_CN_f634[] = { "\345\210\206" };
-static const char* const lang_zh_CN_f635[] = { "\351\242\204\350\256\276" };
-static const char* const lang_zh_CN_f636[] = { "\346\212\212\345\267\246\346\221\207\346\235\206\346\214\211\344\270\213\345\216\273" };
-static const char* const lang_zh_CN_f637[] = { "\346\212\212\345\267\246\346\221\207\346\235\206\345\276\200\345\267\246\346\216\250" };
-static const char* const lang_zh_CN_f638[] = { "\346\212\212\345\267\246\346\221\207\346\235\206\345\276\200\344\270\212\346\216\250" };
-static const char* const lang_zh_CN_f639[] = { "\344\270\213\351\235\242\347\232\204\344\270\273\346\214\211\351\224\256" };
-static const char* const lang_zh_CN_f640[] = { "\346\211\223\345\274\200 RetroDS \350\217\234\345\215\225\347\232\204\351\224\256\357\274\210Home\343\200\201Menu \346\210\226 Function\357\274\211" };
-static const char* const lang_zh_CN_f641[] = { "\346\270\270\346\210\217" };
-static const char* const lang_zh_CN_f642[] = { "\345\267\246\350\276\271\347\232\204\344\270\273\346\214\211\351\224\256" };
-static const char* const lang_zh_CN_f643[] = { "\345\267\246\350\202\251\351\224\256" };
-static const char* const lang_zh_CN_f644[] = { "ROM \346\227\201\350\276\271\347\232\204\350\241\245\344\270\201" };
-static const char* const lang_zh_CN_f645[] = { "\345\217\263\350\276\271\347\232\204\344\270\273\346\214\211\351\224\256" };
-static const char* const lang_zh_CN_f646[] = { "\345\217\263\350\202\251\351\224\256" };
-static const char* const lang_zh_CN_f647[] = { "\345\267\246\350\276\271\347\254\254\344\272\214\344\270\252\350\202\251\351\224\256" };
-static const char* const lang_zh_CN_f648[] = { "\345\217\263\350\276\271\347\254\254\344\272\214\344\270\252\350\202\251\351\224\256" };
-static const char* const lang_zh_CN_f649[] = { "\344\270\212\351\235\242\347\232\204\344\270\273\346\214\211\351\224\256" };
-static const char* const lang_zh_CN_f650[] = { "\346\234\252\344\277\235\345\255\230\347\232\204\350\277\233\345\272\246\344\274\232\344\270\242\345\244\261" };
-static const char* const lang_zh_CN_f651[] = { "\345\270\246" };
-static const char* const lang_zh_CN_f652[] = { "%s" };
-static const char* const lang_zh_CN_f653[] = { "\350\277\231\344\270\252\346\270\270\346\210\217\347\232\204\345\217\246\344\270\200\344\270\252 dump\357\274\210%s\357\274\211" };
-static const char* const lang_zh_CN_f654[] = { "\345\217\246\344\270\200\344\270\252\347\211\210\346\234\254\347\232\204\346\270\270\346\210\217\357\274\210\345\205\266\344\273\226\350\241\245\344\270\201\357\274\214\346\210\226\345\217\246\344\270\200\344\270\252 ROM\357\274\211" };
-static const char* const lang_zh_CN_f655[] = { "\346\234\252\346\224\271\345\212\250\347\232\204\346\270\270\346\210\217\357\274\210%s\357\274\211" };
-static const char* const lang_zh_CN_f656[] = { "\344\270\215\345\270\246" };
-static const char* const lang_zh_CN_f657[] = { "\346\262\241\345\274\200\350\241\245\344\270\201\347\232\204 ROM" };
-static const char* const lang_zh_CN_f658[] = { "\345\275\223\345\211\215\344\275\215\347\275\256\345\267\262\344\277\235\345\255\230" };
-static const char* const lang_zh_CN_f659[] = { "\342\200\271" };
-static const char* const lang_zh_CN_f660[] = { "\342\200\272" };
+static const char* const lang_zh_CN_f635[] = { "\345\210\206" };
+static const char* const lang_zh_CN_f636[] = { "\351\242\204\350\256\276" };
+static const char* const lang_zh_CN_f637[] = { "\346\212\212\345\267\246\346\221\207\346\235\206\346\214\211\344\270\213\345\216\273" };
+static const char* const lang_zh_CN_f638[] = { "\346\212\212\345\267\246\346\221\207\346\235\206\345\276\200\345\267\246\346\216\250" };
+static const char* const lang_zh_CN_f639[] = { "\346\212\212\345\267\246\346\221\207\346\235\206\345\276\200\344\270\212\346\216\250" };
+static const char* const lang_zh_CN_f640[] = { "\344\270\213\351\235\242\347\232\204\344\270\273\346\214\211\351\224\256" };
+static const char* const lang_zh_CN_f641[] = { "\346\211\223\345\274\200 RetroDS \350\217\234\345\215\225\347\232\204\351\224\256\357\274\210Home\343\200\201Menu \346\210\226 Function\357\274\211" };
+static const char* const lang_zh_CN_f642[] = { "\346\270\270\346\210\217" };
+static const char* const lang_zh_CN_f643[] = { "\345\267\246\350\276\271\347\232\204\344\270\273\346\214\211\351\224\256" };
+static const char* const lang_zh_CN_f644[] = { "\345\267\246\350\202\251\351\224\256" };
+static const char* const lang_zh_CN_f645[] = { "ROM \346\227\201\350\276\271\347\232\204\350\241\245\344\270\201" };
+static const char* const lang_zh_CN_f646[] = { "\345\217\263\350\276\271\347\232\204\344\270\273\346\214\211\351\224\256" };
+static const char* const lang_zh_CN_f647[] = { "\345\217\263\350\202\251\351\224\256" };
+static const char* const lang_zh_CN_f648[] = { "\345\267\246\350\276\271\347\254\254\344\272\214\344\270\252\350\202\251\351\224\256" };
+static const char* const lang_zh_CN_f649[] = { "\345\217\263\350\276\271\347\254\254\344\272\214\344\270\252\350\202\251\351\224\256" };
+static const char* const lang_zh_CN_f650[] = { "\344\270\212\351\235\242\347\232\204\344\270\273\346\214\211\351\224\256" };
+static const char* const lang_zh_CN_f651[] = { "\346\234\252\344\277\235\345\255\230\347\232\204\350\277\233\345\272\246\344\274\232\344\270\242\345\244\261" };
+static const char* const lang_zh_CN_f652[] = { "\345\270\246" };
+static const char* const lang_zh_CN_f653[] = { "%s" };
+static const char* const lang_zh_CN_f654[] = { "\350\277\231\344\270\252\346\270\270\346\210\217\347\232\204\345\217\246\344\270\200\344\270\252 dump\357\274\210%s\357\274\211" };
+static const char* const lang_zh_CN_f655[] = { "\345\217\246\344\270\200\344\270\252\347\211\210\346\234\254\347\232\204\346\270\270\346\210\217\357\274\210\345\205\266\344\273\226\350\241\245\344\270\201\357\274\214\346\210\226\345\217\246\344\270\200\344\270\252 ROM\357\274\211" };
+static const char* const lang_zh_CN_f656[] = { "\346\234\252\346\224\271\345\212\250\347\232\204\346\270\270\346\210\217\357\274\210%s\357\274\211" };
+static const char* const lang_zh_CN_f657[] = { "\344\270\215\345\270\246" };
+static const char* const lang_zh_CN_f658[] = { "\346\262\241\345\274\200\350\241\245\344\270\201\347\232\204 ROM" };
+static const char* const lang_zh_CN_f659[] = { "\345\275\223\345\211\215\344\275\215\347\275\256\345\267\262\344\277\235\345\255\230" };
+static const char* const lang_zh_CN_f660[] = { "\342\200\271" };
+static const char* const lang_zh_CN_f661[] = { "\342\200\272" };
 static const I18nEntry lang_zh_CN_entries[] = {
 	{ " (patch)", lang_zh_CN_f0, 1 },
 	{ " Checking for a new version...", lang_zh_CN_f1, 1 },
@@ -10518,87 +10533,88 @@ static const I18nEntry lang_zh_CN_entries[] = {
 	{ "Turbo B", lang_zh_CN_f577, 1 },
 	{ "Turbo speed", lang_zh_CN_f578, 1 },
 	{ "Turns this ROM into another official release: %s", lang_zh_CN_f579, 1 },
-	{ "Undo Load", lang_zh_CN_f580, 1 },
-	{ "Undo Save", lang_zh_CN_f581, 1 },
-	{ "Undo failed", lang_zh_CN_f582, 1 },
-	{ "Unknown version of this game", lang_zh_CN_f583, 1 },
-	{ "Unlocked", lang_zh_CN_f584, 1 },
-	{ "Unlocks sent", lang_zh_CN_f585, 1 },
-	{ "Unlocks will be sent when the connection is back", lang_zh_CN_f586, 1 },
-	{ "Unpinned: the bar hides after 5 seconds.", lang_zh_CN_f587, 1 },
-	{ "Untested: the second screen may not work with it", lang_zh_CN_f588, 1 },
-	{ "Up", lang_zh_CN_f589, 1 },
-	{ "Up to %d patches can be on at once", lang_zh_CN_f590, 1 },
-	{ "Up to %s", lang_zh_CN_f591, 1 },
-	{ "Update now", lang_zh_CN_f592, 1 },
-	{ "Updates", lang_zh_CN_f593, 1 },
-	{ "Updates, integrations", lang_zh_CN_f594, 1 },
-	{ "Use This Folder", lang_zh_CN_f595, 1 },
-	{ "Used from the next time the game starts", lang_zh_CN_f596, 1 },
-	{ "Volume %d%%", lang_zh_CN_f597, 1 },
-	{ "What D-pad down gives the game.", lang_zh_CN_f598, 1 },
-	{ "What D-pad left gives the game.", lang_zh_CN_f599, 1 },
-	{ "What D-pad right gives the game.", lang_zh_CN_f600, 1 },
-	{ "What D-pad up gives the game.", lang_zh_CN_f601, 1 },
-	{ "What the L shoulder button gives the game.", lang_zh_CN_f602, 1 },
-	{ "What the R shoulder button gives the game.", lang_zh_CN_f603, 1 },
-	{ "What the bottom face button gives the game.", lang_zh_CN_f604, 1 },
-	{ "What the left face button gives the game.", lang_zh_CN_f605, 1 },
-	{ "What the right face button gives the game.", lang_zh_CN_f606, 1 },
-	{ "What the top face button gives the game.", lang_zh_CN_f607, 1 },
-	{ "Where games are read from, and the folder their saves are kept in.", lang_zh_CN_f608, 1 },
-	{ "Where games are read from. Their saves are kept next to them.", lang_zh_CN_f609, 1 },
-	{ "Which Screen: Both", lang_zh_CN_f610, 1 },
-	{ "Which Screen: Bottom Only", lang_zh_CN_f611, 1 },
-	{ "Which Screen: Top Only", lang_zh_CN_f612, 1 },
-	{ "Which games, names, saving", lang_zh_CN_f613, 1 },
-	{ "Which screen the game is on.", lang_zh_CN_f614, 1 },
-	{ "Which screens have them.", lang_zh_CN_f615, 1 },
-	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_zh_CN_f616, 1 },
-	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_zh_CN_f617, 1 },
-	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_zh_CN_f618, 1 },
-	{ "With tags, like (USA)", lang_zh_CN_f619, 1 },
-	{ "X (top) button", lang_zh_CN_f620, 1 },
-	{ "Y (left) button", lang_zh_CN_f621, 1 },
-	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_zh_CN_f622, 1 },
-	{ "Your own and scraped logos on the second screen.", lang_zh_CN_f623, 1 },
-	{ "Your screens are the same shape: nothing to match", lang_zh_CN_f624, 1 },
-	{ "Zoom", lang_zh_CN_f625, 1 },
-	{ "color", lang_zh_CN_f626, 1 },
-	{ "hex", lang_zh_CN_f627, 1 },
-	{ "hue", lang_zh_CN_f628, 1 },
-	{ "machine translated", lang_zh_CN_f629, 1 },
-	{ "no save state yet!", lang_zh_CN_f630, 1 },
-	{ "off", lang_zh_CN_f631, 1 },
-	{ "on", lang_zh_CN_f632, 1 },
-	{ "point", lang_zh_CN_f633, 1 },
-	{ "points", lang_zh_CN_f634, 1 },
-	{ "presets", lang_zh_CN_f635, 1 },
-	{ "press the left stick in", lang_zh_CN_f636, 1 },
-	{ "push the left stick left", lang_zh_CN_f637, 1 },
-	{ "push the left stick up", lang_zh_CN_f638, 1 },
-	{ "the bottom face button", lang_zh_CN_f639, 1 },
-	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_zh_CN_f640, 1 },
-	{ "the game", lang_zh_CN_f641, 1 },
-	{ "the left face button", lang_zh_CN_f642, 1 },
-	{ "the left shoulder button", lang_zh_CN_f643, 1 },
-	{ "the patch beside the ROM", lang_zh_CN_f644, 1 },
-	{ "the right face button", lang_zh_CN_f645, 1 },
-	{ "the right shoulder button", lang_zh_CN_f646, 1 },
-	{ "the second left shoulder button", lang_zh_CN_f647, 1 },
-	{ "the second right shoulder button", lang_zh_CN_f648, 1 },
-	{ "the top face button", lang_zh_CN_f649, 1 },
-	{ "unsaved progress is lost", lang_zh_CN_f650, 1 },
-	{ "with", lang_zh_CN_f651, 1 },
-	{ "with %s", lang_zh_CN_f652, 1 },
-	{ "with another dump of the game (%s)", lang_zh_CN_f653, 1 },
-	{ "with another version of the game (other patches, or another ROM)", lang_zh_CN_f654, 1 },
-	{ "with the unchanged game (%s)", lang_zh_CN_f655, 1 },
-	{ "without", lang_zh_CN_f656, 1 },
-	{ "without the patches on", lang_zh_CN_f657, 1 },
-	{ "your place is saved", lang_zh_CN_f658, 1 },
-	{ "\342\200\271", lang_zh_CN_f659, 1 },
-	{ "\342\200\272", lang_zh_CN_f660, 1 },
+	{ "Undo", lang_zh_CN_f580, 1 },
+	{ "Undo Load", lang_zh_CN_f581, 1 },
+	{ "Undo Save", lang_zh_CN_f582, 1 },
+	{ "Undo failed", lang_zh_CN_f583, 1 },
+	{ "Unknown version of this game", lang_zh_CN_f584, 1 },
+	{ "Unlocked", lang_zh_CN_f585, 1 },
+	{ "Unlocks sent", lang_zh_CN_f586, 1 },
+	{ "Unlocks will be sent when the connection is back", lang_zh_CN_f587, 1 },
+	{ "Unpinned: the bar hides after 5 seconds.", lang_zh_CN_f588, 1 },
+	{ "Untested: the second screen may not work with it", lang_zh_CN_f589, 1 },
+	{ "Up", lang_zh_CN_f590, 1 },
+	{ "Up to %d patches can be on at once", lang_zh_CN_f591, 1 },
+	{ "Up to %s", lang_zh_CN_f592, 1 },
+	{ "Update now", lang_zh_CN_f593, 1 },
+	{ "Updates", lang_zh_CN_f594, 1 },
+	{ "Updates, integrations", lang_zh_CN_f595, 1 },
+	{ "Use This Folder", lang_zh_CN_f596, 1 },
+	{ "Used from the next time the game starts", lang_zh_CN_f597, 1 },
+	{ "Volume %d%%", lang_zh_CN_f598, 1 },
+	{ "What D-pad down gives the game.", lang_zh_CN_f599, 1 },
+	{ "What D-pad left gives the game.", lang_zh_CN_f600, 1 },
+	{ "What D-pad right gives the game.", lang_zh_CN_f601, 1 },
+	{ "What D-pad up gives the game.", lang_zh_CN_f602, 1 },
+	{ "What the L shoulder button gives the game.", lang_zh_CN_f603, 1 },
+	{ "What the R shoulder button gives the game.", lang_zh_CN_f604, 1 },
+	{ "What the bottom face button gives the game.", lang_zh_CN_f605, 1 },
+	{ "What the left face button gives the game.", lang_zh_CN_f606, 1 },
+	{ "What the right face button gives the game.", lang_zh_CN_f607, 1 },
+	{ "What the top face button gives the game.", lang_zh_CN_f608, 1 },
+	{ "Where games are read from, and the folder their saves are kept in.", lang_zh_CN_f609, 1 },
+	{ "Where games are read from. Their saves are kept next to them.", lang_zh_CN_f610, 1 },
+	{ "Which Screen: Both", lang_zh_CN_f611, 1 },
+	{ "Which Screen: Bottom Only", lang_zh_CN_f612, 1 },
+	{ "Which Screen: Top Only", lang_zh_CN_f613, 1 },
+	{ "Which games, names, saving", lang_zh_CN_f614, 1 },
+	{ "Which screen the game is on.", lang_zh_CN_f615, 1 },
+	{ "Which screens have them.", lang_zh_CN_f616, 1 },
+	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_zh_CN_f617, 1 },
+	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_zh_CN_f618, 1 },
+	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_zh_CN_f619, 1 },
+	{ "With tags, like (USA)", lang_zh_CN_f620, 1 },
+	{ "X (top) button", lang_zh_CN_f621, 1 },
+	{ "Y (left) button", lang_zh_CN_f622, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_zh_CN_f623, 1 },
+	{ "Your own and scraped logos on the second screen.", lang_zh_CN_f624, 1 },
+	{ "Your screens are the same shape: nothing to match", lang_zh_CN_f625, 1 },
+	{ "Zoom", lang_zh_CN_f626, 1 },
+	{ "color", lang_zh_CN_f627, 1 },
+	{ "hex", lang_zh_CN_f628, 1 },
+	{ "hue", lang_zh_CN_f629, 1 },
+	{ "machine translated", lang_zh_CN_f630, 1 },
+	{ "no save state yet!", lang_zh_CN_f631, 1 },
+	{ "off", lang_zh_CN_f632, 1 },
+	{ "on", lang_zh_CN_f633, 1 },
+	{ "point", lang_zh_CN_f634, 1 },
+	{ "points", lang_zh_CN_f635, 1 },
+	{ "presets", lang_zh_CN_f636, 1 },
+	{ "press the left stick in", lang_zh_CN_f637, 1 },
+	{ "push the left stick left", lang_zh_CN_f638, 1 },
+	{ "push the left stick up", lang_zh_CN_f639, 1 },
+	{ "the bottom face button", lang_zh_CN_f640, 1 },
+	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_zh_CN_f641, 1 },
+	{ "the game", lang_zh_CN_f642, 1 },
+	{ "the left face button", lang_zh_CN_f643, 1 },
+	{ "the left shoulder button", lang_zh_CN_f644, 1 },
+	{ "the patch beside the ROM", lang_zh_CN_f645, 1 },
+	{ "the right face button", lang_zh_CN_f646, 1 },
+	{ "the right shoulder button", lang_zh_CN_f647, 1 },
+	{ "the second left shoulder button", lang_zh_CN_f648, 1 },
+	{ "the second right shoulder button", lang_zh_CN_f649, 1 },
+	{ "the top face button", lang_zh_CN_f650, 1 },
+	{ "unsaved progress is lost", lang_zh_CN_f651, 1 },
+	{ "with", lang_zh_CN_f652, 1 },
+	{ "with %s", lang_zh_CN_f653, 1 },
+	{ "with another dump of the game (%s)", lang_zh_CN_f654, 1 },
+	{ "with another version of the game (other patches, or another ROM)", lang_zh_CN_f655, 1 },
+	{ "with the unchanged game (%s)", lang_zh_CN_f656, 1 },
+	{ "without", lang_zh_CN_f657, 1 },
+	{ "without the patches on", lang_zh_CN_f658, 1 },
+	{ "your place is saved", lang_zh_CN_f659, 1 },
+	{ "\342\200\271", lang_zh_CN_f660, 1 },
+	{ "\342\200\272", lang_zh_CN_f661, 1 },
 };
 
 static const char* const lang_zh_TW_f0[] = { "\357\274\210\350\243\234\344\270\201\357\274\211" };
@@ -11181,87 +11197,88 @@ static const char* const lang_zh_TW_f576[] = { "\351\200\243\347\231\274 A" };
 static const char* const lang_zh_TW_f577[] = { "\351\200\243\347\231\274 B" };
 static const char* const lang_zh_TW_f578[] = { "\351\200\243\347\231\274\351\200\237\345\272\246" };
 static const char* const lang_zh_TW_f579[] = { "\346\212\212\351\200\231\345\200\213 ROM \350\256\212\346\210\220\345\217\246\344\270\200\345\200\213\345\256\230\346\226\271\347\211\210\346\234\254\357\274\232%s" };
-static const char* const lang_zh_TW_f580[] = { "\345\276\251\345\216\237\350\256\200\345\217\226" };
-static const char* const lang_zh_TW_f581[] = { "\345\276\251\345\216\237\345\204\262\345\255\230" };
-static const char* const lang_zh_TW_f582[] = { "\347\204\241\346\263\225\345\276\251\345\216\237" };
-static const char* const lang_zh_TW_f583[] = { "\351\200\231\345\200\213\351\201\212\346\210\262\347\232\204\347\211\210\346\234\254\346\234\252\347\237\245" };
-static const char* const lang_zh_TW_f584[] = { "\345\267\262\350\247\243\351\216\226" };
-static const char* const lang_zh_TW_f585[] = { "\350\247\243\351\216\226\350\250\230\351\214\204\345\267\262\345\202\263\351\200\201" };
-static const char* const lang_zh_TW_f586[] = { "\346\201\242\345\276\251\351\200\243\347\267\232\345\276\214\345\260\207\345\202\263\351\200\201\350\247\243\351\216\226\350\250\230\351\214\204" };
-static const char* const lang_zh_TW_f587[] = { "\345\267\262\345\217\226\346\266\210\345\233\272\345\256\232\357\274\232\345\277\253\346\215\267\346\254\204 5 \347\247\222\345\276\214\351\232\261\350\227\217\343\200\202" };
-static const char* const lang_zh_TW_f588[] = { "\346\234\252\346\270\254\350\251\246\357\274\232\345\211\257\345\261\217\345\217\257\350\203\275\344\270\215\350\265\267\344\275\234\347\224\250" };
-static const char* const lang_zh_TW_f589[] = { "\344\270\212" };
-static const char* const lang_zh_TW_f590[] = { "\346\234\200\345\244\232\345\217\257\345\220\214\346\231\202\351\226\213\345\225\237 %d \345\200\213\350\243\234\344\270\201" };
-static const char* const lang_zh_TW_f591[] = { "\344\270\212\344\270\200\347\264\232\357\274\232%s" };
-static const char* const lang_zh_TW_f592[] = { "\347\217\276\345\234\250\346\233\264\346\226\260" };
-static const char* const lang_zh_TW_f593[] = { "\346\233\264\346\226\260" };
-static const char* const lang_zh_TW_f594[] = { "\346\233\264\346\226\260\343\200\201\346\225\264\345\220\210" };
-static const char* const lang_zh_TW_f595[] = { "\347\224\250\351\200\231\345\200\213\350\263\207\346\226\231\345\244\276" };
-static const char* const lang_zh_TW_f596[] = { "\344\270\213\346\254\241\351\201\212\346\210\262\345\225\237\345\213\225\346\231\202\344\275\277\347\224\250" };
-static const char* const lang_zh_TW_f597[] = { "\351\237\263\351\207\217 %d%%" };
-static const char* const lang_zh_TW_f598[] = { "\345\215\201\345\255\227\351\215\265\344\270\213\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
-static const char* const lang_zh_TW_f599[] = { "\345\215\201\345\255\227\351\215\265\345\267\246\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
-static const char* const lang_zh_TW_f600[] = { "\345\215\201\345\255\227\351\215\265\345\217\263\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
-static const char* const lang_zh_TW_f601[] = { "\345\215\201\345\255\227\351\215\265\344\270\212\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
-static const char* const lang_zh_TW_f602[] = { "L \350\202\251\351\215\265\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
-static const char* const lang_zh_TW_f603[] = { "R \350\202\251\351\215\265\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
-static const char* const lang_zh_TW_f604[] = { "\344\270\213\351\215\265\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
-static const char* const lang_zh_TW_f605[] = { "\345\267\246\351\215\265\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
-static const char* const lang_zh_TW_f606[] = { "\345\217\263\351\235\242\351\215\265\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
-static const char* const lang_zh_TW_f607[] = { "\344\270\212\351\215\265\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
-static const char* const lang_zh_TW_f608[] = { "\345\276\236\345\223\252\350\243\241\350\256\200\345\217\226\351\201\212\346\210\262\357\274\214\344\273\245\345\217\212\345\255\230\346\252\224\345\204\262\345\255\230\345\234\250\345\223\252\345\200\213\350\263\207\346\226\231\345\244\276\343\200\202" };
-static const char* const lang_zh_TW_f609[] = { "\345\276\236\345\223\252\350\243\241\350\256\200\345\217\226\351\201\212\346\210\262\343\200\202\345\255\230\346\252\224\345\204\262\345\255\230\345\234\250\351\201\212\346\210\262\346\227\201\351\202\212\343\200\202" };
-static const char* const lang_zh_TW_f610[] = { "\345\223\252\345\241\212\350\236\242\345\271\225\357\274\232\345\205\251\345\241\212\351\203\275" };
-static const char* const lang_zh_TW_f611[] = { "\345\223\252\345\241\212\350\236\242\345\271\225\357\274\232\345\203\205\344\270\213\345\261\217" };
-static const char* const lang_zh_TW_f612[] = { "\345\223\252\345\241\212\350\236\242\345\271\225\357\274\232\345\203\205\344\270\212\345\261\217" };
-static const char* const lang_zh_TW_f613[] = { "\351\201\212\346\210\262\343\200\201\345\220\215\347\250\261\343\200\201\345\255\230\346\252\224" };
-static const char* const lang_zh_TW_f614[] = { "\351\201\212\346\210\262\345\234\250\345\223\252\345\241\212\350\236\242\345\271\225\344\270\212\343\200\202" };
-static const char* const lang_zh_TW_f615[] = { "\345\223\252\345\241\212\350\236\242\345\271\225\346\234\211\350\246\206\350\223\213\345\261\244\343\200\202" };
-static const char* const lang_zh_TW_f616[] = { "\351\226\213\350\221\227\350\243\234\344\270\201\346\231\202\357\274\214\351\201\212\346\210\262\347\224\250\350\207\252\345\267\261\347\215\250\347\253\213\347\232\204\351\233\273\346\261\240\345\255\230\346\252\224\357\274\210\342\200\234<game> + <patch>\342\200\235\357\274\211\357\274\233\351\227\234\346\216\211\345\260\261\347\224\250\345\216\237\347\211\210\347\232\204" };
-static const char* const lang_zh_TW_f617[] = { "\351\226\213\350\221\227\350\243\234\344\270\201\346\231\202\357\274\214\351\201\212\346\210\262\347\224\250\350\207\252\345\267\261\347\215\250\347\253\213\347\232\204\345\215\263\346\231\202\345\255\230\346\252\224\357\274\233\351\227\234\346\216\211\345\260\261\347\224\250\345\216\237\347\211\210\347\232\204\357\274\210\345\205\251\351\202\212\346\267\267\350\221\227\347\224\250\345\217\257\350\203\275\350\256\200\345\217\226\345\207\272\351\214\257\357\274\211" };
-static const char* const lang_zh_TW_f618[] = { "\351\226\213\345\225\237\350\207\252\345\213\225\346\252\242\346\237\245\345\276\214\357\274\214RetroDS \346\257\217\345\244\251\345\234\250\351\226\213\345\225\237\351\201\212\346\210\262\345\210\227\350\241\250\346\231\202\346\237\245\350\251\242\344\270\200\346\254\241\346\226\260\347\211\210\346\234\254\357\274\214\344\270\213\350\274\211\345\211\215\346\234\203\345\205\210\350\251\242\345\225\217\343\200\202\346\233\264\346\226\260\344\276\206\350\207\252 github.com/iosue-iulianus/retro-ds \347\232\204\351\207\213\345\207\272\351\240\201\343\200\202" };
-static const char* const lang_zh_TW_f619[] = { "\345\270\266\346\250\231\347\261\244\357\274\214\345\246\202 (USA)" };
-static const char* const lang_zh_TW_f620[] = { "X\357\274\210\344\270\212\357\274\211\351\215\265" };
-static const char* const lang_zh_TW_f621[] = { "Y\357\274\210\345\267\246\357\274\211\351\215\265" };
-static const char* const lang_zh_TW_f622[] = { "\344\275\240\350\207\252\345\267\261\347\232\204 PNG \346\224\276\345\234\250 retrods/overlays/\343\200\202\346\237\220\345\241\212\350\236\242\345\271\225\346\262\222\346\234\211\345\260\261\347\224\250\351\240\220\350\250\255\351\241\217\350\211\262\347\232\204\347\224\237\346\210\220\351\202\212\346\241\206\343\200\202" };
-static const char* const lang_zh_TW_f623[] = { "\345\211\257\345\261\217\344\270\212\351\241\257\347\244\272\344\275\240\350\207\252\345\267\261\347\232\204\346\210\226\346\212\223\345\217\226\344\276\206\347\232\204\346\250\231\350\252\214\343\200\202" };
-static const char* const lang_zh_TW_f624[] = { "\345\205\251\345\241\212\350\236\242\345\271\225\345\275\242\347\213\200\347\233\270\345\220\214\357\274\232\347\204\241\351\234\200\345\214\271\351\205\215" };
-static const char* const lang_zh_TW_f625[] = { "\346\224\276\345\244\247" };
-static const char* const lang_zh_TW_f626[] = { "\351\241\217\350\211\262" };
-static const char* const lang_zh_TW_f627[] = { "\345\215\201\345\205\255\351\200\262\344\275\215\345\210\266" };
-static const char* const lang_zh_TW_f628[] = { "\350\211\262\347\233\270" };
-static const char* const lang_zh_TW_f629[] = { "\346\251\237\345\231\250\347\277\273\350\255\257" };
-static const char* const lang_zh_TW_f630[] = { "\351\202\204\346\262\222\346\234\211\345\215\263\346\231\202\345\255\230\346\252\224\357\274\201" };
-static const char* const lang_zh_TW_f631[] = { "\351\227\234" };
-static const char* const lang_zh_TW_f632[] = { "\351\226\213" };
-static const char* const lang_zh_TW_f633[] = { "\345\210\206" };
+static const char* const lang_zh_TW_f580[] = { "\345\276\251\345\216\237" };
+static const char* const lang_zh_TW_f581[] = { "\345\276\251\345\216\237\350\256\200\345\217\226" };
+static const char* const lang_zh_TW_f582[] = { "\345\276\251\345\216\237\345\204\262\345\255\230" };
+static const char* const lang_zh_TW_f583[] = { "\347\204\241\346\263\225\345\276\251\345\216\237" };
+static const char* const lang_zh_TW_f584[] = { "\351\200\231\345\200\213\351\201\212\346\210\262\347\232\204\347\211\210\346\234\254\346\234\252\347\237\245" };
+static const char* const lang_zh_TW_f585[] = { "\345\267\262\350\247\243\351\216\226" };
+static const char* const lang_zh_TW_f586[] = { "\350\247\243\351\216\226\350\250\230\351\214\204\345\267\262\345\202\263\351\200\201" };
+static const char* const lang_zh_TW_f587[] = { "\346\201\242\345\276\251\351\200\243\347\267\232\345\276\214\345\260\207\345\202\263\351\200\201\350\247\243\351\216\226\350\250\230\351\214\204" };
+static const char* const lang_zh_TW_f588[] = { "\345\267\262\345\217\226\346\266\210\345\233\272\345\256\232\357\274\232\345\277\253\346\215\267\346\254\204 5 \347\247\222\345\276\214\351\232\261\350\227\217\343\200\202" };
+static const char* const lang_zh_TW_f589[] = { "\346\234\252\346\270\254\350\251\246\357\274\232\345\211\257\345\261\217\345\217\257\350\203\275\344\270\215\350\265\267\344\275\234\347\224\250" };
+static const char* const lang_zh_TW_f590[] = { "\344\270\212" };
+static const char* const lang_zh_TW_f591[] = { "\346\234\200\345\244\232\345\217\257\345\220\214\346\231\202\351\226\213\345\225\237 %d \345\200\213\350\243\234\344\270\201" };
+static const char* const lang_zh_TW_f592[] = { "\344\270\212\344\270\200\347\264\232\357\274\232%s" };
+static const char* const lang_zh_TW_f593[] = { "\347\217\276\345\234\250\346\233\264\346\226\260" };
+static const char* const lang_zh_TW_f594[] = { "\346\233\264\346\226\260" };
+static const char* const lang_zh_TW_f595[] = { "\346\233\264\346\226\260\343\200\201\346\225\264\345\220\210" };
+static const char* const lang_zh_TW_f596[] = { "\347\224\250\351\200\231\345\200\213\350\263\207\346\226\231\345\244\276" };
+static const char* const lang_zh_TW_f597[] = { "\344\270\213\346\254\241\351\201\212\346\210\262\345\225\237\345\213\225\346\231\202\344\275\277\347\224\250" };
+static const char* const lang_zh_TW_f598[] = { "\351\237\263\351\207\217 %d%%" };
+static const char* const lang_zh_TW_f599[] = { "\345\215\201\345\255\227\351\215\265\344\270\213\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
+static const char* const lang_zh_TW_f600[] = { "\345\215\201\345\255\227\351\215\265\345\267\246\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
+static const char* const lang_zh_TW_f601[] = { "\345\215\201\345\255\227\351\215\265\345\217\263\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
+static const char* const lang_zh_TW_f602[] = { "\345\215\201\345\255\227\351\215\265\344\270\212\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
+static const char* const lang_zh_TW_f603[] = { "L \350\202\251\351\215\265\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
+static const char* const lang_zh_TW_f604[] = { "R \350\202\251\351\215\265\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
+static const char* const lang_zh_TW_f605[] = { "\344\270\213\351\215\265\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
+static const char* const lang_zh_TW_f606[] = { "\345\267\246\351\215\265\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
+static const char* const lang_zh_TW_f607[] = { "\345\217\263\351\235\242\351\215\265\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
+static const char* const lang_zh_TW_f608[] = { "\344\270\212\351\215\265\347\265\246\351\201\212\346\210\262\344\273\200\351\272\274\343\200\202" };
+static const char* const lang_zh_TW_f609[] = { "\345\276\236\345\223\252\350\243\241\350\256\200\345\217\226\351\201\212\346\210\262\357\274\214\344\273\245\345\217\212\345\255\230\346\252\224\345\204\262\345\255\230\345\234\250\345\223\252\345\200\213\350\263\207\346\226\231\345\244\276\343\200\202" };
+static const char* const lang_zh_TW_f610[] = { "\345\276\236\345\223\252\350\243\241\350\256\200\345\217\226\351\201\212\346\210\262\343\200\202\345\255\230\346\252\224\345\204\262\345\255\230\345\234\250\351\201\212\346\210\262\346\227\201\351\202\212\343\200\202" };
+static const char* const lang_zh_TW_f611[] = { "\345\223\252\345\241\212\350\236\242\345\271\225\357\274\232\345\205\251\345\241\212\351\203\275" };
+static const char* const lang_zh_TW_f612[] = { "\345\223\252\345\241\212\350\236\242\345\271\225\357\274\232\345\203\205\344\270\213\345\261\217" };
+static const char* const lang_zh_TW_f613[] = { "\345\223\252\345\241\212\350\236\242\345\271\225\357\274\232\345\203\205\344\270\212\345\261\217" };
+static const char* const lang_zh_TW_f614[] = { "\351\201\212\346\210\262\343\200\201\345\220\215\347\250\261\343\200\201\345\255\230\346\252\224" };
+static const char* const lang_zh_TW_f615[] = { "\351\201\212\346\210\262\345\234\250\345\223\252\345\241\212\350\236\242\345\271\225\344\270\212\343\200\202" };
+static const char* const lang_zh_TW_f616[] = { "\345\223\252\345\241\212\350\236\242\345\271\225\346\234\211\350\246\206\350\223\213\345\261\244\343\200\202" };
+static const char* const lang_zh_TW_f617[] = { "\351\226\213\350\221\227\350\243\234\344\270\201\346\231\202\357\274\214\351\201\212\346\210\262\347\224\250\350\207\252\345\267\261\347\215\250\347\253\213\347\232\204\351\233\273\346\261\240\345\255\230\346\252\224\357\274\210\342\200\234<game> + <patch>\342\200\235\357\274\211\357\274\233\351\227\234\346\216\211\345\260\261\347\224\250\345\216\237\347\211\210\347\232\204" };
+static const char* const lang_zh_TW_f618[] = { "\351\226\213\350\221\227\350\243\234\344\270\201\346\231\202\357\274\214\351\201\212\346\210\262\347\224\250\350\207\252\345\267\261\347\215\250\347\253\213\347\232\204\345\215\263\346\231\202\345\255\230\346\252\224\357\274\233\351\227\234\346\216\211\345\260\261\347\224\250\345\216\237\347\211\210\347\232\204\357\274\210\345\205\251\351\202\212\346\267\267\350\221\227\347\224\250\345\217\257\350\203\275\350\256\200\345\217\226\345\207\272\351\214\257\357\274\211" };
+static const char* const lang_zh_TW_f619[] = { "\351\226\213\345\225\237\350\207\252\345\213\225\346\252\242\346\237\245\345\276\214\357\274\214RetroDS \346\257\217\345\244\251\345\234\250\351\226\213\345\225\237\351\201\212\346\210\262\345\210\227\350\241\250\346\231\202\346\237\245\350\251\242\344\270\200\346\254\241\346\226\260\347\211\210\346\234\254\357\274\214\344\270\213\350\274\211\345\211\215\346\234\203\345\205\210\350\251\242\345\225\217\343\200\202\346\233\264\346\226\260\344\276\206\350\207\252 github.com/iosue-iulianus/retro-ds \347\232\204\351\207\213\345\207\272\351\240\201\343\200\202" };
+static const char* const lang_zh_TW_f620[] = { "\345\270\266\346\250\231\347\261\244\357\274\214\345\246\202 (USA)" };
+static const char* const lang_zh_TW_f621[] = { "X\357\274\210\344\270\212\357\274\211\351\215\265" };
+static const char* const lang_zh_TW_f622[] = { "Y\357\274\210\345\267\246\357\274\211\351\215\265" };
+static const char* const lang_zh_TW_f623[] = { "\344\275\240\350\207\252\345\267\261\347\232\204 PNG \346\224\276\345\234\250 retrods/overlays/\343\200\202\346\237\220\345\241\212\350\236\242\345\271\225\346\262\222\346\234\211\345\260\261\347\224\250\351\240\220\350\250\255\351\241\217\350\211\262\347\232\204\347\224\237\346\210\220\351\202\212\346\241\206\343\200\202" };
+static const char* const lang_zh_TW_f624[] = { "\345\211\257\345\261\217\344\270\212\351\241\257\347\244\272\344\275\240\350\207\252\345\267\261\347\232\204\346\210\226\346\212\223\345\217\226\344\276\206\347\232\204\346\250\231\350\252\214\343\200\202" };
+static const char* const lang_zh_TW_f625[] = { "\345\205\251\345\241\212\350\236\242\345\271\225\345\275\242\347\213\200\347\233\270\345\220\214\357\274\232\347\204\241\351\234\200\345\214\271\351\205\215" };
+static const char* const lang_zh_TW_f626[] = { "\346\224\276\345\244\247" };
+static const char* const lang_zh_TW_f627[] = { "\351\241\217\350\211\262" };
+static const char* const lang_zh_TW_f628[] = { "\345\215\201\345\205\255\351\200\262\344\275\215\345\210\266" };
+static const char* const lang_zh_TW_f629[] = { "\350\211\262\347\233\270" };
+static const char* const lang_zh_TW_f630[] = { "\346\251\237\345\231\250\347\277\273\350\255\257" };
+static const char* const lang_zh_TW_f631[] = { "\351\202\204\346\262\222\346\234\211\345\215\263\346\231\202\345\255\230\346\252\224\357\274\201" };
+static const char* const lang_zh_TW_f632[] = { "\351\227\234" };
+static const char* const lang_zh_TW_f633[] = { "\351\226\213" };
 static const char* const lang_zh_TW_f634[] = { "\345\210\206" };
-static const char* const lang_zh_TW_f635[] = { "\351\240\220\350\250\255" };
-static const char* const lang_zh_TW_f636[] = { "\346\212\212\345\267\246\346\220\226\346\241\277\346\214\211\344\270\213\345\216\273" };
-static const char* const lang_zh_TW_f637[] = { "\346\212\212\345\267\246\346\220\226\346\241\277\345\276\200\345\267\246\346\216\250" };
-static const char* const lang_zh_TW_f638[] = { "\346\212\212\345\267\246\346\220\226\346\241\277\345\276\200\344\270\212\346\216\250" };
-static const char* const lang_zh_TW_f639[] = { "\344\270\213\351\235\242\347\232\204\344\270\273\346\214\211\351\215\265" };
-static const char* const lang_zh_TW_f640[] = { "\351\226\213\345\225\237 RetroDS \351\201\270\345\226\256\347\232\204\351\215\265\357\274\210Home\343\200\201Menu \346\210\226 Function\357\274\211" };
-static const char* const lang_zh_TW_f641[] = { "\351\201\212\346\210\262" };
-static const char* const lang_zh_TW_f642[] = { "\345\267\246\351\202\212\347\232\204\344\270\273\346\214\211\351\215\265" };
-static const char* const lang_zh_TW_f643[] = { "\345\267\246\350\202\251\351\215\265" };
-static const char* const lang_zh_TW_f644[] = { "ROM \346\227\201\351\202\212\347\232\204\350\243\234\344\270\201" };
-static const char* const lang_zh_TW_f645[] = { "\345\217\263\351\202\212\347\232\204\344\270\273\346\214\211\351\215\265" };
-static const char* const lang_zh_TW_f646[] = { "\345\217\263\350\202\251\351\215\265" };
-static const char* const lang_zh_TW_f647[] = { "\345\267\246\351\202\212\347\254\254\344\272\214\345\200\213\350\202\251\351\215\265" };
-static const char* const lang_zh_TW_f648[] = { "\345\217\263\351\202\212\347\254\254\344\272\214\345\200\213\350\202\251\351\215\265" };
-static const char* const lang_zh_TW_f649[] = { "\344\270\212\351\235\242\347\232\204\344\270\273\346\214\211\351\215\265" };
-static const char* const lang_zh_TW_f650[] = { "\346\234\252\345\204\262\345\255\230\347\232\204\351\200\262\345\272\246\346\234\203\344\270\237\345\244\261" };
-static const char* const lang_zh_TW_f651[] = { "\345\270\266" };
-static const char* const lang_zh_TW_f652[] = { "%s" };
-static const char* const lang_zh_TW_f653[] = { "\351\200\231\345\200\213\351\201\212\346\210\262\347\232\204\345\217\246\344\270\200\345\200\213 dump\357\274\210%s\357\274\211" };
-static const char* const lang_zh_TW_f654[] = { "\345\217\246\344\270\200\345\200\213\347\211\210\346\234\254\347\232\204\351\201\212\346\210\262\357\274\210\345\205\266\344\273\226\350\243\234\344\270\201\357\274\214\346\210\226\345\217\246\344\270\200\345\200\213 ROM\357\274\211" };
-static const char* const lang_zh_TW_f655[] = { "\346\234\252\346\224\271\345\213\225\347\232\204\351\201\212\346\210\262\357\274\210%s\357\274\211" };
-static const char* const lang_zh_TW_f656[] = { "\344\270\215\345\270\266" };
-static const char* const lang_zh_TW_f657[] = { "\346\262\222\351\226\213\350\243\234\344\270\201\347\232\204 ROM" };
-static const char* const lang_zh_TW_f658[] = { "\347\225\266\345\211\215\344\275\215\347\275\256\345\267\262\345\204\262\345\255\230" };
-static const char* const lang_zh_TW_f659[] = { "\342\200\271" };
-static const char* const lang_zh_TW_f660[] = { "\342\200\272" };
+static const char* const lang_zh_TW_f635[] = { "\345\210\206" };
+static const char* const lang_zh_TW_f636[] = { "\351\240\220\350\250\255" };
+static const char* const lang_zh_TW_f637[] = { "\346\212\212\345\267\246\346\220\226\346\241\277\346\214\211\344\270\213\345\216\273" };
+static const char* const lang_zh_TW_f638[] = { "\346\212\212\345\267\246\346\220\226\346\241\277\345\276\200\345\267\246\346\216\250" };
+static const char* const lang_zh_TW_f639[] = { "\346\212\212\345\267\246\346\220\226\346\241\277\345\276\200\344\270\212\346\216\250" };
+static const char* const lang_zh_TW_f640[] = { "\344\270\213\351\235\242\347\232\204\344\270\273\346\214\211\351\215\265" };
+static const char* const lang_zh_TW_f641[] = { "\351\226\213\345\225\237 RetroDS \351\201\270\345\226\256\347\232\204\351\215\265\357\274\210Home\343\200\201Menu \346\210\226 Function\357\274\211" };
+static const char* const lang_zh_TW_f642[] = { "\351\201\212\346\210\262" };
+static const char* const lang_zh_TW_f643[] = { "\345\267\246\351\202\212\347\232\204\344\270\273\346\214\211\351\215\265" };
+static const char* const lang_zh_TW_f644[] = { "\345\267\246\350\202\251\351\215\265" };
+static const char* const lang_zh_TW_f645[] = { "ROM \346\227\201\351\202\212\347\232\204\350\243\234\344\270\201" };
+static const char* const lang_zh_TW_f646[] = { "\345\217\263\351\202\212\347\232\204\344\270\273\346\214\211\351\215\265" };
+static const char* const lang_zh_TW_f647[] = { "\345\217\263\350\202\251\351\215\265" };
+static const char* const lang_zh_TW_f648[] = { "\345\267\246\351\202\212\347\254\254\344\272\214\345\200\213\350\202\251\351\215\265" };
+static const char* const lang_zh_TW_f649[] = { "\345\217\263\351\202\212\347\254\254\344\272\214\345\200\213\350\202\251\351\215\265" };
+static const char* const lang_zh_TW_f650[] = { "\344\270\212\351\235\242\347\232\204\344\270\273\346\214\211\351\215\265" };
+static const char* const lang_zh_TW_f651[] = { "\346\234\252\345\204\262\345\255\230\347\232\204\351\200\262\345\272\246\346\234\203\344\270\237\345\244\261" };
+static const char* const lang_zh_TW_f652[] = { "\345\270\266" };
+static const char* const lang_zh_TW_f653[] = { "%s" };
+static const char* const lang_zh_TW_f654[] = { "\351\200\231\345\200\213\351\201\212\346\210\262\347\232\204\345\217\246\344\270\200\345\200\213 dump\357\274\210%s\357\274\211" };
+static const char* const lang_zh_TW_f655[] = { "\345\217\246\344\270\200\345\200\213\347\211\210\346\234\254\347\232\204\351\201\212\346\210\262\357\274\210\345\205\266\344\273\226\350\243\234\344\270\201\357\274\214\346\210\226\345\217\246\344\270\200\345\200\213 ROM\357\274\211" };
+static const char* const lang_zh_TW_f656[] = { "\346\234\252\346\224\271\345\213\225\347\232\204\351\201\212\346\210\262\357\274\210%s\357\274\211" };
+static const char* const lang_zh_TW_f657[] = { "\344\270\215\345\270\266" };
+static const char* const lang_zh_TW_f658[] = { "\346\262\222\351\226\213\350\243\234\344\270\201\347\232\204 ROM" };
+static const char* const lang_zh_TW_f659[] = { "\347\225\266\345\211\215\344\275\215\347\275\256\345\267\262\345\204\262\345\255\230" };
+static const char* const lang_zh_TW_f660[] = { "\342\200\271" };
+static const char* const lang_zh_TW_f661[] = { "\342\200\272" };
 static const I18nEntry lang_zh_TW_entries[] = {
 	{ " (patch)", lang_zh_TW_f0, 1 },
 	{ " Checking for a new version...", lang_zh_TW_f1, 1 },
@@ -11843,98 +11860,99 @@ static const I18nEntry lang_zh_TW_entries[] = {
 	{ "Turbo B", lang_zh_TW_f577, 1 },
 	{ "Turbo speed", lang_zh_TW_f578, 1 },
 	{ "Turns this ROM into another official release: %s", lang_zh_TW_f579, 1 },
-	{ "Undo Load", lang_zh_TW_f580, 1 },
-	{ "Undo Save", lang_zh_TW_f581, 1 },
-	{ "Undo failed", lang_zh_TW_f582, 1 },
-	{ "Unknown version of this game", lang_zh_TW_f583, 1 },
-	{ "Unlocked", lang_zh_TW_f584, 1 },
-	{ "Unlocks sent", lang_zh_TW_f585, 1 },
-	{ "Unlocks will be sent when the connection is back", lang_zh_TW_f586, 1 },
-	{ "Unpinned: the bar hides after 5 seconds.", lang_zh_TW_f587, 1 },
-	{ "Untested: the second screen may not work with it", lang_zh_TW_f588, 1 },
-	{ "Up", lang_zh_TW_f589, 1 },
-	{ "Up to %d patches can be on at once", lang_zh_TW_f590, 1 },
-	{ "Up to %s", lang_zh_TW_f591, 1 },
-	{ "Update now", lang_zh_TW_f592, 1 },
-	{ "Updates", lang_zh_TW_f593, 1 },
-	{ "Updates, integrations", lang_zh_TW_f594, 1 },
-	{ "Use This Folder", lang_zh_TW_f595, 1 },
-	{ "Used from the next time the game starts", lang_zh_TW_f596, 1 },
-	{ "Volume %d%%", lang_zh_TW_f597, 1 },
-	{ "What D-pad down gives the game.", lang_zh_TW_f598, 1 },
-	{ "What D-pad left gives the game.", lang_zh_TW_f599, 1 },
-	{ "What D-pad right gives the game.", lang_zh_TW_f600, 1 },
-	{ "What D-pad up gives the game.", lang_zh_TW_f601, 1 },
-	{ "What the L shoulder button gives the game.", lang_zh_TW_f602, 1 },
-	{ "What the R shoulder button gives the game.", lang_zh_TW_f603, 1 },
-	{ "What the bottom face button gives the game.", lang_zh_TW_f604, 1 },
-	{ "What the left face button gives the game.", lang_zh_TW_f605, 1 },
-	{ "What the right face button gives the game.", lang_zh_TW_f606, 1 },
-	{ "What the top face button gives the game.", lang_zh_TW_f607, 1 },
-	{ "Where games are read from, and the folder their saves are kept in.", lang_zh_TW_f608, 1 },
-	{ "Where games are read from. Their saves are kept next to them.", lang_zh_TW_f609, 1 },
-	{ "Which Screen: Both", lang_zh_TW_f610, 1 },
-	{ "Which Screen: Bottom Only", lang_zh_TW_f611, 1 },
-	{ "Which Screen: Top Only", lang_zh_TW_f612, 1 },
-	{ "Which games, names, saving", lang_zh_TW_f613, 1 },
-	{ "Which screen the game is on.", lang_zh_TW_f614, 1 },
-	{ "Which screens have them.", lang_zh_TW_f615, 1 },
-	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_zh_TW_f616, 1 },
-	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_zh_TW_f617, 1 },
-	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_zh_TW_f618, 1 },
-	{ "With tags, like (USA)", lang_zh_TW_f619, 1 },
-	{ "X (top) button", lang_zh_TW_f620, 1 },
-	{ "Y (left) button", lang_zh_TW_f621, 1 },
-	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_zh_TW_f622, 1 },
-	{ "Your own and scraped logos on the second screen.", lang_zh_TW_f623, 1 },
-	{ "Your screens are the same shape: nothing to match", lang_zh_TW_f624, 1 },
-	{ "Zoom", lang_zh_TW_f625, 1 },
-	{ "color", lang_zh_TW_f626, 1 },
-	{ "hex", lang_zh_TW_f627, 1 },
-	{ "hue", lang_zh_TW_f628, 1 },
-	{ "machine translated", lang_zh_TW_f629, 1 },
-	{ "no save state yet!", lang_zh_TW_f630, 1 },
-	{ "off", lang_zh_TW_f631, 1 },
-	{ "on", lang_zh_TW_f632, 1 },
-	{ "point", lang_zh_TW_f633, 1 },
-	{ "points", lang_zh_TW_f634, 1 },
-	{ "presets", lang_zh_TW_f635, 1 },
-	{ "press the left stick in", lang_zh_TW_f636, 1 },
-	{ "push the left stick left", lang_zh_TW_f637, 1 },
-	{ "push the left stick up", lang_zh_TW_f638, 1 },
-	{ "the bottom face button", lang_zh_TW_f639, 1 },
-	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_zh_TW_f640, 1 },
-	{ "the game", lang_zh_TW_f641, 1 },
-	{ "the left face button", lang_zh_TW_f642, 1 },
-	{ "the left shoulder button", lang_zh_TW_f643, 1 },
-	{ "the patch beside the ROM", lang_zh_TW_f644, 1 },
-	{ "the right face button", lang_zh_TW_f645, 1 },
-	{ "the right shoulder button", lang_zh_TW_f646, 1 },
-	{ "the second left shoulder button", lang_zh_TW_f647, 1 },
-	{ "the second right shoulder button", lang_zh_TW_f648, 1 },
-	{ "the top face button", lang_zh_TW_f649, 1 },
-	{ "unsaved progress is lost", lang_zh_TW_f650, 1 },
-	{ "with", lang_zh_TW_f651, 1 },
-	{ "with %s", lang_zh_TW_f652, 1 },
-	{ "with another dump of the game (%s)", lang_zh_TW_f653, 1 },
-	{ "with another version of the game (other patches, or another ROM)", lang_zh_TW_f654, 1 },
-	{ "with the unchanged game (%s)", lang_zh_TW_f655, 1 },
-	{ "without", lang_zh_TW_f656, 1 },
-	{ "without the patches on", lang_zh_TW_f657, 1 },
-	{ "your place is saved", lang_zh_TW_f658, 1 },
-	{ "\342\200\271", lang_zh_TW_f659, 1 },
-	{ "\342\200\272", lang_zh_TW_f660, 1 },
+	{ "Undo", lang_zh_TW_f580, 1 },
+	{ "Undo Load", lang_zh_TW_f581, 1 },
+	{ "Undo Save", lang_zh_TW_f582, 1 },
+	{ "Undo failed", lang_zh_TW_f583, 1 },
+	{ "Unknown version of this game", lang_zh_TW_f584, 1 },
+	{ "Unlocked", lang_zh_TW_f585, 1 },
+	{ "Unlocks sent", lang_zh_TW_f586, 1 },
+	{ "Unlocks will be sent when the connection is back", lang_zh_TW_f587, 1 },
+	{ "Unpinned: the bar hides after 5 seconds.", lang_zh_TW_f588, 1 },
+	{ "Untested: the second screen may not work with it", lang_zh_TW_f589, 1 },
+	{ "Up", lang_zh_TW_f590, 1 },
+	{ "Up to %d patches can be on at once", lang_zh_TW_f591, 1 },
+	{ "Up to %s", lang_zh_TW_f592, 1 },
+	{ "Update now", lang_zh_TW_f593, 1 },
+	{ "Updates", lang_zh_TW_f594, 1 },
+	{ "Updates, integrations", lang_zh_TW_f595, 1 },
+	{ "Use This Folder", lang_zh_TW_f596, 1 },
+	{ "Used from the next time the game starts", lang_zh_TW_f597, 1 },
+	{ "Volume %d%%", lang_zh_TW_f598, 1 },
+	{ "What D-pad down gives the game.", lang_zh_TW_f599, 1 },
+	{ "What D-pad left gives the game.", lang_zh_TW_f600, 1 },
+	{ "What D-pad right gives the game.", lang_zh_TW_f601, 1 },
+	{ "What D-pad up gives the game.", lang_zh_TW_f602, 1 },
+	{ "What the L shoulder button gives the game.", lang_zh_TW_f603, 1 },
+	{ "What the R shoulder button gives the game.", lang_zh_TW_f604, 1 },
+	{ "What the bottom face button gives the game.", lang_zh_TW_f605, 1 },
+	{ "What the left face button gives the game.", lang_zh_TW_f606, 1 },
+	{ "What the right face button gives the game.", lang_zh_TW_f607, 1 },
+	{ "What the top face button gives the game.", lang_zh_TW_f608, 1 },
+	{ "Where games are read from, and the folder their saves are kept in.", lang_zh_TW_f609, 1 },
+	{ "Where games are read from. Their saves are kept next to them.", lang_zh_TW_f610, 1 },
+	{ "Which Screen: Both", lang_zh_TW_f611, 1 },
+	{ "Which Screen: Bottom Only", lang_zh_TW_f612, 1 },
+	{ "Which Screen: Top Only", lang_zh_TW_f613, 1 },
+	{ "Which games, names, saving", lang_zh_TW_f614, 1 },
+	{ "Which screen the game is on.", lang_zh_TW_f615, 1 },
+	{ "Which screens have them.", lang_zh_TW_f616, 1 },
+	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_zh_TW_f617, 1 },
+	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_zh_TW_f618, 1 },
+	{ "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_zh_TW_f619, 1 },
+	{ "With tags, like (USA)", lang_zh_TW_f620, 1 },
+	{ "X (top) button", lang_zh_TW_f621, 1 },
+	{ "Y (left) button", lang_zh_TW_f622, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_zh_TW_f623, 1 },
+	{ "Your own and scraped logos on the second screen.", lang_zh_TW_f624, 1 },
+	{ "Your screens are the same shape: nothing to match", lang_zh_TW_f625, 1 },
+	{ "Zoom", lang_zh_TW_f626, 1 },
+	{ "color", lang_zh_TW_f627, 1 },
+	{ "hex", lang_zh_TW_f628, 1 },
+	{ "hue", lang_zh_TW_f629, 1 },
+	{ "machine translated", lang_zh_TW_f630, 1 },
+	{ "no save state yet!", lang_zh_TW_f631, 1 },
+	{ "off", lang_zh_TW_f632, 1 },
+	{ "on", lang_zh_TW_f633, 1 },
+	{ "point", lang_zh_TW_f634, 1 },
+	{ "points", lang_zh_TW_f635, 1 },
+	{ "presets", lang_zh_TW_f636, 1 },
+	{ "press the left stick in", lang_zh_TW_f637, 1 },
+	{ "push the left stick left", lang_zh_TW_f638, 1 },
+	{ "push the left stick up", lang_zh_TW_f639, 1 },
+	{ "the bottom face button", lang_zh_TW_f640, 1 },
+	{ "the button that opens RetroDS's menu (Home, Menu or Function)", lang_zh_TW_f641, 1 },
+	{ "the game", lang_zh_TW_f642, 1 },
+	{ "the left face button", lang_zh_TW_f643, 1 },
+	{ "the left shoulder button", lang_zh_TW_f644, 1 },
+	{ "the patch beside the ROM", lang_zh_TW_f645, 1 },
+	{ "the right face button", lang_zh_TW_f646, 1 },
+	{ "the right shoulder button", lang_zh_TW_f647, 1 },
+	{ "the second left shoulder button", lang_zh_TW_f648, 1 },
+	{ "the second right shoulder button", lang_zh_TW_f649, 1 },
+	{ "the top face button", lang_zh_TW_f650, 1 },
+	{ "unsaved progress is lost", lang_zh_TW_f651, 1 },
+	{ "with", lang_zh_TW_f652, 1 },
+	{ "with %s", lang_zh_TW_f653, 1 },
+	{ "with another dump of the game (%s)", lang_zh_TW_f654, 1 },
+	{ "with another version of the game (other patches, or another ROM)", lang_zh_TW_f655, 1 },
+	{ "with the unchanged game (%s)", lang_zh_TW_f656, 1 },
+	{ "without", lang_zh_TW_f657, 1 },
+	{ "without the patches on", lang_zh_TW_f658, 1 },
+	{ "your place is saved", lang_zh_TW_f659, 1 },
+	{ "\342\200\271", lang_zh_TW_f660, 1 },
+	{ "\342\200\272", lang_zh_TW_f661, 1 },
 };
 
 const I18nLang i18nLangs[] = {
-	{ "de", "Deutsch", "", PL_ONE_OTHER, 0, 1, lang_de_entries, 661 },
-	{ "es", "Espa\303\261ol", "", PL_ONE_OTHER, 0, 1, lang_es_entries, 661 },
-	{ "fr", "Fran\303\247ais", "fr_FR fr_CA fr_BE fr_CH", PL_FRENCH, 0, 1, lang_fr_entries, 661 },
-	{ "it", "Italiano", "it_IT it_CH", PL_ONE_OTHER, 0, 1, lang_it_entries, 661 },
-	{ "ja", "\346\227\245\346\234\254\350\252\236", "ja_JP ja", PL_NONE, 3, 1, lang_ja_entries, 661 },
-	{ "ko", "\355\225\234\352\265\255\354\226\264", "ko_KR ko", PL_NONE, 4, 1, lang_ko_entries, 661 },
-	{ "pt", "Portugu\303\252s", "pt_BR pt_PT", PL_FRENCH, 0, 1, lang_pt_entries, 661 },
-	{ "zh_CN", "\347\256\200\344\275\223\344\270\255\346\226\207", "zh_CN zh_SG zh_Hans zh", PL_NONE, 1, 1, lang_zh_CN_entries, 661 },
-	{ "zh_TW", "\347\271\201\351\253\224\344\270\255\346\226\207", "zh_TW zh_HK zh_MO zh_Hant", PL_NONE, 2, 1, lang_zh_TW_entries, 661 },
+	{ "de", "Deutsch", "", PL_ONE_OTHER, 0, 1, lang_de_entries, 662 },
+	{ "es", "Espa\303\261ol", "", PL_ONE_OTHER, 0, 1, lang_es_entries, 662 },
+	{ "fr", "Fran\303\247ais", "fr_FR fr_CA fr_BE fr_CH", PL_FRENCH, 0, 1, lang_fr_entries, 662 },
+	{ "it", "Italiano", "it_IT it_CH", PL_ONE_OTHER, 0, 1, lang_it_entries, 662 },
+	{ "ja", "\346\227\245\346\234\254\350\252\236", "ja_JP ja", PL_NONE, 3, 1, lang_ja_entries, 662 },
+	{ "ko", "\355\225\234\352\265\255\354\226\264", "ko_KR ko", PL_NONE, 4, 1, lang_ko_entries, 662 },
+	{ "pt", "Portugu\303\252s", "pt_BR pt_PT", PL_FRENCH, 0, 1, lang_pt_entries, 662 },
+	{ "zh_CN", "\347\256\200\344\275\223\344\270\255\346\226\207", "zh_CN zh_SG zh_Hans zh", PL_NONE, 1, 1, lang_zh_CN_entries, 662 },
+	{ "zh_TW", "\347\271\201\351\253\224\344\270\255\346\226\207", "zh_TW zh_HK zh_MO zh_Hant", PL_NONE, 2, 1, lang_zh_TW_entries, 662 },
 };
 const int i18nLangCount = 9;

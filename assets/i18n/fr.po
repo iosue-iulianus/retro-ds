@@ -2113,3 +2113,6 @@ msgstr "L’état écrasé est de retour"
 
 msgid "Undo failed"
 msgstr "Impossible d’annuler"
+
+msgid "Undo"
+msgstr "Annuler"

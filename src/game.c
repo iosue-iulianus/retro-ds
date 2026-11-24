@@ -481,13 +481,16 @@ static bool half_item(int item) {
 	       item == M_COLOR || item == M_GHOST || item == M_CHEATS || item == M_PATCHES || item == M_SHOT || item == M_BUG ||
 	       item == M_LIBRARY || item == M_EXIT;
 }
-/* Save State and Load State are double height (two rows tall) and further
- * apart than other pairs, so a thumb can't take one for the other */
+/* Save State / Load State and Close Game / Close RetroDS are big: their row
+ * is TALL_ROW times as tall as the others, and the two further apart than
+ * other pairs, so a thumb can't take one for the other */
+#define TALL_ROW 1.75f
 static bool tall_item(int item) {
-	return item == M_SAVE || item == M_LOAD;
+	return item == M_SAVE || item == M_LOAD || item == M_LIBRARY || item == M_EXIT;
 }
 static int item_span(int item) {
-	return tall_item(item) ? 2 : 1;
+	(void) item;
+	return 1;
 }
 /* rows, sides and the row count for a page's items (two half items in a row share it; a tall one takes two rows) */
 static int layout_rows(const int* items, int n, int* row, int* side) {
@@ -600,7 +603,9 @@ static MenuGeom menu_geom(int scr) {
 	int n = 1;
 	for (int p = 0; p < N_PAGES; ++p) {
 		int row[PAGE_ITEMS], side[PAGE_ITEMS];
-		n = SDL_max(n, page_is_rows(p) ? SDL_min(rowN[p], ROW_VIS) + 1 : SDL_min(layout_rows(pages[p], pageLen[p], row, side), ROW_VIS));
+		/* (the Game page's buttons fill the screen below the tabs: item_rect) */
+		if (page_is_rows(p)) n = SDL_max(n, SDL_min(rowN[p], ROW_VIS) + 1);
+		(void) row, (void) side;
 	}
 	if (r.w == cw && r.h == ch && n == cn) return cache;
 	MenuGeom g;
@@ -709,6 +714,7 @@ static bool item_enabled(int item) {
 	if (item == M_CHEATS) return cheats.n > 0;
 	if (item == M_SHAPES) return ui_screens_differ(); /* (two screens of a shape: nothing to match) */
 	if (item == M_PLACE) return nScreens == 2;         /* (one screen: no gap) */
+	if (item == M_UNDO) return undoKind != UNDO_NONE;  /* (always there, so nothing moves when it can be used) */
 	return item != M_LOAD || file_exists(gp.slot[stateSlot]);
 }
 
@@ -1546,9 +1552,28 @@ static void items_scroll_to_sel(void) {
 	if (itemRow[menuSel] + item_span(menuItems[menuSel]) > itemTop + ROW_VIS) itemTop = itemRow[menuSel] + item_span(menuItems[menuSel]) - ROW_VIS;
 	itemTop = SDL_clamp(itemTop, 0, SDL_max(0, nMenuRows - ROW_VIS));
 }
+/* The Game page's rows fill the screen from below the tabs down to the note
+ * line: a unit height for the plain rows, TALL_ROW units for a row with big
+ * buttons. Each row's top and height. */
+static void item_row_geom(int scr, int row, int* y, int* h) {
+	MenuGeom g = menu_geom(scr);
+	bool tall[PAGE_ITEMS] = { false };
+	for (int i = 0; i < nMenuItems; ++i)
+		if (tall_item(menuItems[i])) tall[itemRow[i]] = true;
+	float units = 0;
+	for (int k = 0; k < nMenuRows; ++k) units += tall[k] ? TALL_ROW : 1.f;
+	int bottom = screens[scr].rect.h - g.margin - g.h * 7 / 10; /* (the note line) */
+	float u = (bottom - g.top - g.gap * (nMenuRows - 1)) / SDL_max(1.f, units);
+	float at = g.top;
+	for (int k = 0; k < row; ++k) at += (tall[k] ? TALL_ROW : 1.f) * u + g.gap;
+	*y = (int) at;
+	*h = (int) ((tall[row] ? TALL_ROW : 1.f) * u);
+}
 static SDL_Rect item_rect(int scr, int i) {
 	MenuGeom g = menu_geom(scr);
-	SDL_Rect r = { g.margin, g.top + (itemRow[i] - itemTop) * (g.h + g.gap), g.w, g.h * item_span(menuItems[i]) + g.gap * (item_span(menuItems[i]) - 1) };
+	int y, h;
+	item_row_geom(scr, itemRow[i], &y, &h);
+	SDL_Rect r = { g.margin, y, g.w, h };
 	if (itemSide[i] >= 0) {
 		int gap = tall_item(menuItems[i]) ? g.gap * 4 : g.gap;
 		int hw = (g.w - gap) / 2;
@@ -2198,9 +2223,8 @@ static void draw_bar(void) {
 
 static void set_page(int page) {
 	curPage = page;
-	nMenuItems = 0;
-	for (int i = 0; i < pageLen[page]; ++i) /* (Undo only when there's something to undo) */
-		if (pages[page][i] != M_UNDO || undoKind != UNDO_NONE) menuItems[nMenuItems++] = pages[page][i];
+	nMenuItems = pageLen[page];
+	memcpy(menuItems, pages[page], sizeof(int) * nMenuItems);
 	nMenuRows = layout_rows(menuItems, nMenuItems, itemRow, itemSide);
 	menuSel = 0;
 	itemTop = 0;
@@ -3137,7 +3161,7 @@ static void draw_menu(void) {
 			static const char* const ovl[3] = { N_("Overlays: Off"), N_("Overlays: Generated"), N_("Overlays: Custom")};
 			label = ovl[SDL_clamp(cfg->overlayMode, 0, 2)];
 		}
-		if (menuItems[i] == M_UNDO) label = undoKind == UNDO_LOAD ? N_("Undo Load"): N_("Undo Save");
+		if (menuItems[i] == M_UNDO) label = undoKind == UNDO_LOAD ? N_("Undo Load"): undoKind == UNDO_SAVE ? N_("Undo Save"): N_("Undo");
 		if (menuItems[i] == armedItem) label = N_("Are You Sure?");
 		/* (the slot they use: "Save State 3", "Load State 3") */
 		static char slotBtn[2][24];
@@ -3155,22 +3179,26 @@ static void draw_menu(void) {
 		int lc = cap;
 		if (tall_item(menuItems[i])) {
 			/* double height: the text as big as the button and its widest label allow */
-			/* (as translated, with the widest digit: "Spielstand 0 speichern") */
-			char tallLabels[2][64];
+			/* (all the big buttons' labels the same size: the widest as
+			 * translated, "Spielstand 0 speichern") */
+			char tallLabels[5][64];
 			snprintf(tallLabels[0], sizeof(tallLabels[0]), tr("Save State %d"), 0);
 			snprintf(tallLabels[1], sizeof(tallLabels[1]), tr("Load State %d"), 0);
+			snprintf(tallLabels[2], sizeof(tallLabels[2]), "%s", tr("Close Game"));
+			snprintf(tallLabels[3], sizeof(tallLabels[3]), "%s", tr("Close RetroDS"));
+			snprintf(tallLabels[4], sizeof(tallLabels[4]), "%s", tr("Are You Sure?"));
 			int widest = 1;
-			for (int k = 0; k < 2; ++k) widest = SDL_max(widest, ui_label_width(scr, 100, tallLabels[k]));
+			for (int k = 0; k < 5; ++k) widest = SDL_max(widest, ui_label_width(scr, 100, tallLabels[k]));
 			lc = SDL_min(r.h * 3 / 10, (r.w - mg.pad * 2) * 100 / widest);
 		}
 		ui_label(scr, r.x + r.w / 2, r.y + r.h / 2, lc, label, en ? C_TEXT : C_DIS);
 	}
 	if (menuNote[0]) {
-		int lastRow = SDL_min(nMenuRows, ROW_VIS) - 1;
-		SDL_Rect last = { 0, mg.top + lastRow * (mg.h + mg.gap), 0, mg.h };
+		SDL_Rect last = { 0, 0, 0, 0 };
+		item_row_geom(scr, SDL_min(nMenuRows, ROW_VIS) - 1, &last.y, &last.h);
 		int nc = SDL_min(mg.noteCap, mg.noteCap * mg.w / SDL_max(1, ui_font_width(TF_BOLD, mg.noteCap, menuNote)));
 		/* (the last item is always a whole row: Close RetroDS, Show FPS...) */
-		ui_font_text(scr, TF_BOLD, screens[scr].rect.w / 2, last.y + last.h + mg.h * 3 / 5, nc, menuNote, C_GOLD, 0);
+		ui_font_text(scr, TF_BOLD, screens[scr].rect.w / 2, last.y + last.h + mg.h * 7 / 20, nc, menuNote, C_GOLD, 0);
 	}
 	if (nScreens > 1) {
 		int o = ui_other_screen();
@@ -5309,6 +5337,7 @@ static bool activate(int item, enum GameExit* exitTo) {
 		}
 		break;
 	case M_UNDO: {
+		if (undoKind == UNDO_NONE) break;
 		bool wasLoad = undoKind == UNDO_LOAD;
 		bool ok = user_undo();
 		if (wasLoad && ok) {
@@ -5590,10 +5619,10 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_UNDO;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_SLOT;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_CHEATS;
-	pages[PG_GAME][pageLen[PG_GAME]++] = M_PATCHES;
-	if (ra_enabled()) pages[PG_GAME][pageLen[PG_GAME]++] = M_ACH;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_SHOT;
-	pages[PG_GAME][pageLen[PG_GAME]++] = M_BUG;
+	if (ra_enabled()) pages[PG_GAME][pageLen[PG_GAME]++] = M_ACH;
+	/* (Patches and Submit a Bug Report left out, owner, Nov 24, 2026: the
+	 * quick bar still has the bug report) */
 	if (fromLibrary) pages[PG_GAME][pageLen[PG_GAME]++] = M_LIBRARY;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_EXIT;
 	ui_color_correction(cfg->colorCorrection); /* (Display > Color Correction, for this session's pictures) */

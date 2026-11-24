@@ -2109,3 +2109,6 @@ msgstr "덮어쓴 상태를 되돌렸습니다"
 
 msgid "Undo failed"
 msgstr "취소하지 못했습니다"
+
+msgid "Undo"
+msgstr "취소"

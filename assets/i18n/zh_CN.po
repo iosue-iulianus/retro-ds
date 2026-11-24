@@ -2109,3 +2109,6 @@ msgstr "被覆盖的存档已恢复"
 
 msgid "Undo failed"
 msgstr "无法撤销"
+
+msgid "Undo"
+msgstr "撤销"

@@ -2109,3 +2109,6 @@ msgstr "被覆寫的存檔已復原"
 
 msgid "Undo failed"
 msgstr "無法復原"
+
+msgid "Undo"
+msgstr "復原"

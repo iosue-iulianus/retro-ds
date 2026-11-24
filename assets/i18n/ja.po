@@ -2109,3 +2109,6 @@ msgstr "上書きされたステートを元に戻しました"
 
 msgid "Undo failed"
 msgstr "取り消せませんでした"
+
+msgid "Undo"
+msgstr "取り消す"

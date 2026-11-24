@@ -2113,3 +2113,6 @@ msgstr "Lo stato sovrascritto è tornato"
 
 msgid "Undo failed"
 msgstr "Annullamento non riuscito"
+
+msgid "Undo"
+msgstr "Annulla"

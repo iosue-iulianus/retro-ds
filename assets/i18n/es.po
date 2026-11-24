@@ -2112,3 +2112,6 @@ msgstr "El estado sobrescrito ha vuelto"
 
 msgid "Undo failed"
 msgstr "No se pudo deshacer"
+
+msgid "Undo"
+msgstr "Deshacer"
