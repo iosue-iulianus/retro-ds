@@ -14,6 +14,12 @@ changelog up to then is `git show 3b452dc:CHANGELOG.md` (and on
   SNES DS until RetroDS shows your states. Battery saves stay beside the
   ROMs. `retrods.cfg` on Linux (it reads `~/.config/snes-ds/snes-ds.cfg`
   until there is one). A new logo and icon, by the owner.
+- The menus are RetroDS's own: Barlow instead of Jost italic, red as the
+  default colour. The game list's other screen shows the picture you'll
+  continue from large, with when it was taken. In the pause menu, Save
+  State and Load State are big and well apart, and a load or a save over a
+  state can be undone (Undo Load, Undo Save). Map refresh only shows for
+  games whose map is captured.
 
 Nothing playable yet: SNES DS still runs GBA games until the emulator is
 swapped. What has changed from GBA DS v1.5.6 so far:
