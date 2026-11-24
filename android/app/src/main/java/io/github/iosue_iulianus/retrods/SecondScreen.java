@@ -1,4 +1,4 @@
-package io.github.iosue_iulianus.snesds;
+package io.github.iosue_iulianus.retrods;
 
 import android.app.Presentation;
 import android.content.Context;

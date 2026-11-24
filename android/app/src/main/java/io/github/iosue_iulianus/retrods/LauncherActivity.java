@@ -1,4 +1,4 @@
-package io.github.iosue_iulianus.snesds;
+package io.github.iosue_iulianus.retrods;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
@@ -190,11 +190,11 @@ public class LauncherActivity extends Activity {
             }
             final String found = rom;
             runOnUiThread(() -> launchGame(found));
-        }, "snesds-launch").start();
+        }, "retrods-launch").start();
     }
 
     private void launchGame(String rom) {
-        SnesDsActivity now = SnesDsActivity.running;
+        RetroDsActivity now = RetroDsActivity.running;
         /* One display (a phone, a Surface Duo; issue #48): the game in this
          * task, which keeps this window: a Duo opens a new task on one screen,
          * so a game in a task of its own came up on one screen when the player
@@ -202,8 +202,8 @@ public class LauncherActivity extends Activity {
          * app icon, or a frontend that asked for a new task): in a frontend's
          * task the game would become part of the frontend's. A game already
          * running gets the request where it is. */
-        boolean here = now != null ? now instanceof SnesDsHereActivity : !hasSecondDisplay() && isTaskRoot();
-        Intent game = new Intent(this, here ? SnesDsHereActivity.class : SnesDsActivity.class);
+        boolean here = now != null ? now instanceof RetroDsHereActivity : !hasSecondDisplay() && isTaskRoot();
+        Intent game = new Intent(this, here ? RetroDsHereActivity.class : RetroDsActivity.class);
         if (rom != null) {
             launchLog(this, "game from the launch request: " + rom);
             game.putExtra("rom", rom);

@@ -79,7 +79,7 @@ RC_SRC). Differences from ROCKNIX:
   JVM). The Http class is looked up in libmain's JNI_OnLoad: FindClass on
   a native thread can't see the app's classes. The manifest has INTERNET.
 - Account: no system.cfg. The game list's Settings has a RetroAchievements
-  row: Sign In opens a dialog (SnesDsActivity.raSignInDialog, username and
+  row: Sign In opens a dialog (RetroDsActivity.raSignInDialog, username and
   password, on-screen keyboard); the answer goes to `ra_sign_in()`, which
   signs in with the password and keeps only the token
   (`<state_dir>/ra/login.cfg`, as on ROCKNIX). At start-up `ra_init` signs
@@ -169,7 +169,7 @@ settings, file access.
 
 How it's put together:
 
-- `android/`: a Gradle project. `SnesDsActivity` (an SDLActivity) runs the
+- `android/`: a Gradle project. `RetroDsActivity` (an SDLActivity) runs the
   game on its display; `SecondScreen` (a Presentation) covers the other
   display with a SurfaceView. `LauncherActivity` (the app icon) asks for
   All files access once, then starts the game on display 0. SDL's Java
@@ -187,11 +187,11 @@ How it's put together:
   touch screen (menus) is whichever screen was touched last. BACK acts as
   HOME (SDL traps it). All Android code is `#ifdef __ANDROID__`.
 - `main.c`: config, states and the log live in the app's folder
-  (`Android/data/io.github.iosue_iulianus.snesds/files`, passed as `RETRODS_HOME`);
+  (`Android/data/io.github.iosue_iulianus.retrods/files`, passed as `RETRODS_HOME`);
   stderr goes to logcat (tag `RETRODS`) and `retrods.log` there. With no game
   given it plays the first game in `/storage/emulated/0/ROMs/gba` (or
   `GBA`) that has a map profile, else the first game. Another game:
-  `adb shell am start -n io.github.iosue_iulianus.snesds/.LauncherActivity --es rom /path/to/game.gba`.
+  `adb shell am start -n io.github.iosue_iulianus.retrods/.LauncherActivity --es rom /path/to/game.gba`.
 - CI: `.github/workflows/android.yml` (runs `scripts/build-android.sh`;
   APK in the run's artifacts; on failure the end of the log is posted as
   an annotation, readable through the public API without logs access).
@@ -251,7 +251,7 @@ swapped; 20-30 fps. Changes since:
   header (unpacking archives) until it finds one with a map profile; the
   result is now kept in `last-rom.txt` in the app folder and reused.
   Start-up steps are logged (`startup:` lines; logcat timestamps time them).
-- Display: SnesDsActivity has a task affinity of its own and is started
+- Display: RetroDsActivity has a task affinity of its own and is started
   with FLAG_ACTIVITY_NEW_TASK, so the display-0 launch request isn't
   ignored when the launcher's task sits on the other display.
 
@@ -338,7 +338,7 @@ CHANGELOG until someone tests them on a more capable device.
   path (All files access); anything else is copied into the app's
   `launched/` folder. With a game given, the game list is skipped and
   "Close SNES DS" goes back to the frontend. If SNES DS is already running
-  with another game (or the game list), SnesDsActivity.onNewIntent sends
+  with another game (or the game list), RetroDsActivity.onNewIntent sends
   SDL a quit (the game saves its resume point), and onDestroy starts the
   launcher again with the new game before exiting the process.
   ES-DE: Settings > "SNES DS in ES-DE" (src/esde.c, the row only when
@@ -346,7 +346,7 @@ CHANGELOG until someone tests them on a more capable device.
     /storage/<volume>/ES-DE, with settings/es_settings.xml;
     RETRODS_ESDE_DIR overrides for the desktop test kit) writes into
     ES-DE/custom_systems: the SNES-DS find rule (androidpackage
-    io.github.iosue_iulianus.snesds/.LauncherActivity) in es_find_rules.xml, and
+    io.github.iosue_iulianus.retrods/.LauncherActivity) in es_find_rules.xml, and
     `<command label="SNES DS (Standalone)">%EMULATOR_SNES-DS%
     %ACTIVITY_CLEAR_TASK% %ACTIVITY_CLEAR_TOP% %EXTRA_rom%=%ROM%</command>`
     first in es_systems.xml's gba system (the default emulator): into the
@@ -359,7 +359,7 @@ CHANGELOG until someone tests them on a more capable device.
     %ROMSAF%) so patches beside the game apply. When ES-DE changes its own
     gba system, update GBA_BODY (the copy is rewritten at the next start).
     Checked on the RG DS Plus (GammaOS + ES-DE, Nov 14, 2026).
-  Daijisho player: package io.github.iosue_iulianus.snesds, activity
+  Daijisho player: package io.github.iosue_iulianus.retrods, activity
   .LauncherActivity, `-a android.intent.action.VIEW -d {file.uri}` (or
   `-e rom {file.path}`).
 - Data folder (RETRODS_HOME): "SNES DS" on the internal storage when All
@@ -367,7 +367,7 @@ CHANGELOG until someone tests them on a more capable device.
   ROCKNIX install folder: states/ (with .nomedia), cheats/ (cheat_dir),
   overlays/ and logos/ (asset_dir), screenshots/ (screenshot_dir),
   retrods.log. android_config_defaults makes the folders with README.txt
-  files. SnesDsActivity.dataFolder() copies states/ over from the app's
+  files. RetroDsActivity.dataFolder() copies states/ over from the app's
   folder once (builds before this used it). RetroArch's own folders
   aren't readable by other apps on newer Android, hence cheats/ there.
 - Back from Home / the app switcher mid-game, the pause menu is open
@@ -389,7 +389,7 @@ frontend launch intents.
   provider's real path (`_data`, or /storage/... inside the URI) before
   copying. Every launch logs the whole intent ("launched with action=...")
   so a failing frontend shows what it sent.
-- Owner's test: the explicit template `-n io.github.iosue_iulianus.snesds/.LauncherActivity
+- Owner's test: the explicit template `-n io.github.iosue_iulianus.retrods/.LauncherActivity
   -a android.intent.action.VIEW -d {file.uri}` works; the default one gave
   a black screen and no retrods.log (so it never reached the game). Likely
   cause: the launcher read every extra, and a Parcelable extra of a class
@@ -563,7 +563,7 @@ sha256.c are in CMakeLists):
   `android_http_cancel()` (Http.cancelDownloads, checked per 64 KB).
 - **Install:** the APK goes to `<state_dir>/update/`, is checked against
   the size and SHA-256, then `android_install_apk()` calls
-  SnesDsActivity.installApk, which writes it into a PackageInstaller session
+  RetroDsActivity.installApk, which writes it into a PackageInstaller session
   and commits it (the APK file is deleted after). The session's answers
   come to a receiver registered in onCreate (RECEIVER_NOT_EXPORTED;
   mutable PendingIntent to our own package): PENDING_USER_ACTION starts
@@ -598,7 +598,7 @@ launches and no retrods.log: the native code was built with
 `-mcpu=cortex-a55`, which lets the compiler use ARMv8.2 instructions, so
 it died on the first one (an illegal instruction, before any log). Now
 `-march=armv8-a -mtune=cortex-a55` (scripts/build-android.sh, for libmgba
-and libmain/SDL alike). SnesDsActivity also writes its first steps to
+and libmain/SDL alike). RetroDsActivity also writes its first steps to
 launch.log (device, Android version, ABIs, whether the native libraries
 loaded), and a frontend's bare path (`data=/storage/.../x.gba`, no
 `file://`) is taken as the game. The Linux build still uses
@@ -628,7 +628,7 @@ before. The software fallback already used the display's own size.
 A Presentation stays up while its activity is in the background, so after
 Home (or the app switcher, or another app on top) the second display kept
 SNES DS's last picture, took its touches and stayed awake (FLAG_KEEP_SCREEN_ON)
-until the app closed (AYN Thor report). SnesDsActivity now hides it in
+until the app closed (AYN Thor report). RetroDsActivity now hides it in
 onStop and shows it in onStart (`secondHidden`; Dialog.hide keeps the
 window, so show can't fail while the display is there). Hiding destroys the
 SurfaceView's surface: nativeSetSurface(null) destroys the EGL surface and
@@ -691,7 +691,7 @@ to landscape (manifest `screenOrientation="landscape"` and SDL's
 screen (Microsoft: by design for orientation-locked apps) and holds it
 one way round only (upside down with the controller's cable on the left).
 
-- The manifest no longer locks the orientation. SnesDsActivity sets it
+- The manifest no longer locks the orientation. RetroDsActivity sets it
   itself (`orientationWanted`, before super.onCreate, and again from SDL's
   `setOrientationBis`, overridden): landscape when there's another display
   (RG DS, Thor, RP Duo: unchanged), else SCREEN_ORIENTATION_FULL_USER (any
@@ -722,11 +722,11 @@ one way round only (upside down with the controller's cable on the left).
 
 The app icon starts LauncherActivity (translucent, excludeFromRecents),
 which the Duo spans when the player has set the app to span; it then
-started SnesDsActivity in a task of its own (taskAffinity `...snesds.game`,
+started RetroDsActivity in a task of its own (taskAffinity `...retrods.game`,
 singleTask: needed with two displays, where GammaOS put the launcher's
 task on either display), and the Duo opens a new task on one screen.
 
-- `SnesDsHereActivity` (a subclass of SnesDsActivity, nothing else
+- `RetroDsHereActivity` (a subclass of RetroDsActivity, nothing else
   different) has the app's usual task affinity and singleTop. LauncherActivity
   starts it, in its own task and without launch options, when there's no
   display besides the main one and the launcher is its task's root (the
@@ -734,10 +734,10 @@ task on either display), and the Duo opens a new task on one screen.
   the old path is kept, so the game doesn't become part of the frontend's
   task). It takes the task back into Recents (`AppTask.setExcludeFromRecents(false)`,
   as the launcher at its root left it out).
-- `SnesDsActivity.running`: a game already running gets a new request in
+- `RetroDsActivity.running`: a game already running gets a new request in
   its own task (the Here one: NEW_TASK | CLEAR_TOP | SINGLE_TOP, so
   onNewIntent), never a second activity beside it.
-- Two displays: unchanged (SnesDsActivity in its own task on display 0).
+- Two displays: unchanged (RetroDsActivity in its own task on display 0).
 - launch.log says "one display: starting the game in the launcher's task".
 
 ## To pick up: save states shared with RetroArch (issue #39; planned Nov 16, 2026)
@@ -808,7 +808,7 @@ one session"). Empty after each release.
 
 - The choice is `rotation.cfg` (one word: auto / portrait / landscape) in the
   app's own storage (`RETRODS_APP_FILES`, like `data-folder.cfg`), so Java can
-  read it in `onCreate` before the window exists (`SnesDsActivity.rotationMode`,
+  read it in `onCreate` before the window exists (`RetroDsActivity.rotationMode`,
   used by `orientationWanted`: SENSOR_PORTRAIT / SENSOR_LANDSCAPE / FULL_USER).
   `android_rotation_set` (android.c) writes it and calls `applyRotation`, which
   re-applies the orientation at once. The row is `ROW_ROTATION` in library.c,

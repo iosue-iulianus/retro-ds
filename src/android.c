@@ -1,5 +1,5 @@
 /* Android glue: see android.h. The Java side is in android/app/src/main/java
- * (SnesDsActivity, SecondScreen). */
+ * (RetroDsActivity, SecondScreen). */
 #ifdef __ANDROID__
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE /* sched_setaffinity, CPU_SET */
@@ -336,7 +336,7 @@ static jfieldID httpCancel;
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 	JNIEnv* env;
 	if ((*vm)->GetEnv(vm, (void**) &env, JNI_VERSION_1_6) != JNI_OK) return JNI_VERSION_1_6;
-	jclass c = (*env)->FindClass(env, "io/github/iosue_iulianus/snesds/Http");
+	jclass c = (*env)->FindClass(env, "io/github/iosue_iulianus/retrods/Http");
 	if (c) {
 		httpClass = (*env)->NewGlobalRef(env, c);
 		httpRequest = (*env)->GetStaticMethodID(env, c, "request",
@@ -451,7 +451,7 @@ int android_take_install_result(char* msg, size_t size) {
 	return st;
 }
 
-JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SnesDsActivity_nativeInstallResult(JNIEnv* env, jclass cls, jint state,
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_retrods_RetroDsActivity_nativeInstallResult(JNIEnv* env, jclass cls, jint state,
                                                                                      jstring msg) {
 	const char* m = msg ? (*env)->GetStringUTFChars(env, msg, NULL) : NULL;
 	pthread_mutex_lock(&installLock);
@@ -491,7 +491,7 @@ static bool call_activity(const char* name, const char* arg) {
 }
 
 /* ---- Settings > Rotation (issue #60): rotation.cfg in the app's own
- * storage, "auto" | "portrait" | "landscape" on one line; SnesDsActivity
+ * storage, "auto" | "portrait" | "landscape" on one line; RetroDsActivity
  * reads it before the window exists and applyRotation changes it live. */
 static bool rotation_file(char* out, size_t size) {
 	const char* files = getenv("RETRODS_APP_FILES");
@@ -547,7 +547,7 @@ int android_take_ra_credentials(char* user, size_t userSize, char* pass, size_t 
 	return st;
 }
 
-JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SnesDsActivity_nativeRaCredentials(JNIEnv* env, jclass cls, jstring user,
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_retrods_RetroDsActivity_nativeRaCredentials(JNIEnv* env, jclass cls, jstring user,
                                                                                      jstring pass) {
 	const char* u = user ? (*env)->GetStringUTFChars(env, user, NULL) : NULL;
 	const char* p = pass ? (*env)->GetStringUTFChars(env, pass, NULL) : NULL;
@@ -602,7 +602,7 @@ int android_take_picked_folder(char* out, size_t size) {
 	return st;
 }
 
-JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SnesDsActivity_nativeFolderPicked(JNIEnv* env, jclass cls, jstring path) {
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_retrods_RetroDsActivity_nativeFolderPicked(JNIEnv* env, jclass cls, jstring path) {
 	const char* p = path ? (*env)->GetStringUTFChars(env, path, NULL) : NULL;
 	pthread_mutex_lock(&pickLock);
 	if (p && *p) {
@@ -838,7 +838,7 @@ void android_second_log_timing(int frames) {
 	nBegin = nRestore = 0;
 }
 
-JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_nativeSetDisplay(JNIEnv* env, jclass cls, jint w, jint h) {
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_retrods_SecondScreen_nativeSetDisplay(JNIEnv* env, jclass cls, jint w, jint h) {
 	pthread_mutex_lock(&winLock);
 	dispW = w;
 	dispH = h;
@@ -849,7 +849,7 @@ JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_native
  * activity's and the second's, for screen_match = size */
 static float displayPpi[2];
 
-JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_nativeSetPpi(JNIEnv* env, jclass cls, jfloat app, jfloat second) {
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_retrods_SecondScreen_nativeSetPpi(JNIEnv* env, jclass cls, jfloat app, jfloat second) {
 	displayPpi[0] = app;
 	displayPpi[1] = second;
 	__android_log_print(ANDROID_LOG_INFO, TAG, "display ppi: %.1f (the app's) / %.1f (second)", app, second);
@@ -871,7 +871,7 @@ float android_display_ppi(int view) {
 
 /* Called on the UI thread; holding the lock means the native side is done
  * with the old surface before Java lets it go. */
-JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_nativeSetSurface(JNIEnv* env, jclass cls, jobject surface) {
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_retrods_SecondScreen_nativeSetSurface(JNIEnv* env, jclass cls, jobject surface) {
 	pthread_mutex_lock(&winLock);
 	/* may still be current on the game thread (until it next switches): EGL
 	 * then frees it once it isn't */
@@ -919,14 +919,14 @@ void android_touch_pos(const SDL_Event* ev, float* x, float* y) {
 /* kind: 1 down, 2 up, 3 motion; x, y: 0..1 across the second display.
  * Goes through SDL's event queue (thread-safe) to ui.c, which treats the
  * window id as the second view. */
-JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_nativeTouch(JNIEnv* env, jclass cls, jint kind, jfloat x,
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_retrods_SecondScreen_nativeTouch(JNIEnv* env, jclass cls, jint kind, jfloat x,
                                                                             jfloat y) {
 	push_touch(RETRODS_SECOND_WINDOW_ID, kind, x, y);
 }
 
-/* The same for the activity's own display (SnesDsActivity.onTouch: SDL's
+/* The same for the activity's own display (RetroDsActivity.onTouch: SDL's
  * positions there weren't reliable on the Duo) */
-JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SnesDsActivity_nativeMainTouch(JNIEnv* env, jclass cls, jint kind, jfloat x,
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_retrods_RetroDsActivity_nativeMainTouch(JNIEnv* env, jclass cls, jint kind, jfloat x,
                                                                                 jfloat y) {
 	push_touch(RETRODS_MAIN_WINDOW_ID, kind, x, y);
 }

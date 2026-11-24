@@ -18,7 +18,7 @@ def runNumber = (System.getenv("GITHUB_RUN_NUMBER") ?: "1") as int
 def keystore = System.getenv("RETRODS_KEYSTORE")
 
 android {
-    namespace "io.github.iosue_iulianus.snesds"
+    namespace "io.github.iosue_iulianus.retrods"
     compileSdk 34
     def ndkDir = System.getenv("ANDROID_NDK_HOME") ?: System.getenv("ANDROID_NDK_LATEST_HOME")
     if (ndkDir) {
@@ -31,7 +31,7 @@ android {
 
     defaultConfig {
         // SNES DS's own ID, so it installs beside GBA DS instead of replacing it.
-        applicationId "io.github.iosue_iulianus.snesds"
+        applicationId "io.github.iosue_iulianus.retrods"
         minSdk 26
         targetSdk 34
         versionCode runNumber

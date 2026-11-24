@@ -1,4 +1,4 @@
-package io.github.iosue_iulianus.snesds;
+package io.github.iosue_iulianus.retrods;
 
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -46,9 +46,9 @@ import java.io.OutputStream;
  * into.
  *
  * Intent extra "rom": a ROM path to play (e.g. adb shell am start -n
- * io.github.iosue_iulianus.snesds/io.github.iosue_iulianus.snesds.LauncherActivity --es rom /storage/emulated/0/ROMs/snes/x.sfc).
+ * io.github.iosue_iulianus.retrods/io.github.iosue_iulianus.retrods.LauncherActivity --es rom /storage/emulated/0/ROMs/snes/x.sfc).
  */
-public class SnesDsActivity extends SDLActivity {
+public class RetroDsActivity extends SDLActivity {
     /* kind: 1 down, 2 up, 3 motion; x, y: 0..1 across this display */
     static native void nativeMainTouch(int kind, float x, float y);
 
@@ -108,7 +108,7 @@ public class SnesDsActivity extends SDLActivity {
         return new SDLSurface(context) {
             @Override
             public boolean onTouch(View v, MotionEvent e) {
-                return SnesDsActivity.this.onTouch(v, e);
+                return RetroDsActivity.this.onTouch(v, e);
             }
         };
     }
@@ -117,9 +117,9 @@ public class SnesDsActivity extends SDLActivity {
     private SecondScreen second;
 
     /** The game activity in this process, if one is running (this class or
-     * {@link SnesDsHereActivity}): the launcher sends a new request to it,
+     * {@link RetroDsHereActivity}): the launcher sends a new request to it,
      * in its task, rather than starting a second one. */
-    static volatile SnesDsActivity running;
+    static volatile RetroDsActivity running;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -432,7 +432,7 @@ public class SnesDsActivity extends SDLActivity {
 
     /* ------------------------------------------------------------ updates */
 
-    private static final String INSTALL_STATUS = "io.github.iosue_iulianus.snesds.INSTALL_STATUS";
+    private static final String INSTALL_STATUS = "io.github.iosue_iulianus.retrods.INSTALL_STATUS";
 
     /** 1 asking to confirm, 2 installed, -1 failed, -2 cancelled, -3 another key, -4 no room, -5 older build (android.h). */
     static native void nativeInstallResult(int state, String message);

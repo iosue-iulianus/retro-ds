@@ -1172,12 +1172,12 @@ bool emu_state_load_file(Emu* e, const char* path) {
 	return ok;
 }
 
-StateFileKind emu_state_file_kind(Emu* e, const char* path, bool* fromSnesds) {
+StateFileKind emu_state_file_kind(Emu* e, const char* path, bool* fromRetrods) {
 	StateFile sf;
 	StateFileKind kind;
-	if (fromSnesds) *fromSnesds = false;
+	if (fromRetrods) *fromRetrods = false;
 	if (!state_file_read(path, &sf, &kind)) return kind;
-	if (fromSnesds) *fromSnesds = sf.haveCrc;
+	if (fromRetrods) *fromRetrods = sf.haveCrc;
 	if (e && e->core && sf.memN != e->stateSize) kind = STATE_FILE_OTHER_CORE;
 	free(sf.b);
 	return kind;

@@ -53,7 +53,7 @@ static const char* const RULE =
 	"    " RULE_OPEN "\n"
 	"        <!-- retrods: SNES DS, added by SNES DS (Settings > SNES DS in ES-DE); switching that off takes it out -->\n"
 	"        <rule type=\"androidpackage\">\n"
-	"            <entry>io.github.iosue_iulianus.snesds/.LauncherActivity</entry>\n"
+	"            <entry>io.github.iosue_iulianus.retrods/.LauncherActivity</entry>\n"
 	"        </rule>\n"
 	"    </emulator>\n";
 

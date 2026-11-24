@@ -12,7 +12,7 @@
 
 /* windowID on the finger events forwarded from the second screen */
 #define RETRODS_SECOND_WINDOW_ID 0x6BD50002u
-/* touches on the activity's display, from its view (SnesDsActivity.onTouch) */
+/* touches on the activity's display, from its view (RetroDsActivity.onTouch) */
 #define RETRODS_MAIN_WINDOW_ID 0x6BD50001u
 
 /* The event type touches from Java come as (SDL_RegisterEvents'), not

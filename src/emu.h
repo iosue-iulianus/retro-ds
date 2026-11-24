@@ -152,8 +152,8 @@ typedef enum {
 bool emu_state_save_file(Emu* e, const char* path);
 bool emu_state_save_file_as(Emu* e, const char* path, const void* extra, size_t extraN, StateFormat fmt);
 bool emu_state_load_file(Emu* e, const char* path);
-/* *fromSnesds (may be NULL): saved by SNES DS (it has SNES DS's blocks) */
-StateFileKind emu_state_file_kind(Emu* e, const char* path, bool* fromSnesds);
+/* *fromRetrods (may be NULL): saved by SNES DS (it has SNES DS's blocks) */
+StateFileKind emu_state_file_kind(Emu* e, const char* path, bool* fromRetrods);
 /* The CRC32 of the ROM (as played) a state was saved with; false if the
  * file doesn't say (not SNES DS's) */
 bool emu_state_file_rom_crc(const char* path, uint32_t* crc);

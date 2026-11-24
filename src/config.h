@@ -74,7 +74,7 @@ typedef struct Config {
 	char saveExt[8];   /* their extension: srm (RetroArch's too, so shared), or sav */
 	char saveFrom[512]; /* where SNES DS kept them before (<game>.sav), carried over: BananaOS */
 	char stateDir[512]; /* save states, thumbnails, prefs; default: <app>/states */
-	char stateFolder[12]; /* slots 0-9 and the automatic state: "snesds" (stateDir) or "retroarch" (RetroArch's own, shared: issue #39) */
+	char stateFolder[12]; /* slots 0-9 and the automatic state: "retrods" (stateDir) or "retroarch" (RetroArch's own, shared: issue #39) */
 	char raStateDir[512]; /* RetroArch's state folder when it isn't found from its settings (retroarch_state_dir) */
 	char raCfg[512];      /* RetroArch's retroarch.cfg (retroarch_cfg; default: looked for) */
 	char romDir[1024]; /* library folders, ':'-separated */

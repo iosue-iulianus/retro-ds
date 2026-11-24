@@ -8,7 +8,7 @@
 #   RETRODS_SDL_SRC     SDL2 source tree
 #   RETRODS_VERSION     version string
 cmake_minimum_required(VERSION 3.18)
-project(snesds C CXX)
+project(retrods C CXX)
 
 get_filename_component(RETRODS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../.." ABSOLUTE)
 if(NOT RETRODS_SDL_SRC)

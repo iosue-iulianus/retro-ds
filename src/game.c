@@ -651,21 +651,21 @@ static void slot_pick_newest(void) {
 }
 /* What's in a slot shared with RetroArch (issue #39), looked at again
  * only when the file changes */
-static StateFileKind slot_kind(const struct stat* st, bool* fromSnesds) {
+static StateFileKind slot_kind(const struct stat* st, bool* fromRetrods) {
 	static struct {
 		char path[1024];
 		time_t time;
 		off_t size;
 		StateFileKind kind;
-		bool snesds;
+		bool retrods;
 	} seen[10];
 	int i = stateSlot;
 	if (strcmp(seen[i].path, gp.slot[i]) || seen[i].time != st->st_mtime || seen[i].size != st->st_size) {
 		snprintf(seen[i].path, sizeof(seen[i].path), "%s", gp.slot[i]);
 		seen[i].time = st->st_mtime, seen[i].size = st->st_size;
-		seen[i].kind = emu_state_file_kind(&emu, gp.slot[i], &seen[i].snesds);
+		seen[i].kind = emu_state_file_kind(&emu, gp.slot[i], &seen[i].retrods);
 	}
-	*fromSnesds = seen[i].snesds;
+	*fromRetrods = seen[i].retrods;
 	return seen[i].kind;
 }
 /* "Slot 3: Oct 31, 1:45 PM" (when it was saved), or "Slot 3: Empty";
@@ -680,13 +680,13 @@ static const char* slot_label(void) {
 	}
 	const char* by = "";
 	if (gp.raDir[0]) {
-		bool fromSnesds;
-		StateFileKind k = slot_kind(&st, &fromSnesds);
+		bool fromRetrods;
+		StateFileKind k = slot_kind(&st, &fromRetrods);
 		if (k == STATE_FILE_OTHER_CORE || k == STATE_FILE_UNREADABLE) {
 			snprintf(buf, sizeof(buf), tr("Slot %d: %s"), stateSlot, k == STATE_FILE_OTHER_CORE ? tr("Another emulator's"): tr("Can't be read"));
 			return buf;
 		}
-		if (!fromSnesds) by = N_(", RetroArch");
+		if (!fromRetrods) by = N_(", RetroArch");
 	}
 	struct tm t, now;
 	time_t n = time(NULL);
@@ -3426,13 +3426,13 @@ static void state_rom_check(const char* path) {
 
 static StateFileKind stateLoadKind; /* (what the last state_load found: why it failed) */
 static bool state_load(const char* path) {
-	bool fromSnesds = false;
-	stateLoadKind = emu_state_file_kind(&emu, path, &fromSnesds);
+	bool fromRetrods = false;
+	stateLoadKind = emu_state_file_kind(&emu, path, &fromRetrods);
 	bool ok = emu_state_load_file(&emu, path);
 	{
 		static const char* const kinds[] = { "no file", "SNES DS's", "RetroArch's", "another emulator's", "unreadable" };
 		fprintf(stderr, "load state: %s: %s (%s%s)\n", path, ok ? "loaded" : "not loaded", kinds[stateLoadKind],
-		        stateLoadKind == STATE_FILE_RETROARCH ? (fromSnesds ? ", saved by SNES DS" : ", saved by RetroArch") : "");
+		        stateLoadKind == STATE_FILE_RETROARCH ? (fromRetrods ? ", saved by SNES DS" : ", saved by RetroArch") : "");
 	}
 	stateWarned = false;
 	if (ok && !stateNoCheck) state_rom_check(path);
@@ -3440,7 +3440,7 @@ static bool state_load(const char* path) {
 		/* (saved by RetroArch over one of SNES DS's: the progress kept with
 		 * that one is another moment's, so achievements start over) */
 		const char* side = state_ra_side(path);
-		if (side != path && !fromSnesds) {
+		if (side != path && !fromRetrods) {
 			char ra[1210];
 			snprintf(ra, sizeof(ra), "%s.ra", side);
 			remove(ra);

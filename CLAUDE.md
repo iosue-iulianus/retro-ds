@@ -145,9 +145,9 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   fetch from it to pick up fixes to shared code, never push there.
 - **Names:** the app is SNES DS everywhere: binary `retrods`, `retrods.cfg`,
   `RETRODS_*` variables and macros, Android package and application ID
-  `io.github.iosue_iulianus.snesds` (JNI names write its `_` as `_1`:
-  `Java_io_github_iosue_1iulianus_snesds_...`), classes `SnesDsActivity` and
-  `SnesDsHereActivity`, the "SNES DS" folder on Android. Still to do: the
+  `io.github.iosue_iulianus.retrods` (JNI names write its `_` as `_1`:
+  `Java_io_github_iosue_1iulianus_retrods_...`), classes `RetroDsActivity` and
+  `RetroDsHereActivity`, the "SNES DS" folder on Android. Still to do: the
   logo artwork (`src/brand_data.c`, from `tools/make_brand.py`), whose font
   isn't settled. GBA DS is named on purpose in the README's credits, this
   file, Philosophy, the changelog's opening, `docs/reference/gba/` and the
@@ -211,7 +211,7 @@ can't build Android itself (no SDK), so:
    iosue-iulianus/retro-ds` gives `retrods-vX-android/*.apk`.
 4. **Check SNES DS isn't in use.** `adb.exe -s 192.168.0.217:PORT shell
    'dumpsys activity activities | grep -E "ResumedActivity:"'`: if
-   `SnesDsActivity` is resumed the owner is playing; wait (or ask). A
+   `RetroDsActivity` is resumed the owner is playing; wait (or ask). A
    cached process in the background is fine (it auto-saves on leaving).
 5. **Back up the owner's states first** (never lose them): pull the
    newest `SNES DS/states/*.state` (and the `.srm` in `ROMs/snes`) into

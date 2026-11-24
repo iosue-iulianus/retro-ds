@@ -944,7 +944,7 @@ static void save_library_cfg(const Config* cfg) {
 	if (!f) return;
 	fprintf(f, "# written by the game list\nlibrary_view = %s\n", listMode ? "list" : "grid");
 	/* (Settings > Save States: shared with RetroArch or not, issue #39) */
-	fprintf(f, "state_folder = %s\n", strcmp(cfg->stateFolder, "retroarch") ? "snesds" : "retroarch");
+	fprintf(f, "state_folder = %s\n", strcmp(cfg->stateFolder, "retroarch") ? "retrods" : "retroarch");
 	/* (Settings > RetroArch's Folder: one chosen by hand, or empty: found from RetroArch's settings) */
 	fprintf(f, "retroarch_state_dir = %s\n", cfg->raStateDir);
 #ifdef __ANDROID__
@@ -1639,7 +1639,7 @@ static bool settings_pages_input(Config* cfg, int ls) {
 /* Android: the ROM and save folders (Folders, a panel of its own), chosen
  * with Android's folder picker (android.c), kept in <state_dir>/library.cfg;
  * the RetroAchievements account, signed in with a dialog (android.c,
- * SnesDsActivity) and kept as a token by ra.c. */
+ * RetroDsActivity) and kept as a token by ra.c. */
 static bool pickPending, raDialogPending;
 static int pickFor; /* PICK_ROMS, PICK_SAVES or PICK_DATA: what the picker's folder is for */
 enum { PICK_ROMS, PICK_SAVES, PICK_DATA };
@@ -2059,7 +2059,7 @@ static void states_dir_pick(Config* cfg) {
 		if (retroarch_state_dir(cfg, states_rom(), dir, sizeof(dir), &compress)) {
 			snprintf(settingsMsg, sizeof(settingsMsg), tr("RetroArch's state folder is found from its settings again: %s."), path_tail(dir));
 		} else {
-			snprintf(cfg->stateFolder, sizeof(cfg->stateFolder), "snesds");
+			snprintf(cfg->stateFolder, sizeof(cfg->stateFolder), "retrods");
 			snprintf(settingsMsg, sizeof(settingsMsg), tr("RetroArch's settings weren't found, so slots 0-9 and the automatic state are SNES DS's own again."));
 		}
 	}
@@ -2086,7 +2086,7 @@ static void states_switch(Config* cfg) {
 		states_dir_pick(cfg);
 		return;
 	}
-	snprintf(cfg->stateFolder, sizeof(cfg->stateFolder), "%s", shared ? "snesds" : "retroarch");
+	snprintf(cfg->stateFolder, sizeof(cfg->stateFolder), "%s", shared ? "retrods" : "retroarch");
 	save_library_cfg(cfg);
 	fprintf(stderr, "library: save states %s\n", shared ? "in SNES DS's own folder" : "shared with RetroArch");
 	snprintf(settingsMsg, sizeof(settingsMsg), "%s",

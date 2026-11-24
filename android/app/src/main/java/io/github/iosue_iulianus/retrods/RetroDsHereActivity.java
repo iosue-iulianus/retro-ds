@@ -1,4 +1,4 @@
-package io.github.iosue_iulianus.snesds;
+package io.github.iosue_iulianus.retrods;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -9,15 +9,15 @@ import android.os.Bundle;
  * The game, started in the launcher's own task instead of one of its own:
  * on a device with one display (a phone, a Surface Duo; issue #48). A Surface
  * Duo opens a new task on one screen, so the game started in its own task
- * (as {@link SnesDsActivity} is) left an app the player had spanned over both
+ * (as {@link RetroDsActivity} is) left an app the player had spanned over both
  * screens on one of them. In the task the launcher was opened in, the game
  * keeps the launcher's window, spanned or not.
  *
- * Everything else is SnesDsActivity's. The manifest gives this one the app's
- * usual task affinity and singleTop, where SnesDsActivity has a task of its own
+ * Everything else is RetroDsActivity's. The manifest gives this one the app's
+ * usual task affinity and singleTop, where RetroDsActivity has a task of its own
  * (needed with two displays: GammaOS put the launcher's task on either).
  */
-public class SnesDsHereActivity extends SnesDsActivity {
+public class RetroDsHereActivity extends RetroDsActivity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);

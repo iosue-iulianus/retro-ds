@@ -427,7 +427,7 @@ def main():
             rep.append("None of %s's cases run on `%s`." % (slug, bCode))
         else:
             # a copy of the fixtures with the patched ROM where the release's is
-            fx = tempfile.mkdtemp(prefix="snesds-romhack-")
+            fx = tempfile.mkdtemp(prefix="retrods-romhack-")
             for d in os.listdir(a.fixtures):
                 if d not in ("roms", ".git"):
                     os.symlink(os.path.join(a.fixtures, d), os.path.join(fx, d))

@@ -17,7 +17,7 @@ void config_defaults(Config* c) {
 	memset(c, 0, sizeof(*c));
 	strcpy(c->layout, "auto");
 	strcpy(c->saveExt, "srm"); /* (the SNES convention, RetroArch's too: the same file for both) */
-	strcpy(c->stateFolder, "snesds");
+	strcpy(c->stateFolder, "retrods");
 	strcpy(c->scale, "integer");
 	strcpy(c->mapScale, "integer");
 	strcpy(c->accent, "purple");

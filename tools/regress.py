@@ -664,7 +664,7 @@ def main():
             sys.exit("%s not found: run %s" % need)
     if not os.path.isdir(os.path.join(args.fixtures, "roms")):
         sys.exit("fixtures not found at %s (clone kyannon/gba-ds-tests there, or pass --fixtures / set RETRODS_TESTS)" % args.fixtures)
-    args.work = tempfile.mkdtemp(prefix="snesds-regress-")
+    args.work = tempfile.mkdtemp(prefix="retrods-regress-")
     with ThreadPoolExecutor(max_workers=args.j) as pool:
         results = list(pool.map(lambda c: evaluate(c, args), cases))
     write_report(results, args.report)
