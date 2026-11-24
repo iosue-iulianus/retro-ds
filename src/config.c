@@ -18,9 +18,9 @@ void config_defaults(Config* c) {
 	strcpy(c->layout, "auto");
 	strcpy(c->saveExt, "srm"); /* (the SNES convention, RetroArch's too: the same file for both) */
 	strcpy(c->stateFolder, "retrods");
-	strcpy(c->scale, "integer");
+	strcpy(c->scale, "4:3");
 	strcpy(c->mapScale, "integer");
-	strcpy(c->accent, "purple");
+	strcpy(c->accent, "red");
 	strcpy(c->hotkey, "home");
 	for (int i = 0; i < HK_COUNT; ++i) strcpy(c->hotkeyBtn[i], hotkeyDefaults[i]);
 	c->shaderLast = SH_GRID;
@@ -32,16 +32,13 @@ void config_defaults(Config* c) {
 	strcpy(c->libraryView, "list");
 	strcpy(c->touchScreen, "second");
 	strcpy(c->topScreen, "auto");
-	strcpy(c->screenMatch, "keep");
-	strcpy(c->screenPlace, "center");
 	strcpy(c->touchMap, "window");
 	c->touchRotate = -1;
-	c->map = true;
 	c->customLogos = CL_PIXELATED;
 	c->rewind = true;
 	c->rewindSeconds = 30;
-	c->overlayMode = OVM_OFF; /* (no bezel: on OLED screens the black round the picture is the frame) */
-	c->overlays = OVL_BOTH;
+	c->overlayMode = OVM_GENERATED;
+	c->overlays = OVL_OFF; /* (no bezel: on OLED screens the black round the picture is the frame) */
 	c->bezelLogo = true;
 	strcpy(c->bezelInner, "1A1A1A");
 	strcpy(c->bezelOuter, "102060");
@@ -65,7 +62,6 @@ void config_defaults(Config* c) {
 	c->homeButton = -1;
 	c->leftStickDpad = true;
 	c->turboRate = 15;
-	c->brightTop = c->brightBottom = 100;
 	c->lcdStrength = 35;
 	strcpy(c->borderColor, "000000");
 	strcpy(c->language, "auto");
@@ -97,8 +93,18 @@ static bool set_option(Config* c, const char* key, const char* val) {
 		c->swapChosen = true;
 		return true;
 	}
-	STR("scale", scale)
-	STR("map_scale", mapScale)
+	if (!strcmp(key, "scale")) {
+		/* 4:3 (as on a TV) or integer (Pixel Perfect). GBA DS's fit, zoom and
+		 * stretch all meant filling the screen: 4:3 now */
+		snprintf(c->scale, sizeof(c->scale), "%s", !strcmp(val, "integer") ? "integer" : "4:3");
+		return true;
+	}
+	if (!strcmp(key, "map_scale")) {
+		/* (the second screen keeps its picture's shape: zoom and stretch,
+		 * which didn't, are fit now) */
+		snprintf(c->mapScale, sizeof(c->mapScale), "%s", !strcmp(val, "integer") ? "integer" : "fit");
+		return true;
+	}
 	BOOL("smooth", smooth)
 	if (!strcmp(key, "shader")) {
 		for (int i = 0; i < SH_COUNT; ++i) {
@@ -115,21 +121,29 @@ static bool set_option(Config* c, const char* key, const char* val) {
 	BOOL("color_correction", colorCorrection)
 	BOOL("lcd_ghosting", ghosting)
 	if (!strcmp(key, "overlays")) {
-		/* off / generated / custom. From before v1.5: none / 0, or the screens
-		 * (top / bottom / both / 1; primary / secondary, the game / map screen,
-		 * as the screens are unswapped), the player's PNGs: OVM_LEGACY */
-		if (!strcmp(val, "off") || !strcmp(val, "none") || !strcmp(val, "0") || !strcasecmp(val, "false")) c->overlayMode = OVM_OFF;
-		else if (!strcmp(val, "generated")) c->overlayMode = OVM_GENERATED;
-		else if (!strcmp(val, "custom")) c->overlayMode = OVM_CUSTOM;
-		else {
+		/* off / both / top / bottom. Before (SNES DS, GBA DS): generated /
+		 * custom, the style, meaning on (overlay_screens said where); from
+		 * GBA DS before v1.5 primary / secondary / 1, the player's PNGs:
+		 * OVM_LEGACY */
+		if (!strcmp(val, "off") || !strcmp(val, "none") || !strcmp(val, "0") || !strcasecmp(val, "false")) c->overlays = OVL_OFF;
+		else if (!strcmp(val, "both")) c->overlays = OVL_BOTH;
+		else if (!strcmp(val, "top")) c->overlays = OVL_TOP;
+		else if (!strcmp(val, "bottom")) c->overlays = OVL_BOTTOM;
+		else if (!strcmp(val, "generated") || !strcmp(val, "custom")) {
+			c->overlayMode = !strcmp(val, "custom") ? OVM_CUSTOM : OVM_GENERATED;
+			c->overlays = OVL_BOTH;
+		} else {
 			c->overlayMode = OVM_LEGACY;
-			c->overlays = !strcmp(val, "top") || !strcmp(val, "primary")      ? OVL_TOP :
-			              !strcmp(val, "bottom") || !strcmp(val, "secondary") ? OVL_BOTTOM : OVL_BOTH;
+			c->overlays = !strcmp(val, "primary") ? OVL_TOP : !strcmp(val, "secondary") ? OVL_BOTTOM : OVL_BOTH;
 		}
 		return true;
 	}
-	if (!strcmp(key, "overlay_screens")) {
-		c->overlays = !strcmp(val, "top") ? OVL_TOP : !strcmp(val, "bottom") ? OVL_BOTTOM : OVL_BOTH;
+	if (!strcmp(key, "overlay_screens")) { /* (before: where, when overlays said on) */
+		if (c->overlays != OVL_OFF) c->overlays = !strcmp(val, "top") ? OVL_TOP : !strcmp(val, "bottom") ? OVL_BOTTOM : OVL_BOTH;
+		return true;
+	}
+	if (!strcmp(key, "overlay_style")) {
+		c->overlayMode = !strcmp(val, "custom") ? OVM_CUSTOM : OVM_GENERATED;
 		return true;
 	}
 	BOOL("bezel_logo", bezelLogo)
@@ -151,7 +165,6 @@ static bool set_option(Config* c, const char* key, const char* val) {
 	BOOL("vsync", vsync)
 	BOOL("pin_cores", pinCores)
 	BOOL("frame_buffer", frameBuffer)
-	BOOL("map", map)
 	STR("logo_folder", logoFolder)
 	if (!strcmp(key, "custom_logos")) {
 		c->customLogos = !strcmp(val, "off") ? CL_OFF : !strcmp(val, "full") ? CL_FULL : CL_PIXELATED;
@@ -167,7 +180,6 @@ static bool set_option(Config* c, const char* key, const char* val) {
 	BOOL("audio_auto", audioAuto)
 	INT("rewind_seconds", rewindSeconds)
 	INT("screen_gap_mm", screenGapMm)
-	INT("map_interval", mapInterval)
 	BOOL("ab_swap", abSwap)
 	STR("hotkey", hotkey)
 	if (!strcmp(key, "hotkey_fps")) return true; /* (a test build's: the quick menu has the FPS counter) */
@@ -215,8 +227,6 @@ static bool set_option(Config* c, const char* key, const char* val) {
 	if (!strcmp(key, "data_dir_now")) return true; /* (data-folder.cfg: where the data is, written by the app) */
 	STR("touch_screen", touchScreen)
 	STR("top_screen", topScreen)
-	STR("screen_match", screenMatch)
-	STR("screen_placement", screenPlace)
 	STR("screen_ppi", screenPpi)
 	STR("touch_map", touchMap)
 	STR("touch_device", touchDevice)
@@ -238,8 +248,6 @@ static bool set_option(Config* c, const char* key, const char* val) {
 		return true;
 	}
 	INT("turbo_rate", turboRate)
-	INT("brightness_top", brightTop)
-	INT("brightness_bottom", brightBottom)
 	if (!strncmp(key, "button_", 7)) {
 		static const char* const faces[10] = { "right", "bottom", "top", "left", "l", "r", "dpad_up", "dpad_down", "dpad_left", "dpad_right" };
 		for (int i = 0; i < 10; ++i) {
@@ -277,11 +285,11 @@ static int nCliKeys;
  * (folders, accounts, updates, how the screens are found, hotkeys, the
  * touch panel) is for all games. */
 static const char* const perGameKeys[] = {
-	"swap", "scale", "map_scale", "smooth", "border_color", "overlays", "overlay_screens", "bezel_logo", "bezel_inner",
-	"bezel_outer", "shader", "lcd_strength", "color_correction", "lcd_ghosting", "frame_buffer", "match_display", "map",
-	"map_interval", "custom_logos", "rewind", "rewind_seconds",
-	"fast_forward", "ff_speed", "ab_swap", "show_fps", "audio_latency", "screen_match", "screen_placement", "screen_gap_mm",
-	"save_on_quit", "auto_load", "left_stick_dpad", "turbo_rate", "brightness_top", "brightness_bottom", "button_right", "button_bottom", "button_top", "button_left",
+	"swap", "scale", "map_scale", "smooth", "border_color", "overlays", "overlay_style", "bezel_logo", "bezel_inner",
+	"bezel_outer", "shader", "lcd_strength", "color_correction", "lcd_ghosting", "frame_buffer", "match_display",
+	"custom_logos", "rewind", "rewind_seconds",
+	"fast_forward", "ff_speed", "ab_swap", "show_fps", "audio_latency", "screen_gap_mm",
+	"save_on_quit", "auto_load", "left_stick_dpad", "turbo_rate", "button_right", "button_bottom", "button_top", "button_left",
 	"button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right",
 };
 
@@ -402,7 +410,6 @@ void config_usage(const char* argv0) {
 	        "  --smooth               plain linear filtering\n"
 	        "  --vsync                sync presentation to the display\n"
 	        "  --no-map               disable the map screen\n"
-	        "  --map-interval=N       frames between map refreshes (90)\n"
 	        "  --ab-swap              SNES A on the bottom face button (and X on the left)\n"
 	        "  --hotkey=home|select|start|l3   the hotkey button, held with another for a shortcut\n"
 	        "  --hotkey-quit=BUTTON (and -save-state, -load-state, -quick-menu, -swap-screens, -shader)\n"
@@ -434,24 +441,23 @@ void config_usage(const char* argv0) {
 #define ARR(a) a, (int) (sizeof(a) / sizeof(a[0]))
 static const SettingChoice chTheme[] = { { "dark", "Dark", 0 }, { "light", "Light", 1 } };
 static const SettingChoice chAccent[] = {
-	{ "purple", "Purple", 0 }, { "blue", "Blue", 0 }, { "teal", "Teal", 0 }, { "green", "Green", 0 }, { "red", "Red", 0 }, { "orange", "Orange", 0 }, { "pink", "Pink", 0 },
+	{ "red", "Red", 0 }, { "purple", "Purple", 0 }, { "blue", "Blue", 0 }, { "teal", "Teal", 0 }, { "green", "Green", 0 }, { "orange", "Orange", 0 }, { "pink", "Pink", 0 },
 };
 static const SettingChoice chOnOff[] = { { "0", "Off", 0 }, { "1", "On", 1 } };
 static const SettingChoice chShown[] = { { "0", "Supported games only", 0 }, { "1", "All games", 1 } };
 static const SettingChoice chTags[] = { { "0", "Plain", 0 }, { "1", "With tags, like (USA)", 1 } };
 static const SettingChoice chLogos[] = { { "pixelated", "Pixelated", CL_PIXELATED }, { "full", "Full detail", CL_FULL }, { N_("off"), "Not used", CL_OFF } };
-static const SettingChoice chScale[] = { { "integer", "Pixel Perfect", 0 }, { "fit", "Full Width", 0 }, { "zoom", "Zoom", 0 }, { "stretch", "Stretch", 0 } };
+static const SettingChoice chScale[] = { { "4:3", "4:3", 0 }, { "integer", "Pixel Perfect", 0 } };
+static const SettingChoice chMapScale[] = { { "integer", "Pixel Perfect", 0 }, { "fit", "Fit", 0 } };
 static const SettingChoice chShader[] = {
 	{ N_("off"), "Off", SH_OFF }, { "grid", "LCD Grid", SH_GRID }, { "scanlines", "Scanlines", SH_SCANLINES }, { "soft", "Soft Cells", SH_SOFT },
 	{ "subpixels-light", "Subpixels (Light)", SH_SUB_LIGHT }, { "subpixels", "Subpixels", SH_SUB }, { "subpixels-strong", "Subpixels (Strong)", SH_SUB_STRONG },
 };
-static const SettingChoice chSwap[] = { { "0", "Game on top", 0 }, { "1", "Game below", 1 } };
-static const SettingChoice chMatch[] = { { "keep", "Keep device shapes", 0 }, { "aspect", "Match aspect ratios", 0 }, { "size", "Match sizes and shapes", 0 } };
+static const SettingChoice chSwap[] = { { "0", "Top screen", 0 }, { "1", "Bottom screen", 1 } };
 static const SettingChoice chGap[] = { { "auto", "Automatic", -1 }, { "0", "None", 0 }, { "5", "5 mm", 5 }, { "10", "10 mm", 10 }, { "15", "15 mm", 15 },
 	                                     { "20", "20 mm", 20 }, { "25", "25 mm", 25 }, { "30", "30 mm", 30 }, { "35", "35 mm", 35 }, { "40", "40 mm", 40 } };
-static const SettingChoice chPlace[] = { { "center", "Centered", 0 }, { "no_gap", "Closest to gap", 0 } };
-static const SettingChoice chOverlays[] = { { N_("off"), "Off", OVM_OFF }, { "generated", "Generated", OVM_GENERATED }, { "custom", "Custom", OVM_CUSTOM } };
-static const SettingChoice chOvlScreens[] = { { "both", "Both screens", OVL_BOTH }, { "top", "Top screen", OVL_TOP }, { "bottom", "Bottom screen", OVL_BOTTOM } };
+static const SettingChoice chOverlays[] = { { N_("off"), "Off", OVL_OFF }, { "both", "Both screens", OVL_BOTH }, { "top", "Top screen", OVL_TOP }, { "bottom", "Bottom screen", OVL_BOTTOM } };
+static const SettingChoice chOvlStyle[] = { { "generated", "Generated", OVM_GENERATED }, { "custom", "Custom", OVM_CUSTOM } };
 static const SettingChoice chAB[] = { { "0", "Like an SNES", 0 }, { "1", "Swapped", 1 } };
 static const SettingChoice chFace[] = {
 	{ "a", "SNES A", 0 }, { "b", "SNES B", 0 }, { "x", "SNES X", 0 }, { "y", "SNES Y", 0 }, { "l", "SNES L", 0 }, { "r", "SNES R", 0 },
@@ -465,7 +471,6 @@ static const SettingChoice chLatency[] = { { "32", "32 ms", 32 }, { "64", "64 ms
 static const SettingChoice chPerf[] = { { "system", "Let the System Decide", 0 }, { "max", "Set to Max", 1 } };
 /* Automatic, English, then every catalogue by its own name (i18n_data.h: made from assets/i18n/*.po) */
 static const SettingChoice chLanguage[] = { { "auto", "Automatic", 0 }, { "en", "English", 0 }, I18N_CHOICES };
-static const SettingChoice chInterval[] = { { "30", "Every 0.5 s", 30 }, { "60", "Every second", 60 }, { "90", "Every 1.5 s", 90 }, { "180", "Every 3 s", 180 } };
 
 static const Setting settingsTable[] = {
 	{ "language", "Language", SF_STR, OFFB(language), ARR(chLanguage), 0, 0, 0, NULL, "Automatic follows the system. Text that isn't translated yet stays in English." },
@@ -474,29 +479,25 @@ static const Setting settingsTable[] = {
 	{ "save_on_quit", "Save on quit", SF_BOOL, OFFB(autoSave), ARR(chOnOff), 0, 0, 0, NULL, "Closing a game saves where you are." },
 	{ "auto_load", "Auto-load", SF_BOOL, OFFB(autoLoad), ARR(chOnOff), 0, 0, 0, NULL, "Starting a game picks up where you closed it." },
 	{ "custom_logos", "Custom logos", SF_INT, OFFB(customLogos), ARR(chLogos), 0, 0, 0, NULL, "Your own and scraped logos on the second screen." },
-	{ "quick_bar_hint", "Quick bar hint", SF_BOOL, OFFB(barHint), ARR(chOnOff), 0, 0, 0, NULL, "\"Swipe up for quick menu\" at a game's start." },
+	{ "quick_bar_hint", "Menu hint", SF_BOOL, OFFB(barHint), ARR(chOnOff), 0, 0, 0, NULL, "\"Tap the screen to open the menu\" at a game's start." },
 
-	{ "scale", "Game screen scale", SF_STR, OFFB(scale), ARR(chScale), 0, 0, 0, NULL, "How the game's picture fills its screen." },
-	{ "map_scale", "Second screen scale", SF_STR, OFFB(mapScale), ARR(chScale), 0, 0, 0, NULL, "How the map or logo fills its screen." },
+	{ "scale", "Game screen scale", SF_STR, OFFB(scale), ARR(chScale), 0, 0, 0, NULL, "4:3: as on a TV. Pixel Perfect: square pixels at a whole size, the sharpest." },
+	{ "map_scale", "Second screen scale", SF_STR, OFFB(mapScale), ARR(chMapScale), 0, 0, 0, NULL, "How the map or logo fills its screen." },
 	{ "shader", "Shader", SF_INT, OFFB(shader), ARR(chShader), 0, 0, 0, NULL, "A pattern over every pixel, on both screens." },
 	{ "lcd_strength", "Pattern strength", SF_INT, OFFB(lcdStrength), NULL, 0, 0, 100, 5, "%", "How dark the grid, scanlines and soft cells are." },
 	{ "color_correction", "Color correction", SF_BOOL, OFFB(colorCorrection), ARR(chOnOff), 0, 0, 0, NULL, "Colors as a Game Boy Advance's screen showed them." },
 	{ "lcd_ghosting", "LCD ghosting", SF_BOOL, OFFB(ghosting), ARR(chOnOff), 0, 0, 0, NULL, "Moving things leave a short trail, as on an old handheld's LCD." },
 	{ "smooth", "Smooth scaling", SF_BOOL, OFFB(smooth), ARR(chOnOff), 0, 0, 0, NULL, "Blurry instead of sharp: usually leave off." },
 
-	{ "swap", "Screens", SF_BOOL, OFFB(swap), ARR(chSwap), 0, 0, 0, NULL, "Which screen the game is on." },
-	{ "screen_match", "Screen shapes", SF_STR, OFFB(screenMatch), ARR(chMatch), 0, 0, 0, NULL, "Only when your two screens differ in shape. Experimental." },
+	{ "swap", "Game screen", SF_BOOL, OFFB(swap), ARR(chSwap), 0, 0, 0, NULL, "Which screen the game is on." },
 	{ "screen_gap_mm", "Gap between screens", SF_INT, OFFB(screenGapMm), ARR(chGap), 0, 0, 0, NULL, "For what crosses from one screen to the other. Automatic: the device's, if known." },
-	{ "screen_placement", "Screen placement", SF_STR, OFFB(screenPlace), ARR(chPlace), 0, 0, 0, NULL, "Pictures in the middle of their screens, or close together." },
-	{ "overlays", "Overlays", SF_INT, OFFB(overlayMode), ARR(chOverlays), 0, 0, 0, NULL, "RetroDS's bezel, or your own PNGs, round the picture." },
-	{ "overlay_screens", "Overlays on", SF_INT, OFFB(overlays), ARR(chOvlScreens), 0, 0, 0, NULL, "Which screens have them." },
+	{ "overlays", "Overlays", SF_INT, OFFB(overlays), ARR(chOverlays), 0, 0, 0, NULL, "A frame round the picture, and on which screens." },
+	{ "overlay_style", "Overlay style", SF_INT, OFFB(overlayMode), ARR(chOvlStyle), 0, 0, 0, NULL, "Generated: RetroDS's bezel in your colors. Custom: your own PNGs in the overlays folder." },
 	{ "bezel_logo", "Bezel logo", SF_BOOL, OFFB(bezelLogo), ARR(chOnOff), 0, 0, 0, NULL, "The RetroDS logo in the generated bezel." },
 	{ "show_fps", "Show FPS", SF_BOOL, OFFB(showFps), ARR(chOnOff), 0, 0, 0, NULL, "Frames a second above the game, all the time." },
 
 	{ "theme", "Light/dark mode", SF_BOOL, OFFB(lightTheme), ARR(chTheme), 0, 0, 0, NULL, "The menus' buttons: dark grey, or light grey like the web player's." },
 	{ "accent", "Color", SF_STR, OFFB(accent), ARR(chAccent), 0, 0, 0, NULL, "The menus' color for what's selected, with a dark and a light version of each." },
-	{ "brightness_top", "Top screen brightness", SF_INT, OFFB(brightTop), NULL, 0, 20, 100, 10, "%", "Darkens the top screen, in this app only: the device's own brightness is left alone (and this can't go above it)." },
-	{ "brightness_bottom", "Bottom screen brightness", SF_INT, OFFB(brightBottom), NULL, 0, 20, 100, 10, "%", "Darkens the bottom screen, in this app only: the device's own brightness is left alone (and this can't go above it)." },
 	{ "left_stick_dpad", "Left stick as D-pad", SF_BOOL, OFFB(leftStickDpad), ARR(chOnOff), 0, 0, 0, NULL, "Off: the left stick does nothing in games." },
 	{ "ab_swap", "A and B buttons", SF_BOOL, OFFB(abSwap), ARR(chAB), 0, 0, 0, NULL, "SNES A on the right button, or on the bottom one." },
 	{ "button_right", "A (right) button", SF_STR, OFFB(faceBtn[0]), ARR(chFace), 0, 0, 0, NULL, "What the right face button gives the game." },
@@ -519,8 +520,6 @@ static const Setting settingsTable[] = {
 	{ "audio_latency", "Sound delay", SF_INT, OFFB(audioLatency), ARR(chLatency), 0, 0, 0, N_(" ms"), "Raise it if the sound crackles." },
 	{ "performance", "Performance", SF_BOOL, OFFB(perfMax), ARR(chPerf), 0, 0, 0, NULL, "Max: full speed, a warmer device and a shorter battery." },
 
-	{ "map", "Second screen", SF_BOOL, OFFB(map), ARR(chOnOff), 0, 0, 0, NULL, "Off: every game plays like an ordinary SNES game." },
-	{ "map_interval", "Map refresh", SF_INT, OFFB(mapInterval), ARR(chInterval), 0, 0, 0, NULL, "Shorter can make the sound crackle on a slow device." },
 };
 
 const Setting* config_setting(const char* key) {

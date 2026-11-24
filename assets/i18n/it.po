@@ -2090,3 +2090,143 @@ msgstr "SNES X"
 
 msgid "SNES Y"
 msgstr "SNES Y"
+
+#, c-format
+msgid "Continue: %s %d, %d:%02d %s"
+msgstr "Riprendi: %2$d %1$s, %3$d:%4$02d %5$s"
+
+#, c-format
+msgid "Continue: %s %d, %d"
+msgstr "Riprendi: %2$d %1$s %3$d"
+
+msgid "Undo Load"
+msgstr "Annulla caricamento"
+
+msgid "Undo Save"
+msgstr "Annulla salvataggio"
+
+msgid "Back to where you were before loading"
+msgstr "Di nuovo dov'eri prima di caricare"
+
+msgid "The state saved over is back"
+msgstr "Lo stato sovrascritto è tornato"
+
+msgid "Undo failed"
+msgstr "Annullamento non riuscito"
+
+msgid "Undo"
+msgstr "Annulla"
+
+msgid "Supported Games"
+msgstr "Giochi supportati"
+
+msgid "The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it."
+msgstr "La mappa dell'area e la pagina SAMUS, disegnate dal gioco: trascina la mappa, tocca un oggetto per attivarlo o disattivarlo."
+
+msgid "The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps."
+msgstr "La schermata degli oggetti (tocca per scegliere), la mappa del mondo fin dove l'hai esplorata e le mappe dei dungeon."
+
+msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
+msgstr "Gli altri giochi Super Nintendo si giocano su uno schermo, con il loro logo sull'altro."
+
+msgid "Tap the screen to open the menu"
+msgstr "Tocca lo schermo per aprire il menu"
+
+msgid "Menu hint"
+msgstr "Suggerimento menu"
+
+msgid "\"Tap the screen to open the menu\" at a game's start."
+msgstr "«Tocca lo schermo per aprire il menu» all'avvio di un gioco."
+
+msgid "Open the menu"
+msgstr "Apri il menu"
+
+msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
+msgstr "Select o Start arrivano ancora al gioco se premuti da soli, L3 apre ancora il menu"
+
+msgid "A frame round the picture, and on which screens."
+msgstr "Una cornice intorno all'immagine, e su quali schermi."
+
+msgid "For what crosses from one screen to the other. Automatic: the device's, if known."
+msgstr "Per ciò che passa da uno schermo all'altro. Automatico: quello del dispositivo, se noto."
+
+msgid "Game screen"
+msgstr "Schermo del gioco"
+
+msgid "Gap between screens"
+msgstr "Distanza tra gli schermi"
+
+msgid "Generated: RetroDS's bezel in your colors. Custom: your own PNGs in the overlays folder."
+msgstr "Generata: la cornice di RetroDS nei tuoi colori. Personalizzata: i tuoi PNG nella cartella overlays."
+
+msgid "Look"
+msgstr "Aspetto"
+
+msgid "Names, saving, logos"
+msgstr "Nomi, salvataggi, loghi"
+
+msgid "Overlay style"
+msgstr "Stile overlay"
+
+msgid "Overlay Style: Custom (in /overlays)"
+msgstr "Stile overlay: Personalizzato (in /overlays)"
+
+msgid "Overlay Style: Generated"
+msgstr "Stile overlay: Generato"
+
+msgid "Overlays are off"
+msgstr "Gli overlay sono disattivati"
+
+msgid "Overlays: Both Screens"
+msgstr "Overlay: entrambi gli schermi"
+
+msgid "Overlays: Bottom Screen"
+msgstr "Overlay: schermo inferiore"
+
+msgid "Overlays: Top Screen"
+msgstr "Overlay: schermo superiore"
+
+msgid "RetroDS draws this game's second screen to fit"
+msgstr "RetroDS disegna il secondo schermo di questo gioco su misura"
+
+msgid "Shader, overlays, theme, color"
+msgstr "Shader, overlay, tema, colore"
+
+msgid "Which screen, scale, gap"
+msgstr "Quale schermo, scala, distanza"
+
+msgid "5 mm"
+msgstr "5 mm"
+
+msgid "10 mm"
+msgstr "10 mm"
+
+msgid "15 mm"
+msgstr "15 mm"
+
+msgid "20 mm"
+msgstr "20 mm"
+
+msgid "25 mm"
+msgstr "25 mm"
+
+msgid "30 mm"
+msgstr "30 mm"
+
+msgid "35 mm"
+msgstr "35 mm"
+
+msgid "40 mm"
+msgstr "40 mm"
+
+msgid "4:3"
+msgstr "4:3"
+
+msgid "4:3: as on a TV. Pixel Perfect: square pixels at a whole size, the sharpest."
+msgstr "4:3: come su un televisore. Pixel perfetti: pixel quadrati a dimensione intera, il più nitido."
+
+msgid "Fit"
+msgstr "Adatta"
+
+msgid "Scale: 4:3"
+msgstr "Scala: 4:3"

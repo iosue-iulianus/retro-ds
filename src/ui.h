@@ -170,13 +170,13 @@ void ui_theme(int light);
 enum { AC_BG, AC_HEADER, AC_ROW, AC_BTN, AC_BTN_SEL, AC_EDGE, AC_HI, AC_HI_INK, AC_SEL_MID, AC_LIT_MID,
        AC_SEL_HI, AC_SEL_LO, AC_SEL_EDGE, AC_SEL_BORDER, AC_SEL_RING, AC_LIT_BORDER, AC_LIT_HI, AC_LIT_LO, AC_LIT_EDGE, AC_COUNT };
 #define ACCENT_COUNT 7
-void ui_accent(const char* id);              /* by its name in the config ("purple"...); unknown: purple */
+void ui_accent(const char* id);              /* by its name in the config ("red"...); unknown: red */
 SDL_Color ui_accent_color(int role);
-void ui_brightness(int top, int bottom); /* each screen's brightness, 20..100: dims this app's picture only */
 bool ui_theme_light(void);
 SDL_Color ui_key_ink(void);          /* text and icons on a key */
-SDL_Color ui_key_mid(int state);    /* about the key's colour (for cut-outs) */
-/* Text in Jost (textfont.h: TF_BOLD for labels and headings, TF_BODY for
+SDL_Color ui_key_mid(int state);
+SDL_Color ui_ink_on(SDL_Color bg); /* text on a coloured key or tab: dark ink on a pale one, white on a deep one */    /* about the key's colour (for cut-outs) */
+/* Text in Barlow (textfont.h: TF_BOLD for labels and headings, TF_BODY for
  * longer text), any UTF-8 string, capitals capPx tall and centred on cy.
  * align: -1 starts at x, 0 is centred on x, 1 ends at x. */
 void ui_font_text(int screen, int font, int x, int cy, int capPx, const char* text, SDL_Color c, int align);

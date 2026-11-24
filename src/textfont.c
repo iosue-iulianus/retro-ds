@@ -16,13 +16,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Each style (bold, body) is a chain of faces: Jost first, then the fallback
+/* Each style (bold, body) is a chain of faces: Barlow first, then the fallback
  * faces the language's script needs (tf_fallback_*). Every character is drawn
  * from the first face that has it, so Latin text (game titles, numbers) stays
- * in Jost whatever the interface's language, and a script Jost lacks comes
+ * in Barlow whatever the interface's language, and a script Barlow lacks comes
  * from its own font. A face is scaled by its own capital height, so the
  * letters of two faces match; text sits on one baseline. */
-#define CHAIN_MAX 10 /* Jost, then tf_fallback_for_script's: up to four regular and four bold script faces */
+#define CHAIN_MAX 10 /* Barlow, then tf_fallback_for_script's: up to four regular and four bold script faces */
 typedef struct {
 	stbtt_fontinfo fi;
 	int capUnits; /* height of "H" in font units */
@@ -43,7 +43,7 @@ static bool face_init(Face* f, const unsigned char* ttf) {
 
 static void init(void) {
 	for (int f = 0; f < TF_COUNT; ++f) {
-		const EmbeddedFont* e = &embeddedFonts[f == TF_BOLD ? EMBEDDED_JOST_BOLD_ITALIC : EMBEDDED_JOST_MEDIUM_ITALIC];
+		const EmbeddedFont* e = &embeddedFonts[f == TF_BOLD ? EMBEDDED_BARLOW_BOLD : EMBEDDED_BARLOW_MEDIUM];
 		if (!face_init(&chain[f][0], e->ttf)) continue;
 		chainLen[f] = 1;
 		ready[f] = true;
@@ -64,7 +64,7 @@ bool tf_fallback_add(int font, const unsigned char* ttf) {
 	return true;
 }
 
-/* The face a character comes from and its glyph (Jost's .notdef when none has it). */
+/* The face a character comes from and its glyph (Barlow's .notdef when none has it). */
 static int pick(int font, int cp, int* glyph) {
 	for (int k = 0; k < chainLen[font]; ++k) {
 		int g = stbtt_FindGlyphIndex(&chain[font][k].fi, cp);
@@ -153,7 +153,7 @@ bool tf_render(int font, int capPx, const char* text, TfBitmap* out) {
 	pthread_once(&once, init);
 	memset(out, 0, sizeof(*out));
 	if (font < 0 || font >= TF_COUNT || !ready[font] || !text || capPx <= 0) return false;
-	/* the rows the text needs: Jost's, or more where a fallback face reaches further */
+	/* the rows the text needs: Barlow's, or more where a fallback face reaches further */
 	float asc = 0, desc = 0;
 	{
 		bool used[CHAIN_MAX] = { true };

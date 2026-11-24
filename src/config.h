@@ -4,14 +4,16 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-/* Display > Overlays: off, RetroDS's own bezel drawn by the app in the
+/* Look > Overlay style: RetroDS's own bezel drawn by the app in the
  * player's colours (bezel.c), or the player's PNGs in overlays/ (a screen
  * without one: the bezel in its default colours). OVM_LEGACY: a config from
- * before (overlays = top / both...), settled at start (main.c): custom if
- * overlays/ has PNGs, else generated. */
+ * GBA DS before v1.5 (overlays = primary...), settled at start (main.c):
+ * custom if overlays/ has PNGs, else generated. (OVM_OFF: only GBA DS's
+ * configs; off is overlays = OVL_OFF now.) */
 enum { OVM_OFF, OVM_GENERATED, OVM_CUSTOM, OVM_LEGACY };
-/* ...on which physical screens (they stay put when the screens are swapped) */
-enum { OVL_TOP = 1, OVL_BOTTOM = 2, OVL_BOTH = 3 };
+/* Look > Overlays: off, or on which physical screens (they stay put when the
+ * screens are swapped) */
+enum { OVL_OFF = 0, OVL_TOP = 1, OVL_BOTTOM = 2, OVL_BOTH = 3 };
 /* Display > Shader, in menu order. Each is a fixed pattern multiplied over
  * every GBA pixel (a texture built once, ui.c), so none costs more than the
  * LCD grid; the subpixel presets also brighten the colours to make up for
@@ -35,12 +37,12 @@ typedef struct Config {
 	char layout[16];   /* auto | span-h | span-v | dual | single */
 	bool swap;         /* map on the first (left/top) screen instead of the second */
 	bool swapChosen;   /* swap set by the player (a file or the menu); else by the screens' shapes (ui.c) */
-	char scale[16];    /* game: integer | fit | stretch */
-	char mapScale[16]; /* map:  integer | fit | stretch */
+	char scale[16];    /* game: 4:3 | integer (Pixel Perfect) */
+	char mapScale[16]; /* second screen: integer | fit (both keep its shape) */
 	bool smooth;       /* plain linear filtering when scaling (blurry) */
 	char borderColor[16]; /* RRGGBB behind the map screen (outside the map image) */
-	int overlayMode;   /* OVM_*: overlays */
-	int overlays;      /* OVL_TOP | OVL_BOTTOM: overlay_screens, the screens that have them */
+	int overlayMode;   /* OVM_*: overlay_style */
+	int overlays;      /* OVL_*: overlays, off or the screens that have them */
 	bool bezelLogo;    /* the RetroDS logo in the generated bezel */
 	char bezelInner[8], bezelOuter[8]; /* its colours, RRGGBB */
 	int shader;        /* SH_*: a pattern over every pixel on both screens (Display > Shader) */
@@ -50,12 +52,11 @@ typedef struct Config {
 	bool vsync;
 	bool frameBuffer; /* emulate a frame ahead on a second thread: smoother, a frame more input delay */
 	bool pinCores; /* Android: the game thread on a core of its own, the map capture off it (off by default) */
-	bool map;          /* enable the second-screen map */
 	bool rewind;       /* keep a rewind buffer (hold L2 to rewind) */
 	int rewindSeconds; /* how far back */
 	bool fastForward;  /* hold R2 to fast-forward */
 	bool matchDisplay; /* run at the display's refresh rate (if close to the GBA's) instead of 59.73 Hz */
-	int mapInterval;   /* frames between periodic map refreshes */
+	int mapInterval;   /* frames between periodic map captures (no setting: the capture engine is unused for now) */
 	bool abSwap;       /* GBA A on the bottom face button instead of the right one */
 	char hotkey[16];   /* home | select | start | l3 (older names: guide = home, back = select) */
 	char hotkeyBtn[HK_COUNT][8]; /* each hotkey action's button (hotkey_quit ...), or none */
@@ -89,8 +90,6 @@ typedef struct Config {
 	char dataDir[512]; /* data_dir: RetroDS's data folder (states/, cheats/...); default: the app's folder (paths.c data_dir_setup) */
 	char touchScreen[16]; /* first | second: which screen has the touch panel */
 	char topScreen[16];   /* Android: auto | app | second: which display is the top screen */
-	char screenMatch[8];  /* keep | aspect | size: the wider screen's picture area (ui.c layout_pictures) */
-	char screenPlace[8];  /* center | no_gap: two screens' pictures centred, or against the edges nearest each other (issue #46) */
 	char screenPpi[32];   /* "top,bottom": the screens' pixels per inch, instead of what the system says */
 	char touchMap[16];    /* window | screen: how touch coordinates map */
 	/* Read the touchscreen straight from this input device (/dev/input/eventN)
@@ -102,11 +101,10 @@ typedef struct Config {
 	bool autoSave;        /* save a resume point on quitting the game (save_on_quit) */
 	bool autoLoad;        /* load it on launching the game (auto_load) */
 	bool barPinned;       /* the quick bar stays up (quick_bar_pinned) */
-	bool barHint;         /* "Swipe up for quick menu" at a game's start (quick_bar_hint) */
+	bool barHint;         /* "Tap the screen to open the menu" at a game's start (quick_bar_hint) */
 	bool nameTags;        /* library keeps (USA), (En,Fr) etc. in game names */
 	bool showAll;         /* library lists games without a map profile too */
-	int brightTop, brightBottom; /* this app's brightness for each screen, 20..100 (brightness_top / _bottom, issue #56): a dimming layer, not the system's */
-	char accent[16];      /* the menus' colour: purple | blue | teal | green | red | orange | pink (accent) */
+	char accent[16];      /* the menus' colour: red | purple | blue | teal | green | orange | pink (accent) */
 	bool lightTheme;      /* the light theme for the menus' buttons (theme = light) */
 	bool leftStickDpad;   /* the left stick also presses the D-pad in games (left_stick_dpad, issue #57) */
 	int turboRate;        /* Turbo A / Turbo B: presses a second, 10, 15 or 20 (turbo_rate, issue #55) */

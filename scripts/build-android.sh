@@ -59,11 +59,11 @@ rm -rf "$LIC" && mkdir -p "$LIC"
 cp LICENSE "$LIC/RETRODS-LICENSE.txt"
 cp "$CORES/bsnes/GPLv3.txt" "$LIC/bsnes-GPLv3.txt"
 cp "$DEPS/SDL2/LICENSE.txt" "$LIC/SDL2-LICENSE.txt"
-cp assets/fonts/Jost-OFL.txt "$LIC/Jost-OFL.txt"
+cp assets/fonts/Barlow-OFL.txt "$LIC/Barlow-OFL.txt"
 cp third_party/rcheevos/LICENSE "$LIC/rcheevos-LICENSE.txt"
 cp third_party/libwebp/COPYING "$LIC/libwebp-COPYING.txt"
 cp third_party/libwebp/PATENTS "$LIC/libwebp-PATENTS.txt"
-printf "RetroDS %s is free software under the GNU General Public License, version 3 only (RETRODS-LICENSE.txt).\nIts emulator is bsnes (c) byuu and contributors, GPLv3 (bsnes-GPLv3.txt), libretro's port with RetroDS's changes:\nhttps://github.com/libretro/bsnes (commit %s; the changes in RetroDS's scripts/cores/)\nSDL2 (c) Sam Lantinga, zlib licence: https://github.com/libsdl-org/SDL (%s)\nIts text is set in Jost (c) The Jost Project Authors, SIL Open Font License 1.1 (Jost-OFL.txt).\nRetroAchievements support: rcheevos (c) RetroAchievements, MIT (rcheevos-LICENSE.txt), %s.\nWebP images: libwebp (c) Google Inc., BSD 3-clause (libwebp-COPYING.txt, libwebp-PATENTS.txt), v1.6.0.\nRetroDS source: https://github.com/iosue-iulianus/retro-ds\nBased on GBA DS by kyannon (GPLv3): https://github.com/kyannon/gba-ds\n" \
+printf "RetroDS %s is free software under the GNU General Public License, version 3 only (RETRODS-LICENSE.txt).\nIts emulator is bsnes (c) byuu and contributors, GPLv3 (bsnes-GPLv3.txt), libretro's port with RetroDS's changes:\nhttps://github.com/libretro/bsnes (commit %s; the changes in RetroDS's scripts/cores/)\nSDL2 (c) Sam Lantinga, zlib licence: https://github.com/libsdl-org/SDL (%s)\nIts text is set in Barlow (c) The Barlow Project Authors, SIL Open Font License 1.1 (Barlow-OFL.txt).\nRetroAchievements support: rcheevos (c) RetroAchievements, MIT (rcheevos-LICENSE.txt), %s.\nWebP images: libwebp (c) Google Inc., BSD 3-clause (libwebp-COPYING.txt, libwebp-PATENTS.txt), v1.6.0.\nRetroDS source: https://github.com/iosue-iulianus/retro-ds\nBased on GBA DS by kyannon (GPLv3): https://github.com/kyannon/gba-ds\n" \
 	"$VERSION" "$(git -C "$CORES/bsnes" rev-parse --short HEAD)" "$SDL_BRANCH" "$(tail -1 third_party/rcheevos/VERSION)" > "$LIC/README.txt"
 
 gradle -p android --no-daemon assembleRelease -PsdlDir="$DEPS/SDL2" -PcpuFlags="$CPU_FLAGS"

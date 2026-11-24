@@ -2086,3 +2086,143 @@ msgstr "SNES X"
 
 msgid "SNES Y"
 msgstr "SNES Y"
+
+#, c-format
+msgid "Continue: %s %d, %d:%02d %s"
+msgstr "続きから: %1$s%2$d日 %5$s%3$d:%4$02d"
+
+#, c-format
+msgid "Continue: %s %d, %d"
+msgstr "続きから: %3$d年%1$s%2$d日"
+
+msgid "Undo Load"
+msgstr "ロードを取り消す"
+
+msgid "Undo Save"
+msgstr "セーブを取り消す"
+
+msgid "Back to where you were before loading"
+msgstr "ロード前の状態に戻りました"
+
+msgid "The state saved over is back"
+msgstr "上書きされたステートを元に戻しました"
+
+msgid "Undo failed"
+msgstr "取り消せませんでした"
+
+msgid "Undo"
+msgstr "取り消す"
+
+msgid "Supported Games"
+msgstr "対応ゲーム"
+
+msgid "The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it."
+msgstr "ゲームから描いたエリアマップと SAMUS ページ: マップをドラッグ、アイテムをタップで切り替え。"
+
+msgid "The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps."
+msgstr "アイテム画面 (タップで選択)、探索した範囲のワールドマップ、ダンジョンマップ。"
+
+msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
+msgstr "その他のスーパーファミコンのゲームは片方の画面で遊べ、もう片方にはタイトルロゴが表示されます。"
+
+msgid "Tap the screen to open the menu"
+msgstr "画面をタップしてメニューを開く"
+
+msgid "Menu hint"
+msgstr "メニューのヒント"
+
+msgid "\"Tap the screen to open the menu\" at a game's start."
+msgstr "ゲーム開始時に「画面をタップしてメニューを開く」を表示します。"
+
+msgid "Open the menu"
+msgstr "メニューを開く"
+
+msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
+msgstr "Select や Start は単独で押せばゲームに届きます。L3 は引き続きメニューを開きます"
+
+msgid "A frame round the picture, and on which screens."
+msgstr "画像のまわりのフレームと、表示する画面。"
+
+msgid "For what crosses from one screen to the other. Automatic: the device's, if known."
+msgstr "画面から画面へまたがるもののため。自動: わかればデバイスの値。"
+
+msgid "Game screen"
+msgstr "ゲーム画面"
+
+msgid "Gap between screens"
+msgstr "画面の間隔"
+
+msgid "Generated: RetroDS's bezel in your colors. Custom: your own PNGs in the overlays folder."
+msgstr "生成: RetroDS のベゼルをあなたの色で。カスタム: overlays フォルダの自分の PNG。"
+
+msgid "Look"
+msgstr "見た目"
+
+msgid "Names, saving, logos"
+msgstr "名前、セーブ、ロゴ"
+
+msgid "Overlay style"
+msgstr "オーバーレイのスタイル"
+
+msgid "Overlay Style: Custom (in /overlays)"
+msgstr "オーバーレイのスタイル: カスタム (/overlays 内)"
+
+msgid "Overlay Style: Generated"
+msgstr "オーバーレイのスタイル: 生成"
+
+msgid "Overlays are off"
+msgstr "オーバーレイはオフです"
+
+msgid "Overlays: Both Screens"
+msgstr "オーバーレイ: 両方の画面"
+
+msgid "Overlays: Bottom Screen"
+msgstr "オーバーレイ: 下の画面"
+
+msgid "Overlays: Top Screen"
+msgstr "オーバーレイ: 上の画面"
+
+msgid "RetroDS draws this game's second screen to fit"
+msgstr "このゲームの2画面目は RetroDS が合わせて描きます"
+
+msgid "Shader, overlays, theme, color"
+msgstr "シェーダー、オーバーレイ、テーマ、色"
+
+msgid "Which screen, scale, gap"
+msgstr "表示する画面、スケール、間隔"
+
+msgid "5 mm"
+msgstr "5 mm"
+
+msgid "10 mm"
+msgstr "10 mm"
+
+msgid "15 mm"
+msgstr "15 mm"
+
+msgid "20 mm"
+msgstr "20 mm"
+
+msgid "25 mm"
+msgstr "25 mm"
+
+msgid "30 mm"
+msgstr "30 mm"
+
+msgid "35 mm"
+msgstr "35 mm"
+
+msgid "40 mm"
+msgstr "40 mm"
+
+msgid "4:3"
+msgstr "4:3"
+
+msgid "4:3: as on a TV. Pixel Perfect: square pixels at a whole size, the sharpest."
+msgstr "4:3: テレビと同じ見た目。ピクセルパーフェクト: 正方形のピクセルを整数倍で、最もシャープ。"
+
+msgid "Fit"
+msgstr "フィット"
+
+msgid "Scale: 4:3"
+msgstr "スケール: 4:3"

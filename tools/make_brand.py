@@ -10,7 +10,7 @@ button prompts are drawn in Futura Bold Italic, which isn't part of the
 repository (a commercial font): without it, --logo-only replaces the logo in
 src/brand_data.c and leaves the other images as they are.
 
-Menu and other UI text isn't here: the app draws it in Jost (assets/fonts,
+Menu and other UI text isn't here: the app draws it in Barlow (assets/fonts,
 embedded by tools/embed_fonts.py).
 
 Needs Pillow.

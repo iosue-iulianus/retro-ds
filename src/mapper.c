@@ -11,8 +11,8 @@
 #include <sys/system_properties.h>
 #endif
 
-static const SDL_Color C_BG = { 14, 14, 26, 255 };
-static const SDL_Color C_ROW = { 22, 22, 38, 255 };
+#define C_BG ui_accent_color(AC_BG)
+#define C_ROW ui_accent_color(AC_ROW)
 static const SDL_Color C_TEXT = { 236, 236, 244, 255 };
 static const SDL_Color C_DIM = { 140, 140, 172, 255 };
 static const SDL_Color C_GOLD = { 232, 200, 120, 255 };

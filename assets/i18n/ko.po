@@ -2086,3 +2086,143 @@ msgstr "SNES X"
 
 msgid "SNES Y"
 msgstr "SNES Y"
+
+#, c-format
+msgid "Continue: %s %d, %d:%02d %s"
+msgstr "이어하기: %1$s %2$d일 %5$s %3$d:%4$02d"
+
+#, c-format
+msgid "Continue: %s %d, %d"
+msgstr "이어하기: %3$d년 %1$s %2$d일"
+
+msgid "Undo Load"
+msgstr "불러오기 취소"
+
+msgid "Undo Save"
+msgstr "저장 취소"
+
+msgid "Back to where you were before loading"
+msgstr "불러오기 전 상태로 돌아갔습니다"
+
+msgid "The state saved over is back"
+msgstr "덮어쓴 상태를 되돌렸습니다"
+
+msgid "Undo failed"
+msgstr "취소하지 못했습니다"
+
+msgid "Undo"
+msgstr "취소"
+
+msgid "Supported Games"
+msgstr "지원 게임"
+
+msgid "The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it."
+msgstr "게임에서 그린 지역 지도와 SAMUS 페이지: 지도를 드래그하고, 아이템을 탭해 전환합니다."
+
+msgid "The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps."
+msgstr "아이템 화면 (탭해서 선택), 탐험한 만큼의 월드 맵, 던전 지도."
+
+msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
+msgstr "다른 슈퍼 패미컴 게임은 한 화면에서 실행되고, 다른 화면에는 타이틀 로고가 표시됩니다."
+
+msgid "Tap the screen to open the menu"
+msgstr "화면을 탭하여 메뉴 열기"
+
+msgid "Menu hint"
+msgstr "메뉴 안내"
+
+msgid "\"Tap the screen to open the menu\" at a game's start."
+msgstr "게임 시작 시 \"화면을 탭하여 메뉴 열기\"를 표시합니다."
+
+msgid "Open the menu"
+msgstr "메뉴 열기"
+
+msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
+msgstr "Select나 Start는 단독으로 누르면 게임에 전달되고, L3는 계속 메뉴를 엽니다"
+
+msgid "A frame round the picture, and on which screens."
+msgstr "화면 주위의 테두리와, 표시할 화면."
+
+msgid "For what crosses from one screen to the other. Automatic: the device's, if known."
+msgstr "한 화면에서 다른 화면으로 넘어가는 것을 위해. 자동: 알려진 경우 기기의 값."
+
+msgid "Game screen"
+msgstr "게임 화면"
+
+msgid "Gap between screens"
+msgstr "화면 사이 간격"
+
+msgid "Generated: RetroDS's bezel in your colors. Custom: your own PNGs in the overlays folder."
+msgstr "생성: 내 색상의 RetroDS 베젤. 사용자 지정: overlays 폴더의 내 PNG."
+
+msgid "Look"
+msgstr "모양"
+
+msgid "Names, saving, logos"
+msgstr "이름, 저장, 로고"
+
+msgid "Overlay style"
+msgstr "오버레이 스타일"
+
+msgid "Overlay Style: Custom (in /overlays)"
+msgstr "오버레이 스타일: 사용자 지정 (/overlays)"
+
+msgid "Overlay Style: Generated"
+msgstr "오버레이 스타일: 생성"
+
+msgid "Overlays are off"
+msgstr "오버레이가 꺼져 있습니다"
+
+msgid "Overlays: Both Screens"
+msgstr "오버레이: 두 화면 모두"
+
+msgid "Overlays: Bottom Screen"
+msgstr "오버레이: 아래 화면"
+
+msgid "Overlays: Top Screen"
+msgstr "오버레이: 위 화면"
+
+msgid "RetroDS draws this game's second screen to fit"
+msgstr "이 게임의 두 번째 화면은 RetroDS가 맞춰서 그립니다"
+
+msgid "Shader, overlays, theme, color"
+msgstr "셰이더, 오버레이, 테마, 색상"
+
+msgid "Which screen, scale, gap"
+msgstr "표시할 화면, 크기, 간격"
+
+msgid "5 mm"
+msgstr "5 mm"
+
+msgid "10 mm"
+msgstr "10 mm"
+
+msgid "15 mm"
+msgstr "15 mm"
+
+msgid "20 mm"
+msgstr "20 mm"
+
+msgid "25 mm"
+msgstr "25 mm"
+
+msgid "30 mm"
+msgstr "30 mm"
+
+msgid "35 mm"
+msgstr "35 mm"
+
+msgid "40 mm"
+msgstr "40 mm"
+
+msgid "4:3"
+msgstr "4:3"
+
+msgid "4:3: as on a TV. Pixel Perfect: square pixels at a whole size, the sharpest."
+msgstr "4:3: TV에서처럼. 픽셀 퍼펙트: 정사각형 픽셀을 정수 배율로, 가장 선명합니다."
+
+msgid "Fit"
+msgstr "맞춤"
+
+msgid "Scale: 4:3"
+msgstr "배율: 4:3"

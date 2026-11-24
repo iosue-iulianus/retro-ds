@@ -527,8 +527,24 @@ static void video_cb(const void* data, unsigned w, unsigned h, size_t pitch) {
 
 #define AUDIO_RING (1 << 15) /* stereo frames */
 
+/* RETRODS_AUDIO_DUMP=FILE (development): the playing game's sound, as the
+ * core makes it, also written to FILE as raw 16-bit stereo at the core's
+ * rate (for videos made from the headless app's frames: docs/TESTING.md) */
+static void audio_dump(const Emu* e, const int16_t* data, size_t frames) {
+	static FILE* f;
+	static bool tried;
+	if (!tried) {
+		tried = true;
+		const char* path = getenv("RETRODS_AUDIO_DUMP");
+		if (path && *path && (f = fopen(path, "wb")))
+			fprintf(stderr, "audio dump: %s, 16-bit stereo at %.3f Hz\n", path, e->sampleRate);
+	}
+	if (f) fwrite(data, 4, frames, f), fflush(f);
+}
+
 static size_t audio_push(Emu* e, const int16_t* data, size_t frames) {
 	if (!e || !e->audio || !e->ring) return frames;
+	audio_dump(e, data, frames);
 	for (size_t i = 0; i < frames; ++i) {
 		size_t next = (e->ringHead + 1) % AUDIO_RING;
 		if (next == e->ringTail) break; /* full: the rest is dropped */

@@ -375,7 +375,8 @@ static void scan_dir(Config* cfg, const char* d, int depth) {
 		/* a side build lists only its game's releases (the Makefile's SIDE_CODES) */
 		if (!strstr(RETRODS_SIDE_CODES, g.code)) continue;
 #endif
-		if (!g.supported && !cfg->showAll) continue; /* (before its patches are looked for: issue #49) */
+		/* (every game is listed: the ones without a second screen tagged
+		 * "Single screen only"; Supported Games says which have one) */
 		entry_patches(cfg, &g, de->d_name, (long long) st.st_size, (long long) st.st_mtime);
 		int n = (int) (ext - de->d_name);
 		if (n >= (int) sizeof(g.name)) n = sizeof(g.name) - 1;
@@ -676,23 +677,33 @@ static void load_thumbs(Config* cfg, int idx) {
 	}
 }
 
+/* "Continue: Nov 24, 7:14 PM" (or the year, when it isn't this year's):
+ * when the picture of where the game carries on from was taken */
+static bool continue_label(const GamePaths* gp, char* out, size_t size) {
+	struct stat st;
+	if (stat(gp->autoState, &st) != 0 && stat(gp->thumb, &st) != 0) return false;
+	struct tm t, now;
+	time_t n = time(NULL);
+	localtime_r(&st.st_mtime, &t);
+	localtime_r(&n, &now);
+	static const char* const mon[12] = { N_("Jan"), N_("Feb"), N_("Mar"), N_("Apr"), N_("May"), N_("Jun"), N_("Jul"), N_("Aug"), N_("Sep"), N_("Oct"), N_("Nov"), N_("Dec")};
+	if (t.tm_year != now.tm_year) snprintf(out, size, tr("Continue: %s %d, %d"), tr(mon[t.tm_mon]), t.tm_mday, t.tm_year + 1900);
+	else snprintf(out, size, tr("Continue: %s %d, %d:%02d %s"), tr(mon[t.tm_mon]), t.tm_mday, (t.tm_hour + 11) % 12 + 1, t.tm_min, t.tm_hour < 12 ? tr("AM"): tr("PM"));
+	return true;
+}
+
+/* The game list's other screen: our logo top left, the game's own logo top
+ * right, the picture of where the game carries on from large in the middle
+ * with when it was taken under it, the buttons along the bottom. */
 static void draw_preview(Config* cfg, int scr, int sel) {
 	SDL_Rect r = screens[scr].rect;
 	float px = ui_px(scr);
 	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, r.h }, (SDL_Color) { 0, 0, 0, 255 }); /* black, like the logos */
 	load_brand();
 
-	/* our logo top left, the game's own logo top right, both the same height */
 	int m = px * 6;
-	int headH = px * 21;
+	int headH = px * 18;
 	int ourW = draw_brand(scr, BRAND_LOGO, m, m, headH);
-	{
-		/* where to find us, under our logo, as the version number is drawn
-		 * (the pixel font's capitals; without https://, so it stays clear
-		 * of a wide game logo on the right) */
-		int vpx = SDL_max(1, px / 2);
-		ui_text(scr, m + px * 2, m + headH + px * 2, vpx, "GITHUB.COM/IOSUE-IULIANUS/RETRO-DS", C_DIM);
-	}
 
 	/* button hints along the bottom */
 	int ty = r.h - px * 11, d = px * 10, bx = m;
@@ -718,8 +729,8 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 	}
 	GameEntry* g = &games[sel];
 	load_thumbs(cfg, sel);
+	int gameH = headH * 3 / 2;
 	if (logoTex[0] || logoTex[1]) {
-		int gameH = headH * 2;
 		int maxW = r.w - ourW - m * 3;
 		int w = logoW * gameH / logoH, h = gameH;
 		if (w > maxW) w = maxW, h = logoH * maxW / logoW;
@@ -728,8 +739,8 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 	} else if (g->supported) {
 		/* no logo for it yet (or none extracted for this game): its name in its place */
 		const MapProfile* prof = profile_find(g->code);
-		int gameH = headH * 2, maxW = r.w - ourW - m * 3;
-		if (prof && prof->title) ui_title_block(scr, (SDL_Rect) { r.w - m - maxW, m, maxW, gameH }, prof->title, px * 9, C_TEXT);
+		int maxW = r.w - ourW - m * 3;
+		if (prof && prof->title) ui_title_block(scr, (SDL_Rect) { r.w - m - maxW, m, maxW, gameH }, prof->title, px * 8, C_TEXT);
 	}
 	/* (a game with no profile has no logo either: the note goes where a
 	 * game's logo would, at the top right, beside ours) */
@@ -759,17 +770,28 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 			default: break;
 			}
 		}
-		if (line[0]) ui_font_text(scr, TF_BODY, r.w - m, m + headH * 2 + px * 7, px * 4, line, C_DIM, 1);
+		if (line[0]) ui_font_text(scr, TF_BODY, r.w - m, m + gameH + px * 3, px * 4, line, C_DIM, 1);
 	}
 
-	/* the resume point (the game screen only), or a note that there isn't one,
-	 * with clear space above (below the game's logo) and below (above the hints) */
-	int y = m + headH * 2 + px * 16;
-	SDL_Rect area = { m, y, r.w - m * 2, gy - px * 14 - y };
+	/* the picture of where the game carries on from (the game screen only),
+	 * as large as fits between the logos and the hints, its date under it */
+	int capH = px * 5;
+	int top = m + gameH + px * 7, bottom = gy - px * 6 - capH - px * 4;
 	if (thumbTex[0] || thumbTex[1]) {
-		ui_image(scr, thumbTex, SNES_W, SNES_H, "fit", &area);
+		int aw = r.w - m * 2, ah = bottom - top;
+		int w = aw, h = aw * SNES_H / SNES_W;
+		if (h > ah) h = ah, w = ah * SNES_W / SNES_H;
+		SDL_Rect a = { (r.w - w) / 2, top + (ah - h) / 2, w, h };
+		int f = SDL_max(1, (int) (px / 2)); /* a thin frame, so a dark picture has an edge on the black */
+		ui_fill(scr, (SDL_Rect) { a.x - f, a.y - f, a.w + f * 2, a.h + f * 2 }, C_DIM);
+		ui_fill(scr, a, (SDL_Color) { 0, 0, 0, 255 });
+		ui_image(scr, thumbTex, SNES_W, SNES_H, "stretch", &a);
+		GamePaths gp;
+		char when[120];
+		game_paths(cfg, g->path, &gp);
+		if (continue_label(&gp, when, sizeof(when))) ui_font_text(scr, TF_BODY, r.w / 2, a.y + a.h + px * 6, capH, when, C_DIM, 0);
 	} else {
-		ui_label(scr, r.w / 2, area.y + area.h / 2, px * 7, "no save state yet!", C_TEXT);
+		ui_label(scr, r.w / 2, (top + bottom) / 2, px * 7, "no save state yet!", C_TEXT);
 	}
 }
 
@@ -785,11 +807,15 @@ typedef struct {
  * <state_dir>/library.cfg, switched by the header button or X. */
 static bool listMode = true;
 
+/* the header's height and its buttons', in ui_px units (on the Duo's bottom
+ * screen 140 and 105 px, 10 and 7.5 mm: GBA DS's were 20 and 14) */
+#define HEADER_H 28
+#define HEADER_BTN 21
 static ListGeom list_geom(int scr) {
 	ListGeom g;
 	SDL_Rect r = screens[scr].rect;
 	float px = ui_px(scr);
-	g.headerH = px * 20;
+	g.headerH = px * HEADER_H;
 	g.listH = r.h - g.headerH;
 	g.m = px * 4;
 	if (listMode) { /* one row per game */
@@ -827,8 +853,8 @@ static void free_tiles(void) {
 static SDL_Rect settings_button(int scr) {
 	SDL_Rect r = screens[scr].rect;
 	float px = ui_px(scr);
-	int h = px * 14, w = px * 44;
-	return (SDL_Rect) { r.w - w - px * 4, (px * 20 - h) / 2, w, h };
+	int h = px * HEADER_BTN, w = px * 44;
+	return (SDL_Rect) { r.w - w - px * 4, (px * HEADER_H - h) / 2, w, h };
 }
 
 /* A centred label that fits maxW x maxH: shrunk first; when that would be much smaller than cap and the text has a space, on two lines (as large as fits). Longer translations (French's "Touch or use the D-Pad", "Supported") need it. */
@@ -859,11 +885,11 @@ static void label_fit(int scr, int cx, int cy, int cap, int maxW, int maxH, cons
 	ui_label(scr, cx, cy + two * 9 / 10, two, b, C_TEXT);
 }
 
-/* left of Settings: "Supported" (games with a second screen) or "All" (every GBA game) */
+/* left of Settings: Supported Games, the list of games with a second screen */
 static SDL_Rect games_button(int scr) {
 	SDL_Rect sb = settings_button(scr);
 	float px = ui_px(scr);
-	int w = px * 38;
+	int w = px * 60;
 	return (SDL_Rect) { sb.x - px * 3 - w, sb.y, w, sb.h };
 }
 
@@ -907,7 +933,8 @@ static void draw_games_button(const Config* cfg, int scr) {
 	SDL_Rect b = games_button(scr);
 	float px = ui_px(scr);
 	ui_key(scr, b, px * 3, KEY_PLAIN);
-	label_fit(scr, b.x + b.w / 2, b.y + b.h / 2, px * 5, b.w - px * 2, b.h, cfg->showAll ? tr("All") : tr("Supported"));
+	(void) cfg;
+	label_fit(scr, b.x + b.w / 2, b.y + b.h / 2, px * 5, b.w - px * 2, b.h, tr("Supported Games"));
 }
 
 /* Four squares (in the list: switch to the grid) or three lines (in the
@@ -998,12 +1025,10 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 	ListGeom g = list_geom(scr);
 	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, r.h }, C_BG);
 	if (nGames == 0) {
-		ui_label(scr, r.w / 2, r.h / 2 - px * 14, px * 6, "No supported games in", C_TEXT);
+		ui_label(scr, r.w / 2, r.h / 2 - px * 14, px * 6, "No games found", C_TEXT);
 		char dir[300];
 		fit_text(dir, sizeof(dir), TF_BODY, px * 5, cfg->romDir, r.w - px * 16);
 		ui_font_text(scr, TF_BODY, r.w / 2, r.h / 2, px * 5, dir, C_GOLD, 0);
-		ui_font_text(scr, TF_BODY, r.w / 2, r.h / 2 + px * 14, px * 4,
-		             "Only games with a map screen are listed (show_all = 1 lists every one)", C_DIM, 0);
 	}
 	int done, total;
 	logo_progress(&done, &total);
@@ -1022,7 +1047,7 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 				draw_brand(scr, games[i].flag, right - fw, t.y + (t.h - fh) / 2, fh);
 				right -= fw + px * 4;
 			}
-			if (!games[i].supported && cfg->showAll) {
+			if (!games[i].supported) {
 				int tagW = ui_label_width(scr, px * 4, "Single screen only") + px * 6;
 				SDL_Rect tg = { right - tagW, t.y + (t.h - px * 11) / 2, tagW, px * 11 };
 				ui_fill_round(scr, tg, C_TAG, px * 2);
@@ -1065,7 +1090,7 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 			int fw = brandH[games[i].flag] ? brandW[games[i].flag] * fh / brandH[games[i].flag] : 0;
 			draw_brand(scr, games[i].flag, t.x + t.w - fw - px * 3, t.y + t.h - fh - px * 3, fh);
 		}
-		if (!games[i].supported && cfg->showAll) {
+		if (!games[i].supported) {
 			int tagW = ui_label_width(scr, px * 4, "Single screen only") + px * 6;
 			SDL_Rect tg = { t.x + t.w - tagW - px * 3, t.y + px * 3, tagW, px * 11 };
 			ui_fill_round(scr, tg, C_TAG, px * 2);
@@ -1218,9 +1243,34 @@ static int fit_cap(int face, int cap, int maxW, const char* text) {
 	return SDL_max(c, cap * 45 / 100);
 }
 
-/* Body text in Jost, word-wrapped; returns the y below it. */
+/* Body text in Barlow, word-wrapped; returns the y below it. */
 static int draw_wrapped(int scr, int x, int y, int width, float px, const char* text, SDL_Color c) {
 	return ui_font_wrap(scr, TF_BODY, x, y, width, px * 4, text, c);
+}
+
+/* ------------------------------------------------- Supported Games
+ * The games RetroDS gives a second screen, and what's on it: grows with
+ * RetroDS (the owner keeps it current). Every other game plays on one
+ * screen, its title logo on the other. */
+static const struct { const char* title; const char* what; } supportedGames[] = {
+	{ "Super Metroid", N_("The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it.") },
+	{ "The Legend of Zelda: A Link to the Past", N_("The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps.") },
+};
+static void draw_supported(int scr) {
+	float px = ui_px(scr);
+	SDL_Rect p = set_panel(scr);
+	ui_dim(scr, 200);
+	ui_fill_round(scr, p, C_HEADER, px * 4);
+	draw_set_heading(scr, p, "Supported Games", -1);
+	int x = p.x + px * 10, w = p.w - px * 20, y = p.y + px * 30;
+	for (size_t i = 0; i < sizeof(supportedGames) / sizeof(*supportedGames); ++i) {
+		ui_font_text(scr, TF_BOLD, x, y + px * 3, fit_cap(TF_BOLD, px * 6, w, supportedGames[i].title), supportedGames[i].title, C_TEXT, -1);
+		y = draw_wrapped(scr, x, y + px * 9, w, px, tr(supportedGames[i].what), C_DIM) + px * 8;
+	}
+	draw_wrapped(scr, x, y, w, px, tr("Other Super Nintendo games play on one screen, with their title logo on the other."), C_DIM);
+	SDL_Rect b = { p.x + px * 6, p.y + p.h - px * 6 - px * HEADER_BTN, p.w - px * 12, px * HEADER_BTN };
+	ui_key(scr, b, px * 3, KEY_SEL);
+	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, px * 5, "Back", C_TEXT);
 }
 
 /* The panel, its buttons (labels[i] on row i; sel == nRows is Back). */
@@ -1282,19 +1332,21 @@ static void draw_system_note(int scr, const SettingsGeom* g, const char* text, S
  * states/prefs.cfg, for all games (a game's own file is for the pause menu).
  * System is the older panel: RetroDS in EmulationStation / BananaOS's list,
  * Map Buttons, Hotkeys, Updates, and on Android Folders and RetroAchievements. */
-enum { SP_HOME = -1, SP_SYSTEM = 6, SP_COUNT = 7 };
+enum { SP_HOME = -1, SP_SYSTEM = 5, SP_COUNT = 6 };
+/* the home's tiles: the categories, System, then Back across the last row */
+#define SET_TILES (SP_SYSTEM + 2)
+#define SET_BACK (SET_TILES - 1)
 typedef struct {
 	const char* name;
 	const char* sub;
 	const char* keys[20];
 } SetPage;
 static const SetPage setPages[SP_SYSTEM] = {
-	{ N_("Games"), N_("Which games, names, saving"), { "show_all", "name_tags", "save_on_quit", "auto_load", "custom_logos", "quick_bar_hint" } },
-	{ N_("Display"), N_("Scale, shader, theme, color"), { "scale", "map_scale", "shader", "lcd_strength", "color_correction", "lcd_ghosting", "smooth", "theme", "accent" } },
-	{ "Screens", N_("Placement, overlays"), { "swap", "screen_match", "screen_placement", "screen_gap_mm", "overlays", "overlay_screens", "bezel_logo", "brightness_top", "brightness_bottom" } },
+	{ N_("Games"), N_("Names, saving, logos"), { "name_tags", "save_on_quit", "auto_load", "custom_logos", "quick_bar_hint" } },
+	{ "Screens", N_("Which screen, scale, gap"), { "swap", "scale", "map_scale", "screen_gap_mm", "match_display" } },
+	{ N_("Look"), N_("Shader, overlays, theme, color"), { "shader", "lcd_strength", "color_correction", "lcd_ghosting", "smooth", "overlays", "overlay_style", "bezel_logo", "theme", "accent" } },
 	{ "Controls", N_("Stick, buttons, hotkeys"), { "left_stick_dpad", "ab_swap", "button_right", "button_bottom", "button_top", "button_left", "button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right", "turbo_rate", "@map", "@hotkeys" } },
-	{ N_("Speed and sound"), N_("Rewind, fast forward"), { "show_fps", "match_display", "frame_buffer", "rewind", "rewind_seconds", "fast_forward", "audio_latency", "performance" } },
-	{ "Second screen", N_("The map and the logo"), { "map", "map_interval" } },
+	{ N_("Speed and sound"), N_("Rewind, fast forward"), { "show_fps", "frame_buffer", "rewind", "rewind_seconds", "fast_forward", "audio_latency", "performance" } },
 };
 static int setPage = SP_HOME; /* SP_HOME, a category, or SP_SYSTEM (the older panel) */
 static int setSel;
@@ -1342,6 +1394,7 @@ static SDL_Rect set_tile(int scr, int i) {
 	SDL_Rect p = set_panel(scr);
 	int top = p.y + px * 22, gap = px * 4, rows = 4;
 	int w = (p.w - px * 12 - gap) / 2, h = (p.y + p.h - px * 6 - top - gap * (rows - 1)) / rows;
+	if (i == SET_BACK && SET_TILES % 2) return (SDL_Rect) { p.x + px * 6, top + (i / 2) * (h + gap), w * 2 + gap, h }; /* (alone in its row: across it) */
 	return (SDL_Rect) { p.x + px * 6 + (i % 2) * (w + gap), top + (i / 2) * (h + gap), w, h };
 }
 
@@ -1389,7 +1442,7 @@ static void draw_set_home(int scr, int sel) {
 	ui_dim(scr, 200);
 	ui_fill_round(scr, p, C_HEADER, px * 4);
 	draw_set_heading(scr, p, "RetroDS Settings", -1);
-	for (int i = 0; i < 8; ++i) {
+	for (int i = 0; i < SET_TILES; ++i) {
 		SDL_Rect t = set_tile(scr, i);
 		ui_key(scr, t, px * 3, i == sel ? KEY_SEL : KEY_PLAIN);
 		const char* name = i < SP_SYSTEM ? setPages[i].name : i == SP_SYSTEM ? "System" : "Back";
@@ -1402,6 +1455,10 @@ static void draw_set_home(int scr, int sel) {
 		if (i <= SP_SYSTEM) {
 			SDL_Rect ib = { x0, t.y, iw, t.h };
 			game_page_icon(scr, i == SP_SYSTEM ? GAME_ICON_SYSTEM : i, ib, i == sel || !ui_theme_light() ? C_TEXT : ui_key_ink(), ui_key_mid(i == sel ? KEY_SEL : KEY_PLAIN));
+		}
+		if (i == SET_BACK) { /* (Back, across its row: in the middle) */
+			ui_font_text(scr, TF_BOLD, t.x + t.w / 2, t.y + t.h / 2, px * 6, name, C_TEXT, 0);
+			continue;
 		}
 		int tw = t.x + t.w - px * 5 - tx; /* (the room for the text; a longer one is set smaller) */
 		ui_font_text(scr, TF_BOLD, tx, t.y + t.h / 2 - (sub ? px * 4 : 0), fit_cap(TF_BOLD, px * 6, tw, name), name, C_TEXT, -1);
@@ -1472,9 +1529,7 @@ static void setting_changed(Config* cfg, const Setting* st) {
 	if (!strcmp(st->key, "language")) i18n_set(cfg->language), ui_language_changed();
 	if (!strcmp(st->key, "theme")) ui_theme(cfg->lightTheme);
 	if (!strcmp(st->key, "accent")) ui_accent(cfg->accent), ui_theme(cfg->lightTheme);
-	if (!strncmp(st->key, "brightness_", 11)) ui_brightness(cfg->brightTop, cfg->brightBottom);
 	if (!strcmp(st->key, "show_all") || !strcmp(st->key, "name_tags")) setRescan = true;
-	if (!strcmp(st->key, "screen_match") || !strcmp(st->key, "screen_placement")) ui_layout_pictures();
 	fprintf(stderr, "setting: %s = %s (all games)\n", lines[0][0], lines[0][1]);
 }
 
@@ -1501,7 +1556,6 @@ static int reset_settings(Config* cfg) {
 	config_kv_remove(path, n, keys);
 	ui_accent(cfg->accent);
 	ui_theme(cfg->lightTheme);
-	ui_brightness(cfg->brightTop, cfg->brightBottom);
 	clocks_set(cfg->perfMax);
 	ui_layout_pictures();
 	setRescan = true;
@@ -1555,11 +1609,12 @@ static bool settings_pages_input(Config* cfg, int ls) {
 	int n = setPage >= 0 && setPage < SP_SYSTEM ? page_settings(setPage, rows, ids) : 0;
 	bool back = btn_pressed(B_B) || btn_pressed(B_SELECT) || btn_released(B_HOME);
 	if (setPage == SP_HOME) {
-		if (btn_pressed(B_DOWN)) setSel = (setSel + 2) % 8;
-		if (btn_pressed(B_UP)) setSel = (setSel + 6) % 8;
-		if (btn_pressed(B_RIGHT) || btn_pressed(B_LEFT)) setSel ^= 1;
+		/* (two columns; Back alone across the last row) */
+		if (btn_pressed(B_DOWN)) setSel = setSel == SET_BACK ? 0 : SDL_min(setSel + 2, SET_BACK);
+		if (btn_pressed(B_UP)) setSel = setSel == SET_BACK ? SET_BACK - 2 : setSel < 2 ? SET_BACK : setSel - 2;
+		if ((btn_pressed(B_RIGHT) || btn_pressed(B_LEFT)) && setSel != SET_BACK) setSel ^= 1;
 		if (btn_pressed(B_A) || btn_pressed(B_START)) {
-			if (setSel == 7) return false;
+			if (setSel == SET_BACK) return false;
 			setPage = setSel;
 			setSel = 0;
 			setTop = 0;
@@ -1596,11 +1651,11 @@ static bool settings_pages_input(Config* cfg, int ls) {
 		SDL_Rect panel = set_panel(ls);
 		if (setPage == SP_HOME) {
 			int hit = -1;
-			for (int i = 0; i < 8; ++i) {
+			for (int i = 0; i < SET_TILES; ++i) {
 				SDL_Rect t = set_tile(ls, i);
 				if (SDL_PointInRect(&q, &t)) hit = i;
 			}
-			if (hit == 7 || (hit < 0 && !SDL_PointInRect(&q, &panel))) return false;
+			if (hit == SET_BACK || (hit < 0 && !SDL_PointInRect(&q, &panel))) return false;
 			if (hit >= 0) {
 				setPage = hit;
 				setSel = 0;
@@ -2437,6 +2492,7 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 	bool quit = false;
 	int repeat = 0;
 	bool settingsOpen = false;
+	bool supportedOpen = false; /* the Supported Games panel */
 	int settingsSel = 0;
 	settingsMsg[0] = 0;
 	updatesOpen = false;
@@ -2549,6 +2605,21 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 			continue;
 		}
 #endif
+		if (supportedOpen) {
+			/* any button that means back, or a tap anywhere, closes it */
+			if (btn_pressed(B_B) || btn_pressed(B_A) || btn_pressed(B_START) || btn_released(B_HOME)) supportedOpen = false;
+			Pointer sp;
+			while (ui_next_pointer(&sp))
+				if (sp.screen == ls && sp.kind == 1) supportedOpen = false;
+			pressed = false;
+			ui_clear();
+			draw_list(cfg, ls, sel, scroll);
+			if (supportedOpen) draw_supported(ls);
+			if (nScreens > 1) draw_preview(cfg, ui_other_screen(), sel);
+			ui_present();
+			SDL_Delay(15);
+			continue;
+		}
 		if (settingsOpen && setPage != SP_SYSTEM) {
 			if (!settings_pages_input(cfg, ls)) {
 				settingsOpen = false;
@@ -2670,16 +2741,8 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 				SDL_Rect sb = settings_button(ls), vb = view_button(ls), tb = theme_button(ls), gb = games_button(ls);
 				SDL_Point pt = { p.x, p.y };
 				if (SDL_PointInRect(&pt, &gb)) {
-					/* Supported / All: kept for all games (show_all), the list made again */
-					cfg->showAll = !cfg->showAll;
-					setting_changed(cfg, config_setting("show_all"));
-					setRescan = false;
-					free_thumbs();
-					free_tiles();
-					scan(cfg);
-					thumbFor = -2;
-					sel = nGames ? 0 : -1;
-					scroll = 0;
+					/* Supported Games: the list of games with a second screen */
+					supportedOpen = true;
 					pressed = false;
 					break;
 				}

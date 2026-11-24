@@ -634,66 +634,43 @@ float ui_screen_ppi(int screen) {
 	return reported_ppi(screen);
 }
 
-/* screen_match (Display: screen shapes; experimental): the wider screen's
- * pictures keep to the other screen's shape (aspect: the largest such area,
- * centred), or also its real size (size: by the screens' pixels per inch,
- * against the edge nearest the other screen: a top screen's bottom), so a
- * picture that goes on over both (Pokémon Pinball's table) carries on
- * across. Nothing when the shapes already match. */
+/* Each screen's pictures fill it, centred (GBA DS's screen shapes and
+ * screen placement are gone: each screen keeps its own shape). */
 void ui_layout_pictures(void) {
-	/* screen_placement = no_gap (issue #46): with two screens, the top one's
-	 * pictures against its bottom edge and the bottom one's against its
-	 * top, so the two are as close together as they can be */
-	bool gap = !strcmp(cfg->screenPlace, "no_gap") && nScreens == 2;
 	for (int i = 0; i < nScreens; ++i) {
 		screens[i].pic = (SDL_Rect) { 0, 0, screens[i].rect.w, screens[i].rect.h };
-		screens[i].align = gap ? (i == 0 ? 1 : -1) : 0;
-	}
-	bool aspect = !strcmp(cfg->screenMatch, "aspect"), size = !strcmp(cfg->screenMatch, "size");
-	static char logged[96];
-	char note[64] = "";
-	if ((aspect || size) && ui_screens_differ()) {
-		double a0 = (double) screens[0].rect.w / screens[0].rect.h, a1 = (double) screens[1].rect.w / screens[1].rect.h;
-		int wide = a0 > a1 ? 0 : 1, narrow = 1 - wide;
-		const SDL_Rect* W = &screens[wide].rect;
-		const SDL_Rect* N = &screens[narrow].rect;
-		double a = (double) N->w / N->h;
-		int w = W->h * a + 0.5, h = W->h;
-		float pw = ui_screen_ppi(wide), pn = ui_screen_ppi(narrow);
-		if (size && pw > 0 && pn > 0) w = N->w * pw / pn + 0.5, h = N->h * pw / pn + 0.5;
-		else if (size) snprintf(note, sizeof(note), " (sizes not known: shapes only)");
-		if (w > W->w) h = h * W->w / w, w = W->w;
-		if (h > W->h) w = w * W->h / h, h = W->h;
-		int y = size ? (wide == 0 ? W->h - h : 0) : (W->h - h) / 2;
-		screens[wide].pic = (SDL_Rect) { (W->w - w) / 2, y, w, h };
-		snprintf(note + strlen(note), sizeof(note) - strlen(note), " %dx%d on screen %d", w, h, wide);
-	}
-	char line[96];
-	snprintf(line, sizeof(line), "%s%s, placement %s", cfg->screenMatch, note, gap ? "no_gap" : "center");
-	if (strcmp(line, logged)) {
-		snprintf(logged, sizeof(logged), "%s", line);
-		fprintf(stderr, "screen shapes: %s (ppi %.0f / %.0f)\n", line, ui_screen_ppi(0), ui_screen_ppi(1));
+		screens[i].align = 0;
 	}
 }
 
 static void layout_screens_inner(void);
 /* Which screen the game is on (`swap`), until the player picks: the one
- * closer in shape to the SNES picture (4:3). On the Retroid Pocket Duo
- * that's the bottom screen (1280x960 under 1920x1080); with two screens of
- * a shape, the first (top or left), as before. */
+ * where a 4:3 picture is physically biggest, by each screen's size (the
+ * known devices' table, else what the system reports). Within 10%, or with
+ * the sizes unknown, the one closer in shape to 4:3. The Retroid Pocket
+ * Duo: the bottom screen (2.7 inches tall either way; the bottom is 4:3).
+ * The AYN Thor: the 6" top (2.9 inches tall, against 2.2 on its almost
+ * square bottom screen), the map and items below. Two screens of a shape:
+ * the first (top or left), as before. */
 static void layout_screens(void) {
 	layout_screens_inner();
 	if (nScreens < 2 || cfg->swapChosen) return;
-	double off[2];
+	double off[2], tall[2];
 	for (int i = 0; i < 2; ++i) {
-		double a = screens[i].rect.h > 0 ? (double) screens[i].rect.w / screens[i].rect.h : 1;
+		const SDL_Rect* r = &screens[i].rect;
+		double a = r->h > 0 ? (double) r->w / r->h : 1;
 		off[i] = fabs(log(a * 3 / 4));
+		float ppi = ui_screen_ppi(i);
+		tall[i] = ppi > 0 ? SDL_min(r->h, r->w * 3 / 4) / ppi : 0; /* the 4:3 picture's height, in inches */
 	}
-	bool below = off[1] + 0.05 < off[0];
+	bool sized = tall[0] > 0 && tall[1] > 0 && fabs(tall[0] - tall[1]) > 0.1 * SDL_max(tall[0], tall[1]);
+	bool below = sized ? tall[1] > tall[0] : off[1] + 0.05 < off[0];
 	if (cfg->swap != below) {
 		cfg->swap = below;
-		fprintf(stderr, "screens: the game on the %s screen, the one closer to 4:3 (%dx%d, %dx%d)\n", below ? "second" : "first",
-		        screens[0].rect.w, screens[0].rect.h, screens[1].rect.w, screens[1].rect.h);
+		if (sized) fprintf(stderr, "screens: the game on the %s screen, where a 4:3 picture is biggest (%.2f against %.2f inches tall)\n",
+		                   below ? "second" : "first", tall[below], tall[!below]);
+		else fprintf(stderr, "screens: the game on the %s screen, the one closer to 4:3 (%dx%d, %dx%d)\n", below ? "second" : "first",
+		             screens[0].rect.w, screens[0].rect.h, screens[1].rect.w, screens[1].rect.h);
 	}
 }
 
@@ -1617,11 +1594,9 @@ void ui_clip(int screen, const SDL_Rect* clip) {
 
 static int keyCount[2];
 static bool inKey;
-static bool dimmed[2]; /* this frame's brightness layer is on (a present without a redraw must not add it again) */
 static void key_layer(int screen, SDL_Rect r, SDL_Color c);
 void ui_clear(void) {
 	keyCount[0] = keyCount[1] = 0;
-	dimmed[0] = dimmed[1] = false;
 	for (int i = 0; i < nViews; ++i) {
 		if (views[i].retained) continue; /* keeps its last picture; see sw_render */
 		SDL_SetRenderDrawColor(views[i].ren, 0, 0, 0, 255);
@@ -1731,14 +1706,6 @@ double ui_display_hz(int view) {
 	return hz;
 }
 
-/* This app's brightness for each screen (issue #56), 20..100: a black layer over
- * everything at the end of the frame (not in screenshots), never the system's
- * own brightness. */
-static int brightPct[2] = { 100, 100 };
-void ui_brightness(int top, int bottom) {
-	brightPct[0] = SDL_clamp(top, 20, 100);
-	brightPct[1] = SDL_clamp(bottom, 20, 100);
-}
 
 void ui_present(void) {
 	{
@@ -1755,9 +1722,6 @@ void ui_present(void) {
 	if (pendingShot[0]) {
 		ui_screenshot(pendingShot);
 		pendingShot[0] = 0;
-	}
-	for (int s = 0; s < nScreens && s < 2; ++s) {
-		if (brightPct[s] < 100 && !dimmed[s]) dimmed[s] = true, ui_dim(s, (Uint8) (255 * (100 - brightPct[s]) / 100));
 	}
 #ifdef __ANDROID__
 	static Uint64 handover;
@@ -1850,11 +1814,16 @@ static void fit_rect_at(const SDL_Rect* area, int w, int h, const char* mode, in
 		*out = *area;
 		return;
 	}
+	if (!strcmp(mode, "4:3")) {
+		/* the game as a TV showed it: the largest 4:3 rectangle, whatever
+		 * the picture's pixels (256 or 512 wide, 224 or 239 lines) */
+		int ow = area->w, oh = area->w * 3 / 4;
+		if (oh > area->h) oh = area->h, ow = area->h * 4 / 3;
+		*out = (SDL_Rect) { area->x + (area->w - ow) / 2, area->y + (align > 0 ? area->h - oh : align < 0 ? 0 : (area->h - oh) / 2), ow, oh };
+		return;
+	}
 	double s = SDL_min((double) area->w / w, (double) area->h / h);
 	if (!strcmp(mode, "integer") && s >= 1.0) s = (int) s;
-	/* zoom: fill the height; whatever is wider than the area is cut off at
-	 * the sides (ui_image_pixels clips to the screen) */
-	if (!strcmp(mode, "zoom")) s = (double) area->h / h;
 	out->w = (int) (w * s);
 	out->h = (int) (h * s);
 	out->x = area->x + (area->w - out->w) / 2;
@@ -2789,7 +2758,7 @@ static const SDL_Color accBase[AC_COUNT] = {
 	[AC_LIT_EDGE] = { 75, 58, 130, 255 },
 };
 static const struct { const char* id; float hue; } accents[ACCENT_COUNT] = {
-	{ "purple", 268 }, { "blue", 215 }, { "teal", 175 }, { "green", 135 }, { "red", 352 }, { "orange", 24 }, { "pink", 322 },
+	{ "purple", 268 }, { "blue", 215 }, { "teal", 175 }, { "green", 135 }, { "red", 355.5f }, { "orange", 24 }, { "pink", 322 },
 };
 
 static void rgb_to_hsl(SDL_Color c, float* h, float* s, float* l) {
@@ -2845,10 +2814,48 @@ static void accent_build(void) {
 	}
 	accentSet[AC_HI] = hi;
 	accentSet[AC_HI_INK] = hiInk;
+	/* the surfaces are neutral whatever the colour: OLED black with a dark
+	 * grey header, or white with a light grey one */
+	if (themeLight) {
+		accentSet[AC_BG] = (SDL_Color) { 255, 255, 255, 255 };
+		accentSet[AC_HEADER] = (SDL_Color) { 234, 234, 238, 255 };
+		accentSet[AC_ROW] = (SDL_Color) { 242, 242, 245, 255 };
+		accentSet[AC_BTN] = (SDL_Color) { 222, 222, 228, 240 };
+	} else {
+		accentSet[AC_BG] = (SDL_Color) { 0, 0, 0, 255 };
+		accentSet[AC_HEADER] = (SDL_Color) { 28, 28, 31, 255 };
+		accentSet[AC_ROW] = (SDL_Color) { 18, 18, 20, 255 };
+		accentSet[AC_BTN] = (SDL_Color) { 36, 36, 40, 240 };
+	}
+	if (!strcmp(accents[accentIdx].id, "red")) {
+		/* red is the logo's own (assets/brand/retrods-logo.png, as
+		 * tools/logo_transparent.py prints it): what's selected is that red,
+		 * a touch lighter at the top, in both themes
+		 * (white on it: 4.9:1) */
+		static const SDL_Color logoRed = { 224, 13, 29, 255 };
+		float h, sat, l;
+		rgb_to_hsl(logoRed, &h, &sat, &l);
+		accentSet[AC_SEL_MID] = accentSet[AC_BTN_SEL] = logoRed;
+		accentSet[AC_SEL_HI] = hsl_to_rgb(h, sat, l + 0.08f, 255); /* (ui_key: the face is the low tone, a little lighter at the top) */
+		accentSet[AC_SEL_LO] = logoRed;
+		accentSet[AC_SEL_EDGE] = hsl_to_rgb(h, sat, l * 0.45f, 255);
+		accentSet[AC_SEL_BORDER] = hsl_to_rgb(h, sat, l * 0.2f, 255);
+		/* no pale tints (pale red is pink): the ring, edges and what's lit
+		 * (the page tab) in deeper or brighter reds, the highlight gold */
+		accentSet[AC_SEL_RING] = accentSet[AC_EDGE] = hsl_to_rgb(h, sat, 0.58f, 255);
+		accentSet[AC_LIT_MID] = hsl_to_rgb(h, sat, 0.36f, 255);
+		accentSet[AC_LIT_HI] = hsl_to_rgb(h, sat, 0.40f, 255);
+		accentSet[AC_LIT_LO] = hsl_to_rgb(h, sat, 0.36f, 255);
+		accentSet[AC_LIT_BORDER] = hsl_to_rgb(h, sat, 0.10f, 255);
+		accentSet[AC_LIT_EDGE] = hsl_to_rgb(h, sat, 0.20f, 255);
+		accentSet[AC_HI] = (SDL_Color) { 240, 200, 96, 255 };
+		accentSet[AC_HI_INK] = (SDL_Color) { 122, 82, 0, 255 };
+	}
 	accentValid = true;
 }
 void ui_accent(const char* id) {
 	int n = 0;
+	for (int i = 0; i < ACCENT_COUNT; ++i) if (!strcmp("red", accents[i].id)) n = i; /* the default */
 	for (int i = 0; id && i < ACCENT_COUNT; ++i) if (!strcmp(id, accents[i].id)) n = i;
 	accentIdx = n;
 	accentValid = false;
@@ -2866,6 +2873,9 @@ bool ui_theme_light(void) {
 }
 SDL_Color ui_key_ink(void) {
 	return themeLight ? (SDL_Color) { 69, 71, 90, 255 } : (SDL_Color) { 238, 240, 255, 255 };
+}
+SDL_Color ui_ink_on(SDL_Color bg) {
+	return rel_lum(bg) > 0.3f ? (SDL_Color) { 20, 16, 36, 255 } : (SDL_Color) { 255, 255, 255, 255 };
 }
 SDL_Color ui_key_mid(int state) {
 	if (state == KEY_SEL) return ui_accent_color(AC_SEL_MID);
@@ -2888,6 +2898,15 @@ static void key_add(int screen, SDL_Rect r, bool plain) {
 }
 /* a big opaque fill that isn't a key: a panel, the dimming */
 static void key_layer(int screen, SDL_Rect r, SDL_Color c) {
+	/* (the light theme's surfaces are pale: text on them in ink, as on a key) */
+	static const int pale[] = { AC_BG, AC_HEADER, AC_ROW };
+	for (int i = 0; i < 3; ++i) {
+		SDL_Color p = ui_accent_color(pale[i]);
+		if (c.r == p.r && c.g == p.g && c.b == p.b && c.a == p.a) {
+			key_add(screen, r, true);
+			return;
+		}
+	}
 	if (c.a >= 190 && r.w * r.h > 90000) key_add(screen, r, false);
 }
 
@@ -2948,7 +2967,7 @@ void ui_key(int screen, SDL_Rect r, int radius, int state) {
 	key_add(screen, r, state == KEY_PLAIN);
 }
 
-/* ---------------------------------------------------------- text in Jost
+/* ---------------------------------------------------------- text in Barlow
  * Rasterized by textfont.c, kept as white textures (tinted when drawn), per
  * view; the least recently drawn are dropped when the cache is full. */
 typedef struct {
@@ -3006,7 +3025,7 @@ static TextEntry* text_entry(int view, int font, int cap, const char* text) {
 	return slot;
 }
 
-/* Text widths, remembered: measuring Jost text (kerning for every pair of
+/* Text widths, remembered: measuring Barlow text (kerning for every pair of
  * letters) costs real time on the handhelds' small cores, and the same
  * strings are measured every frame (centred labels, wrapped text, the
  * achievement popups fitting their lines). Direct-mapped by hash. */

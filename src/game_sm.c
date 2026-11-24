@@ -110,7 +110,7 @@ void native_tick(void) {
 	 * and the map back on the second screen */
 	if ((ch & SMMAP_SQUARE) && !natDrag) natUser = false, natVelX = natVelY = 0, natPage = 0;
 	/* SM-6, while the map is up */
-	hudHide = natShown && natProf->hide[0].w > 0 && cfg->map && memprobes_match(natProf->hideIf, 3, &emu);
+	hudHide = natShown && natProf->hide[0].w > 0 && memprobes_match(natProf->hideIf, 3, &emu);
 	native_upload();
 }
 
@@ -225,7 +225,7 @@ static void native_tap(int x, int y) {
 /* A touch on the second screen (SM-7): a drag moves the map with the
  * finger, a fling carries on; a tap goes to native_tap. Never the menu. */
 int native_touch(const Pointer* p) {
-	if (!cfg->map || nScreens != 2) return 0;
+	if (nScreens != 2) return 0;
 	if (p->screen == game_screen() && !(natDrag && p->kind != 1)) return 0;
 	Uint64 now = SDL_GetPerformanceCounter();
 	if (p->kind == 1) {

@@ -18,7 +18,7 @@ const char* const hotkeyBtnNames[B_COUNT] = { "a", "b", "x", "y", "start", "sele
 #endif
 static const char* const btnTitles[B_COUNT] = { "A", "B", "X", "Y", "Start", "Select", HOME_TITLE, "L1", "R1", "L2", "R2", "L3",
 	                                            N_("Up"), N_("Down"), N_("Left"), N_("Right")};
-static const char* const actionTitles[HK_COUNT] = { "Quit", N_("Quick save state"), N_("Quick load state"), N_("Open quick menu"), N_("Swap screens"),
+static const char* const actionTitles[HK_COUNT] = { "Quit", N_("Quick save state"), N_("Quick load state"), N_("Open the menu"), N_("Swap screens"),
                                                     N_("Toggle selected shader")};
 
 static int btn_by_name(const char* s) {
@@ -58,8 +58,8 @@ void hotkeys_resolve(const Config* cfg, int* mod, int btn[HK_COUNT], bool log) {
 
 /* ---------------------------------------------------------------- the screen */
 
-static const SDL_Color C_BG = { 14, 14, 26, 255 };
-static const SDL_Color C_ROW = { 22, 22, 38, 255 };
+#define C_BG ui_accent_color(AC_BG)
+#define C_ROW ui_accent_color(AC_ROW)
 static const SDL_Color C_SEL = { 92, 52, 140, 255 };
 static const SDL_Color C_EDGE = { 150, 120, 210, 255 };
 static const SDL_Color C_TEXT = { 236, 236, 244, 255 };
@@ -130,7 +130,7 @@ static void draw(int scr, const View_* v) {
 		else if (v->listen == R_MOD) snprintf(line, sizeof(line), tr("%s, Select, Start or L3. Tap to keep it as it is"), HOME_TITLE), foot = line;
 		else foot = N_("Tap to set none");
 	} else if (v->sel == R_MOD) {
-		foot = N_("Select or Start still reach the game when tapped on their own, L3 still opens the quick menu");
+		foot = N_("Select or Start still reach the game when tapped on their own, L3 still opens the menu");
 	} else if (v->sel == R_RESET) {
 		snprintf(line, sizeof(line), tr("%s as the hotkey button, with Start, R1, L1, X, Y and B"), HOME_TITLE), foot = line;
 	} else if (v->sel == R_DONE) {

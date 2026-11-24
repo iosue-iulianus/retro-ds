@@ -1,5 +1,5 @@
-/* UI text in Jost (TrueType, via stb_truetype): measuring and rasterizing
- * UTF-8 strings, from Jost and, for what Jost lacks, fallback faces. ui.c turns
+/* UI text in Barlow (TrueType, via stb_truetype): measuring and rasterizing
+ * UTF-8 strings, from Barlow and, for what Barlow lacks, fallback faces. ui.c turns
  * the results into textures. */
 #ifndef RETRODS_TEXTFONT_H
 #define RETRODS_TEXTFONT_H
@@ -7,9 +7,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-enum { TF_BOLD, TF_BODY, TF_COUNT }; /* Jost Bold Italic, Jost Medium Italic */
+enum { TF_BOLD, TF_BODY, TF_COUNT }; /* Barlow Bold, Barlow Medium */
 
-/* Faces to fall back on, after Jost, for characters Jost lacks (a script's font;
+/* Faces to fall back on, after Barlow, for characters Barlow lacks (a script's font;
  * ui.c sets them when the language changes). A face is the TTF's bytes, which must
  * stay valid. At most three per style. */
 void tf_fallback_clear(void);

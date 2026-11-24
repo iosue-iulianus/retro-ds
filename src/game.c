@@ -463,28 +463,33 @@ bool debug;
 
 /* ---------------------------------------------------------------- menu */
 
-enum MenuItem { M_RESUME, M_CHEATS, M_PATCHES, M_ACH, M_SHOT, M_SWAP, M_SCALE, M_LCD, M_OVERLAY, M_FPS, M_SAVE, M_LOAD, M_RESTART, M_LIBRARY, M_EXIT, M_FRAMEBUF, M_LOGO, M_MATCH, M_REWIND, M_AUTOSAVE, M_AUTOLOAD, M_BUG, M_SLOT, M_SHAPES, M_FF, M_COLOR, M_GHOST, M_BUTTONS, M_PIXLOGO, M_PLACE };
+enum MenuItem { M_RESUME, M_CHEATS, M_PATCHES, M_ACH, M_SHOT, M_SWAP, M_SCALE, M_LCD, M_OVERLAY, M_FPS, M_SAVE, M_LOAD, M_RESTART, M_LIBRARY, M_EXIT, M_FRAMEBUF, M_LOGO, M_MATCH, M_REWIND, M_AUTOSAVE, M_AUTOLOAD, M_BUG, M_SLOT, M_FF, M_COLOR, M_GHOST, M_BUTTONS, M_PIXLOGO, M_UNDO };
 static const char* menuLabels[] = {
 	/* title case: drawn in Futura from the built-in images (tools/make_brand.py) */
 	[M_RESUME] = N_("Resume"), [M_SWAP] = N_("Swap Screens"), [M_SAVE] = N_("Save State"), [M_SCALE] = "", [M_LCD] = "", [M_FPS] = "", [M_FRAMEBUF] = "", [M_OVERLAY] = "", [M_LOGO] = "", [M_MATCH] = "", [M_REWIND] = "", [M_RESTART] = N_("Restart Game"),
 	[M_LOAD] = N_("Load State"), [M_CHEATS] = "Cheats", [M_PATCHES] = "Patches", [M_BUTTONS] = N_("Buttons"), [M_ACH] = "Achievements", [M_SHOT] = N_("Take Screenshot"), [M_LIBRARY] = N_("Close Game"), [M_EXIT] = N_("Close RetroDS"),
-	[M_AUTOSAVE] = "", [M_AUTOLOAD] = "", [M_BUG] = N_("Submit a Bug Report"), [M_SLOT] = "", [M_FF] = "", [M_COLOR] = "", [M_GHOST] = "", [M_PIXLOGO] = "", [M_PLACE] = "",
+	[M_AUTOSAVE] = "", [M_AUTOLOAD] = "", [M_BUG] = N_("Submit a Bug Report"), [M_SLOT] = "", [M_FF] = "", [M_COLOR] = "", [M_GHOST] = "", [M_PIXLOGO] = "", [M_UNDO] = "",
 };
-static int menuItems[12], nMenuItems;
-/* Some buttons are half as wide, two to a row (Save State | Load State):
+#define PAGE_ITEMS 16 /* buttons on a page */
+static enum { UNDO_NONE, UNDO_LOAD, UNDO_SAVE } undoKind; /* what Undo in the menu would undo (user_undo) */
+static int menuItems[PAGE_ITEMS], nMenuItems;
+/* Some buttons are half as wide, two to a row (Resume | Restart Game):
  * each item's row and side (-1: the whole row, 0 left, 1 right). */
-static int itemRow[12], itemSide[12], nMenuRows;
+static int itemRow[PAGE_ITEMS], itemSide[PAGE_ITEMS], nMenuRows;
 static bool half_item(int item) {
 	return item == M_RESUME || item == M_RESTART || item == M_SAVE || item == M_LOAD || item == M_AUTOSAVE || item == M_AUTOLOAD || item == M_REWIND || item == M_FF ||
-	       item == M_COLOR || item == M_GHOST || item == M_CHEATS || item == M_PATCHES || item == M_SHOT || item == M_BUG;
+	       item == M_COLOR || item == M_GHOST || item == M_CHEATS || item == M_PATCHES || item == M_SHOT || item == M_BUG ||
+	       item == M_LIBRARY || item == M_EXIT;
 }
-/* Close Game and Close RetroDS are double height: two rows tall, side by side
- * when both are there, else the one across the whole row */
+/* Save State / Load State and Close Game / Close RetroDS are big: their row
+ * is TALL_ROW times as tall as the others */
+#define TALL_ROW 1.75f
 static bool tall_item(int item) {
-	return item == M_LIBRARY || item == M_EXIT;
+	return item == M_SAVE || item == M_LOAD || item == M_LIBRARY || item == M_EXIT;
 }
 static int item_span(int item) {
-	return tall_item(item) ? 2 : 1;
+	(void) item;
+	return 1;
 }
 /* rows, sides and the row count for a page's items (two half items in a row share it; a tall one takes two rows) */
 static int layout_rows(const int* items, int n, int* row, int* side) {
@@ -509,9 +514,9 @@ static int layout_rows(const int* items, int n, int* row, int* side) {
  * categories as the game list's Settings, each changed for this game (A) or
  * for all games (Y), kept in states/<game>.cfg or states/prefs.cfg. */
 #define N_PAGES 6
-enum { PG_GAME, PG_DISPLAY, PG_SCREENS, PG_CONTROLS, PG_SPEED, PG_MAP };
+enum { PG_GAME, PG_SCREENS, PG_LOOK, PG_CONTROLS, PG_FF, PG_SYSTEM };
 #define ICON_SYSTEM 100 /* a toolbox: Settings > System (not a page) */
-static int pages[N_PAGES][12], pageLen[N_PAGES], curPage;
+static int pages[N_PAGES][PAGE_ITEMS], pageLen[N_PAGES], curPage;
 #define ROW_MAX 16 /* settings on a page */
 #define ROW_VIS 8  /* most shown at once: more scroll */
 static const char* rowKeys[N_PAGES][ROW_MAX]; /* a settings page's rows: the settings' keys, or "@name" for a button that opens something */
@@ -523,7 +528,7 @@ static int rowPressed = -1;
 static int rowDragY;       /* where a finger last moved the list from */
 static bool rowDragged;    /* the finger scrolled the list: not a tap */
 static bool page_is_rows(int p) {
-	return p >= PG_DISPLAY;
+	return p >= PG_SCREENS;
 }
 /* Buttons still held when the menu closes (or after a HOME combo) are kept
  * from the game until released, so e.g. the A that picked "Save state"
@@ -537,7 +542,7 @@ static int hkBtn[HK_COUNT];
 static void suppress_held(void) {
 	for (int b = 0; b < B_COUNT; ++b) suppress[b] = btnNow[b];
 }
-static const char* pageNames[N_PAGES] = { "Game", N_("Display"), "Screens", "Controls", N_("Speed"), N_("Map")};
+static const char* pageNames[N_PAGES] = { "Game", "Screens", N_("Look"), "Controls", "Fast forward", "System" };
 /* Restart Game, Close Game and Close RetroDS ask first: chosen once, the
  * button says "Are You Sure?" (and the note what happens); chosen again,
  * it's done. Another page, another button or closing the menu calls it off. */
@@ -596,8 +601,10 @@ static MenuGeom menu_geom(int scr) {
 	SDL_Rect r = screens[scr].rect;
 	int n = 1;
 	for (int p = 0; p < N_PAGES; ++p) {
-		int row[12], side[12];
-		n = SDL_max(n, page_is_rows(p) ? SDL_min(rowN[p], ROW_VIS) + 1 : SDL_min(layout_rows(pages[p], pageLen[p], row, side), ROW_VIS));
+		int row[PAGE_ITEMS], side[PAGE_ITEMS];
+		/* (the Game page's buttons fill the screen below the tabs: item_rect) */
+		if (page_is_rows(p)) n = SDL_max(n, SDL_min(rowN[p], ROW_VIS) + 1);
+		(void) row, (void) side;
 	}
 	if (r.w == cw && r.h == ch && n == cn) return cache;
 	MenuGeom g;
@@ -704,8 +711,7 @@ static void slot_step(int d) {
 
 static bool item_enabled(int item) {
 	if (item == M_CHEATS) return cheats.n > 0;
-	if (item == M_SHAPES) return ui_screens_differ(); /* (two screens of a shape: nothing to match) */
-	if (item == M_PLACE) return nScreens == 2;         /* (one screen: no gap) */
+	if (item == M_UNDO) return undoKind != UNDO_NONE;  /* (always there, so nothing moves when it can be used) */
 	return item != M_LOAD || file_exists(gp.slot[stateSlot]);
 }
 
@@ -809,7 +815,7 @@ static int cheat_row_at(int scr, int x, int y) {
 }
 
 /* fits s into maxChars, ending in "..." when cut */
-/* s in Jost, cut short with "..." if it's wider than maxW. */
+/* s in Barlow, cut short with "..." if it's wider than maxW. */
 static void fit_text(char* out, size_t size, int font, int capPx, const char* s, int maxW) {
 	snprintf(out, size, "%s", s);
 	if (ui_font_width(font, capPx, out) <= maxW) return;
@@ -831,10 +837,10 @@ static void draw_cheats(int scr) {
 	ui_fill_round(scr, b, C_BTN, rad);
 	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, cap, "Back", C_TEXT);
 	ui_fill_round(scr, t, C_BTN_EDGE, rad);
-	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Cheats", (SDL_Color) { 20, 16, 36, 255 });
+	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Cheats", ui_ink_on(C_BTN_EDGE));
 	SDL_Rect clip = { screens[scr].rect.x, screens[scr].rect.y + g.top, r.w, g.listH };
 	ui_clip(scr, &clip);
-	int tcap = g.tpx * 5; /* Jost capitals, about the pixel font's height */
+	int tcap = g.tpx * 5; /* Barlow capitals, about the pixel font's height */
 	int pillW = ui_label_width(scr, tcap, "Off") + px * 8;
 	int nameW = g.w - pillW - px * 10;
 	for (int i = 0; i < nCheatRows; ++i) {
@@ -1478,7 +1484,7 @@ static void draw_patches(int scr) {
 	ui_fill_round(scr, b, C_BTN, rad);
 	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, cap, "Back", C_TEXT);
 	ui_fill_round(scr, t, C_BTN_EDGE, rad);
-	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Patches", (SDL_Color) { 20, 16, 36, 255 });
+	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Patches", ui_ink_on(C_BTN_EDGE));
 	SDL_Rect clip = { screens[scr].rect.x, screens[scr].rect.y + g.top, r.w, g.listH };
 	ui_clip(scr, &clip);
 	int tcap = g.tpx * 5;
@@ -1543,9 +1549,28 @@ static void items_scroll_to_sel(void) {
 	if (itemRow[menuSel] + item_span(menuItems[menuSel]) > itemTop + ROW_VIS) itemTop = itemRow[menuSel] + item_span(menuItems[menuSel]) - ROW_VIS;
 	itemTop = SDL_clamp(itemTop, 0, SDL_max(0, nMenuRows - ROW_VIS));
 }
+/* The Game page's rows fill the screen from below the tabs down to the note
+ * line: a unit height for the plain rows, TALL_ROW units for a row with big
+ * buttons. Each row's top and height. */
+static void item_row_geom(int scr, int row, int* y, int* h) {
+	MenuGeom g = menu_geom(scr);
+	bool tall[PAGE_ITEMS] = { false };
+	for (int i = 0; i < nMenuItems; ++i)
+		if (tall_item(menuItems[i])) tall[itemRow[i]] = true;
+	float units = 0;
+	for (int k = 0; k < nMenuRows; ++k) units += tall[k] ? TALL_ROW : 1.f;
+	int bottom = screens[scr].rect.h - g.margin - g.h * 7 / 10; /* (the note line) */
+	float u = (bottom - g.top - g.gap * (nMenuRows - 1)) / SDL_max(1.f, units);
+	float at = g.top;
+	for (int k = 0; k < row; ++k) at += (tall[k] ? TALL_ROW : 1.f) * u + g.gap;
+	*y = (int) at;
+	*h = (int) ((tall[row] ? TALL_ROW : 1.f) * u);
+}
 static SDL_Rect item_rect(int scr, int i) {
 	MenuGeom g = menu_geom(scr);
-	SDL_Rect r = { g.margin, g.top + (itemRow[i] - itemTop) * (g.h + g.gap), g.w, g.h * item_span(menuItems[i]) + g.gap * (item_span(menuItems[i]) - 1) };
+	int y, h;
+	item_row_geom(scr, itemRow[i], &y, &h);
+	SDL_Rect r = { g.margin, y, g.w, h };
 	if (itemSide[i] >= 0) {
 		int hw = (g.w - g.gap) / 2;
 		r.x += itemSide[i] * (g.w - hw);
@@ -1701,7 +1726,7 @@ static void draw_note(int scr) {
 	ui_fill_round(scr, b, C_BTN, rad);
 	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, cap, "Skip", C_TEXT);
 	ui_fill_round(scr, t, C_BTN_EDGE, rad);
-	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Bug Report", (SDL_Color) { 20, 16, 36, 255 });
+	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Bug Report", ui_ink_on(C_BTN_EDGE));
 	/* the note so far, with a cursor; the hint while it's empty */
 	ui_fill_round(scr, g.field, (SDL_Color) { 30, 26, 50, 255 }, rad);
 	int tc = SDL_max(4, g.field.h / 6), pad = mg.pad;
@@ -1726,7 +1751,7 @@ static void draw_note(int scr) {
 			bool lit = noteKeys[r][c][0] == '\x01' && noteShift;
 			(void) special; /* (the special keys look like the others) */
 			ui_key(scr, k, rad, sel ? KEY_SEL : lit ? KEY_LIT : KEY_PLAIN);
-			ui_label(scr, k.x + k.w / 2, k.y + k.h / 2, kc, note_key_label(r, c), lit ? (SDL_Color) { 20, 16, 36, 255 } : C_TEXT);
+			ui_label(scr, k.x + k.w / 2, k.y + k.h / 2, kc, note_key_label(r, c), lit ? ui_ink_on(ui_key_mid(KEY_LIT)) : C_TEXT);
 		}
 	}
 }
@@ -2016,8 +2041,18 @@ static void bar_close(void) {
 	barGesture = G_NONE;
 	barExitArmed = 0;
 }
+/* The quick bar (GBA DS's, up with a swipe from the bottom edge) is off:
+ * the owner found it ugly (Nov 24, 2026). A tap opens the pause menu, and so
+ * do L3 and the quick menu hotkey (bar_toggle). The code stays, unreachable
+ * while QUICK_BAR is 0. */
+#define QUICK_BAR 0
+static void open_menu(void);
 /* L3, or the quick menu hotkey: up, as with a swipe; again: down */
 static void bar_toggle(void) {
+	if (!QUICK_BAR) {
+		open_menu();
+		return;
+	}
 	if (barOpen) {
 		bar_close();
 		return;
@@ -2046,11 +2081,9 @@ static void draw_icon(int s, const char* const* art, int cx, int cy, int size, S
 	}
 }
 
-/* The hint at a game's start, "Swipe up for quick menu" under an arrow
- * pointing up, at the bottom of the touchscreen: it slides down and away 3
- * seconds in, or at the first touch, or as the bar or the menu comes up
- * (not shown with the bar pinned: it's up already; nor with quick_bar_hint
- * = 0). */
+/* The hint at a game's start, "Tap the screen to open the menu", at the
+ * bottom of the touchscreen: it slides down and away 3 seconds in, or at the
+ * first touch, or as the menu comes up (not with quick_bar_hint = 0). */
 static int hintState;     /* 0 not yet shown, 1 up, 2 going */
 static Uint32 hintSince;  /* its first frame */
 static float hintShown;   /* 0 away .. 1 all the way up */
@@ -2061,7 +2094,7 @@ static void hint_dismiss(void) {
 
 static void draw_hint(void) {
 	if (hintState == 0) {
-		if (cfg->barPinned || !cfg->barHint) {
+		if (!cfg->barHint) {
 			hintState = 2;
 			return;
 		}
@@ -2073,23 +2106,17 @@ static void draw_hint(void) {
 	if (hintShown <= 0) return;
 	int s = ui_touch_screen();
 	float px = ui_px(s);
-	static const char* text = N_("Swipe up for quick menu");
+	static const char* text = N_("Tap the screen to open the menu");
 	int cap = px * 7, tw = ui_font_width(TF_BOLD, cap, text);
 	int padX = px * 6, padY = px * 4, aw = px * 7, ah = px * 6, m = px * 6;
 	int w = tw + padX * 2, h = cap + padY * 2;
 	SDL_Rect r = screens[s].rect;
+	(void) aw;
 	int y = r.h - m - h + (int) ((1.0f - hintShown) * (h + ah + m + 1));
 	SDL_Rect b = { (r.w - w) / 2, y, w, h };
 	ui_fill_round(s, (SDL_Rect) { b.x - 1, b.y - 1, b.w + 2, b.h + 2 }, G_EDGE, px * 3 + 1);
 	ui_fill_round(s, b, G_BG, px * 3);
-	/* the arrow on top: the box's edge round it, filled as the box */
 	int cx = r.w / 2;
-	for (int i = 0; i <= ah; ++i) {
-		int half = aw * i / SDL_max(1, ah);
-		ui_fill(s, (SDL_Rect) { cx - half - 1, b.y - ah - 1 + i, half * 2 + 2, 1 }, G_EDGE);
-		if (half * 2 - 2 > 0) ui_fill(s, (SDL_Rect) { cx - half + 1, b.y - ah - 1 + i, half * 2 - 2, 1 }, G_BG);
-	}
-	ui_fill(s, (SDL_Rect) { cx - aw + 1, b.y - 1, aw * 2 - 2, 2 }, G_BG); /* (open into the box) */
 	ui_font_text(s, TF_BOLD, cx, b.y + b.h / 2, cap, text, G_TEXT, 0);
 }
 
@@ -2300,8 +2327,8 @@ enum { OR_MODE, OR_SCREENS, OR_LOGO, OR_INNER, OR_OUTER, OR_RESET };
 static int ovl_rows(int* rows) {
 	int n = 0;
 	rows[n++] = OR_MODE;
-	if (cfg->overlayMode != OVM_OFF) rows[n++] = OR_SCREENS;
-	if (cfg->overlayMode == OVM_GENERATED) rows[n++] = OR_LOGO, rows[n++] = OR_INNER, rows[n++] = OR_OUTER, rows[n++] = OR_RESET;
+	if (cfg->overlays != OVL_OFF) rows[n++] = OR_SCREENS;
+	if (cfg->overlays != OVL_OFF && cfg->overlayMode == OVM_GENERATED) rows[n++] = OR_LOGO, rows[n++] = OR_INNER, rows[n++] = OR_OUTER, rows[n++] = OR_RESET;
 	return n;
 }
 static SDL_Rect ovl_row_rect(int scr, int i) {
@@ -2309,10 +2336,10 @@ static SDL_Rect ovl_row_rect(int scr, int i) {
 	return (SDL_Rect) { g.margin, g.top + i * (g.h + g.gap), g.w, g.h };
 }
 static const char* ovl_row_label(int row) {
-	static const char* const modes[3] = { N_("Overlays: Off"), N_("Overlays: Generated"), N_("Overlays: Custom (in /overlays)")};
 	switch (row) {
-	case OR_MODE: return modes[SDL_clamp(cfg->overlayMode, 0, 2)];
-	case OR_SCREENS: return cfg->overlays == OVL_TOP ? N_("Which Screen: Top Only"): cfg->overlays == OVL_BOTTOM ? N_("Which Screen: Bottom Only"): N_("Which Screen: Both");
+	case OR_MODE: return cfg->overlays == OVL_OFF ? N_("Overlays: Off"): cfg->overlays == OVL_TOP ? N_("Overlays: Top Screen"):
+	                     cfg->overlays == OVL_BOTTOM ? N_("Overlays: Bottom Screen"): N_("Overlays: Both Screens");
+	case OR_SCREENS: return cfg->overlayMode == OVM_CUSTOM ? N_("Overlay Style: Custom (in /overlays)"): N_("Overlay Style: Generated");
 	case OR_LOGO: return cfg->bezelLogo ? N_("RetroDS Logo: Show"): N_("RetroDS Logo: Hide");
 	case OR_INNER: return N_("Inner Bezel Color");
 	case OR_OUTER: return N_("Outer Bezel Color");
@@ -2546,7 +2573,7 @@ static void draw_ovl_menu(int scr) {
 	ui_fill_round(scr, b, C_BTN, rad);
 	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, cap, "Back", C_TEXT);
 	ui_fill_round(scr, t, C_BTN_EDGE, rad);
-	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Overlays", (SDL_Color) { 20, 16, 36, 255 });
+	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Overlays", ui_ink_on(C_BTN_EDGE));
 	int rows[8], n = ovl_rows(rows);
 	if (ovlSel >= n) ovlSel = n - 1;
 	for (int i = 0; i < n; ++i) {
@@ -2587,7 +2614,7 @@ static void draw_picker(int scr) {
 	SDL_Rect r = screens[scr].rect;
 	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, r.h }, (SDL_Color) { 12, 10, 22, 255 });
 	ui_fill_round(scr, p.title, C_BTN_EDGE, mg.rad);
-	ui_label(scr, p.title.x + p.title.w / 2, p.title.y + p.title.h / 2, p.cap, pickWhich ? "Outer Bezel Color" : "Inner Bezel Color", (SDL_Color) { 20, 16, 36, 255 });
+	ui_label(scr, p.title.x + p.title.w / 2, p.title.y + p.title.h / 2, p.cap, pickWhich ? "Outer Bezel Color" : "Inner Bezel Color", ui_ink_on(C_BTN_EDGE));
 	pick_textures();
 	ui_image(scr, pickSqTex, pickTexW, pickTexH, "stretch", &p.sq);
 	ui_image(scr, pickHueTex, 1, 360, "stretch", &p.hue);
@@ -2637,7 +2664,7 @@ static void draw_hex(int scr) {
 	ui_fill_round(scr, b, C_BTN, mg.rad);
 	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, mg.cap, "Back", C_TEXT);
 	ui_fill_round(scr, t, C_BTN_EDGE, mg.rad);
-	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, mg.cap, "Hex Color", (SDL_Color) { 20, 16, 36, 255 });
+	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, mg.cap, "Hex Color", ui_ink_on(C_BTN_EDGE));
 	SDL_Rect f = hex_field(scr);
 	ui_fill_round(scr, f, (SDL_Color) { 30, 26, 50, 255 }, mg.rad);
 	char shown[16];
@@ -2660,15 +2687,15 @@ static void ovl_activate(int i, int dir) {
 	int rows[8], n = ovl_rows(rows);
 	if (i < 0 || i >= n) return;
 	switch (rows[i]) {
-	case OR_MODE:
-		cfg->overlayMode = (SDL_clamp(cfg->overlayMode, 0, 2) + (dir < 0 ? 2 : 1)) % 3;
-		break;
-	case OR_SCREENS: {
-		static const int order[3] = { OVL_BOTH, OVL_TOP, OVL_BOTTOM };
-		int k = cfg->overlays == OVL_TOP ? 1 : cfg->overlays == OVL_BOTTOM ? 2 : 0;
-		cfg->overlays = order[(k + (dir < 0 ? 2 : 1)) % 3];
+	case OR_MODE: {
+		static const int order[4] = { OVL_OFF, OVL_BOTH, OVL_TOP, OVL_BOTTOM };
+		int k = cfg->overlays == OVL_BOTH ? 1 : cfg->overlays == OVL_TOP ? 2 : cfg->overlays == OVL_BOTTOM ? 3 : 0;
+		cfg->overlays = order[(k + (dir < 0 ? 3 : 1)) % 4];
 		break;
 	}
+	case OR_SCREENS:
+		cfg->overlayMode = cfg->overlayMode == OVM_CUSTOM ? OVM_GENERATED : OVM_CUSTOM;
+		break;
 	case OR_LOGO:
 		cfg->bezelLogo = !cfg->bezelLogo;
 		break;
@@ -2683,7 +2710,7 @@ static void ovl_activate(int i, int dir) {
 		break;
 	}
 	commit_current("overlays"); /* (the layer in force) */
-	commit_current("overlay_screens");
+	commit_current("overlay_style");
 	commit_current("bezel_logo");
 	save_prefs();
 }
@@ -2785,9 +2812,7 @@ static uint32_t fb_keys(bool faces) {
 }
 
 static const char* scale_label(const char* scale) {
-	return !strcmp(scale, "fit")       ? N_("Scale: Full Width"):
-	       !strcmp(scale, "zoom")      ? N_("Scale: Zoom"):
-	       !strcmp(scale, "stretch")   ? N_("Scale: Stretch"): N_("Scale: Pixel Perfect");
+	return !strcmp(scale, "integer") ? N_("Scale: Pixel Perfect"): N_("Scale: 4:3");
 }
 
 /* ---------------------------------------------------------------- settings pages
@@ -2835,8 +2860,8 @@ static bool rowTagOn[ROW_MAX + 1];
 
 /* why a row can't be changed here, or NULL */
 static const char* row_disabled(const char* key) {
-	if (!strcmp(key, "screen_match") && !ui_screens_differ()) return N_("Your screens are the same shape: nothing to match");
-	if (!strcmp(key, "screen_placement") && nScreens != 2) return N_("Only one screen: nothing to move");
+	if (!strcmp(key, "map_scale") && (nat || alt)) return N_("RetroDS draws this game's second screen to fit");
+	if (!strcmp(key, "overlay_style") && cfg->overlays == OVL_OFF) return N_("Overlays are off");
 	return NULL;
 }
 
@@ -2847,7 +2872,7 @@ static void draw_rows_page(int scr, const MenuGeom* mg) {
 		SDL_Rect r = scope_rect(scr, h);
 		bool on = (h == 1) == scopeAll;
 		ui_key(scr, r, rad, on ? (rowSel == 0 ? KEY_SEL : KEY_LIT) : KEY_PLAIN);
-		ui_label(scr, r.x + r.w / 2, r.y + r.h / 2, cap, h ? "All games" : "This game", on ? (rowSel == 0 ? C_TEXT : (SDL_Color) { 20, 16, 36, 255 }) : C_DIS);
+		ui_label(scr, r.x + r.w / 2, r.y + r.h / 2, cap, h ? "All games" : "This game", on ? (rowSel == 0 ? C_TEXT : ui_ink_on(ui_key_mid(KEY_LIT))) : C_DIS);
 	}
 	const char* note = NULL;
 	bool noteGold = false;
@@ -2958,24 +2983,27 @@ static void draw_tab_icon(int scr, int page, SDL_Rect box, SDL_Color fg, SDL_Col
 		F(14, 15.2f, 2.4f, 2.4f, 1.2f, bg);
 		F(16.4f, 17.4f, 2.4f, 2.4f, 1.2f, bg);
 		break;
-	case ICON_SYSTEM: /* a toolbox */
+	case ICON_SYSTEM: /* a toolbox: Settings > System, and the System page */
+	case PG_SYSTEM:
 		F(8, 2.5f, 8, 6, 2.5f, fg);
 		F(10, 4.5f, 4, 4, 1, bg);
 		F(3, 8, 18, 13.5f, 2, fg);
 		F(3, 13.2f, 18, 1.4f, 0, bg);
 		F(10.2f, 11.5f, 3.6f, 4.8f, 1, fg);
 		break;
-	case PG_DISPLAY: /* a monitor */
-		F(2, 3.5f, 20, 14, 2, fg);
-		F(4, 5.5f, 16, 10, 1, bg);
-		F(10, 17.5f, 4, 3, 0, fg);
-		F(7, 20, 10, 2, 1, fg);
-		break;
 	case PG_SCREENS: /* two screens, one over the other */
 		F(4, 1.5f, 16, 9.5f, 1.5f, fg);
 		F(6, 3.5f, 12, 5.5f, 0.5f, bg);
 		F(4, 13, 16, 9.5f, 1.5f, fg);
 		F(6, 15, 12, 5.5f, 0.5f, bg);
+		break;
+	case PG_LOOK: /* a painter's palette: four wells of paint and the thumb hole */
+		F(1.5f, 3, 21, 18, 9, fg);
+		F(5, 6.5f, 3.4f, 3.4f, 1.7f, bg);
+		F(10.3f, 5, 3.4f, 3.4f, 1.7f, bg);
+		F(15.6f, 6.5f, 3.4f, 3.4f, 1.7f, bg);
+		F(4.2f, 11.8f, 3.4f, 3.4f, 1.7f, bg);
+		F(13.5f, 13.5f, 4.5f, 4.5f, 2.25f, bg);
 		break;
 	case PG_CONTROLS: /* a gamepad */
 		F(1, 6.5f, 22, 12, 6, fg);
@@ -2984,14 +3012,9 @@ static void draw_tab_icon(int scr, int page, SDL_Rect box, SDL_Color fg, SDL_Col
 		F(14.2f, 9.2f, 3.2f, 3.2f, 1.6f, bg);
 		F(17.4f, 12.2f, 3.2f, 3.2f, 1.6f, bg);
 		break;
-	case PG_SPEED: /* fast forward */
+	case PG_FF: /* fast forward */
 		icon_tri(scr, b, size, 2.5f, 5, 9.5f, 14, 1, fg);
 		icon_tri(scr, b, size, 12, 5, 9.5f, 14, 1, fg);
-		break;
-	case PG_MAP: /* a pin */
-		icon_tri(scr, b, size, 6.2f, 12, 11.6f, 10.5f, 2, fg);
-		F(4.5f, 1.5f, 15, 15, 7.5f, fg);
-		F(9, 6, 6, 6, 3, bg);
 		break;
 	}
 #undef F
@@ -3023,7 +3046,7 @@ static void draw_menu(void) {
 		ui_fill_round(scr, b, C_BTN, rad);
 		ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, cap, "Back", C_TEXT);
 		ui_fill_round(scr, t, C_BTN_EDGE, rad);
-		ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Achievements", (SDL_Color) { 20, 16, 36, 255 });
+		ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Achievements", ui_ink_on(C_BTN_EDGE));
 		ra_list_draw(scr, ach_area(scr));
 		if (nScreens > 1) {
 			int o = ui_other_screen();
@@ -3070,7 +3093,7 @@ static void draw_menu(void) {
 		SDL_Rect r = top_box(scr, t, N_PAGES);
 		bool on = t == curPage;
 		ui_key(scr, r, rad, on ? KEY_LIT : KEY_PLAIN);
-		draw_tab_icon(scr, t, r, on ? (SDL_Color) { 20, 16, 36, 255 } : ui_theme_light() ? (SDL_Color) { 92, 94, 112, 255 } : (SDL_Color) { 150, 152, 168, 255 }, ui_key_mid(on ? KEY_LIT : KEY_PLAIN));
+		draw_tab_icon(scr, t, r, on ? ui_ink_on(ui_key_mid(KEY_LIT)) : ui_theme_light() ? (SDL_Color) { 92, 94, 112, 255 } : (SDL_Color) { 150, 152, 168, 255 }, ui_key_mid(on ? KEY_LIT : KEY_PLAIN));
 	}
 	SDL_Rect t0 = top_box(scr, 0, N_PAGES), t1 = top_box(scr, N_PAGES - 1, N_PAGES);
 	/* L1 / R1 button prompts beside the tabs (the prompt art is 25:16) */
@@ -3124,14 +3147,8 @@ static void draw_menu(void) {
 			label = cfg->fastForward ? ffLabel : N_("Fast Forward: Off");
 		}
 		if (menuItems[i] == M_MATCH) label = !cfg->matchDisplay ? N_("Match Display Rate: Off"): pacedFallback ? N_("Match Display Rate: Off for now"): N_("Match Display Rate: On");
-		if (menuItems[i] == M_SHAPES) label = !en || !strcmp(cfg->screenMatch, "keep") ? N_("Keep device aspect ratios"):
-		                                      !strcmp(cfg->screenMatch, "aspect") ? N_("Match screen aspect ratios"): N_("Match screen sizes and aspect ratios");
-		if (menuItems[i] == M_PLACE) label = en && !strcmp(cfg->screenPlace, "no_gap") ? N_("Screen Placement: Closest to Gap"): N_("Screen Placement: Centered");
 		if (menuItems[i] == M_PIXLOGO) label = cfg->customLogos == CL_OFF ? N_("Custom Logos: Do Not Use"): cfg->customLogos == CL_FULL ? N_("Custom Logos: Full Detail"): N_("Custom Logos: Pixelated");
-		if (menuItems[i] == M_OVERLAY) {
-			static const char* const ovl[3] = { N_("Overlays: Off"), N_("Overlays: Generated"), N_("Overlays: Custom")};
-			label = ovl[SDL_clamp(cfg->overlayMode, 0, 2)];
-		}
+		if (menuItems[i] == M_UNDO) label = undoKind == UNDO_LOAD ? N_("Undo Load"): undoKind == UNDO_SAVE ? N_("Undo Save"): N_("Undo");
 		if (menuItems[i] == armedItem) label = N_("Are You Sure?");
 		/* (the slot they use: "Save State 3", "Load State 3") */
 		static char slotBtn[2][24];
@@ -3149,19 +3166,27 @@ static void draw_menu(void) {
 		int lc = cap;
 		if (tall_item(menuItems[i])) {
 			/* double height: the text as big as the button and its widest label allow */
-			static const char* const tallLabels[] = { "Close Game", "Close RetroDS", "Are You Sure?" };
+			/* (all the big buttons' labels the same size: the widest as
+			 * translated, "Spielstand 0 speichern") */
+			char tallLabels[5][64];
+			snprintf(tallLabels[0], sizeof(tallLabels[0]), tr("Save State %d"), 0);
+			snprintf(tallLabels[1], sizeof(tallLabels[1]), tr("Load State %d"), 0);
+			snprintf(tallLabels[2], sizeof(tallLabels[2]), "%s", tr("Close Game"));
+			snprintf(tallLabels[3], sizeof(tallLabels[3]), "%s", tr("Close RetroDS"));
+			snprintf(tallLabels[4], sizeof(tallLabels[4]), "%s", tr("Are You Sure?"));
 			int widest = 1;
-			for (size_t k = 0; k < sizeof(tallLabels) / sizeof(*tallLabels); ++k) widest = SDL_max(widest, ui_label_width(scr, 100, tallLabels[k]));
-			lc = SDL_min(r.h * 2 / 5, (r.w - mg.pad * 2) * 100 / widest);
+			for (int k = 0; k < 5; ++k) widest = SDL_max(widest, ui_label_width(scr, 100, tallLabels[k]));
+			lc = SDL_min(r.h * 3 / 10, (r.w - mg.pad * 2) * 100 / widest);
 		}
 		ui_label(scr, r.x + r.w / 2, r.y + r.h / 2, lc, label, en ? C_TEXT : C_DIS);
 	}
 	if (menuNote[0]) {
-		int lastRow = SDL_min(nMenuRows, ROW_VIS) - 1;
-		SDL_Rect last = { 0, mg.top + lastRow * (mg.h + mg.gap), 0, mg.h };
+		SDL_Rect last = { 0, 0, 0, 0 };
+		item_row_geom(scr, SDL_min(nMenuRows, ROW_VIS) - 1, &last.y, &last.h);
 		int nc = SDL_min(mg.noteCap, mg.noteCap * mg.w / SDL_max(1, ui_font_width(TF_BOLD, mg.noteCap, menuNote)));
 		/* (the last item is always a whole row: Close RetroDS, Show FPS...) */
-		ui_font_text(scr, TF_BOLD, screens[scr].rect.w / 2, last.y + last.h + mg.h * 3 / 5, nc, menuNote, C_GOLD, 0);
+		/* (centred in the gap between the last button and the screen's bottom) */
+		ui_font_text(scr, TF_BOLD, screens[scr].rect.w / 2, (last.y + last.h + screens[scr].rect.h) / 2, nc, menuNote, C_GOLD, 0);
 	}
 	if (nScreens > 1) {
 		int o = ui_other_screen();
@@ -3395,6 +3420,62 @@ static const char* state_ra_side(const char* path) {
 static bool state_save(const char* path) {
 	bool ok = state_file_save(path);
 	if (ok) ra_state_saved(state_ra_side(path));
+	return ok;
+}
+static bool state_load(const char* path);
+
+/* Undo for the player's own saves and loads (the menu, the quick bar, the
+ * hotkeys), one step back: a load first keeps the game as it was
+ * (<auto state>.undo-load), a save over a state keeps the old one
+ * (<state>.undo). "Undo Load" / "Undo Save" in the menu puts it back. The
+ * files go when the game closes. */
+static char undoPath[1100]; /* the load's: the kept game; the save's: the state saved over */
+static void undo_file(char* out, size_t size) {
+	if (undoKind == UNDO_LOAD) snprintf(out, size, "%s.undo-load", gp.autoState);
+	else snprintf(out, size, "%s.undo", undoPath);
+}
+static void undo_clear(void) {
+	char f[1200];
+	if (undoKind != UNDO_NONE) undo_file(f, sizeof(f)), remove(f);
+	undoKind = UNDO_NONE;
+}
+static bool user_save(const char* path) {
+	undo_clear();
+	char f[1200];
+	snprintf(f, sizeof(f), "%s.undo", path);
+	bool kept = file_exists(path) && rename(path, f) == 0;
+	bool ok = state_save(path);
+	if (!ok && kept) rename(f, path); /* (the old one stays as it was) */
+	if (ok && kept) {
+		undoKind = UNDO_SAVE;
+		snprintf(undoPath, sizeof(undoPath), "%s", path);
+	}
+	return ok;
+}
+static bool user_load(const char* path) {
+	undo_clear();
+	char f[1200];
+	snprintf(f, sizeof(f), "%s.undo-load", gp.autoState);
+	bool kept = state_file_save(f);
+	bool ok = state_load(path);
+	if (ok && kept) undoKind = UNDO_LOAD;
+	else if (kept) remove(f);
+	return ok;
+}
+/* Undo Load: back to where the game was; Undo Save: the old state back */
+static bool user_undo(void) {
+	char f[1200];
+	undo_file(f, sizeof(f));
+	bool ok;
+	if (undoKind == UNDO_LOAD) {
+		ok = state_load(f);
+		remove(f);
+		ui_osd(ok ? "Back to where you were before loading" : "Undo failed");
+	} else {
+		ok = rename(f, undoPath) == 0;
+		ui_osd(ok ? "The state saved over is back" : "Undo failed");
+	}
+	undoKind = UNDO_NONE;
 	return ok;
 }
 
@@ -3742,7 +3823,6 @@ static void bug_info(Text* t, const char* date, uint64_t back) {
 	text_add(t, "\n== Settings\n");
 	text_add(t, "layout %s, swap %d, scale %s, map_scale %s, shader %s, color_correction %d, lcd_ghosting %d, smooth %d, overlays %d (screens %d, logo %d, %s / %s), border_color %s\n", cfg->layout,
 	         cfg->swap, cfg->scale, cfg->mapScale, shaderNames[cfg->shader], cfg->colorCorrection, cfg->ghosting, cfg->smooth, cfg->overlayMode, cfg->overlays, cfg->bezelLogo, cfg->bezelInner, cfg->bezelOuter, cfg->borderColor);
-	text_add(t, "map %d, map_interval %d\n", cfg->map, cfg->mapInterval);
 	text_add(t, "logo_folder %s, custom_logos %s; logo: %s\n", cfg->logoFolder[0] ? cfg->logoFolder : "(not set)",
 	         cfg->customLogos == CL_OFF ? "off" : cfg->customLogos == CL_FULL ? "full" : "pixelated", ui_logo_note());
 	text_add(t, "frame_buffer %d, match_display %d, vsync %d, audio_latency %d, rewind %d (%d s), fast_forward %d, ff_speed %d\n", cfg->frameBuffer,
@@ -4512,28 +4592,17 @@ static SDL_Color borderColor;
  * screen shapes (aspect or size, for screen_match; optional, and only
  * looked for while it's on and the screens' shapes differ). The most
  * specific found wins, top / bottom before primary / secondary at each step:
- *   <CODE>-<screen>-<scale>-<match>, <CODE>-<screen>-<match>,
  *   <CODE>-<screen>-<scale>, <CODE>-<screen>,
  *   (the second screen only, older names: <CODE>-<scale>, <CODE>)
- *   <screen>-<scale>-<match>, <screen>-<match>, <screen>-<scale>, <screen>
- * each with "-no_gap" after it while Screen Placement moves the picture
+ *   <screen>-<scale>, <screen>
  * (load_overlay). wiki/Overlays.md explains them for players (top and bottom only). */
-static void overlays_reload(void) {
-	overlayMode[0][0] = overlayMode[1][0] = 0;
-	bezelKey[0][0] = bezelKey[1][0] = 0;
-}
 
 /* s: the physical screen (0 top, 1 bottom); which: what's on it (0 the game, 1 the second screen) */
 static void load_overlay(int s, int which) {
-	const char* scale = which ? cfg->mapScale : cfg->scale;
-	const char* match = strcmp(cfg->screenMatch, "keep") && ui_screens_differ() ? cfg->screenMatch : NULL;
-	/* Screen Placement: Closest to Gap moves the picture where it doesn't
-	 * fill the screen's height (Pixel Perfect, Full Width): an overlay made
-	 * for it has "-no_gap" at the end of its name, and ones without it are left
-	 * alone (their hole is where a centred picture goes) */
-	const char* place = nScreens == 2 && !strcmp(cfg->screenPlace, "no_gap") && (!strcmp(scale, "integer") || !strcmp(scale, "fit")) ? "-no_gap" : "";
+	/* (4:3 as 4x3 in file names) */
+	const char* scale = which ? cfg->mapScale : !strcmp(cfg->scale, "4:3") ? "4x3" : cfg->scale;
 	char key[sizeof(overlayMode[0])];
-	snprintf(key, sizeof(key), "%d|%s|%s|%s", which, scale, match ? match : "", place);
+	snprintf(key, sizeof(key), "%d|%s", which, scale);
 	if (!strcmp(overlayMode[s], key)) return;
 	snprintf(overlayMode[s], sizeof(overlayMode[s]), "%s", key);
 	ui_free_image(overlayTex[s]);
@@ -4543,8 +4612,6 @@ static void load_overlay(int s, int which) {
 	for (int g = 0; g < 2; ++g) { /* this game's, then every game's */
 		char code[8] = "";
 		if (!g) snprintf(code, sizeof(code), "%.8s-", emu.gameCode);
-		for (int k = 0; k < 2; ++k) if (match) snprintf(names[n++], 64, "%s%s-%s-%s", code, sides[k], scale, match);
-		for (int k = 0; k < 2; ++k) if (match) snprintf(names[n++], 64, "%s%s-%s", code, sides[k], match);
 		for (int k = 0; k < 2; ++k) snprintf(names[n++], 64, "%s%s-%s", code, sides[k], scale);
 		for (int k = 0; k < 2; ++k) snprintf(names[n++], 64, "%s%s", code, sides[k]);
 		if (!g && which) {
@@ -4554,7 +4621,7 @@ static void load_overlay(int s, int which) {
 	}
 	char path[1200];
 	for (int i = 0; i < n; ++i) {
-		snprintf(path, sizeof(path), "%s/overlays/%s%s.png", cfg->assetDir, names[i], place);
+		snprintf(path, sizeof(path), "%s/overlays/%s.png", cfg->assetDir, names[i]);
 		if (ui_load_image(path, overlayTex[s], &overlayW[s], &overlayH[s], true)) {
 			if (debug) fprintf(stderr, "overlay (%s screen): %s\n", sides[0], path);
 			return;
@@ -4570,7 +4637,7 @@ static void load_overlay(int s, int which) {
 /* The profile, when the second screen takes touch (SM-7) */
 static const MapProfile* touch_prof(void) {
 	const MapProfile* p = mc ? mapcap_profile(mc) : NULL;
-	return p && p->touch.scrollX && cfg->map && nScreens == 2 ? p : NULL;
+	return p && p->touch.scrollX && nScreens == 2 ? p : NULL;
 }
 
 static int round8(int v) {
@@ -4731,10 +4798,6 @@ static void draw_bezel(int s, const char* mode, bool defaults, int w, int h) {
 	 * bottom one's); Screen Placement: Closest to Gap leaves no room there,
 	 * so it's on the bottom screen only, below the picture (GEN-12) */
 	bool above = bottom;
-	if (nScreens == 2 && !strcmp(cfg->screenPlace, "no_gap")) {
-		if (!bottom) logo = false;
-		above = false;
-	}
 	char key[96];
 	snprintf(key, sizeof(key), "%dx%d %d,%d,%d,%d %d%d %06X %06X %d", sr.w, sr.h, r.x, r.y, r.w, r.h, bottom, above, (unsigned) in, (unsigned) out, logo);
 	if (strcmp(key, bezelKey[s])) {
@@ -4751,7 +4814,7 @@ static void draw_bezel(int s, const char* mode, bool defaults, int w, int h) {
 
 /* Overlays: on for this physical screen (one screen: the top one's setting) */
 static bool overlay_on(int s) {
-	return cfg->overlayMode != OVM_OFF && (cfg->overlays & (s == 1 && nScreens == 2 ? OVL_BOTTOM : OVL_TOP));
+	return cfg->overlays != OVL_OFF && (cfg->overlays & (s == 1 && nScreens == 2 ? OVL_BOTTOM : OVL_TOP));
 }
 
 /* which: what's on the screen (0 the game, 1 the second screen) */
@@ -4786,7 +4849,7 @@ static void draw_osd(void) {
 	if (!osd || menuOpen || shotPending || barShown > 0) return; /* (the quick bar shows it) */
 	int s = ui_touch_screen();
 	SDL_Rect r = screens[s].rect;
-	bool gameHere = nScreens == 1 || s == game_screen() || !((mc || nat || logoOnly) && cfg->map);
+	bool gameHere = nScreens == 1 || s == game_screen() || !(mc || nat || logoOnly);
 	SDL_Rect img = ui_image_rect(s, picW, picH, gameHere ? cfg->scale : cfg->mapScale);
 	int gap = r.h - (img.y + img.h);
 	int fpx = small_text_px(s, img.y < gap ? img.y : gap);
@@ -4892,7 +4955,7 @@ static void make_logo_canvas(void) {
 }
 
 static void draw_game(void) {
-	bool mapOn = (mc || nat || alt || logoOnly) && cfg->map; /* logo-only games: the logo stands in for the map */
+	bool mapOn = mc || nat || alt || logoOnly; /* logo-only games: the logo stands in for the map */
 	if (nat && natShown) native_step();
 	if (alt && altShown && altPage == 1 && !alttp_in_dungeon(alt)) alt_step();
 	for (int s = 0; s < nScreens; ++s) {
@@ -5049,12 +5112,6 @@ static void setting_applied(const Setting* st) {
 			game_tex_fit(emu.w, emu.h);
 			for (int i = 0; i < nViews; ++i) ui_update_texture(gameTex[i], emu.fb, emu.w * 4);
 		}
-	} else if (!strcmp(k, "screen_match") || !strcmp(k, "screen_placement")) {
-		ui_layout_pictures();
-		overlays_reload(); /* (overlays can be made for each: overlay files) */
-		gameTexAll = true;
-	} else if (!strcmp(k, "brightness_top") || !strcmp(k, "brightness_bottom")) {
-		ui_brightness(cfg->brightTop, cfg->brightBottom);
 	} else if (!strcmp(k, "match_display")) {
 		pacedFallback = false;
 		pacing_update();
@@ -5073,15 +5130,13 @@ static void rows_note(const char* what, bool all, bool kept) {
 	(void) what;
 }
 
-/* where a setting stands on its list (or its number), to tell when a step wrapped round */
-static int step_pos(const Config* c, const Setting* st) {
-	if (st->nChoices) return config_setting_index(c, st);
-	return *(const int*) ((const char*) c + st->off);
-}
-
-/* step row `key` by dir, for all games or this game. For this game the list has
- * one more place, "same as all games": stepping past either end of the list
- * from a value of this game's own takes it away (row_reset) */
+/* step row `key` by dir, for all games or this game. Either way the whole
+ * list goes round, in the same order both ways; for this game, landing on
+ * the value for all games takes this game's own away (row_reset), so there's
+ * nothing left over to keep. (GBA DS's list had a hidden extra place, "same
+ * as all games", where a step past either end went instead: going right
+ * never reached what was left of the all-games value, going left nothing
+ * right of it.) */
 
 static void row_reset(const char* key);
 static void row_change(const char* key, int dir, bool all) {
@@ -5111,12 +5166,13 @@ static void row_change(const char* key, int dir, bool all) {
 		}
 		rows_note(key, true, kept);
 	} else {
-		int before = step_pos(cfg, st);
 		bool had = game_has(st);
 		if (!config_setting_step(cfg, st, dir)) return;
-		int after = step_pos(cfg, st);
-		if (had && (dir > 0 ? after < before : after > before)) {
-			row_reset(key); /* (round the end of the list: back to the value for all games) */
+		const char *mine = (const char*) cfg + st->off, *theirs = (const char*) &uniCfg + st->off;
+		if (st->field == SF_STR ? !strcmp(mine, theirs) : !memcmp(mine, theirs, st->size)) {
+			/* (the value for all games again: this game needs none of its own) */
+			if (had) row_reset(key);
+			else setting_applied(st);
 			return;
 		}
 		write_setting(gp.settings, gameHeader, cfg, st);
@@ -5234,7 +5290,7 @@ static bool activate(int item, enum GameExit* exitTo) {
 		slot_step(1);
 		break;
 	case M_SAVE:
-		if (state_save(gp.slot[stateSlot])) {
+		if (user_save(gp.slot[stateSlot])) {
 			char m[40];
 			snprintf(m, sizeof(m), tr("State saved to slot %d"), stateSlot);
 			ui_osd(m);
@@ -5243,10 +5299,21 @@ static bool activate(int item, enum GameExit* exitTo) {
 			snprintf(menuNote, sizeof(menuNote), tr("Save failed"));
 		}
 		break;
+	case M_UNDO: {
+		if (undoKind == UNDO_NONE) break;
+		bool wasLoad = undoKind == UNDO_LOAD;
+		bool ok = user_undo();
+		if (wasLoad && ok) {
+			menuOpen = false;
+			return false;
+		}
+		set_page(curPage);
+		break;
+	}
 	case M_LOAD:
 		if (!item_enabled(M_LOAD)) {
 			snprintf(menuNote, sizeof(menuNote), tr("Nothing saved in slot %d yet"), stateSlot);
-		} else if (state_load(gp.slot[stateSlot])) {
+		} else if (user_load(gp.slot[stateSlot])) {
 			char m[40];
 			snprintf(m, sizeof(m), tr("Slot %d loaded"), stateSlot);
 			if (!stateWarned) ui_osd(m);
@@ -5326,7 +5393,7 @@ static void ss_setup(const char* rom, const char* code) {
 	logoOnly = false;
 	snapProf = NULL;
 	fb_load(); /* GEN-10 */
-	if (cfg->map) {
+	{ /* (the second screen: always on) */
 #ifdef __ANDROID__
 		android_set_pinning(cfg->pinCores);
 #endif
@@ -5453,7 +5520,6 @@ enum GameExit game_run(Config* c, const char* rom, bool fromLibrary) {
 		if (config_key_per_game(st->key)) config_setting_copy(c, &uniCfg, st);
 	}
 	ui_layout_pictures();
-	ui_brightness(c->brightTop, c->brightBottom);
 	return x;
 }
 
@@ -5462,7 +5528,6 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	debug = getenv("RETRODS_DEBUG") != NULL;
 	romPath = rom, lastLoop = 0;
 	game_paths(cfg, rom, &gp);
-	ui_brightness(cfg->brightTop, cfg->brightBottom); /* (this game's own, if it has them) */
 	game_keys_reload();
 	patches_setup(rom); /* GEN-9: the patches folder, what's on, and the plan every core opens the ROM with */
 	if (!emu_open(&emu, rom, gp.sav, true)) {
@@ -5512,33 +5577,33 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_RESTART;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_SAVE;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_LOAD;
+	pages[PG_GAME][pageLen[PG_GAME]++] = M_UNDO;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_SLOT;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_CHEATS;
-	pages[PG_GAME][pageLen[PG_GAME]++] = M_PATCHES;
-	if (ra_enabled()) pages[PG_GAME][pageLen[PG_GAME]++] = M_ACH;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_SHOT;
-	pages[PG_GAME][pageLen[PG_GAME]++] = M_BUG;
+	if (ra_enabled()) pages[PG_GAME][pageLen[PG_GAME]++] = M_ACH;
+	/* (Patches and Submit a Bug Report left out, owner, Nov 24, 2026; with
+	 * the quick bar off too, no bug reports from the app for now) */
 	if (fromLibrary) pages[PG_GAME][pageLen[PG_GAME]++] = M_LIBRARY;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_EXIT;
 	ui_color_correction(cfg->colorCorrection); /* (Display > Color Correction, for this session's pictures) */
 	ui_shader(cfg->shader);
 #define ROW(pg, key) rowKeys[pg][rowN[pg]++] = key
-	ROW(PG_DISPLAY, "scale");
-	ROW(PG_DISPLAY, "map_scale");
-	ROW(PG_DISPLAY, "shader");
-	ROW(PG_DISPLAY, "lcd_strength");
-	ROW(PG_DISPLAY, "color_correction");
-	ROW(PG_DISPLAY, "lcd_ghosting");
-	if (ui_logo_custom(cfg, romPath, emu.gameCode)) ROW(PG_DISPLAY, "custom_logos"); /* the game has the player's own or a scraped logo (GEN-11) */
+	/* (the pages, owner, Nov 24, 2026: Screens says where things go and how
+	 * big, Look how the pixels look, Fast forward and System the rest) */
 	if (nScreens >= 2) ROW(PG_SCREENS, "swap");
-	ROW(PG_SCREENS, "screen_match");
-	ROW(PG_SCREENS, "screen_placement");
+	ROW(PG_SCREENS, "scale");
+	ROW(PG_SCREENS, "map_scale");
 	if (nScreens >= 2) ROW(PG_SCREENS, "screen_gap_mm");
-	ROW(PG_SCREENS, "overlays");
-	ROW(PG_SCREENS, "overlay_screens");
-	ROW(PG_SCREENS, "@overlay");
-	ROW(PG_SCREENS, "brightness_top");
-	if (nScreens >= 2) ROW(PG_SCREENS, "brightness_bottom");
+	ROW(PG_SCREENS, "match_display");
+	ROW(PG_LOOK, "shader");
+	ROW(PG_LOOK, "lcd_strength");
+	ROW(PG_LOOK, "color_correction");
+	ROW(PG_LOOK, "lcd_ghosting");
+	ROW(PG_LOOK, "overlays");
+	ROW(PG_LOOK, "overlay_style");
+	ROW(PG_LOOK, "@overlay");
+	if (ui_logo_custom(cfg, romPath, emu.gameCode)) ROW(PG_LOOK, "custom_logos"); /* the game has the player's own or a scraped logo (GEN-11) */
 	ROW(PG_CONTROLS, "left_stick_dpad");
 	ROW(PG_CONTROLS, "ab_swap");
 	ROW(PG_CONTROLS, "button_right");
@@ -5552,16 +5617,13 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	ROW(PG_CONTROLS, "button_dpad_left");
 	ROW(PG_CONTROLS, "button_dpad_right");
 	ROW(PG_CONTROLS, "turbo_rate");
-	ROW(PG_SPEED, "show_fps");
-	ROW(PG_SPEED, "match_display");
-	ROW(PG_SPEED, "frame_buffer");
-	ROW(PG_SPEED, "rewind");
-	ROW(PG_SPEED, "rewind_seconds");
-	ROW(PG_SPEED, "fast_forward");
-	ROW(PG_SPEED, "save_on_quit");
-	ROW(PG_SPEED, "auto_load");
-	ROW(PG_MAP, "map");
-	ROW(PG_MAP, "map_interval");
+	ROW(PG_FF, "rewind");
+	ROW(PG_FF, "rewind_seconds");
+	ROW(PG_FF, "fast_forward");
+	ROW(PG_SYSTEM, "show_fps");
+	ROW(PG_SYSTEM, "frame_buffer");
+	ROW(PG_SYSTEM, "save_on_quit");
+	ROW(PG_SYSTEM, "auto_load");
 #undef ROW
 	set_page(0);
 	slot_pick_newest();
@@ -5579,15 +5641,15 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		if (!stateWarned) ui_osd(ok ? "Patches changed: carrying on from where you were" : "Patches changed");
 	} else if (cfg->autoLoad && !patchReload && file_exists(gp.autoState)) { /* (not right after switching a patch) */
 		if (state_load(gp.autoState)) {
-			if (!stateWarned) ui_osd("Resumed. Tap or HOME for the menu");
+			if (!stateWarned && !cfg->barHint) ui_osd("Resumed. Tap or HOME for the menu"); /* (the hint says it, when it's on) */
 		} else if (stateLoadKind == STATE_FILE_OTHER_CORE) {
 			/* (RetroArch's automatic state, from another of its GBA cores) */
 			ui_osd_long("Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.");
 		}
-	} else {
+	} else if (!cfg->barHint) {
 		ui_osd("Tap the screen or press HOME for the menu");
 	}
-	if (cfg->barPinned) barOpen = true, barSince = SDL_GetTicks(); /* (pinned: up from the start) */
+	if (QUICK_BAR && cfg->barPinned) barOpen = true, barSince = SDL_GetTicks(); /* (pinned: up from the start) */
 	rewind_setup();
 
 	/* The device runs at a fixed rate. The GBA's own rate follows the game's
@@ -5777,7 +5839,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 				if (p.kind == 1) {
 					barGesture = G_NONE;
 					barDownOpen = barOpen;
-					if (p.screen == ts && barOpen) {
+					if (QUICK_BAR && p.screen == ts && barOpen) {
 						SDL_Rect pin = bar_pin(ts);
 						SDL_Point pt = { p.x, p.y };
 						barSince = SDL_GetTicks();
@@ -5786,7 +5848,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 						barGX = p.x, barGY = p.y;
 						continue;
 					}
-					if (p.screen == ts && p.y >= screens[ts].rect.h - u * 36) {
+					if (QUICK_BAR && p.screen == ts && p.y >= screens[ts].rect.h - u * 36) {
 						barGesture = G_TRACK;
 						barGX = p.x, barGY = p.y;
 						continue;
@@ -5812,12 +5874,12 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 						barSince = SDL_GetTicks();
 						if (bb != BB_EXIT) barExitArmed = 0;
 						if (bb == BB_SAVE) {
-							bool ok = state_save(gp.quick);
+							bool ok = user_save(gp.quick);
 							ui_osd(ok ? "State saved." : "Save failed.");
 							if (ok) barLit = bb, barLitAt = barSince;
 						} else if (bb == BB_LOAD) {
 							if (!file_exists(gp.quick)) ui_osd("No quick state saved yet.");
-							else if (state_load(gp.quick)) { if (!stateWarned) ui_osd("State loaded."); forceMap = true, barLit = bb, barLitAt = barSince; }
+							else if (user_load(gp.quick)) { if (!stateWarned) ui_osd("State loaded."); forceMap = true, barLit = bb, barLitAt = barSince; }
 							else ui_osd("Load failed.");
 						} else if (bb == BB_SETTINGS) {
 							open_menu();
@@ -6124,10 +6186,10 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 				switch (i) {
 				case HK_QUIT: exitTo = GAME_QUIT_APP, done = true; break;
 				/* (the quick state, as the quick bar's buttons) */
-				case HK_SAVE: ui_osd(state_save(gp.quick) ? "State saved." : "Save failed."); break;
+				case HK_SAVE: ui_osd(user_save(gp.quick) ? "State saved." : "Save failed."); break;
 				case HK_LOAD:
 					if (!file_exists(gp.quick)) ui_osd("No quick state saved yet.");
-					else if (state_load(gp.quick)) { if (!stateWarned) ui_osd("State loaded."); forceMap = true; }
+					else if (user_load(gp.quick)) { if (!stateWarned) ui_osd("State loaded."); forceMap = true; }
 					else ui_osd("Load failed.");
 					break;
 				case HK_BAR: bar_toggle(); break;
@@ -6292,7 +6354,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		if (wasMenu && !menuOpen) {
 			if (noteOpen) note_done(true); /* (closed some other way: saved with what's typed) */
 			suppress_held();
-			if (cfg->barPinned) barOpen = true, barSince = SDL_GetTicks(); /* (pinned: back after the menu) */
+			if (QUICK_BAR && cfg->barPinned) barOpen = true, barSince = SDL_GetTicks(); /* (pinned: back after the menu) */
 			if (audio) SDL_PauseAudioDevice(audio, 0);
 			next = SDL_GetPerformanceCounter() / freq;
 			fpsT0 = next;
@@ -6621,7 +6683,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			           ((forceMap || roomChanged) && (!fails || sinceMapRequest >= every));
 			/* (requested just before the next frame, when its keys are known) */
 			if (due && !mapcap_busy(mc) && mapcap_live_ok(mc, &emu)) mapWant = true, mapWantKey = rk;
-			hudHide = ip && ip->hide[0].w > 0 && cfg->map && memprobes_match(ip->hideIf, 3, &emu);
+			hudHide = ip && ip->hide[0].w > 0 && memprobes_match(ip->hideIf, 3, &emu);
 			/* SM-7: the player moving puts the map back, centred */
 			if (ip && ip->touch.scrollX) {
 				uint32_t mk = (uint32_t) emu_read16(&emu, ip->touch.moved[0]) | (uint32_t) emu_read16(&emu, ip->touch.moved[1]) << 16;
@@ -6813,6 +6875,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	ui_on_foreground(NULL);
 	ui_sync_view(-1, 1);
 	fprintf(stderr, "leaving game after %llu frames\n", (unsigned long long) frameCount);
+	undo_clear();
 	if (bugPend.pending) {
 		/* (a report waiting for its note: saved with what's typed) */
 		char out[200];

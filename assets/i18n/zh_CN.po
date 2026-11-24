@@ -2086,3 +2086,143 @@ msgstr "SNES X"
 
 msgid "SNES Y"
 msgstr "SNES Y"
+
+#, c-format
+msgid "Continue: %s %d, %d:%02d %s"
+msgstr "继续：%s%d日 %d:%02d %s"
+
+#, c-format
+msgid "Continue: %s %d, %d"
+msgstr "继续：%s%d日，%d年"
+
+msgid "Undo Load"
+msgstr "撤销读取"
+
+msgid "Undo Save"
+msgstr "撤销保存"
+
+msgid "Back to where you were before loading"
+msgstr "已回到读取前的状态"
+
+msgid "The state saved over is back"
+msgstr "被覆盖的存档已恢复"
+
+msgid "Undo failed"
+msgstr "无法撤销"
+
+msgid "Undo"
+msgstr "撤销"
+
+msgid "Supported Games"
+msgstr "支持的游戏"
+
+msgid "The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it."
+msgstr "根据游戏绘制的区域地图和 SAMUS 页面：拖动地图，点击物品即可切换。"
+
+msgid "The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps."
+msgstr "物品界面（点击选择）、已探索部分的世界地图，以及地下城地图。"
+
+msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
+msgstr "其他超级任天堂游戏在一个屏幕上运行，另一个屏幕显示标题标志。"
+
+msgid "Tap the screen to open the menu"
+msgstr "点击屏幕打开菜单"
+
+msgid "Menu hint"
+msgstr "菜单提示"
+
+msgid "\"Tap the screen to open the menu\" at a game's start."
+msgstr "游戏开始时显示“点击屏幕打开菜单”。"
+
+msgid "Open the menu"
+msgstr "打开菜单"
+
+msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
+msgstr "单独按下 Select 或 Start 仍会传给游戏，L3 仍会打开菜单"
+
+msgid "A frame round the picture, and on which screens."
+msgstr "画面周围的边框，以及显示在哪些屏幕上。"
+
+msgid "For what crosses from one screen to the other. Automatic: the device's, if known."
+msgstr "用于从一个屏幕跨到另一个屏幕的内容。自动：已知时使用设备的值。"
+
+msgid "Game screen"
+msgstr "游戏屏幕"
+
+msgid "Gap between screens"
+msgstr "屏幕间距"
+
+msgid "Generated: RetroDS's bezel in your colors. Custom: your own PNGs in the overlays folder."
+msgstr "生成：使用你的颜色的 RetroDS 边框。自定义：overlays 文件夹中你自己的 PNG。"
+
+msgid "Look"
+msgstr "外观"
+
+msgid "Names, saving, logos"
+msgstr "名称、存档、标志"
+
+msgid "Overlay style"
+msgstr "叠加层样式"
+
+msgid "Overlay Style: Custom (in /overlays)"
+msgstr "叠加层样式：自定义（/overlays 中）"
+
+msgid "Overlay Style: Generated"
+msgstr "叠加层样式：生成"
+
+msgid "Overlays are off"
+msgstr "叠加层已关闭"
+
+msgid "Overlays: Both Screens"
+msgstr "叠加层：两个屏幕"
+
+msgid "Overlays: Bottom Screen"
+msgstr "叠加层：下屏"
+
+msgid "Overlays: Top Screen"
+msgstr "叠加层：上屏"
+
+msgid "RetroDS draws this game's second screen to fit"
+msgstr "RetroDS 按尺寸绘制此游戏的第二屏幕"
+
+msgid "Shader, overlays, theme, color"
+msgstr "着色器、叠加层、主题、颜色"
+
+msgid "Which screen, scale, gap"
+msgstr "哪个屏幕、缩放、间距"
+
+msgid "5 mm"
+msgstr "5 mm"
+
+msgid "10 mm"
+msgstr "10 mm"
+
+msgid "15 mm"
+msgstr "15 mm"
+
+msgid "20 mm"
+msgstr "20 mm"
+
+msgid "25 mm"
+msgstr "25 mm"
+
+msgid "30 mm"
+msgstr "30 mm"
+
+msgid "35 mm"
+msgstr "35 mm"
+
+msgid "40 mm"
+msgstr "40 mm"
+
+msgid "4:3"
+msgstr "4:3"
+
+msgid "4:3: as on a TV. Pixel Perfect: square pixels at a whole size, the sharpest."
+msgstr "4:3：与电视上一样。像素完美：方形像素按整数倍放大，最清晰。"
+
+msgid "Fit"
+msgstr "适应"
+
+msgid "Scale: 4:3"
+msgstr "缩放：4:3"

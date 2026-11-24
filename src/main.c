@@ -218,7 +218,6 @@ int main(int argc, char** argv) {
 	ui_language_changed(); /* (the fonts the language's script needs) */
 	ui_accent(cfg.accent);
 	ui_theme(cfg.lightTheme);
-	ui_brightness(cfg.brightTop, cfg.brightBottom);
 	ra_init(&cfg); /* signs in to RetroAchievements in the background */
 	update_init(&cfg, exeDir, argc, argv);
 #ifdef __ANDROID__
