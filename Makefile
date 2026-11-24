@@ -39,7 +39,7 @@ LDFLAGS    += -Wl,-rpath,$(abspath $(SDL_PREFIX)/lib)
 endif
 LIBS       := -lSDL2 -lz -ldl -lpthread -lm
 
-CORE_SRC   := src/emu.c src/patch.c src/mapcap.c src/profiles.c
+CORE_SRC   := src/emu.c src/patch.c src/mapcap.c src/profiles.c src/smmap.c
 # RetroAchievements: rcheevos (MIT), vendored in third_party/rcheevos
 RC_DIR     := third_party/rcheevos
 RC_SRC     := $(wildcard $(RC_DIR)/src/*.c $(RC_DIR)/src/rapi/*.c $(RC_DIR)/src/rcheevos/*.c) $(RC_DIR)/src/rhash/md5.c
@@ -70,9 +70,9 @@ tools: build/host/snes-harness
 
 # The harness (tools/snes-harness.c): two copies of the core driven by a
 # script, for finding a game's addresses and timing captures. Needs libpng.
-build/host/snes-harness: tools/snes-harness.c tools/png.c src/emu.c src/emu.h src/libretro.h src/patch.c
+build/host/snes-harness: tools/snes-harness.c tools/png.c src/emu.c src/emu.h src/libretro.h src/patch.c src/smmap.c src/smmap.h
 	@mkdir -p build/host
-	$(CC) $(CFLAGS) -o $@ tools/snes-harness.c tools/png.c src/emu.c src/patch.c -lpng -lz -ldl -lpthread -lm
+	$(CC) $(CFLAGS) -o $@ tools/snes-harness.c tools/png.c src/emu.c src/patch.c src/smmap.c -lpng -lz -ldl -lpthread -lm
 
 m0: build/host/snes-harness
 

@@ -127,6 +127,8 @@ void ui_present_budget(int first, Uint64 frameStart, double budgetMs);
 SDL_Renderer* ui_ren(int screen);
 /* Draws a texture (one per view, indexed by view) letterboxed into a screen area. */
 void ui_image(int screen, SDL_Texture* const* texPerView, int w, int h, const char* mode, const SDL_Rect* areaLocal);
+/* the src part of a texture (its pixels) into dst (screen-local), nearest neighbour */
+void ui_image_part(int screen, SDL_Texture* const* texPerView, SDL_Rect src, SDL_Rect dstLocal);
 /* Pixel-art drawing for the game and map: whole-number prescale (sharp at any
  * size), optional LCD grid, then filtered to the final size on the GPU.
  * lcd: 0 no grid, 1 a cell per pixel, n a cell per n x n pixels (a picture

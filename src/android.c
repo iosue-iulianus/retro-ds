@@ -25,6 +25,8 @@
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <stdint.h>
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
@@ -872,22 +874,51 @@ JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_native
 	__android_log_print(ANDROID_LOG_INFO, TAG, "second screen surface %s", surface ? "ready" : "gone");
 }
 
+Uint32 android_touch_event(void) {
+	static SDL_atomic_t type;
+	int t = SDL_AtomicGet(&type);
+	if (!t) {
+		Uint32 got = SDL_RegisterEvents(1);
+		if (got == (Uint32) -1) return 0;
+		/* (two threads asking at once: the first one's stays) */
+		SDL_AtomicCAS(&type, 0, (int) got);
+		t = SDL_AtomicGet(&type);
+	}
+	return (Uint32) t;
+}
+
+/* x, y (0..1, a little past at the edges) as 1/65536ths in data1, data2 */
+static void push_touch(Uint32 window, int kind, float x, float y) {
+	Uint32 type = android_touch_event();
+	if (!type || !SDL_WasInit(SDL_INIT_EVENTS)) return;
+	SDL_Event ev;
+	memset(&ev, 0, sizeof(ev));
+	ev.type = type;
+	ev.user.code = kind;
+	ev.user.windowID = window;
+	ev.user.data1 = (void*) (intptr_t) lroundf(x * 65536.0f);
+	ev.user.data2 = (void*) (intptr_t) lroundf(y * 65536.0f);
+	SDL_PushEvent(&ev);
+}
+
+void android_touch_pos(const SDL_Event* ev, float* x, float* y) {
+	*x = (float) (intptr_t) ev->user.data1 / 65536.0f;
+	*y = (float) (intptr_t) ev->user.data2 / 65536.0f;
+}
+
 /* kind: 1 down, 2 up, 3 motion; x, y: 0..1 across the second display.
  * Goes through SDL's event queue (thread-safe) to ui.c, which treats the
  * window id as the second view. */
 JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_nativeTouch(JNIEnv* env, jclass cls, jint kind, jfloat x,
                                                                             jfloat y) {
-	if (!SDL_WasInit(SDL_INIT_EVENTS)) return;
-	SDL_Event ev;
-	memset(&ev, 0, sizeof(ev));
-	ev.type = kind == 1 ? SDL_FINGERDOWN : kind == 2 ? SDL_FINGERUP : SDL_FINGERMOTION;
-	ev.tfinger.touchId = 2;
-	ev.tfinger.fingerId = 0;
-	ev.tfinger.x = x;
-	ev.tfinger.y = y;
-	ev.tfinger.pressure = 1.0f;
-	ev.tfinger.windowID = SNESDS_SECOND_WINDOW_ID;
-	SDL_PushEvent(&ev);
+	push_touch(SNESDS_SECOND_WINDOW_ID, kind, x, y);
+}
+
+/* The same for the activity's own display (SnesDsActivity.onTouch: SDL's
+ * positions there weren't reliable on the Duo) */
+JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SnesDsActivity_nativeMainTouch(JNIEnv* env, jclass cls, jint kind, jfloat x,
+                                                                                jfloat y) {
+	push_touch(SNESDS_MAIN_WINDOW_ID, kind, x, y);
 }
 
 #endif

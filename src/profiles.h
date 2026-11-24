@@ -119,6 +119,45 @@ typedef struct MapProfile {
 	MemProbe logoIf[2];
 	MemProbe logoIfOr[2]; /* or while every one of these matches */
 
+	/* Parts of the game screen covered in black while every hideIf probe
+	 * matches (screen coords): a HUD piece the second screen makes
+	 * pointless, as Super Metroid's mini-map (SM-6). Only what's shown
+	 * changes: the game, its picture and screenshots are as the game
+	 * draws them. Only while the second screen shows the map. */
+	struct { int x, y, w, h; } hide[2];
+	MemProbe hideIf[3];
+
+	/* Touch on the second screen (SM-7): a drag scrolls the map, a tap on
+	 * a plate switches to a second page; both done on the hidden copy with
+	 * the game's own buttons, after the map is up. Off while scrollX is 0. */
+	struct {
+		uint32_t scrollX, scrollY; /* the hidden copy's view position (2 bytes each) */
+		MacroStep page2[2];        /* from the map to the second page */
+		MemProbe page2Mem[2];      /* the second page is up (with mem[0]) */
+		Probe page2Probes[8];      /* the second page's own fixed pixels (all must match) */
+		/* a tap in here switches: [0] on the map, [1] on the second page
+		 * (screen coords) */
+		struct { int x, y, w, h; } tap[2];
+		/* live game: values that change as the player moves; a change puts
+		 * the second screen back on the map, centred (2 bytes each) */
+		uint32_t moved[2];
+		/* The whole map at once, so a drag only moves the picture: after
+		 * the map is up, the hidden copy's view (scrollX, scrollY) is set
+		 * in turn to cover its bgW x bgH map layer, and each view's
+		 * `centre` (screen coords, clear of the scroll arrows) is kept;
+		 * the frame's inside, `inner` (screen coords), shows a window of
+		 * it. Off while bgW is 0 (scrolled captures instead). */
+		int bgW, bgH;
+		struct { int x, y, w, h; } centre, inner;
+	} touch;
+	/* Painted over every capture (screen coords): with `filled`, the rect
+	 * in `fill` (0xRRGGBB), then `rows` from x, y: '#' in `ink`, '.' in
+	 * `fill`, anything else left as it is; or, with fromDx / fromDy, the
+	 * rect copied from that far away (to cover a line with the grid or
+	 * frame beside it). `page`: 0 on every page, 1 on the map only, 2 on
+	 * the second page only (touch). */
+	struct { int x, y, w, h; bool filled; uint32_t fill, ink; const char* rows[8]; int page; int fromDx, fromDy; } paint[10];
+
 	/* Values that change when the player enters a new room; a change
 	 * triggers an early capture. Only addr/size are used. */
 	MemProbe room[4];
@@ -150,6 +189,11 @@ typedef struct MapProfile {
 	/* (STILL_RED: a spot with red in it at its reddest, others at their
 	 * brightest: a marker that fades red to white) */
 	enum { STILL_BRIGHT, STILL_COVER, STILL_FIRST, STILL_RED } stillPick;
+	/* The second screen drawn by SNES DS itself from the cartridge and
+	 * the game's RAM, instead of captured: NATIVE_SUPER_METROID, its
+	 * pause map (src/smmap.c, SM-8). No hidden copy runs; the profile's
+	 * hide / hideIf (and touch.tap, the plates) still apply. */
+	enum { NATIVE_NONE, NATIVE_SUPER_METROID } native;
 	/* Instead of opening a map: the profile builds the second screen's
 	 * picture itself (crop_w x crop_h, into out) on the shadow core from
 	 * the live game's state; NULL on success, else why not. */

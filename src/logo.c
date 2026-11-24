@@ -86,7 +86,7 @@ static pthread_t thread;
 static volatile uint32_t generation;
 static int pending, finished; /* jobs queued or running / done since the queue last went idle */
 static bool paused; /* a game's playing: only urgent jobs run */
-static char current[5]; /* the code of the job running, "" if none */
+static char current[9]; /* the code of the job running, "" if none */
 
 static bool exists(const char* p) {
 	struct stat st;

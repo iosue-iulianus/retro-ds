@@ -650,7 +650,28 @@ void ui_layout_pictures(void) {
 	}
 }
 
+static void layout_screens_inner(void);
+/* Which screen the game is on (`swap`), until the player picks: the one
+ * closer in shape to the SNES picture (4:3). On the Retroid Pocket Duo
+ * that's the bottom screen (1280x960 under 1920x1080); with two screens of
+ * a shape, the first (top or left), as before. */
 static void layout_screens(void) {
+	layout_screens_inner();
+	if (nScreens < 2 || cfg->swapChosen) return;
+	double off[2];
+	for (int i = 0; i < 2; ++i) {
+		double a = screens[i].rect.h > 0 ? (double) screens[i].rect.w / screens[i].rect.h : 1;
+		off[i] = fabs(log(a * 3 / 4));
+	}
+	bool below = off[1] + 0.05 < off[0];
+	if (cfg->swap != below) {
+		cfg->swap = below;
+		fprintf(stderr, "screens: the game on the %s screen, the one closer to 4:3 (%dx%d, %dx%d)\n", below ? "second" : "first",
+		        screens[0].rect.w, screens[0].rect.h, screens[1].rect.w, screens[1].rect.h);
+	}
+}
+
+static void layout_screens_inner(void) {
 	if (nViews == 2) {
 		nScreens = 2;
 #ifdef __ANDROID__
@@ -764,6 +785,7 @@ int ui_other_screen(void) {
 static int view_of_window(Uint32 id) {
 #ifdef __ANDROID__
 	if (id == SNESDS_SECOND_WINDOW_ID) return nViews == 2 ? 1 : -1;
+	if (id == SNESDS_MAIN_WINDOW_ID) return 0;
 #endif
 	for (int i = 0; i < nViews; ++i) {
 		if (SDL_GetWindowID(views[i].win) == id) return i;
@@ -1033,6 +1055,21 @@ bool ui_events(void) {
 	evdev_volume_poll();
 	SDL_Event ev;
 	while (SDL_PollEvent(&ev)) {
+#ifdef __ANDROID__
+		/* touches from Java (android.h: their own event type, which SDL's
+		 * renderer leaves as they are) */
+		if (ev.type && ev.type == android_touch_event()) {
+			float tx, ty;
+			android_touch_pos(&ev, &tx, &ty);
+			static int javaTouchesLogged;
+			if ((debug || javaTouchesLogged < 6) && ev.user.code != 3) {
+				++javaTouchesLogged;
+				fprintf(stderr, "finger %s %.3f,%.3f window %u\n", ev.user.code == 1 ? "down" : "up", tx, ty, ev.user.windowID);
+			}
+			queue_pointer(ev.user.code, view_of_window(ev.user.windowID), tx, ty, true);
+			continue;
+		}
+#endif
 		switch (ev.type) {
 		case SDL_QUIT:
 			uiQuit = 1;
@@ -1385,7 +1422,7 @@ static void font_text_raw(int screen, int font, int x, int cy, int capPx, const 
  * showing the last picture. The second screen is drawn by the GPU into the
  * second display's window (android_second_begin/_end) or, failing that, by
  * a software renderer into views[1].surf. */
-enum { OP_IMAGE, OP_PIXELS, OP_FILL, OP_ROUND, OP_TEXT, OP_LABEL, OP_CLIP, OP_NOCLIP };
+enum { OP_IMAGE, OP_PIXELS, OP_FILL, OP_ROUND, OP_TEXT, OP_LABEL, OP_CLIP, OP_NOCLIP, OP_PART };
 typedef struct {
 	int kind, screen;
 	SDL_Texture* const* tex; /* per-view array, as passed in */
@@ -1503,6 +1540,7 @@ static bool sw_render(int v) {
 		case OP_LABEL: font_text_raw(o->screen, o->d & 15, o->a, o->b, o->c, o->text, o->col, (o->d >> 4) - 1); break;
 		case OP_CLIP: ui_clip(o->screen, &o->r); break;
 		case OP_NOCLIP: ui_clip(o->screen, NULL); break;
+		case OP_PART: ui_image_part(o->screen, o->tex, (SDL_Rect) { o->a, o->b, o->c, o->d }, o->r); break;
 		}
 	}
 	replaying = false;
@@ -1776,6 +1814,18 @@ static void fit_rect_at(const SDL_Rect* area, int w, int h, const char* mode, in
 }
 static void fit_rect(const SDL_Rect* area, int w, int h, const char* mode, SDL_Rect* out) {
 	fit_rect_at(area, w, h, mode, 0, out);
+}
+
+void ui_image_part(int screen, SDL_Texture* const* texPerView, SDL_Rect src, SDL_Rect dstLocal) {
+	RECORD(screen, OP_PART) {
+		rec_tex(o, texPerView);
+		o->a = src.x, o->b = src.y, o->c = src.w, o->d = src.h, o->r = dstLocal;
+		return;
+	}
+	Screen* s = &screens[screen];
+	SDL_Rect dst = { dstLocal.x + s->rect.x, dstLocal.y + s->rect.y, dstLocal.w, dstLocal.h };
+	SDL_SetTextureScaleMode(texPerView[s->view], SDL_ScaleModeNearest);
+	SDL_RenderCopy(views[s->view].ren, texPerView[s->view], &src, &dst);
 }
 
 void ui_image(int screen, SDL_Texture* const* texPerView, int w, int h, const char* mode, const SDL_Rect* areaLocal) {

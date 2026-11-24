@@ -23,12 +23,15 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import org.libsdl.app.SDLActivity;
+import org.libsdl.app.SDLSurface;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,6 +49,45 @@ import java.io.OutputStream;
  * io.github.iosue_iulianus.snesds/io.github.iosue_iulianus.snesds.LauncherActivity --es rom /storage/emulated/0/ROMs/snes/x.sfc).
  */
 public class SnesDsActivity extends SDLActivity {
+    /* kind: 1 down, 2 up, 3 motion; x, y: 0..1 across this display */
+    static native void nativeMainTouch(int kind, float x, float y);
+
+    /**
+     * Touches on this activity's display, by their place in the view (as
+     * the second screen's are), instead of SDL's: on the Retroid Pocket
+     * Duo SDL's came out wrong about half the time, as if measured on the
+     * other display (x half as much again, y squeezed toward the middle),
+     * so taps on the second screen's map missed what they were aimed at.
+     */
+    private boolean onTouch(View v, MotionEvent e) {
+        int kind;
+        switch (e.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN: kind = 1; break;
+            case MotionEvent.ACTION_UP: case MotionEvent.ACTION_CANCEL: kind = 2; break;
+            case MotionEvent.ACTION_MOVE: kind = 3; break;
+            default: return true;
+        }
+        nativeMainTouch(kind, e.getX() / Math.max(1, v.getWidth()), e.getY() / Math.max(1, v.getHeight()));
+        return true;
+    }
+
+    /**
+     * SDL's surface, its touch handler {@link #onTouch}. SDLSurface makes
+     * itself its own touch listener again on every resume (handleResume),
+     * which undid a listener set on it from here: SDL's positions came
+     * back, mixed with these (a tap's down from one, its up from the
+     * other; a drag jumping between the two).
+     */
+    @Override
+    protected SDLSurface createSDLSurface(Context context) {
+        return new SDLSurface(context) {
+            @Override
+            public boolean onTouch(View v, MotionEvent e) {
+                return SnesDsActivity.this.onTouch(v, e);
+            }
+        };
+    }
+
     private static final String TAG = "SNESDS";
     private SecondScreen second;
 

@@ -11,9 +11,17 @@ marker (custom asset mode), or the game's logo.
 The owner (Joshua) decides what gets built and tests on the device.
 Nothing counts as working until it has run on the Duo.
 
-**Status:** M1 (SNES games on one screen), on branch `m1-port`: the
-emulator is the libretro bsnes core, GBA DS's GBA-only features are gone,
-and no game has a profile yet (M2: Super Metroid). Much of `src/` is
+**Status:** M1 (SNES games on one screen) is merged: the emulator is the
+libretro bsnes core and GBA DS's GBA-only features are gone. M2, on
+branch `m2-super-metroid` (draft PR #3): Super Metroid's second screen,
+the game on the screen closer to 4:3 (the Duo's bottom one), overlays
+(the bezel) off by default. Its map and SAMUS page are drawn by SNES DS
+itself from the ROM and RAM (`src/smmap.c`, the profile's `native`; no
+hidden copy runs for Super Metroid): pixel-exact against the game's
+pause screen (`tools/sm_map.py`, the harness's `smmap` and `smtoggle`),
+scrolled smoothly on the GPU (drag, fling, glide), and tapping an item
+on the SAMUS page switches it (the write exception, SM-10). Next: try it
+on the Duo; the reserve mode switch isn't done. Much of `src/` is
 GBA DS's (the game list, menus, settings, Android glue); upstream's session
 notes, with the detail on every inherited subsystem, are
 `git show 3b452dc:CLAUDE.md` (GBA DS v1.5.6, the commit this fork starts
@@ -21,66 +29,49 @@ from).
 
 ## Philosophy
 
-`wiki/Philosophy.md` is the player-facing statement of what SNES DS is for
-and what goes on either screen: (1) an SNES with a second screen, neither a
-touchscreen, (2) function over form (nothing on the second screen that makes
-the player look twice: no prompts, cursor or controlled character, nothing
-split across the screens or on both), (3) keep it simple, (4) only the
-game's own graphics, (5) no in-game touch, (6) exceptions allowed when they
-earn their place, custom asset mode being the standing one. Read it before
-changing what a game shows. Keep it written for players (no rule IDs, file
-paths or session notes); how sessions apply it lives here:
+`wiki/Philosophy.md` is the player-facing statement (rewritten with the
+owner, Nov 22, 2026; GBA DS's version is in git history): a portable
+Super Nintendo with a touch second screen. (1) The game screen is the
+game; small changes to it only where the second screen takes something
+over, listed and switchable. (2) The second screen is in the game's own
+style: the game's art (screens, cartridge graphics, what it draws), new
+layouts allowed, no SNES DS font/icons/panels; small touch hints (an
+arrow on a plate) listed. (3) Useful at a glance and smooth: live,
+display-rate scrolling, no capture delays or jumps; the logo or the last
+good picture when unsure. (4) Touch the second screen (look, choose,
+switch items); play with the buttons; touch on the game screen opens
+the pause menu. (5) Read the game freely, write rarely: writes only for
+a deliberate player action, done as the game's own menu would, listed;
+avoid code patches; off in RetroAchievements hardcore. (6) The best tool
+per game: drawn from the game's data (Super Metroid), assembled from
+what the player has seen (A Link to the Past's overworld), opened on a
+hidden copy (status screens), the logo; each checked against the game
+itself. (7) Keep it simple and testable. (8) Exceptions deliberate,
+written down, switchable. Custom asset mode (the player's own map
+pictures) remains an option. How sessions apply it:
 
-- **Check requests against it, and say so.** If a request, or the obvious
-  way to do it, conflicts with a principle, say which one and why, and
-  suggest something that fits. If the owner still wants it, it's an
-  exception: do it, write it as a rule in `docs/games/<game>.md`, and add it
-  to the page's list of exceptions. Don't quietly bend a principle, and
-  don't quietly refuse because of one.
-- **Rule first, then code.** A change to what a game shows starts with its
-  rules in `docs/games/<game>.md`, in the player's terms; then the profile,
-  then the tests.
-- **Try simple approaches first.** For a game's second screen, in order: a
-  screen the game already draws, opened on the hidden copy and captured; a
-  snapshot of a screen the live game shows; custom asset mode, where the
-  profile allows it and a capture can't work; the logo. Rebuilding a screen
-  from the game's memory, or drawing anything new (SNES DS's font, panels,
-  icons), is out.
-- **The live game is read-only.** Reading its RAM (gameplay checks, room
-  numbers, custom asset mode's position) is fine; writing to it, sending it
-  input it didn't get from the player, or changing how its picture is
-  drawn is not.
-- **When unsure, show less.** If a situation can't be detected reliably,
-  show the logo or keep the last good picture and list it as a known issue.
-  Don't guess.
-- **Say what you couldn't do.** Known limitations go in the changelog and
-  release notes in plain words.
-- **Keep changes small enough to test.** Every change ends with a test build
-  and a short note of what to check on the device; if that note would be
-  long, the change is probably too big for one step.
+- **Check requests against it, and say so.** If a request conflicts with
+  a principle, say which and suggest something that fits; if the owner
+  still wants it, write it as an exception in `docs/games/<game>.md`.
+- **Rule first, then code.** A change to what a game shows starts with
+  its rules in `docs/games/<game>.md`, in the player's terms; then the
+  code, then the tests.
+- **Writes to the live game** are listed per game, made between frames,
+  and disabled in RetroAchievements hardcore.
+- **When unsure, show less,** and say what you couldn't do (changelog,
+  release notes).
+- **Keep changes small enough to test.** Every change ends with a test
+  build and a short note of what to check on the device.
 
-### Custom asset mode (the standing exception)
+### Custom asset mode
 
 Opt-in per game: only a profile with an `.asset` section uses it, and only
-when the player has put the files in place. Rules for sessions:
-
-- SNES DS ships no asset. They live in `assets/user/<game>/` (gitignored):
-  never commit, generate or download one.
-- Lossless only: PNG (indexed allowed) or lossless WebP, 1 image pixel = 1
-  game pixel. Reject JPEG and lossy WebP with a log line.
-- Missing, unreadable or invalid (a degenerate transform, an image that
-  doesn't load): log it and fall back to capture, then the logo. Never an
-  error on screen.
-- Position comes from the live game's RAM every frame; no hidden-copy
-  captures run while the asset is up. The marker hides whenever the
-  profile's "in normal gameplay" check fails.
-- Drawn at the top screen's native resolution, nearest neighbour only.
-  Images bigger than the renderer's max texture size are split into 512x512
-  tiles at load.
-
-The full design (manifest format, transforms, overlays, the ALttP
-addresses still to verify) is in `docs/custom-assets.md`. It's built after
-M0.
+when the player has put the files in place. SNES DS ships no asset. They
+live in `assets/user/<game>/` (gitignored): never commit, generate or
+download one. Lossless only (PNG or lossless WebP, 1 image pixel = 1 game
+pixel); anything missing or invalid is logged and falls back to the
+game's usual second screen. Position from the live game's RAM. The full
+design is in `docs/custom-assets.md`.
 
 ## Decisions already made (don't re-open without the owner)
 
@@ -98,21 +89,26 @@ M0.
    deadlock); fine for host experiments only.
 3. **Game identity:** CRC32 of the ROM with any 512-byte copier header
    stripped (file size % 1024 == 512). Not the internal header checksum.
-4. **v1 scope:** map capture, screen snapshot and custom asset mode. No HUD
-   split, no sprite hiding, no renderer patches (GBA DS's `emu_hud_*`,
-   `emu_hide_*` and `SpriteRule` have no SNES equivalent yet).
+4. **Second screens (updated Nov 22, 2026):** drawn natively from the
+   game's ROM and RAM where that's best (Super Metroid's map and SAMUS
+   page), assembled from the live game's own pictures (A Link to the
+   Past's overworld, planned), captured on the hidden copy (status
+   screens), custom asset mode, the logo. No renderer patches (GBA DS's
+   `emu_hud_*`, `emu_hide_*`, `SpriteRule`); covering a piece of the game
+   screen (Super Metroid's mini-map) is a frontend draw, listed per game.
 5. **Framebuffer size is a runtime value:** 256x224 normally, 512 wide in
    hi-res, 239 lines with overscan. Nothing new may assume a fixed size
    (`GBA_W` / `GBA_H` are being retired).
 
 ## Games
 
-Priority: **Super Metroid** (map capture: Start opens the pause map after a
-fade, the GBA Metroid profiles' pattern), **Chrono Trigger** (status
-screen; later a custom asset candidate), then **A Link to the Past**
-(dungeon maps by capture; the overworld map is a Mode 7 zoom, so custom
-asset mode) and **Final Fantasy IV, V, VI** (party / status screens, as the
-FF Advance profiles do). GBA DS's pages for the GBA versions of ALttP and FF
+Priority (owner, Nov 22, 2026): **1. Super Metroid** (its map and SAMUS
+page drawn natively from ROM and RAM, touch: drag the map, tap items),
+**2. A Link to the Past** (like Super Metroid where its data allows; the
+overworld map assembled from the screens the player has seen, unexplored
+parts dark; dungeon maps drawn or captured), **3. Chrono Trigger**
+(status screen), then **Final Fantasy IV, V, VI** (party / status
+screens, as the FF Advance profiles do). GBA DS's pages for the GBA versions of ALttP and FF
 IV/V/VI, and its general rules (GEN-1 and on, the rule format), are kept in
 `docs/reference/gba/` as references; other GBA games' pages are in git
 history (`git show 3b452dc:docs/games/<game>.md`). SNES games get their own
@@ -176,10 +172,57 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   the SDK and NDK, so it runs on GitHub Actions
   (`.github/workflows/android.yml`: pushes to `snes`, pull requests into
   it, "Run workflow"); release-signed with the repo's secrets (the key is
-  in the owner's `~/.config/snes-ds-signing/`). Install on the Duo over
-  wireless adb: `adb.exe -s IP:PORT install "$(wslpath -w APK)"` (Windows'
-  adb; the port from `adb.exe mdns services`).
+  in the owner's `~/.config/snes-ds-signing/`). Getting it onto the Duo:
+  "The device loop" below.
 - Platforms: Android and the Linux desktop only.
+
+## The device loop (build on CI, install over wireless adb)
+
+How a change gets onto the owner's Retroid Pocket Duo. The workspace
+can't build Android itself (no SDK), so:
+
+1. **Push the branch.** An open pull request into `snes` (or a push to
+   `snes`) runs `.github/workflows/android.yml` (the release-signed APK)
+   and the i18n check. If i18n fails, it's almost always shifted line
+   numbers: run `python3 tools/i18n.py all`, commit the `.pot`, push.
+2. **Wait for the Android run of that exact commit.** Each push starts
+   two runs (push and pull_request events), so pick the run by commit
+   and name, then wait on its id in the background:
+   `gh run list -R iosue-iulianus/snes-ds --branch BRANCH --json databaseId,name,headSha`
+   (`name == "Android"`, `headSha` the commit), then loop on
+   `gh run view ID --json status` until `completed`.
+3. **Download it** into the scratchpad: `gh run download ID -R
+   iosue-iulianus/snes-ds` gives `snes-ds-vX-android/*.apk`.
+4. **Check SNES DS isn't in use.** `adb.exe -s 192.168.0.217:PORT shell
+   'dumpsys activity activities | grep -E "ResumedActivity:"'`: if
+   `SnesDsActivity` is resumed the owner is playing; wait (or ask). A
+   cached process in the background is fine (it auto-saves on leaving).
+5. **Back up the owner's states first** (never lose them): pull the
+   newest `SNES DS/states/*.state` (and the `.srm` in `ROMs/snes`) into
+   `/home/joshua/projects/snes-ds/test-data/<game>/`, read-only.
+6. **Install over the old one:** `adb.exe -s IP:PORT install -r
+   "$(wslpath -w APK)"`. Same signing key, so data and settings stay.
+   Never suggest uninstalling: without All files access the app's own
+   folder (and its states) goes with it.
+
+Device details:
+
+- adb is Windows' (`/mnt/c/ProgramData/chocolatey/bin/adb.exe`, WSL
+  with mirrored networking). The Duo is at 192.168.0.217; the port
+  changes whenever wireless debugging restarts (`adb.exe mdns services`
+  or `adb.exe devices`).
+- Paths on the device: `/storage/emulated/0/SNES DS/` (log
+  `snes-ds.log`, `states/`, `launch.log`), ROMs in
+  `/storage/emulated/0/ROMs/snes/`.
+- Screenshots of each display: `adb.exe exec-out screencap -d DISPLAY_ID
+  -p > file.png` with the ids from `dumpsys SurfaceFlinger --display-id`
+  (plain `screencap` came back black). The top display (game activity) is
+  logical display 0, the bottom (second screen) display 2.
+- Test taps without the owner: `adb.exe shell input -d 0 tap X Y` (top
+  display coordinates); the log's `touch down on screen ...` lines show
+  where SNES DS put it. Only tap where it can't upset the game.
+- Debug logging (`SNESDS_DEBUG`) can't be switched on at runtime on
+  Android; the log has the 5-second frame lines and touch lines.
 
 ## Testing without the device
 
@@ -188,7 +231,14 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   by frame: `load/save`, `wait`, `hold`, `tap`, `shot`, `peek`, `poke`,
   `dumpram`, `copy`, `mapcap` (a capture on copy B, timed), `bench`. SNES
   addresses are written as the CPU sees them (`7E0998`). `SNESDS_SAVE`
-  gives copy A a battery save.
+  gives copy A a battery save (copied into OUTDIR first).
+- Test states and saves live outside the repo, in
+  `/home/joshua/projects/snes-ds/test-data/<game>/` (Super Metroid:
+  `crateria-ship.state`, playing at the ship, and
+  `crateria-pause-map.state`). Never delete them; copy new ones from the
+  Duo there. The app loads one from a script line `TICK LOAD:path`, and
+  `SNESDS_SCREENS=1920x1080,1280x960` (with `SNESDS_WINDOW=1920x2040`)
+  stands in for the Duo's two screens.
 - `tools/ramdiff.py` (RAM dumps with a screen open vs closed) carries over.
 - The app runs headless: `SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy
   SDL_RENDER_DRIVER=software SNESDS_WINDOW=1024x1536 build/host/snes-ds
@@ -218,11 +268,15 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   the live game for other copies must use `emu_state_save_live` with the
   next frame's keys (the loop takes map and bug-report snapshots just
   before a frame for that).
+- `smmap.c`: Super Metroid's second screen drawn from the cartridge and
+  the game's RAM (map, equipment page, item switching); `game.c`'s
+  `native_*` show it (chrome as a picture, the map's layer and marker as
+  textures at screen-pixel offsets).
 - `mapcap.c`: map capture on the hidden copy in a background thread, on a
   normalized 256x224 picture (hi-res and interlaced ones halved): profiles
   give coordinates on the SNES screen.
 - `profiles.c/.h`: everything game-specific (`MapProfile`), keyed by game
-  code (CRC32). Empty until M2.
+  code (CRC32). Super Metroid so far (`docs/games/super-metroid.md`).
 - `game.c`: a play session (input, the second screen, pause menu). The
   game's picture is `texW` x `texH` as the core draws it, shown as `picW` x
   `picH` (256 x 224 or 239). The second screen is an SNES-sized picture
@@ -246,14 +300,17 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
 - **M1 (agreed Nov 21):** SNES games on one screen, desktop and Android:
   GBA-only features removed first, then the core swap, then Android (the
   core three times), with logos from a third core copy. Stop for review.
-- **M2:** Super Metroid's map on the second screen; the game on the
-  Duo's bottom screen by default.
-- **M3:** Chrono Trigger and the FF status screens, logos, custom asset
-  mode (ALttP's overworld).
-- For the port, on the Duo: the game goes on the bottom screen (1280x960,
-  4:3, a better fit for an SNES picture) and the second screen on the top
-  one. `top_screen = auto` currently puts the game on the larger display
-  (the top), as GBA DS does (seen on the device Nov 21, 2026).
+- **M2:** Super Metroid's second screen (native map, SAMUS page, touch);
+  the game on the Duo's bottom screen by default.
+- **M3:** A Link to the Past (overworld map assembled from what the
+  player has seen, dungeon maps).
+- **M4:** Chrono Trigger, then the FF status screens.
+- Which screen has the game: `swap`, until the player sets it, follows
+  the screens' shapes (the one closer to 4:3 gets the game: the Duo's
+  bottom screen). `top_screen` only says which display is physically on
+  top.
+- Overlays default to Off: the owner doesn't want the bezel (on OLED
+  screens the black round the picture is the frame).
 - For the port, left by the rename: ES-DE's integration (`esde.c`) still
   adds SNES DS to ES-DE's `gba` system; links in `android.c` point at
   wiki pages SNES DS doesn't have yet (Playing, Overlays); the Display

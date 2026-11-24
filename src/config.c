@@ -40,7 +40,7 @@ void config_defaults(Config* c) {
 	c->customLogos = CL_PIXELATED;
 	c->rewind = true;
 	c->rewindSeconds = 30;
-	c->overlayMode = OVM_GENERATED;
+	c->overlayMode = OVM_OFF; /* (no bezel: on OLED screens the black round the picture is the frame) */
 	c->overlays = OVL_BOTH;
 	c->bezelLogo = true;
 	strcpy(c->bezelInner, "1A1A1A");
@@ -91,7 +91,11 @@ static bool set_option(Config* c, const char* key, const char* val) {
 		return true; \
 	}
 	STR("layout", layout)
-	BOOL("swap", swap)
+	if (!strcmp(key, "swap")) {
+		c->swap = parse_bool(val);
+		c->swapChosen = true;
+		return true;
+	}
 	STR("scale", scale)
 	STR("map_scale", mapScale)
 	BOOL("smooth", smooth)
