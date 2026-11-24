@@ -57,7 +57,7 @@ RADIUS = 3.0      # its corners
 SLIVER = 2.0      # less navy than this beside the bezel: the bezel goes to the edge
 LOGO_H = 0.56     # the RetroDS logo's height, as a share of the bezel's band
 MIN_TEXT = 9      # screen pixels: a smaller logo is left out
-LOGO = os.path.join(ROOT, "assets", "brand", "snes-ds-logo.png")
+LOGO = os.path.join(ROOT, "assets", "brand", "retrods-logo.png")
 EMBED_W = 640   # the logo embedded in the app (src/bezel_logo.c): wide enough for any screen's bezel
 
 _logo = None

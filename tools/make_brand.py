@@ -4,7 +4,7 @@
     tools/make_brand.py FUTURA_BOLD_ITALIC.otf   everything (button prompts in Futura)
     tools/make_brand.py --logo-only              only the logo, in the existing file
 
-The logo is a picture, assets/brand/snes-ds-logo.png (transparent; made from
+The logo is a picture, assets/brand/retrods-logo.png (transparent; made from
 assets/brand/source/ by tools/logo_transparent.py), not drawn here. The
 button prompts are drawn in Futura Bold Italic, which isn't part of the
 repository (a commercial font): without it, --logo-only replaces the logo in
@@ -123,7 +123,7 @@ def png_bytes(img):
     return buf.getvalue()
 
 
-LOGO = os.path.join(ROOT, "assets", "brand", "snes-ds-logo.png")
+LOGO = os.path.join(ROOT, "assets", "brand", "retrods-logo.png")
 OUT = os.path.join(ROOT, "src", "brand_data.c")
 
 

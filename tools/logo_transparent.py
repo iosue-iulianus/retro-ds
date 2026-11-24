@@ -1,92 +1,56 @@
-"""Make the RetroDS logo's white background transparent.
+#!/usr/bin/env python3
+"""Make the in-app RetroDS banner from the owner's artwork.
 
-Background = near-white regions connected to the border, plus enclosed
-near-white regions (the D's counter, gaps between the buttons) that are not
-inside the red bar (whose white lettering stays). Anti-aliased edges get
-alpha from how far they sit between white and the solid colour beside them,
-so they blend onto any background without a white halo or a dark rim.
+The artwork (assets/brand/source/retrods-app-logo.jpg) is red and black ink
+on a slightly noisy white. For the app's dark background:
 
-    tools/logo_transparent.py assets/brand/source/snes-ds-logo-gemini.webp \
-        assets/brand/snes-ds-logo.png
+- every white goes transparent: round the artwork and inside the two
+  screens alike (the owner, Nov 24, 2026: white borders, transparent
+  inside, the red D and S on the background);
+- the black ink (the screens' borders) turns white;
+- the red ink stays red.
 
-Needs Pillow, numpy and scipy.
+Each pixel's ink coverage comes from how far it is from white, so the
+anti-aliased edges blend onto any background without a white halo. Then the
+picture is cropped to the artwork with a small margin.
+
+    tools/logo_transparent.py assets/brand/source/retrods-app-logo.jpg \\
+        assets/brand/retrods-logo.png
+
+Needs Pillow and numpy.
 """
 import sys
 
 import numpy as np
 from PIL import Image
-from scipy import ndimage
 
 src, out = sys.argv[1], sys.argv[2]
-rgb = np.asarray(Image.open(src).convert('RGB')).astype(np.float64)
-h, w, _ = rgb.shape
+rgb = np.asarray(Image.open(src).convert("RGB")).astype(np.float64)
+r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
 
-# near white: every channel at least 225 (the lossy WebP's white varies)
-white = (rgb >= 225).all(axis=2)
-labels, n = ndimage.label(white)
+# the red ink: the solid colour of clearly red pixels
+redish = (r - np.maximum(g, b)) > 60
+solid = redish & (g < 80) & (b < 80)
+red = np.median(rgb[solid], axis=0)
 
-# the red bar: rows and columns where the bar's red is dense, below the title
-red = (rgb[..., 0] > 180) & (rgb[..., 1] < 120) & (rgb[..., 2] < 120)
+# coverage: red ink from how much green and blue are missing (red keeps R
+# high), black ink from how dark the pixel is
+low = np.minimum(g, b)
+a_red = np.clip((255 - low) / (255 - min(red[1], red[2])), 0, 1)
+a_black = np.clip((255 - (r + g + b) / 3) / 255, 0, 1)
+is_red = redish | ((r - low) > 25)  # the red's soft edge is still reddish
 
+alpha = np.where(is_red, a_red, a_black)
+# JPEG noise: the white's (and its ringing beside the ink) is below 0.1,
+# the solid ink's above 0.9:
+# clamp both, and stretch what's between so the edges stay soft
+alpha = np.clip((alpha - 0.1) / 0.8, 0, 1)
+colour = np.where(is_red[..., None], red, 255.0)
 
-def longest_run(row):
-    best = run = 0
-    for v in row:
-        run = run + 1 if v else 0
-        best = max(best, run)
-    return best
-
-
-# the bar's top and bottom edges are one unbroken red run across most of the
-# width; the title's letters never are
-runs = np.array([longest_run(red[y]) for y in range(h)])
-rows = np.where(runs > w * 0.5)[0]
-bar_y0, bar_y1 = rows.min(), rows.max()
-cols = np.where(red[bar_y0])[0]
-bar_x0, bar_x1 = cols.min(), cols.max()
-print(f'red bar: x {bar_x0}-{bar_x1}, y {bar_y0}-{bar_y1}')
-
-background = np.zeros((h, w), bool)
-kept = 0
-for i in range(1, n + 1):
-    comp = labels == i
-    ys, xs = np.nonzero(comp)
-    touches_border = ys.min() == 0 or xs.min() == 0 or ys.max() == h - 1 or xs.max() == w - 1
-    inside_bar = ys.min() >= bar_y0 and ys.max() <= bar_y1 and xs.min() >= bar_x0 and xs.max() <= bar_x1
-    if touches_border or not inside_bar:
-        background |= comp
-    else:
-        kept += 1
-print(f'{n} white regions: {kept} kept white (the bar lettering), the rest background')
-
-alpha = np.where(background, 0.0, 1.0)
-# Edge band: non-background pixels within 2 px of the background or of the
-# image's edge (the title touches the top). Each is a blend of white and the
-# solid colour beside it (F, the nearest pixel outside the band): its alpha
-# is how far it sits from white towards F, and its colour becomes F. Solid
-# colour keeps alpha 1; a pink fringe becomes partly transparent red.
-edge = np.zeros((h, w), bool)
-edge[:2, :] = edge[-2:, :] = True
-edge[:, :2] = edge[:, -2:] = True
-band = (ndimage.binary_dilation(background, iterations=2) | edge) & ~background
-# light leftovers outside the bar (sharp inner corners the band misses)
-in_bar = np.zeros((h, w), bool)
-in_bar[bar_y0:bar_y1 + 1, bar_x0:bar_x1 + 1] = True
-band |= ~background & ~in_bar & (rgb.min(axis=2) > 150)
-solid = ~background & ~band
-_, (iy, ix) = ndimage.distance_transform_edt(~solid, return_indices=True)
-F = rgb[iy, ix]  # nearest solid colour, for every pixel
-W = np.array([255.0, 255.0, 255.0])
-c = rgb[band] - W
-f = F[band] - W
-denom = np.maximum((f * f).sum(axis=1), 1.0)
-a = np.clip((c * f).sum(axis=1) / denom, 0.0, 1.0)
-rgb[band] = F[band]
-alpha[band] = a
-# tiny alphas are noise from the lossy source
-alpha[alpha < 0.04] = 0.0
-
-rgba = np.dstack([rgb, alpha * 255.0]).round().astype(np.uint8)
-rgba[alpha == 0] = 0  # fully transparent pixels: no stray colour
-Image.fromarray(rgba, 'RGBA').save(out, optimize=True)
-print(f'wrote {out}: {w}x{h}, {(alpha == 0).mean():.0%} transparent')
+img = np.dstack([colour, alpha * 255]).round().clip(0, 255).astype(np.uint8)
+ys, xs = np.nonzero(alpha > 0.1)
+m = 8
+y0, y1 = max(ys.min() - m, 0), min(ys.max() + m + 1, img.shape[0])
+x0, x1 = max(xs.min() - m, 0), min(xs.max() + m + 1, img.shape[1])
+Image.fromarray(img[y0:y1, x0:x1], "RGBA").save(out, optimize=True)
+print(f"{out}: {x1 - x0}x{y1 - y0}, red {red.round().astype(int).tolist()}")
