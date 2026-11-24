@@ -20,6 +20,9 @@ changelog up to then is `git show 3b452dc:CHANGELOG.md` (and on
   State and Load State are big and well apart, and a load or a save over a
   state can be undone (Undo Load, Undo Save). Map refresh only shows for
   games whose map is captured.
+- The game list's header is taller, with bigger buttons, and the list
+  shows every game; Supported Games (where Supported / All was) lists the
+  games with a second screen and what's on it.
 
 Nothing playable yet: SNES DS still runs GBA games until the emulator is
 swapped. What has changed from GBA DS v1.5.6 so far:

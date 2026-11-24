@@ -2112,3 +2112,15 @@ msgstr "无法撤销"
 
 msgid "Undo"
 msgstr "撤销"
+
+msgid "Supported Games"
+msgstr "支持的游戏"
+
+msgid "The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it."
+msgstr "根据游戏绘制的区域地图和 SAMUS 页面：拖动地图，点击物品即可切换。"
+
+msgid "The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps."
+msgstr "物品界面（点击选择）、已探索部分的世界地图，以及地下城地图。"
+
+msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
+msgstr "其他超级任天堂游戏在一个屏幕上运行，另一个屏幕显示标题标志。"

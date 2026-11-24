@@ -2115,3 +2115,15 @@ msgstr "Rückgängig fehlgeschlagen"
 
 msgid "Undo"
 msgstr "Rückgängig"
+
+msgid "Supported Games"
+msgstr "Unterstützte Spiele"
+
+msgid "The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it."
+msgstr "Die Gebietskarte und die SAMUS-Seite, aus dem Spiel gezeichnet: Karte ziehen, auf ein Item tippen, um es umzuschalten."
+
+msgid "The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps."
+msgstr "Der Item-Bildschirm (zum Auswählen tippen), die Weltkarte, soweit du sie erkundet hast, und die Dungeon-Karten."
+
+msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
+msgstr "Andere Super-Nintendo-Spiele laufen auf einem Bildschirm, mit ihrem Titellogo auf dem anderen."

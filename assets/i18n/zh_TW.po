@@ -2112,3 +2112,15 @@ msgstr "無法復原"
 
 msgid "Undo"
 msgstr "復原"
+
+msgid "Supported Games"
+msgstr "支援的遊戲"
+
+msgid "The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it."
+msgstr "根據遊戲繪製的區域地圖和 SAMUS 頁面：拖曳地圖，點選物品即可切換。"
+
+msgid "The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps."
+msgstr "物品畫面（點選以選擇）、已探索部分的世界地圖，以及地下城地圖。"
+
+msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
+msgstr "其他超級任天堂遊戲在一個螢幕上執行，另一個螢幕顯示標題標誌。"

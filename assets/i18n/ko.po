@@ -2112,3 +2112,15 @@ msgstr "취소하지 못했습니다"
 
 msgid "Undo"
 msgstr "취소"
+
+msgid "Supported Games"
+msgstr "지원 게임"
+
+msgid "The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it."
+msgstr "게임에서 그린 지역 지도와 SAMUS 페이지: 지도를 드래그하고, 아이템을 탭해 전환합니다."
+
+msgid "The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps."
+msgstr "아이템 화면 (탭해서 선택), 탐험한 만큼의 월드 맵, 던전 지도."
+
+msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
+msgstr "다른 슈퍼 패미컴 게임은 한 화면에서 실행되고, 다른 화면에는 타이틀 로고가 표시됩니다."

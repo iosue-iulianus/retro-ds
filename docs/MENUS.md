@@ -98,7 +98,7 @@ returns one step. B/Back and HOME work as now.
 
 | Category | Rows |
 |---|---|
-| **Games** | Show all games: Supported only / All games (#54), Game name tags, Game folders (Android: choose; Linux: shown), Logo folder, Custom logos |
+| **Games** | Game name tags, Game folders (Android: choose; Linux: shown), Logo folder, Custom logos |
 | **Display** | Scale (game, second screen), Shader and strength, Brightness: top, Brightness: bottom (#56), Color correction, LCD ghosting, Smooth scaling, Swap screens, Screen shapes, Screen placement, Gap between screens (Automatic, None, 5 to 40 mm: for what crosses from one screen to the other, such as A Link to the Past's title sword; Automatic is the device's if known, the Retroid Pocket Duo's 25 mm), Overlays and bezel, Border colour |
 | **Controls** | Left stick as D-pad (#57), Face buttons (#55), Turbo rate, GBA A/B swap, Map Buttons, Hotkeys, menu combo |
 | **Speed and sound** | Show FPS, Performance, Frame buffer, Match display rate, Rewind and its length, Fast forward and its speed, Sound delay |
@@ -134,11 +134,12 @@ second line, always visible on the four settings tabs.
 
 - **#53** the per-game file and the A / Y scope, above. Screen layout (scale,
   shapes, placement, swap, overlays) is all per game.
-- **#54** `show_all` is a row in Games, and the game list gets a
-  **Supported / All** switch beside the list / grid button: the list shows
-  one or the other (the first is today's), kept as `show_all` in `prefs.cfg`.
-  Games without second-screen support get the logo-less single-screen play they
-  have now. (`show_all = 1` in `retrods.cfg` keeps meaning All.)
+- **#54** (changed by the owner, Nov 24, 2026) the game list shows every
+  game, the ones without a second screen tagged "Single screen only";
+  `show_all` is no longer read or offered. Where the Supported / All switch
+  was, **Supported Games** opens a panel listing the games with a second
+  screen and what's on it (`supportedGames` in `library.c`: add a game there
+  when its second screen is done).
 - **#56** `brightness_top` / `brightness_bottom` (20-100, steps of 10), rows
   in Screens (both menus; per game or all games). `ui_brightness` puts a
   black layer over each screen at the end of the frame (`ui_present`, once per
@@ -164,7 +165,7 @@ second line, always visible on the four settings tabs.
    settings that need no drawing work: Show all, Left stick (#57), Turbo
    and the new face-button choices (#55). Prefs written as changed keys.
 3. **Pause menu** (done): seven tabs, the This game / All games bar, A / Y / X, the Game tag. The Buttons screen became four Controls rows. Settings > System is in the same row style, Map Buttons and Hotkeys moved to Controls.
-4. **Brightness** (#56) and the Supported / All switch in the game list (#54).
+4. **Brightness** (#56) and the Supported / All switch in the game list (#54; since replaced by Supported Games).
 5. Wiki (Settings, Playing), changelog, regression cases for the file
    layering and the new settings, Android check.
 

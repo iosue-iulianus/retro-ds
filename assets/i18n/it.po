@@ -2116,3 +2116,15 @@ msgstr "Annullamento non riuscito"
 
 msgid "Undo"
 msgstr "Annulla"
+
+msgid "Supported Games"
+msgstr "Giochi supportati"
+
+msgid "The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it."
+msgstr "La mappa dell'area e la pagina SAMUS, disegnate dal gioco: trascina la mappa, tocca un oggetto per attivarlo o disattivarlo."
+
+msgid "The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps."
+msgstr "La schermata degli oggetti (tocca per scegliere), la mappa del mondo fin dove l'hai esplorata e le mappe dei dungeon."
+
+msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
+msgstr "Gli altri giochi Super Nintendo si giocano su uno schermo, con il loro logo sull'altro."

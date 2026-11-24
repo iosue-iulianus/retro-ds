@@ -375,7 +375,8 @@ static void scan_dir(Config* cfg, const char* d, int depth) {
 		/* a side build lists only its game's releases (the Makefile's SIDE_CODES) */
 		if (!strstr(RETRODS_SIDE_CODES, g.code)) continue;
 #endif
-		if (!g.supported && !cfg->showAll) continue; /* (before its patches are looked for: issue #49) */
+		/* (every game is listed: the ones without a second screen tagged
+		 * "Single screen only"; Supported Games says which have one) */
 		entry_patches(cfg, &g, de->d_name, (long long) st.st_size, (long long) st.st_mtime);
 		int n = (int) (ext - de->d_name);
 		if (n >= (int) sizeof(g.name)) n = sizeof(g.name) - 1;
@@ -806,11 +807,15 @@ typedef struct {
  * <state_dir>/library.cfg, switched by the header button or X. */
 static bool listMode = true;
 
+/* the header's height and its buttons', in ui_px units (on the Duo's bottom
+ * screen 140 and 105 px, 10 and 7.5 mm: GBA DS's were 20 and 14) */
+#define HEADER_H 28
+#define HEADER_BTN 21
 static ListGeom list_geom(int scr) {
 	ListGeom g;
 	SDL_Rect r = screens[scr].rect;
 	float px = ui_px(scr);
-	g.headerH = px * 20;
+	g.headerH = px * HEADER_H;
 	g.listH = r.h - g.headerH;
 	g.m = px * 4;
 	if (listMode) { /* one row per game */
@@ -848,8 +853,8 @@ static void free_tiles(void) {
 static SDL_Rect settings_button(int scr) {
 	SDL_Rect r = screens[scr].rect;
 	float px = ui_px(scr);
-	int h = px * 14, w = px * 44;
-	return (SDL_Rect) { r.w - w - px * 4, (px * 20 - h) / 2, w, h };
+	int h = px * HEADER_BTN, w = px * 44;
+	return (SDL_Rect) { r.w - w - px * 4, (px * HEADER_H - h) / 2, w, h };
 }
 
 /* A centred label that fits maxW x maxH: shrunk first; when that would be much smaller than cap and the text has a space, on two lines (as large as fits). Longer translations (French's "Touch or use the D-Pad", "Supported") need it. */
@@ -880,11 +885,11 @@ static void label_fit(int scr, int cx, int cy, int cap, int maxW, int maxH, cons
 	ui_label(scr, cx, cy + two * 9 / 10, two, b, C_TEXT);
 }
 
-/* left of Settings: "Supported" (games with a second screen) or "All" (every GBA game) */
+/* left of Settings: Supported Games, the list of games with a second screen */
 static SDL_Rect games_button(int scr) {
 	SDL_Rect sb = settings_button(scr);
 	float px = ui_px(scr);
-	int w = px * 38;
+	int w = px * 60;
 	return (SDL_Rect) { sb.x - px * 3 - w, sb.y, w, sb.h };
 }
 
@@ -928,7 +933,8 @@ static void draw_games_button(const Config* cfg, int scr) {
 	SDL_Rect b = games_button(scr);
 	float px = ui_px(scr);
 	ui_key(scr, b, px * 3, KEY_PLAIN);
-	label_fit(scr, b.x + b.w / 2, b.y + b.h / 2, px * 5, b.w - px * 2, b.h, cfg->showAll ? tr("All") : tr("Supported"));
+	(void) cfg;
+	label_fit(scr, b.x + b.w / 2, b.y + b.h / 2, px * 5, b.w - px * 2, b.h, tr("Supported Games"));
 }
 
 /* Four squares (in the list: switch to the grid) or three lines (in the
@@ -1019,12 +1025,10 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 	ListGeom g = list_geom(scr);
 	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, r.h }, C_BG);
 	if (nGames == 0) {
-		ui_label(scr, r.w / 2, r.h / 2 - px * 14, px * 6, "No supported games in", C_TEXT);
+		ui_label(scr, r.w / 2, r.h / 2 - px * 14, px * 6, "No games found", C_TEXT);
 		char dir[300];
 		fit_text(dir, sizeof(dir), TF_BODY, px * 5, cfg->romDir, r.w - px * 16);
 		ui_font_text(scr, TF_BODY, r.w / 2, r.h / 2, px * 5, dir, C_GOLD, 0);
-		ui_font_text(scr, TF_BODY, r.w / 2, r.h / 2 + px * 14, px * 4,
-		             "Only games with a map screen are listed (show_all = 1 lists every one)", C_DIM, 0);
 	}
 	int done, total;
 	logo_progress(&done, &total);
@@ -1043,7 +1047,7 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 				draw_brand(scr, games[i].flag, right - fw, t.y + (t.h - fh) / 2, fh);
 				right -= fw + px * 4;
 			}
-			if (!games[i].supported && cfg->showAll) {
+			if (!games[i].supported) {
 				int tagW = ui_label_width(scr, px * 4, "Single screen only") + px * 6;
 				SDL_Rect tg = { right - tagW, t.y + (t.h - px * 11) / 2, tagW, px * 11 };
 				ui_fill_round(scr, tg, C_TAG, px * 2);
@@ -1086,7 +1090,7 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 			int fw = brandH[games[i].flag] ? brandW[games[i].flag] * fh / brandH[games[i].flag] : 0;
 			draw_brand(scr, games[i].flag, t.x + t.w - fw - px * 3, t.y + t.h - fh - px * 3, fh);
 		}
-		if (!games[i].supported && cfg->showAll) {
+		if (!games[i].supported) {
 			int tagW = ui_label_width(scr, px * 4, "Single screen only") + px * 6;
 			SDL_Rect tg = { t.x + t.w - tagW - px * 3, t.y + px * 3, tagW, px * 11 };
 			ui_fill_round(scr, tg, C_TAG, px * 2);
@@ -1244,6 +1248,31 @@ static int draw_wrapped(int scr, int x, int y, int width, float px, const char* 
 	return ui_font_wrap(scr, TF_BODY, x, y, width, px * 4, text, c);
 }
 
+/* ------------------------------------------------- Supported Games
+ * The games RetroDS gives a second screen, and what's on it: grows with
+ * RetroDS (the owner keeps it current). Every other game plays on one
+ * screen, its title logo on the other. */
+static const struct { const char* title; const char* what; } supportedGames[] = {
+	{ "Super Metroid", N_("The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it.") },
+	{ "The Legend of Zelda: A Link to the Past", N_("The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps.") },
+};
+static void draw_supported(int scr) {
+	float px = ui_px(scr);
+	SDL_Rect p = set_panel(scr);
+	ui_dim(scr, 200);
+	ui_fill_round(scr, p, C_HEADER, px * 4);
+	draw_set_heading(scr, p, "Supported Games", -1);
+	int x = p.x + px * 10, w = p.w - px * 20, y = p.y + px * 30;
+	for (size_t i = 0; i < sizeof(supportedGames) / sizeof(*supportedGames); ++i) {
+		ui_font_text(scr, TF_BOLD, x, y + px * 3, fit_cap(TF_BOLD, px * 6, w, supportedGames[i].title), supportedGames[i].title, C_TEXT, -1);
+		y = draw_wrapped(scr, x, y + px * 9, w, px, tr(supportedGames[i].what), C_DIM) + px * 8;
+	}
+	draw_wrapped(scr, x, y, w, px, tr("Other Super Nintendo games play on one screen, with their title logo on the other."), C_DIM);
+	SDL_Rect b = { p.x + px * 6, p.y + p.h - px * 6 - px * HEADER_BTN, p.w - px * 12, px * HEADER_BTN };
+	ui_key(scr, b, px * 3, KEY_SEL);
+	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, px * 5, "Back", C_TEXT);
+}
+
 /* The panel, its buttons (labels[i] on row i; sel == nRows is Back). */
 static void draw_settings_frame(int scr, const SettingsGeom* g, int sel, const char* const* labels) {
 	float px = g->px;
@@ -1310,7 +1339,7 @@ typedef struct {
 	const char* keys[20];
 } SetPage;
 static const SetPage setPages[SP_SYSTEM] = {
-	{ N_("Games"), N_("Which games, names, saving"), { "show_all", "name_tags", "save_on_quit", "auto_load", "custom_logos", "quick_bar_hint" } },
+	{ N_("Games"), N_("Which games, names, saving"), { "name_tags", "save_on_quit", "auto_load", "custom_logos", "quick_bar_hint" } },
 	{ N_("Display"), N_("Scale, shader, theme, color"), { "scale", "map_scale", "shader", "lcd_strength", "color_correction", "lcd_ghosting", "smooth", "theme", "accent" } },
 	{ "Screens", N_("Placement, overlays"), { "swap", "screen_match", "screen_placement", "screen_gap_mm", "overlays", "overlay_screens", "bezel_logo", "brightness_top", "brightness_bottom" } },
 	{ "Controls", N_("Stick, buttons, hotkeys"), { "left_stick_dpad", "ab_swap", "button_right", "button_bottom", "button_top", "button_left", "button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right", "turbo_rate", "@map", "@hotkeys" } },
@@ -2458,6 +2487,7 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 	bool quit = false;
 	int repeat = 0;
 	bool settingsOpen = false;
+	bool supportedOpen = false; /* the Supported Games panel */
 	int settingsSel = 0;
 	settingsMsg[0] = 0;
 	updatesOpen = false;
@@ -2570,6 +2600,21 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 			continue;
 		}
 #endif
+		if (supportedOpen) {
+			/* any button that means back, or a tap anywhere, closes it */
+			if (btn_pressed(B_B) || btn_pressed(B_A) || btn_pressed(B_START) || btn_released(B_HOME)) supportedOpen = false;
+			Pointer sp;
+			while (ui_next_pointer(&sp))
+				if (sp.screen == ls && sp.kind == 1) supportedOpen = false;
+			pressed = false;
+			ui_clear();
+			draw_list(cfg, ls, sel, scroll);
+			if (supportedOpen) draw_supported(ls);
+			if (nScreens > 1) draw_preview(cfg, ui_other_screen(), sel);
+			ui_present();
+			SDL_Delay(15);
+			continue;
+		}
 		if (settingsOpen && setPage != SP_SYSTEM) {
 			if (!settings_pages_input(cfg, ls)) {
 				settingsOpen = false;
@@ -2691,16 +2736,8 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 				SDL_Rect sb = settings_button(ls), vb = view_button(ls), tb = theme_button(ls), gb = games_button(ls);
 				SDL_Point pt = { p.x, p.y };
 				if (SDL_PointInRect(&pt, &gb)) {
-					/* Supported / All: kept for all games (show_all), the list made again */
-					cfg->showAll = !cfg->showAll;
-					setting_changed(cfg, config_setting("show_all"));
-					setRescan = false;
-					free_thumbs();
-					free_tiles();
-					scan(cfg);
-					thumbFor = -2;
-					sel = nGames ? 0 : -1;
-					scroll = 0;
+					/* Supported Games: the list of games with a second screen */
+					supportedOpen = true;
 					pressed = false;
 					break;
 				}

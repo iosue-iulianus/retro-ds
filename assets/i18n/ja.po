@@ -2112,3 +2112,15 @@ msgstr "取り消せませんでした"
 
 msgid "Undo"
 msgstr "取り消す"
+
+msgid "Supported Games"
+msgstr "対応ゲーム"
+
+msgid "The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it."
+msgstr "ゲームから描いたエリアマップと SAMUS ページ: マップをドラッグ、アイテムをタップで切り替え。"
+
+msgid "The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps."
+msgstr "アイテム画面 (タップで選択)、探索した範囲のワールドマップ、ダンジョンマップ。"
+
+msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
+msgstr "その他のスーパーファミコンのゲームは片方の画面で遊べ、もう片方にはタイトルロゴが表示されます。"

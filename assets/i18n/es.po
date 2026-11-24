@@ -2115,3 +2115,15 @@ msgstr "No se pudo deshacer"
 
 msgid "Undo"
 msgstr "Deshacer"
+
+msgid "Supported Games"
+msgstr "Juegos compatibles"
+
+msgid "The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it."
+msgstr "El mapa de la zona y la página SAMUS, dibujados a partir del juego: arrastra el mapa, toca un objeto para cambiarlo."
+
+msgid "The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps."
+msgstr "La pantalla de objetos (toca para elegir), el mapa del mundo hasta donde lo has explorado y los mapas de las mazmorras."
+
+msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
+msgstr "Los demás juegos de Super Nintendo se juegan en una pantalla, con su logotipo en la otra."
