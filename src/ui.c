@@ -645,22 +645,32 @@ void ui_layout_pictures(void) {
 
 static void layout_screens_inner(void);
 /* Which screen the game is on (`swap`), until the player picks: the one
- * closer in shape to the SNES picture (4:3). On the Retroid Pocket Duo
- * that's the bottom screen (1280x960 under 1920x1080); with two screens of
- * a shape, the first (top or left), as before. */
+ * where a 4:3 picture is physically biggest, by each screen's size (the
+ * known devices' table, else what the system reports). Within 10%, or with
+ * the sizes unknown, the one closer in shape to 4:3. The Retroid Pocket
+ * Duo: the bottom screen (2.7 inches tall either way; the bottom is 4:3).
+ * The AYN Thor: the 6" top (2.9 inches tall, against 2.2 on its almost
+ * square bottom screen), the map and items below. Two screens of a shape:
+ * the first (top or left), as before. */
 static void layout_screens(void) {
 	layout_screens_inner();
 	if (nScreens < 2 || cfg->swapChosen) return;
-	double off[2];
+	double off[2], tall[2];
 	for (int i = 0; i < 2; ++i) {
-		double a = screens[i].rect.h > 0 ? (double) screens[i].rect.w / screens[i].rect.h : 1;
+		const SDL_Rect* r = &screens[i].rect;
+		double a = r->h > 0 ? (double) r->w / r->h : 1;
 		off[i] = fabs(log(a * 3 / 4));
+		float ppi = ui_screen_ppi(i);
+		tall[i] = ppi > 0 ? SDL_min(r->h, r->w * 3 / 4) / ppi : 0; /* the 4:3 picture's height, in inches */
 	}
-	bool below = off[1] + 0.05 < off[0];
+	bool sized = tall[0] > 0 && tall[1] > 0 && fabs(tall[0] - tall[1]) > 0.1 * SDL_max(tall[0], tall[1]);
+	bool below = sized ? tall[1] > tall[0] : off[1] + 0.05 < off[0];
 	if (cfg->swap != below) {
 		cfg->swap = below;
-		fprintf(stderr, "screens: the game on the %s screen, the one closer to 4:3 (%dx%d, %dx%d)\n", below ? "second" : "first",
-		        screens[0].rect.w, screens[0].rect.h, screens[1].rect.w, screens[1].rect.h);
+		if (sized) fprintf(stderr, "screens: the game on the %s screen, where a 4:3 picture is biggest (%.2f against %.2f inches tall)\n",
+		                   below ? "second" : "first", tall[below], tall[!below]);
+		else fprintf(stderr, "screens: the game on the %s screen, the one closer to 4:3 (%dx%d, %dx%d)\n", below ? "second" : "first",
+		             screens[0].rect.w, screens[0].rect.h, screens[1].rect.w, screens[1].rect.h);
 	}
 }
 
@@ -1804,11 +1814,16 @@ static void fit_rect_at(const SDL_Rect* area, int w, int h, const char* mode, in
 		*out = *area;
 		return;
 	}
+	if (!strcmp(mode, "4:3")) {
+		/* the game as a TV showed it: the largest 4:3 rectangle, whatever
+		 * the picture's pixels (256 or 512 wide, 224 or 239 lines) */
+		int ow = area->w, oh = area->w * 3 / 4;
+		if (oh > area->h) oh = area->h, ow = area->h * 4 / 3;
+		*out = (SDL_Rect) { area->x + (area->w - ow) / 2, area->y + (align > 0 ? area->h - oh : align < 0 ? 0 : (area->h - oh) / 2), ow, oh };
+		return;
+	}
 	double s = SDL_min((double) area->w / w, (double) area->h / h);
 	if (!strcmp(mode, "integer") && s >= 1.0) s = (int) s;
-	/* zoom: fill the height; whatever is wider than the area is cut off at
-	 * the sides (ui_image_pixels clips to the screen) */
-	if (!strcmp(mode, "zoom")) s = (double) area->h / h;
 	out->w = (int) (w * s);
 	out->h = (int) (h * s);
 	out->x = area->x + (area->w - out->w) / 2;

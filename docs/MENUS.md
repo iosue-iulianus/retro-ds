@@ -97,7 +97,7 @@ returns one step. B/Back and HOME work as now.
 | Category | Rows |
 |---|---|
 | **Games** | Game name tags, Save on quit, Auto-load, Custom logos, Menu hint |
-| **Screens** | Game screen (top or bottom), Game screen scale, Second screen scale, Gap between screens (Automatic, None, 5 to 40 mm: for what crosses from one screen to the other), Match display rate |
+| **Screens** | Game screen (top or bottom; until chosen, the one where a 4:3 picture is physically biggest: the Duo's bottom, the Thor's top), Game screen scale (4:3 as on a TV, or Pixel Perfect), Second screen scale (Pixel Perfect or Fit), Gap between screens (Automatic, None, 5 to 40 mm: for what crosses from one screen to the other), Match display rate |
 | **Look** | Shader and Pattern strength, Color correction, LCD ghosting, Smooth scaling, Overlays (Off, Both screens, Top screen, Bottom screen), Overlay style (Generated, Custom), Bezel logo, Light/dark mode, Color |
 | **Controls** | Left stick as D-pad (#57), Face buttons (#55), Turbo rate, A/B swap, Map Buttons, Hotkeys |
 | **Speed and sound** | Show FPS, Frame buffer, Rewind and its length, Fast forward and its speed, Sound delay, Performance |

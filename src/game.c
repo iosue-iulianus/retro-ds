@@ -2812,9 +2812,7 @@ static uint32_t fb_keys(bool faces) {
 }
 
 static const char* scale_label(const char* scale) {
-	return !strcmp(scale, "fit")       ? N_("Scale: Full Width"):
-	       !strcmp(scale, "zoom")      ? N_("Scale: Zoom"):
-	       !strcmp(scale, "stretch")   ? N_("Scale: Stretch"): N_("Scale: Pixel Perfect");
+	return !strcmp(scale, "integer") ? N_("Scale: Pixel Perfect"): N_("Scale: 4:3");
 }
 
 /* ---------------------------------------------------------------- settings pages
@@ -4600,7 +4598,8 @@ static SDL_Color borderColor;
 
 /* s: the physical screen (0 top, 1 bottom); which: what's on it (0 the game, 1 the second screen) */
 static void load_overlay(int s, int which) {
-	const char* scale = which ? cfg->mapScale : cfg->scale;
+	/* (4:3 as 4x3 in file names) */
+	const char* scale = which ? cfg->mapScale : !strcmp(cfg->scale, "4:3") ? "4x3" : cfg->scale;
 	char key[sizeof(overlayMode[0])];
 	snprintf(key, sizeof(key), "%d|%s", which, scale);
 	if (!strcmp(overlayMode[s], key)) return;

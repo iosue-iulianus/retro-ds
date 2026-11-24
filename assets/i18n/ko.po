@@ -2214,3 +2214,15 @@ msgstr "35 mm"
 
 msgid "40 mm"
 msgstr "40 mm"
+
+msgid "4:3"
+msgstr "4:3"
+
+msgid "4:3: as on a TV. Pixel Perfect: square pixels at a whole size, the sharpest."
+msgstr "4:3: TV에서처럼. 픽셀 퍼펙트: 정사각형 픽셀을 정수 배율로, 가장 선명합니다."
+
+msgid "Fit"
+msgstr "맞춤"
+
+msgid "Scale: 4:3"
+msgstr "배율: 4:3"

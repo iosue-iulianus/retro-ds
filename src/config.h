@@ -37,8 +37,8 @@ typedef struct Config {
 	char layout[16];   /* auto | span-h | span-v | dual | single */
 	bool swap;         /* map on the first (left/top) screen instead of the second */
 	bool swapChosen;   /* swap set by the player (a file or the menu); else by the screens' shapes (ui.c) */
-	char scale[16];    /* game: integer | fit | stretch */
-	char mapScale[16]; /* map:  integer | fit | stretch */
+	char scale[16];    /* game: 4:3 | integer (Pixel Perfect) */
+	char mapScale[16]; /* second screen: integer | fit (both keep its shape) */
 	bool smooth;       /* plain linear filtering when scaling (blurry) */
 	char borderColor[16]; /* RRGGBB behind the map screen (outside the map image) */
 	int overlayMode;   /* OVM_*: overlay_style */

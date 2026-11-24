@@ -18,7 +18,7 @@ void config_defaults(Config* c) {
 	strcpy(c->layout, "auto");
 	strcpy(c->saveExt, "srm"); /* (the SNES convention, RetroArch's too: the same file for both) */
 	strcpy(c->stateFolder, "retrods");
-	strcpy(c->scale, "integer");
+	strcpy(c->scale, "4:3");
 	strcpy(c->mapScale, "integer");
 	strcpy(c->accent, "red");
 	strcpy(c->hotkey, "home");
@@ -93,8 +93,18 @@ static bool set_option(Config* c, const char* key, const char* val) {
 		c->swapChosen = true;
 		return true;
 	}
-	STR("scale", scale)
-	STR("map_scale", mapScale)
+	if (!strcmp(key, "scale")) {
+		/* 4:3 (as on a TV) or integer (Pixel Perfect). GBA DS's fit, zoom and
+		 * stretch all meant filling the screen: 4:3 now */
+		snprintf(c->scale, sizeof(c->scale), "%s", !strcmp(val, "integer") ? "integer" : "4:3");
+		return true;
+	}
+	if (!strcmp(key, "map_scale")) {
+		/* (the second screen keeps its picture's shape: zoom and stretch,
+		 * which didn't, are fit now) */
+		snprintf(c->mapScale, sizeof(c->mapScale), "%s", !strcmp(val, "integer") ? "integer" : "fit");
+		return true;
+	}
 	BOOL("smooth", smooth)
 	if (!strcmp(key, "shader")) {
 		for (int i = 0; i < SH_COUNT; ++i) {
@@ -437,7 +447,8 @@ static const SettingChoice chOnOff[] = { { "0", "Off", 0 }, { "1", "On", 1 } };
 static const SettingChoice chShown[] = { { "0", "Supported games only", 0 }, { "1", "All games", 1 } };
 static const SettingChoice chTags[] = { { "0", "Plain", 0 }, { "1", "With tags, like (USA)", 1 } };
 static const SettingChoice chLogos[] = { { "pixelated", "Pixelated", CL_PIXELATED }, { "full", "Full detail", CL_FULL }, { N_("off"), "Not used", CL_OFF } };
-static const SettingChoice chScale[] = { { "integer", "Pixel Perfect", 0 }, { "fit", "Full Width", 0 }, { "zoom", "Zoom", 0 }, { "stretch", "Stretch", 0 } };
+static const SettingChoice chScale[] = { { "4:3", "4:3", 0 }, { "integer", "Pixel Perfect", 0 } };
+static const SettingChoice chMapScale[] = { { "integer", "Pixel Perfect", 0 }, { "fit", "Fit", 0 } };
 static const SettingChoice chShader[] = {
 	{ N_("off"), "Off", SH_OFF }, { "grid", "LCD Grid", SH_GRID }, { "scanlines", "Scanlines", SH_SCANLINES }, { "soft", "Soft Cells", SH_SOFT },
 	{ "subpixels-light", "Subpixels (Light)", SH_SUB_LIGHT }, { "subpixels", "Subpixels", SH_SUB }, { "subpixels-strong", "Subpixels (Strong)", SH_SUB_STRONG },
@@ -470,8 +481,8 @@ static const Setting settingsTable[] = {
 	{ "custom_logos", "Custom logos", SF_INT, OFFB(customLogos), ARR(chLogos), 0, 0, 0, NULL, "Your own and scraped logos on the second screen." },
 	{ "quick_bar_hint", "Menu hint", SF_BOOL, OFFB(barHint), ARR(chOnOff), 0, 0, 0, NULL, "\"Tap the screen to open the menu\" at a game's start." },
 
-	{ "scale", "Game screen scale", SF_STR, OFFB(scale), ARR(chScale), 0, 0, 0, NULL, "How the game's picture fills its screen." },
-	{ "map_scale", "Second screen scale", SF_STR, OFFB(mapScale), ARR(chScale), 0, 0, 0, NULL, "How the map or logo fills its screen." },
+	{ "scale", "Game screen scale", SF_STR, OFFB(scale), ARR(chScale), 0, 0, 0, NULL, "4:3: as on a TV. Pixel Perfect: square pixels at a whole size, the sharpest." },
+	{ "map_scale", "Second screen scale", SF_STR, OFFB(mapScale), ARR(chMapScale), 0, 0, 0, NULL, "How the map or logo fills its screen." },
 	{ "shader", "Shader", SF_INT, OFFB(shader), ARR(chShader), 0, 0, 0, NULL, "A pattern over every pixel, on both screens." },
 	{ "lcd_strength", "Pattern strength", SF_INT, OFFB(lcdStrength), NULL, 0, 0, 100, 5, "%", "How dark the grid, scanlines and soft cells are." },
 	{ "color_correction", "Color correction", SF_BOOL, OFFB(colorCorrection), ARR(chOnOff), 0, 0, 0, NULL, "Colors as a Game Boy Advance's screen showed them." },

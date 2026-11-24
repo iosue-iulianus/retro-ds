@@ -2214,3 +2214,15 @@ msgstr "35 mm"
 
 msgid "40 mm"
 msgstr "40 mm"
+
+msgid "4:3"
+msgstr "4:3"
+
+msgid "4:3: as on a TV. Pixel Perfect: square pixels at a whole size, the sharpest."
+msgstr "4:3: テレビと同じ見た目。ピクセルパーフェクト: 正方形のピクセルを整数倍で、最もシャープ。"
+
+msgid "Fit"
+msgstr "フィット"
+
+msgid "Scale: 4:3"
+msgstr "スケール: 4:3"

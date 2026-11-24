@@ -34,6 +34,11 @@ changelog up to then is `git show 3b452dc:CHANGELOG.md` (and on
   placement and the brightness rows. Stepping through a setting for one
   game now goes round its whole list both ways (Pixel Perfect was
   unreachable going right).
+- Game screen scale is 4:3 (as on a TV; fills the Duo's bottom screen) or
+  Pixel Perfect. Full Width and Zoom were the same picture, narrower than
+  a TV's; they and Stretch become 4:3. Until the player picks, the game goes
+  on the screen where a 4:3 picture is physically biggest: the Duo's bottom
+  screen, the AYN Thor's 6" top one.
 
 Nothing playable yet: SNES DS still runs GBA games until the emulator is
 swapped. What has changed from GBA DS v1.5.6 so far:
