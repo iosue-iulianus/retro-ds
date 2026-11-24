@@ -677,7 +677,7 @@ static void draw_tile2(const Alttp* a, const uint8_t* vram, uint16_t e, uint32_t
 /* A pane of the items screen's: a frame of the Y items' (green), black
  * inside, clear outside it (the map shows there, up to the tiles' own
  * one-pixel black outline, kept: the owner's choice), from the same tiles
- * in video RAM; W x H pixels, multiples of 8, at most 64 x 128 */
+ * in video RAM; W x H pixels, multiples of 8, at most 128 x 128 */
 static void frame_pane(const Alttp* a, const uint8_t* vram, int W, int H, uint32_t* px) {
 	int C = W / 8, R = H / 8;
 	static uint16_t m[32 * 32];
@@ -688,8 +688,8 @@ static void frame_pane(const Alttp* a, const uint8_t* vram, int W, int H, uint32
 		for (int c = 0; c < C; ++c) draw_tile2(a, vram, m[r * 32 + c], &px[r * 8 * W + c * 8], W);
 	}
 	/* inside, black: what can't be reached from the edge without crossing the frame */
-	static uint8_t out[64 * 128];
-	static int stack[64 * 128];
+	static uint8_t out[128 * 128];
+	static int stack[128 * 128];
 	memset(out, 0, (size_t) W * H);
 	int n = 0;
 	for (int i = 0; i < W * H; ++i) {
@@ -1922,5 +1922,16 @@ int alttp_mark_icon(const Alttp* a, const uint8_t* vram, int kind, uint32_t out[
 
 /* ALTTP-15: their pane, a frame as the zoom indicator's */
 void alttp_frame_pane(const Alttp* a, const uint8_t* vram, int w, int h, uint32_t* out) {
-	if (vram && w <= 64 && h <= 128) frame_pane(a, vram, w, h, out);
+	if (vram && w <= 128 && h <= 128) frame_pane(a, vram, w, h, out);
+}
+
+/* ALTTP-15: a word in the items screen's letters (the DO pane's: LIFT,
+ * READ...; one 8 x 8 tile a letter, A at $150 and on in order, its
+ * palette), A to Z and spaces, at out (stride pixels a row) */
+void alttp_text(const Alttp* a, const uint8_t* vram, const char* text, uint32_t* out, int stride) {
+	if (!vram) return;
+	for (int i = 0; text[i]; ++i) {
+		char c = text[i];
+		if (c >= 'A' && c <= 'Z') draw_tile2(a, vram, (uint16_t) (0x2C00 | (0x150 + c - 'A')), out + i * 8, stride);
+	}
 }

@@ -182,8 +182,10 @@ static int altMarkN, altMarksFor = -1;   /* how many, and the file they're for *
 static int altMarkDrag = -1, altMarkIdx = -1; /* a marker being dragged: its kind, and which (-1: a new one, from the pane) */
 static int altMarkFX, altMarkFY;          /* the finger dragging it, screen pixels */
 static SDL_Texture *altMarkTex[2], *altMarkPaneTex[2];
-#define ALT_MARK_PANE_W 56
-#define ALT_MARK_PANE_H 96
+/* its pane: MARKERS along the top inside the frame, the icons three across */
+#define ALT_MARK_PANE_W 72
+#define ALT_MARK_PANE_H 88
+#define ALT_MARK_COLS 3
 static void alt_marks_path(int f, char* out, size_t n) {
 	snprintf(out, n, "%s.marks%d", gp.sav, f);
 }
@@ -640,9 +642,10 @@ void alt_tick(void) {
 		/* ALTTP-15: the markers' pictures and their pane, from the same tiles */
 		static uint32_t strip[ALTTP_MARK_KINDS * 16 * 16], pane[ALT_MARK_PANE_W * ALT_MARK_PANE_H], one[16 * 16];
 		alttp_frame_pane(alt, v, ALT_MARK_PANE_W, ALT_MARK_PANE_H, pane);
+		alttp_text(alt, v, "MARKERS", &pane[8 * ALT_MARK_PANE_W + 8], ALT_MARK_PANE_W); /* (so it isn't taken for the item switcher) */
 		for (int k = 0; k < ALTTP_MARK_KINDS; ++k) {
 			if (!alttp_mark_icon(alt, v, k, one)) continue;
-			int px0 = 10 + (k % 2) * 20, py0 = 10 + (k / 2) * 20;
+			int px0 = 8 + (k % ALT_MARK_COLS) * 20, py0 = 20 + (k / ALT_MARK_COLS) * 20;
 			for (int y = 0; y < 16; ++y) {
 				for (int x = 0; x < 16; ++x) {
 					strip[y * ALTTP_MARK_KINDS * 16 + k * 16 + x] = one[y * 16 + x];
@@ -861,17 +864,18 @@ static int alt_game_scale(int s) {
 	return SDL_max(1, (int) (gp + 0.5f));
 }
 
-/* ALTTP-15: the markers' pane at the screen's left edge, in the middle;
- * its icons two across, four down */
+/* ALTTP-15: the markers' pane at the screen's top right, above the zoom
+ * indicator (the owner, Nov 24, 2026), smaller if both don't fit; its
+ * icons three across */
 static SDL_Rect alt_mark_pane(int s, int* k) {
-	int h = screens[s].rect.h;
-	*k = alt_game_scale(s);
+	int w = screens[s].rect.w, h = screens[s].rect.h, m = SDL_max(2, h / 54), kz = alt_game_scale(s);
+	*k = kz;
+	while (*k > 1 && m * 3 + ALT_MARK_PANE_H * *k + ALTTP_ZOOM_PANE_H * kz > h) --*k;
 	int pw = ALT_MARK_PANE_W * *k, ph = ALT_MARK_PANE_H * *k;
-	if (ph > h * 9 / 10) *k = SDL_max(1, h * 9 / 10 / ALT_MARK_PANE_H), pw = ALT_MARK_PANE_W * *k, ph = ALT_MARK_PANE_H * *k;
-	return (SDL_Rect) { SDL_max(2, h / 54), (h - ph) / 2, pw, ph };
+	return (SDL_Rect) { w - m - pw, m, pw, ph };
 }
 static SDL_Rect alt_mark_slot(SDL_Rect pane, int k, int kind) {
-	return (SDL_Rect) { pane.x + (10 + (kind % 2) * 20) * k - 2 * k, pane.y + (10 + (kind / 2) * 20) * k - 2 * k, 20 * k, 20 * k };
+	return (SDL_Rect) { pane.x + (8 + (kind % ALT_MARK_COLS) * 20) * k - 2 * k, pane.y + (20 + (kind / ALT_MARK_COLS) * 20) * k - 2 * k, 20 * k, 20 * k };
 }
 
 /* ALTTP-3: the zoom's levels in the screen's bottom right corner, in a

@@ -108,8 +108,10 @@ int alttp_items_panes(int rects[][4], int max);
  * it can't be drawn */
 #define ALTTP_MARK_KINDS 8
 int alttp_mark_icon(const Alttp* a, const uint8_t* vram, int kind, uint32_t out[16 * 16]);
-/* a pane of the items screen's, w x h (multiples of 8; at most 64 x 128) */
+/* a pane of the items screen's, w x h (multiples of 8; at most 128 x 128) */
 void alttp_frame_pane(const Alttp* a, const uint8_t* vram, int w, int h, uint32_t* out);
+/* a word in the items screen's letters (A to Z, spaces), 8 pixels a letter */
+void alttp_text(const Alttp* a, const uint8_t* vram, const char* text, uint32_t* out, int stride);
 
 /* The world map's goal markers (ALTTP-11), as the game's own map would
  * show them now in the world Link is in (blinking as there): each at
