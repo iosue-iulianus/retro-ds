@@ -2139,3 +2139,78 @@ msgstr "メニューを開く"
 
 msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
 msgstr "Select や Start は単独で押せばゲームに届きます。L3 は引き続きメニューを開きます"
+
+msgid "A frame round the picture, and on which screens."
+msgstr "画像のまわりのフレームと、表示する画面。"
+
+msgid "For what crosses from one screen to the other. Automatic: the device's, if known."
+msgstr "画面から画面へまたがるもののため。自動: わかればデバイスの値。"
+
+msgid "Game screen"
+msgstr "ゲーム画面"
+
+msgid "Gap between screens"
+msgstr "画面の間隔"
+
+msgid "Generated: RetroDS's bezel in your colors. Custom: your own PNGs in the overlays folder."
+msgstr "生成: RetroDS のベゼルをあなたの色で。カスタム: overlays フォルダの自分の PNG。"
+
+msgid "Look"
+msgstr "見た目"
+
+msgid "Names, saving, logos"
+msgstr "名前、セーブ、ロゴ"
+
+msgid "Overlay style"
+msgstr "オーバーレイのスタイル"
+
+msgid "Overlay Style: Custom (in /overlays)"
+msgstr "オーバーレイのスタイル: カスタム (/overlays 内)"
+
+msgid "Overlay Style: Generated"
+msgstr "オーバーレイのスタイル: 生成"
+
+msgid "Overlays are off"
+msgstr "オーバーレイはオフです"
+
+msgid "Overlays: Both Screens"
+msgstr "オーバーレイ: 両方の画面"
+
+msgid "Overlays: Bottom Screen"
+msgstr "オーバーレイ: 下の画面"
+
+msgid "Overlays: Top Screen"
+msgstr "オーバーレイ: 上の画面"
+
+msgid "RetroDS draws this game's second screen to fit"
+msgstr "このゲームの2画面目は RetroDS が合わせて描きます"
+
+msgid "Shader, overlays, theme, color"
+msgstr "シェーダー、オーバーレイ、テーマ、色"
+
+msgid "Which screen, scale, gap"
+msgstr "表示する画面、スケール、間隔"
+
+msgid "5 mm"
+msgstr "5 mm"
+
+msgid "10 mm"
+msgstr "10 mm"
+
+msgid "15 mm"
+msgstr "15 mm"
+
+msgid "20 mm"
+msgstr "20 mm"
+
+msgid "25 mm"
+msgstr "25 mm"
+
+msgid "30 mm"
+msgstr "30 mm"
+
+msgid "35 mm"
+msgstr "35 mm"
+
+msgid "40 mm"
+msgstr "40 mm"

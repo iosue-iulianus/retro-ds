@@ -2139,3 +2139,78 @@ msgstr "打开菜单"
 
 msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
 msgstr "单独按下 Select 或 Start 仍会传给游戏，L3 仍会打开菜单"
+
+msgid "A frame round the picture, and on which screens."
+msgstr "画面周围的边框，以及显示在哪些屏幕上。"
+
+msgid "For what crosses from one screen to the other. Automatic: the device's, if known."
+msgstr "用于从一个屏幕跨到另一个屏幕的内容。自动：已知时使用设备的值。"
+
+msgid "Game screen"
+msgstr "游戏屏幕"
+
+msgid "Gap between screens"
+msgstr "屏幕间距"
+
+msgid "Generated: RetroDS's bezel in your colors. Custom: your own PNGs in the overlays folder."
+msgstr "生成：使用你的颜色的 RetroDS 边框。自定义：overlays 文件夹中你自己的 PNG。"
+
+msgid "Look"
+msgstr "外观"
+
+msgid "Names, saving, logos"
+msgstr "名称、存档、标志"
+
+msgid "Overlay style"
+msgstr "叠加层样式"
+
+msgid "Overlay Style: Custom (in /overlays)"
+msgstr "叠加层样式：自定义（/overlays 中）"
+
+msgid "Overlay Style: Generated"
+msgstr "叠加层样式：生成"
+
+msgid "Overlays are off"
+msgstr "叠加层已关闭"
+
+msgid "Overlays: Both Screens"
+msgstr "叠加层：两个屏幕"
+
+msgid "Overlays: Bottom Screen"
+msgstr "叠加层：下屏"
+
+msgid "Overlays: Top Screen"
+msgstr "叠加层：上屏"
+
+msgid "RetroDS draws this game's second screen to fit"
+msgstr "RetroDS 按尺寸绘制此游戏的第二屏幕"
+
+msgid "Shader, overlays, theme, color"
+msgstr "着色器、叠加层、主题、颜色"
+
+msgid "Which screen, scale, gap"
+msgstr "哪个屏幕、缩放、间距"
+
+msgid "5 mm"
+msgstr "5 mm"
+
+msgid "10 mm"
+msgstr "10 mm"
+
+msgid "15 mm"
+msgstr "15 mm"
+
+msgid "20 mm"
+msgstr "20 mm"
+
+msgid "25 mm"
+msgstr "25 mm"
+
+msgid "30 mm"
+msgstr "30 mm"
+
+msgid "35 mm"
+msgstr "35 mm"
+
+msgid "40 mm"
+msgstr "40 mm"

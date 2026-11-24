@@ -2139,3 +2139,78 @@ msgstr "메뉴 열기"
 
 msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
 msgstr "Select나 Start는 단독으로 누르면 게임에 전달되고, L3는 계속 메뉴를 엽니다"
+
+msgid "A frame round the picture, and on which screens."
+msgstr "화면 주위의 테두리와, 표시할 화면."
+
+msgid "For what crosses from one screen to the other. Automatic: the device's, if known."
+msgstr "한 화면에서 다른 화면으로 넘어가는 것을 위해. 자동: 알려진 경우 기기의 값."
+
+msgid "Game screen"
+msgstr "게임 화면"
+
+msgid "Gap between screens"
+msgstr "화면 사이 간격"
+
+msgid "Generated: RetroDS's bezel in your colors. Custom: your own PNGs in the overlays folder."
+msgstr "생성: 내 색상의 RetroDS 베젤. 사용자 지정: overlays 폴더의 내 PNG."
+
+msgid "Look"
+msgstr "모양"
+
+msgid "Names, saving, logos"
+msgstr "이름, 저장, 로고"
+
+msgid "Overlay style"
+msgstr "오버레이 스타일"
+
+msgid "Overlay Style: Custom (in /overlays)"
+msgstr "오버레이 스타일: 사용자 지정 (/overlays)"
+
+msgid "Overlay Style: Generated"
+msgstr "오버레이 스타일: 생성"
+
+msgid "Overlays are off"
+msgstr "오버레이가 꺼져 있습니다"
+
+msgid "Overlays: Both Screens"
+msgstr "오버레이: 두 화면 모두"
+
+msgid "Overlays: Bottom Screen"
+msgstr "오버레이: 아래 화면"
+
+msgid "Overlays: Top Screen"
+msgstr "오버레이: 위 화면"
+
+msgid "RetroDS draws this game's second screen to fit"
+msgstr "이 게임의 두 번째 화면은 RetroDS가 맞춰서 그립니다"
+
+msgid "Shader, overlays, theme, color"
+msgstr "셰이더, 오버레이, 테마, 색상"
+
+msgid "Which screen, scale, gap"
+msgstr "표시할 화면, 크기, 간격"
+
+msgid "5 mm"
+msgstr "5 mm"
+
+msgid "10 mm"
+msgstr "10 mm"
+
+msgid "15 mm"
+msgstr "15 mm"
+
+msgid "20 mm"
+msgstr "20 mm"
+
+msgid "25 mm"
+msgstr "25 mm"
+
+msgid "30 mm"
+msgstr "30 mm"
+
+msgid "35 mm"
+msgstr "35 mm"
+
+msgid "40 mm"
+msgstr "40 mm"

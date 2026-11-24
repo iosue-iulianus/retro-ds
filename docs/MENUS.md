@@ -53,13 +53,11 @@ lines, the same names as `retrods.cfg`, so it can be edited by hand. Removing
 a line, or the file, goes back to the settings for all games.
 
 Per-game keys: `swap`, `scale`, `map_scale`, `smooth`, `border_color`,
-`overlays`, `overlay_screens`, `bezel_*`, `shader`, `lcd_strength`,
+`overlays`, `overlay_style`, `bezel_*`, `shader`, `lcd_strength`,
 `color_correction`, `lcd_ghosting`, `frame_buffer`, `match_display`,
-`screen_match`, `screen_placement`, `screen_gap_mm`, `map`,
-`map_interval`, `custom_logos`, `pinball_live`, `rewind`,
+`screen_gap_mm`, `custom_logos`, `pinball_live`, `rewind`,
 `rewind_seconds`, `fast_forward`, `ff_speed`, `ab_swap`, `show_fps`,
-`audio_latency`, `save_on_quit`, `auto_load`, and the new `brightness_top`,
-`brightness_bottom`, `left_stick_dpad`, `turbo_rate`, `button_right`,
+`audio_latency`, `save_on_quit`, `auto_load`, `left_stick_dpad`, `turbo_rate`, `button_right`,
 `button_bottom`, `button_top`, `button_left`, `button_l`, `button_r`, `button_dpad_up`,
 `button_dpad_down`, `button_dpad_left`, `button_dpad_right`. For all games only: folders,
 accounts, updates, `layout`, `touch_*`, `sway`, `vsync`, hotkeys,
@@ -98,13 +96,20 @@ returns one step. B/Back and HOME work as now.
 
 | Category | Rows |
 |---|---|
-| **Games** | Game name tags, Game folders (Android: choose; Linux: shown), Logo folder, Custom logos |
-| **Display** | Scale (game, second screen), Shader and strength, Brightness: top, Brightness: bottom (#56), Color correction, LCD ghosting, Smooth scaling, Swap screens, Screen shapes, Screen placement, Gap between screens (Automatic, None, 5 to 40 mm: for what crosses from one screen to the other, such as A Link to the Past's title sword; Automatic is the device's if known, the Retroid Pocket Duo's 25 mm), Overlays and bezel, Border colour |
-| **Controls** | Left stick as D-pad (#57), Face buttons (#55), Turbo rate, GBA A/B swap, Map Buttons, Hotkeys, menu combo |
-| **Speed and sound** | Show FPS, Performance, Frame buffer, Match display rate, Rewind and its length, Fast forward and its speed, Sound delay |
-| **Second screen** | Map on/off, Map refresh, Pinball live view |
-| **Saves** | Save on quit, Auto-load, Save folder and type, RetroDS data folder |
-| **System** | Language, RetroAchievements, Updates, EmulationStation / BananaOS list (as now) |
+| **Games** | Game name tags, Save on quit, Auto-load, Custom logos, Menu hint |
+| **Screens** | Game screen (top or bottom), Game screen scale, Second screen scale, Gap between screens (Automatic, None, 5 to 40 mm: for what crosses from one screen to the other), Match display rate |
+| **Look** | Shader and Pattern strength, Color correction, LCD ghosting, Smooth scaling, Overlays (Off, Both screens, Top screen, Bottom screen), Overlay style (Generated, Custom), Bezel logo, Light/dark mode, Color |
+| **Controls** | Left stick as D-pad (#57), Face buttons (#55), Turbo rate, A/B swap, Map Buttons, Hotkeys |
+| **Speed and sound** | Show FPS, Frame buffer, Rewind and its length, Fast forward and its speed, Sound delay, Performance |
+| **System** | Language, folders, RetroAchievements, Updates, integrations (the older panel) |
+
+Removed (owner, Nov 24, 2026): the Second screen category (the second
+screen is always on; Map refresh only fed the map capture engine, which
+stays in the code unused), Screen shapes (each screen keeps its own),
+Screen placement (always centred), and both brightness rows (the device's
+brightness does that). Overlays used to be the style with Off, and
+Overlays on the screens; `overlays = generated / custom` and
+`overlay_screens` in older files still read as on, there.
 
 The existing special screens (Map Buttons, Hotkeys, Updates, Folders,
 RetroAchievements, ES integration) are rows inside their category and
@@ -118,14 +123,20 @@ by dragging or with L1/R1... (page up / down), with a thin scroll bar.
 
 ## Pause menu (this game, or all)
 
-Six tabs (Game, Display, Screens, Controls, Speed, Map; L1 / R1 and taps); a page shows at most 8 rows and scrolls past that (D-pad or a finger dragged). The Settings screens carry the same pictures as the tabs (Settings > System: a toolbox):
+Six tabs (Game, Screens, Look, Controls, Fast forward, System; L1 / R1 and taps); a page shows at most 8 rows and scrolls past that (D-pad or a finger dragged). The Settings screens carry the same pictures as the tabs (Settings > System: a toolbox):
 
 | Tab | Holds |
 |---|---|
 | **Game** | Every row fills the screen below the tabs (`item_row_geom`); the big rows are 1.75 times the others (on the Duo's bottom screen about 11.5 mm against 6.5 mm). Resume / Restart Game; Save State / Load State, big; Undo, always there so nothing moves (greyed until there's something to undo: then Undo Load or Undo Save, the game as it was before a load or the state saved over, kept until the game closes; the hotkeys too); the slot; Cheats / Take Screenshot (Achievements under them when on); Close Game / Close RetroDS, big (Close RetroDS alone across when the game wasn't started from the game list). Patches and Submit a Bug Report aren't on it, and GBA DS's quick bar (a swipe up from the bottom edge) is off (`QUICK_BAR` in game.c): a tap opens this menu, and so do L3 and the menu hotkey (owner, Nov 24, 2026). Bug reports can't be made from the app for now (actions) |
-| **Display** | the Display category's rows; Overlays opens its screen as now |
-| **Controls** | the Controls category's rows; Face buttons becomes four rows here instead of its own screen |
-| **More** | Speed and sound, Second screen and Saves rows that make sense for one game |
+| **Screens** | Game screen, Game screen scale, Second screen scale (greyed where RetroDS draws the second screen itself), Gap between screens, Match display rate |
+| **Look** | Shader, Pattern strength, Color correction, LCD ghosting, Overlays, Overlay style (greyed while Overlays is Off), Overlay colors and logo (its own screen), Custom logos (when the game has one) |
+| **Controls** | the Controls category's rows |
+| **Fast forward** | Rewind, Rewind length, Fast forward |
+| **System** | Show FPS, Frame buffer, Save on quit, Auto-load |
+
+Every row's value goes round its whole list, one place per step either
+way; for this game, landing on the value for all games takes this game's
+own away.
 
 The **This game / All games** pill sits at the right of the tab row's
 second line, always visible on the four settings tabs.

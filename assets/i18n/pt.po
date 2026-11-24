@@ -2143,3 +2143,78 @@ msgstr "Abrir o menu"
 
 msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
 msgstr "Select ou Start ainda chegam ao jogo quando tocados sozinhos, L3 ainda abre o menu"
+
+msgid "A frame round the picture, and on which screens."
+msgstr "Uma moldura em volta da imagem, e em quais telas."
+
+msgid "For what crosses from one screen to the other. Automatic: the device's, if known."
+msgstr "Para o que passa de uma tela para a outra. Automático: o do aparelho, se conhecido."
+
+msgid "Game screen"
+msgstr "Tela do jogo"
+
+msgid "Gap between screens"
+msgstr "Espaço entre as telas"
+
+msgid "Generated: RetroDS's bezel in your colors. Custom: your own PNGs in the overlays folder."
+msgstr "Gerada: a moldura do RetroDS nas suas cores. Personalizada: seus próprios PNGs na pasta overlays."
+
+msgid "Look"
+msgstr "Aparência"
+
+msgid "Names, saving, logos"
+msgstr "Nomes, salvamento, logotipos"
+
+msgid "Overlay style"
+msgstr "Estilo da sobreposição"
+
+msgid "Overlay Style: Custom (in /overlays)"
+msgstr "Estilo da sobreposição: Personalizado (em /overlays)"
+
+msgid "Overlay Style: Generated"
+msgstr "Estilo da sobreposição: Gerado"
+
+msgid "Overlays are off"
+msgstr "As sobreposições estão desligadas"
+
+msgid "Overlays: Both Screens"
+msgstr "Sobreposições: as duas telas"
+
+msgid "Overlays: Bottom Screen"
+msgstr "Sobreposições: tela de baixo"
+
+msgid "Overlays: Top Screen"
+msgstr "Sobreposições: tela de cima"
+
+msgid "RetroDS draws this game's second screen to fit"
+msgstr "O RetroDS desenha a segunda tela deste jogo sob medida"
+
+msgid "Shader, overlays, theme, color"
+msgstr "Shader, sobreposições, tema, cor"
+
+msgid "Which screen, scale, gap"
+msgstr "Qual tela, escala, espaço"
+
+msgid "5 mm"
+msgstr "5 mm"
+
+msgid "10 mm"
+msgstr "10 mm"
+
+msgid "15 mm"
+msgstr "15 mm"
+
+msgid "20 mm"
+msgstr "20 mm"
+
+msgid "25 mm"
+msgstr "25 mm"
+
+msgid "30 mm"
+msgstr "30 mm"
+
+msgid "35 mm"
+msgstr "35 mm"
+
+msgid "40 mm"
+msgstr "40 mm"

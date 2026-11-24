@@ -2142,3 +2142,78 @@ msgstr "Menü öffnen"
 
 msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
 msgstr "Select oder Start erreichen das Spiel weiterhin, wenn sie allein gedrückt werden, L3 öffnet weiterhin das Menü"
+
+msgid "A frame round the picture, and on which screens."
+msgstr "Ein Rahmen um das Bild, und auf welchen Bildschirmen."
+
+msgid "For what crosses from one screen to the other. Automatic: the device's, if known."
+msgstr "Für das, was von einem Bildschirm auf den anderen wechselt. Automatisch: der des Geräts, falls bekannt."
+
+msgid "Game screen"
+msgstr "Spielbildschirm"
+
+msgid "Gap between screens"
+msgstr "Abstand zwischen den Bildschirmen"
+
+msgid "Generated: RetroDS's bezel in your colors. Custom: your own PNGs in the overlays folder."
+msgstr "Generiert: der Rahmen von RetroDS in deinen Farben. Eigene: deine PNGs im Ordner overlays."
+
+msgid "Look"
+msgstr "Aussehen"
+
+msgid "Names, saving, logos"
+msgstr "Namen, Speichern, Logos"
+
+msgid "Overlay style"
+msgstr "Overlay-Stil"
+
+msgid "Overlay Style: Custom (in /overlays)"
+msgstr "Overlay-Stil: Eigene (in /overlays)"
+
+msgid "Overlay Style: Generated"
+msgstr "Overlay-Stil: Generiert"
+
+msgid "Overlays are off"
+msgstr "Overlays sind aus"
+
+msgid "Overlays: Both Screens"
+msgstr "Overlays: Beide Bildschirme"
+
+msgid "Overlays: Bottom Screen"
+msgstr "Overlays: Unterer Bildschirm"
+
+msgid "Overlays: Top Screen"
+msgstr "Overlays: Oberer Bildschirm"
+
+msgid "RetroDS draws this game's second screen to fit"
+msgstr "RetroDS zeichnet den zweiten Bildschirm dieses Spiels passend"
+
+msgid "Shader, overlays, theme, color"
+msgstr "Shader, Overlays, Design, Farbe"
+
+msgid "Which screen, scale, gap"
+msgstr "Welcher Bildschirm, Skalierung, Abstand"
+
+msgid "5 mm"
+msgstr "5 mm"
+
+msgid "10 mm"
+msgstr "10 mm"
+
+msgid "15 mm"
+msgstr "15 mm"
+
+msgid "20 mm"
+msgstr "20 mm"
+
+msgid "25 mm"
+msgstr "25 mm"
+
+msgid "30 mm"
+msgstr "30 mm"
+
+msgid "35 mm"
+msgstr "35 mm"
+
+msgid "40 mm"
+msgstr "40 mm"

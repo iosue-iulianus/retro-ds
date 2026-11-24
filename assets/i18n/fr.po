@@ -2143,3 +2143,78 @@ msgstr "Ouvrir le menu"
 
 msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
 msgstr "Select ou Start arrivent toujours au jeu s’ils sont pressés seuls, L3 ouvre toujours le menu"
+
+msgid "A frame round the picture, and on which screens."
+msgstr "Un cadre autour de l’image, et sur quels écrans."
+
+msgid "For what crosses from one screen to the other. Automatic: the device's, if known."
+msgstr "Pour ce qui passe d’un écran à l’autre. Automatique : celui de l’appareil, s’il est connu."
+
+msgid "Game screen"
+msgstr "Écran du jeu"
+
+msgid "Gap between screens"
+msgstr "Écart entre les écrans"
+
+msgid "Generated: RetroDS's bezel in your colors. Custom: your own PNGs in the overlays folder."
+msgstr "Généré : le cadre de RetroDS à vos couleurs. Personnalisé : vos propres PNG dans le dossier overlays."
+
+msgid "Look"
+msgstr "Apparence"
+
+msgid "Names, saving, logos"
+msgstr "Noms, sauvegarde, logos"
+
+msgid "Overlay style"
+msgstr "Style des overlays"
+
+msgid "Overlay Style: Custom (in /overlays)"
+msgstr "Style des overlays : Personnalisé (dans /overlays)"
+
+msgid "Overlay Style: Generated"
+msgstr "Style des overlays : Généré"
+
+msgid "Overlays are off"
+msgstr "Les overlays sont désactivés"
+
+msgid "Overlays: Both Screens"
+msgstr "Overlays : les deux écrans"
+
+msgid "Overlays: Bottom Screen"
+msgstr "Overlays : écran du bas"
+
+msgid "Overlays: Top Screen"
+msgstr "Overlays : écran du haut"
+
+msgid "RetroDS draws this game's second screen to fit"
+msgstr "RetroDS dessine le second écran de ce jeu à sa taille"
+
+msgid "Shader, overlays, theme, color"
+msgstr "Shader, overlays, thème, couleur"
+
+msgid "Which screen, scale, gap"
+msgstr "Quel écran, échelle, écart"
+
+msgid "5 mm"
+msgstr "5 mm"
+
+msgid "10 mm"
+msgstr "10 mm"
+
+msgid "15 mm"
+msgstr "15 mm"
+
+msgid "20 mm"
+msgstr "20 mm"
+
+msgid "25 mm"
+msgstr "25 mm"
+
+msgid "30 mm"
+msgstr "30 mm"
+
+msgid "35 mm"
+msgstr "35 mm"
+
+msgid "40 mm"
+msgstr "40 mm"

@@ -27,6 +27,13 @@ changelog up to then is `git show 3b452dc:CHANGELOG.md` (and on
   pause menu, and the hint at a game's start says so. The pause menu's Game
   page fills the screen, with big Save, Load and Close buttons; Patches and
   Submit a Bug Report are off it.
+- The menus are regrouped: Screens (where the game goes and how big),
+  Look (shader and overlays), Controls, Fast forward and System. Overlays
+  is now the on/off with the screens, Overlay style picks the bezel or your
+  own PNGs. Gone: the Second screen page (always on), Screen shapes, Screen
+  placement and the brightness rows. Stepping through a setting for one
+  game now goes round its whole list both ways (Pixel Perfect was
+  unreachable going right).
 
 Nothing playable yet: SNES DS still runs GBA games until the emulator is
 swapped. What has changed from GBA DS v1.5.6 so far:

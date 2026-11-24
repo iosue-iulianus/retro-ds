@@ -1332,19 +1332,21 @@ static void draw_system_note(int scr, const SettingsGeom* g, const char* text, S
  * states/prefs.cfg, for all games (a game's own file is for the pause menu).
  * System is the older panel: RetroDS in EmulationStation / BananaOS's list,
  * Map Buttons, Hotkeys, Updates, and on Android Folders and RetroAchievements. */
-enum { SP_HOME = -1, SP_SYSTEM = 6, SP_COUNT = 7 };
+enum { SP_HOME = -1, SP_SYSTEM = 5, SP_COUNT = 6 };
+/* the home's tiles: the categories, System, then Back across the last row */
+#define SET_TILES (SP_SYSTEM + 2)
+#define SET_BACK (SET_TILES - 1)
 typedef struct {
 	const char* name;
 	const char* sub;
 	const char* keys[20];
 } SetPage;
 static const SetPage setPages[SP_SYSTEM] = {
-	{ N_("Games"), N_("Which games, names, saving"), { "name_tags", "save_on_quit", "auto_load", "custom_logos", "quick_bar_hint" } },
-	{ N_("Display"), N_("Scale, shader, theme, color"), { "scale", "map_scale", "shader", "lcd_strength", "color_correction", "lcd_ghosting", "smooth", "theme", "accent" } },
-	{ "Screens", N_("Placement, overlays"), { "swap", "screen_match", "screen_placement", "screen_gap_mm", "overlays", "overlay_screens", "bezel_logo", "brightness_top", "brightness_bottom" } },
+	{ N_("Games"), N_("Names, saving, logos"), { "name_tags", "save_on_quit", "auto_load", "custom_logos", "quick_bar_hint" } },
+	{ "Screens", N_("Which screen, scale, gap"), { "swap", "scale", "map_scale", "screen_gap_mm", "match_display" } },
+	{ N_("Look"), N_("Shader, overlays, theme, color"), { "shader", "lcd_strength", "color_correction", "lcd_ghosting", "smooth", "overlays", "overlay_style", "bezel_logo", "theme", "accent" } },
 	{ "Controls", N_("Stick, buttons, hotkeys"), { "left_stick_dpad", "ab_swap", "button_right", "button_bottom", "button_top", "button_left", "button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right", "turbo_rate", "@map", "@hotkeys" } },
-	{ N_("Speed and sound"), N_("Rewind, fast forward"), { "show_fps", "match_display", "frame_buffer", "rewind", "rewind_seconds", "fast_forward", "audio_latency", "performance" } },
-	{ "Second screen", N_("The map and the logo"), { "map", "map_interval" } },
+	{ N_("Speed and sound"), N_("Rewind, fast forward"), { "show_fps", "frame_buffer", "rewind", "rewind_seconds", "fast_forward", "audio_latency", "performance" } },
 };
 static int setPage = SP_HOME; /* SP_HOME, a category, or SP_SYSTEM (the older panel) */
 static int setSel;
@@ -1392,6 +1394,7 @@ static SDL_Rect set_tile(int scr, int i) {
 	SDL_Rect p = set_panel(scr);
 	int top = p.y + px * 22, gap = px * 4, rows = 4;
 	int w = (p.w - px * 12 - gap) / 2, h = (p.y + p.h - px * 6 - top - gap * (rows - 1)) / rows;
+	if (i == SET_BACK && SET_TILES % 2) return (SDL_Rect) { p.x + px * 6, top + (i / 2) * (h + gap), w * 2 + gap, h }; /* (alone in its row: across it) */
 	return (SDL_Rect) { p.x + px * 6 + (i % 2) * (w + gap), top + (i / 2) * (h + gap), w, h };
 }
 
@@ -1439,7 +1442,7 @@ static void draw_set_home(int scr, int sel) {
 	ui_dim(scr, 200);
 	ui_fill_round(scr, p, C_HEADER, px * 4);
 	draw_set_heading(scr, p, "RetroDS Settings", -1);
-	for (int i = 0; i < 8; ++i) {
+	for (int i = 0; i < SET_TILES; ++i) {
 		SDL_Rect t = set_tile(scr, i);
 		ui_key(scr, t, px * 3, i == sel ? KEY_SEL : KEY_PLAIN);
 		const char* name = i < SP_SYSTEM ? setPages[i].name : i == SP_SYSTEM ? "System" : "Back";
@@ -1452,6 +1455,10 @@ static void draw_set_home(int scr, int sel) {
 		if (i <= SP_SYSTEM) {
 			SDL_Rect ib = { x0, t.y, iw, t.h };
 			game_page_icon(scr, i == SP_SYSTEM ? GAME_ICON_SYSTEM : i, ib, i == sel || !ui_theme_light() ? C_TEXT : ui_key_ink(), ui_key_mid(i == sel ? KEY_SEL : KEY_PLAIN));
+		}
+		if (i == SET_BACK) { /* (Back, across its row: in the middle) */
+			ui_font_text(scr, TF_BOLD, t.x + t.w / 2, t.y + t.h / 2, px * 6, name, C_TEXT, 0);
+			continue;
 		}
 		int tw = t.x + t.w - px * 5 - tx; /* (the room for the text; a longer one is set smaller) */
 		ui_font_text(scr, TF_BOLD, tx, t.y + t.h / 2 - (sub ? px * 4 : 0), fit_cap(TF_BOLD, px * 6, tw, name), name, C_TEXT, -1);
@@ -1522,9 +1529,7 @@ static void setting_changed(Config* cfg, const Setting* st) {
 	if (!strcmp(st->key, "language")) i18n_set(cfg->language), ui_language_changed();
 	if (!strcmp(st->key, "theme")) ui_theme(cfg->lightTheme);
 	if (!strcmp(st->key, "accent")) ui_accent(cfg->accent), ui_theme(cfg->lightTheme);
-	if (!strncmp(st->key, "brightness_", 11)) ui_brightness(cfg->brightTop, cfg->brightBottom);
 	if (!strcmp(st->key, "show_all") || !strcmp(st->key, "name_tags")) setRescan = true;
-	if (!strcmp(st->key, "screen_match") || !strcmp(st->key, "screen_placement")) ui_layout_pictures();
 	fprintf(stderr, "setting: %s = %s (all games)\n", lines[0][0], lines[0][1]);
 }
 
@@ -1551,7 +1556,6 @@ static int reset_settings(Config* cfg) {
 	config_kv_remove(path, n, keys);
 	ui_accent(cfg->accent);
 	ui_theme(cfg->lightTheme);
-	ui_brightness(cfg->brightTop, cfg->brightBottom);
 	clocks_set(cfg->perfMax);
 	ui_layout_pictures();
 	setRescan = true;
@@ -1605,11 +1609,12 @@ static bool settings_pages_input(Config* cfg, int ls) {
 	int n = setPage >= 0 && setPage < SP_SYSTEM ? page_settings(setPage, rows, ids) : 0;
 	bool back = btn_pressed(B_B) || btn_pressed(B_SELECT) || btn_released(B_HOME);
 	if (setPage == SP_HOME) {
-		if (btn_pressed(B_DOWN)) setSel = (setSel + 2) % 8;
-		if (btn_pressed(B_UP)) setSel = (setSel + 6) % 8;
-		if (btn_pressed(B_RIGHT) || btn_pressed(B_LEFT)) setSel ^= 1;
+		/* (two columns; Back alone across the last row) */
+		if (btn_pressed(B_DOWN)) setSel = setSel == SET_BACK ? 0 : SDL_min(setSel + 2, SET_BACK);
+		if (btn_pressed(B_UP)) setSel = setSel == SET_BACK ? SET_BACK - 2 : setSel < 2 ? SET_BACK : setSel - 2;
+		if ((btn_pressed(B_RIGHT) || btn_pressed(B_LEFT)) && setSel != SET_BACK) setSel ^= 1;
 		if (btn_pressed(B_A) || btn_pressed(B_START)) {
-			if (setSel == 7) return false;
+			if (setSel == SET_BACK) return false;
 			setPage = setSel;
 			setSel = 0;
 			setTop = 0;
@@ -1646,11 +1651,11 @@ static bool settings_pages_input(Config* cfg, int ls) {
 		SDL_Rect panel = set_panel(ls);
 		if (setPage == SP_HOME) {
 			int hit = -1;
-			for (int i = 0; i < 8; ++i) {
+			for (int i = 0; i < SET_TILES; ++i) {
 				SDL_Rect t = set_tile(ls, i);
 				if (SDL_PointInRect(&q, &t)) hit = i;
 			}
-			if (hit == 7 || (hit < 0 && !SDL_PointInRect(&q, &panel))) return false;
+			if (hit == SET_BACK || (hit < 0 && !SDL_PointInRect(&q, &panel))) return false;
 			if (hit >= 0) {
 				setPage = hit;
 				setSel = 0;

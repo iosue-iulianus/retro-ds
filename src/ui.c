@@ -634,45 +634,12 @@ float ui_screen_ppi(int screen) {
 	return reported_ppi(screen);
 }
 
-/* screen_match (Display: screen shapes; experimental): the wider screen's
- * pictures keep to the other screen's shape (aspect: the largest such area,
- * centred), or also its real size (size: by the screens' pixels per inch,
- * against the edge nearest the other screen: a top screen's bottom), so a
- * picture that goes on over both (Pokémon Pinball's table) carries on
- * across. Nothing when the shapes already match. */
+/* Each screen's pictures fill it, centred (GBA DS's screen shapes and
+ * screen placement are gone: each screen keeps its own shape). */
 void ui_layout_pictures(void) {
-	/* screen_placement = no_gap (issue #46): with two screens, the top one's
-	 * pictures against its bottom edge and the bottom one's against its
-	 * top, so the two are as close together as they can be */
-	bool gap = !strcmp(cfg->screenPlace, "no_gap") && nScreens == 2;
 	for (int i = 0; i < nScreens; ++i) {
 		screens[i].pic = (SDL_Rect) { 0, 0, screens[i].rect.w, screens[i].rect.h };
-		screens[i].align = gap ? (i == 0 ? 1 : -1) : 0;
-	}
-	bool aspect = !strcmp(cfg->screenMatch, "aspect"), size = !strcmp(cfg->screenMatch, "size");
-	static char logged[96];
-	char note[64] = "";
-	if ((aspect || size) && ui_screens_differ()) {
-		double a0 = (double) screens[0].rect.w / screens[0].rect.h, a1 = (double) screens[1].rect.w / screens[1].rect.h;
-		int wide = a0 > a1 ? 0 : 1, narrow = 1 - wide;
-		const SDL_Rect* W = &screens[wide].rect;
-		const SDL_Rect* N = &screens[narrow].rect;
-		double a = (double) N->w / N->h;
-		int w = W->h * a + 0.5, h = W->h;
-		float pw = ui_screen_ppi(wide), pn = ui_screen_ppi(narrow);
-		if (size && pw > 0 && pn > 0) w = N->w * pw / pn + 0.5, h = N->h * pw / pn + 0.5;
-		else if (size) snprintf(note, sizeof(note), " (sizes not known: shapes only)");
-		if (w > W->w) h = h * W->w / w, w = W->w;
-		if (h > W->h) w = w * W->h / h, h = W->h;
-		int y = size ? (wide == 0 ? W->h - h : 0) : (W->h - h) / 2;
-		screens[wide].pic = (SDL_Rect) { (W->w - w) / 2, y, w, h };
-		snprintf(note + strlen(note), sizeof(note) - strlen(note), " %dx%d on screen %d", w, h, wide);
-	}
-	char line[96];
-	snprintf(line, sizeof(line), "%s%s, placement %s", cfg->screenMatch, note, gap ? "no_gap" : "center");
-	if (strcmp(line, logged)) {
-		snprintf(logged, sizeof(logged), "%s", line);
-		fprintf(stderr, "screen shapes: %s (ppi %.0f / %.0f)\n", line, ui_screen_ppi(0), ui_screen_ppi(1));
+		screens[i].align = 0;
 	}
 }
 
@@ -1617,11 +1584,9 @@ void ui_clip(int screen, const SDL_Rect* clip) {
 
 static int keyCount[2];
 static bool inKey;
-static bool dimmed[2]; /* this frame's brightness layer is on (a present without a redraw must not add it again) */
 static void key_layer(int screen, SDL_Rect r, SDL_Color c);
 void ui_clear(void) {
 	keyCount[0] = keyCount[1] = 0;
-	dimmed[0] = dimmed[1] = false;
 	for (int i = 0; i < nViews; ++i) {
 		if (views[i].retained) continue; /* keeps its last picture; see sw_render */
 		SDL_SetRenderDrawColor(views[i].ren, 0, 0, 0, 255);
@@ -1731,14 +1696,6 @@ double ui_display_hz(int view) {
 	return hz;
 }
 
-/* This app's brightness for each screen (issue #56), 20..100: a black layer over
- * everything at the end of the frame (not in screenshots), never the system's
- * own brightness. */
-static int brightPct[2] = { 100, 100 };
-void ui_brightness(int top, int bottom) {
-	brightPct[0] = SDL_clamp(top, 20, 100);
-	brightPct[1] = SDL_clamp(bottom, 20, 100);
-}
 
 void ui_present(void) {
 	{
@@ -1755,9 +1712,6 @@ void ui_present(void) {
 	if (pendingShot[0]) {
 		ui_screenshot(pendingShot);
 		pendingShot[0] = 0;
-	}
-	for (int s = 0; s < nScreens && s < 2; ++s) {
-		if (brightPct[s] < 100 && !dimmed[s]) dimmed[s] = true, ui_dim(s, (Uint8) (255 * (100 - brightPct[s]) / 100));
 	}
 #ifdef __ANDROID__
 	static Uint64 handover;

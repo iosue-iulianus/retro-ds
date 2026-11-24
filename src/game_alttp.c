@@ -931,7 +931,7 @@ void draw_alt(int s) {
  * the items and the map instead of opening the game's own map. Returns
  * the keys the game gets. */
 uint32_t alt_keys(uint32_t keys) {
-	if (!alt || !cfg->map || nScreens != 2 || !alttp_playing(alt)) {
+	if (!alt || nScreens != 2 || !alttp_playing(alt)) {
 		altXDown = (keys & K_X) != 0;
 		return keys;
 	}
@@ -993,7 +993,7 @@ static void alt_tap(int x, int y) {
 /* A touch on the second screen: a drag moves the map with the finger (a
  * fling carries on), a tap goes to alt_tap. Never the menu. */
 int alt_touch(const Pointer* p) {
-	if (!cfg->map || nScreens != 2) return 0;
+	if (nScreens != 2) return 0;
 	if (p->kind >= 4) {
 		/* ALTTP-3: a pinch zooms round the point between the fingers,
 		 * which stays under them; let go, the zoom settles on the nearest
