@@ -716,10 +716,10 @@ static void next_login(void) {
 		return;
 	}
 #ifdef __ANDROID__
-	note("Sign-in failed", cfg->raUser[0] ? "Check ra_username and ra_password in snes-ds.cfg"
+	note("Sign-in failed", cfg->raUser[0] ? "Check ra_username and ra_password in retrods.cfg"
 	                                     : "Sign in again in the game list's Settings");
 #else
-	note("Sign-in failed", cfg->raUser[0] ? "Check ra_username and ra_password in snes-ds.cfg"
+	note("Sign-in failed", cfg->raUser[0] ? "Check ra_username and ra_password in retrods.cfg"
 	                                     : "Check the account in EmulationStation's RetroAchievements settings");
 #endif
 }

@@ -30,7 +30,7 @@ void game_paths(const Config* cfg, const char* rom, GamePaths* out);
 
 /* RetroArch's folder for a game's states (rom: its path), as RetroArch
  * works it out from its retroarch.cfg, found on ROCKNIX, BananaOS or in
- * ~/.config/retroarch (or retroarch_state_dir in snes-ds.cfg). *compress:
+ * ~/.config/retroarch (or retroarch_state_dir in retrods.cfg). *compress:
  * its savestate_file_compression. False if RetroArch's settings weren't
  * found. */
 bool retroarch_state_dir(const Config* cfg, const char* rom, char* out, size_t n, bool* compress);
@@ -67,7 +67,7 @@ bool file_exists(const char* path);
 void mkdirs(const char* path);
 bool copy_file(const char* from, const char* to);
 
-/* key = value files (snes-ds.cfg's form): one key's value (the last line
+/* key = value files (retrods.cfg's form): one key's value (the last line
  * with it), and setting one key, the file's other lines kept (header: the
  * first line of a new file) */
 bool kv_get(const char* file, const char* key, char* out, size_t n);

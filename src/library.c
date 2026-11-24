@@ -1467,7 +1467,7 @@ static void setting_changed(Config* cfg, const Setting* st) {
 	char path[1100];
 	mkdirs(cfg->stateDir);
 	snprintf(path, sizeof(path), "%s/prefs.cfg", cfg->stateDir);
-	config_kv_update(path, "# written by snes-ds's menus; overrides snes-ds.cfg", n, kv);
+	config_kv_update(path, "# written by retrods's menus; overrides retrods.cfg", n, kv);
 	if (!strcmp(st->key, "performance")) clocks_set(cfg->perfMax);
 	if (!strcmp(st->key, "language")) i18n_set(cfg->language), ui_language_changed();
 	if (!strcmp(st->key, "theme")) ui_theme(cfg->lightTheme);
@@ -1720,7 +1720,7 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 			snprintf(line, sizeof(line), tr("Couldn't sign in as %s%s%s. Sign in to try again."), user, err[0] ? ": " : "", err);
 			col = C_GOLD;
 		} else if (ra == RA_ACCOUNT_OFF) {
-			snprintf(line, sizeof(line), tr("Switched off in snes-ds.cfg (retroachievements = 0)."));
+			snprintf(line, sizeof(line), tr("Switched off in retrods.cfg (retroachievements = 0)."));
 		} else {
 			snprintf(line, sizeof(line),
 			         tr("Earn achievements in casual mode with your retroachievements.org account. SNES DS keeps a sign-in token, "
@@ -1778,7 +1778,7 @@ static void settings_activate(Config* cfg, int row) {
 static bool can_write_in(const char* dir) {
 	mkdirs(dir);
 	char test[1100];
-	snprintf(test, sizeof(test), "%s/.snes-ds-write-test", dir);
+	snprintf(test, sizeof(test), "%s/.retrods-write-test", dir);
 	FILE* f = fopen(test, "w");
 	if (!f) return false;
 	fclose(f);
@@ -2296,7 +2296,7 @@ static void draw_updates(int scr, int sel) {
 		}
 		draw_wrapped(scr, tx, y + px * 3, tw, px,
 		             "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks "
-		             "before downloading anything. Updates come from the releases on github.com/iosue-iulianus/snes-ds.",
+		             "before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.",
 		             C_DIM);
 	}
 	}

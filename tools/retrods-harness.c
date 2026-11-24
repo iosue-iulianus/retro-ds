@@ -1,6 +1,6 @@
 /* SNES DS M0 harness: two instances of a libretro core, driven by a script.
  *
- *   snes-harness CORE ROM OUTDIR SCRIPT
+ *   retrods-harness CORE ROM OUTDIR SCRIPT
  *
  * CORE is copied to OUTDIR/core-a.so and OUTDIR/core-b.so so the two
  * instances (A: the live game, B: the hidden copy) get separate globals.
@@ -598,7 +598,7 @@ static void bench(int frames) {
 
 int main(int argc, char** argv) {
 	if (argc != 5) {
-		fprintf(stderr, "usage: snes-harness CORE ROM OUTDIR SCRIPT\n");
+		fprintf(stderr, "usage: retrods-harness CORE ROM OUTDIR SCRIPT\n");
 		return 2;
 	}
 	const char* core = argv[1];

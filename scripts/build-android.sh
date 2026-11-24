@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds the Android APK (arm64-v8a): dist/snes-ds-vX.Y.Z-android.apk.
+# Builds the Android APK (arm64-v8a): dist/retrods-vX.Y.Z-android.apk.
 #
 # Needs: the Android SDK (ANDROID_HOME or ANDROID_SDK_ROOT) with an NDK
 # (ANDROID_NDK_HOME, or ANDROID_NDK_LATEST_HOME as on GitHub's runners),
@@ -63,13 +63,13 @@ cp assets/fonts/Jost-OFL.txt "$LIC/Jost-OFL.txt"
 cp third_party/rcheevos/LICENSE "$LIC/rcheevos-LICENSE.txt"
 cp third_party/libwebp/COPYING "$LIC/libwebp-COPYING.txt"
 cp third_party/libwebp/PATENTS "$LIC/libwebp-PATENTS.txt"
-printf "SNES DS %s is free software under the GNU General Public License, version 3 only (SNES-DS-LICENSE.txt).\nIts emulator is bsnes (c) byuu and contributors, GPLv3 (bsnes-GPLv3.txt), libretro's port with SNES DS's changes:\nhttps://github.com/libretro/bsnes (commit %s; the changes in SNES DS's scripts/cores/)\nSDL2 (c) Sam Lantinga, zlib licence: https://github.com/libsdl-org/SDL (%s)\nIts text is set in Jost (c) The Jost Project Authors, SIL Open Font License 1.1 (Jost-OFL.txt).\nRetroAchievements support: rcheevos (c) RetroAchievements, MIT (rcheevos-LICENSE.txt), %s.\nWebP images: libwebp (c) Google Inc., BSD 3-clause (libwebp-COPYING.txt, libwebp-PATENTS.txt), v1.6.0.\nSNES DS source: https://github.com/iosue-iulianus/snes-ds\nBased on GBA DS by kyannon (GPLv3): https://github.com/kyannon/gba-ds\n" \
+printf "SNES DS %s is free software under the GNU General Public License, version 3 only (SNES-DS-LICENSE.txt).\nIts emulator is bsnes (c) byuu and contributors, GPLv3 (bsnes-GPLv3.txt), libretro's port with SNES DS's changes:\nhttps://github.com/libretro/bsnes (commit %s; the changes in SNES DS's scripts/cores/)\nSDL2 (c) Sam Lantinga, zlib licence: https://github.com/libsdl-org/SDL (%s)\nIts text is set in Jost (c) The Jost Project Authors, SIL Open Font License 1.1 (Jost-OFL.txt).\nRetroAchievements support: rcheevos (c) RetroAchievements, MIT (rcheevos-LICENSE.txt), %s.\nWebP images: libwebp (c) Google Inc., BSD 3-clause (libwebp-COPYING.txt, libwebp-PATENTS.txt), v1.6.0.\nSNES DS source: https://github.com/iosue-iulianus/retro-ds\nBased on GBA DS by kyannon (GPLv3): https://github.com/kyannon/gba-ds\n" \
 	"$VERSION" "$(git -C "$CORES/bsnes" rev-parse --short HEAD)" "$SDL_BRANCH" "$(tail -1 third_party/rcheevos/VERSION)" > "$LIC/README.txt"
 
 gradle -p android --no-daemon assembleRelease -PsdlDir="$DEPS/SDL2" -PcpuFlags="$CPU_FLAGS"
 
 mkdir -p dist
-APK="dist/snes-ds-v$VERSION-android.apk"
-rm -f dist/snes-ds-*-android.apk
+APK="dist/retrods-v$VERSION-android.apk"
+rm -f dist/retrods-*-android.apk
 cp android/app/build/outputs/apk/release/app-release.apk "$APK"
 echo "built $APK"

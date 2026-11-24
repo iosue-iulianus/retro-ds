@@ -26,11 +26,11 @@ On a Linux host with git, make, gcc and libpng:
 
 ```sh
 scripts/build-cores.sh snes9x   # bsnes (patched) and snes9x into ../cores
-make m0                         # build/host/snes-harness
-build/host/snes-harness ../cores/bsnes/bsnes_libretro.so ROM OUTDIR SCRIPT
+make m0                         # build/host/retrods-harness
+build/host/retrods-harness ../cores/bsnes/bsnes_libretro.so ROM OUTDIR SCRIPT
 ```
 
-The harness runs two copies of the core from a script (button presses, save states, memory reads, map captures, benchmarks); its commands are listed at the top of `tools/snes-harness.c`. snes9x is for local experiments only: its licence doesn't allow it to be distributed with GPL software, so SNES DS never ships it.
+The harness runs two copies of the core from a script (button presses, save states, memory reads, map captures, benchmarks); its commands are listed at the top of `tools/retrods-harness.c`. snes9x is for local experiments only: its licence doesn't allow it to be distributed with GPL software, so SNES DS never ships it.
 
 The rest of the build (the app, the Android build) is still GBA DS's; see `CLAUDE.md`.
 

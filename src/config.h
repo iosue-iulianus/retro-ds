@@ -17,12 +17,12 @@ enum { OVL_TOP = 1, OVL_BOTTOM = 2, OVL_BOTH = 3 };
  * LCD grid; the subpixel presets also brighten the colours to make up for
  * their stripes (the colour table, ui.c). */
 enum { SH_OFF, SH_GRID, SH_SCANLINES, SH_SOFT, SH_SUB_LIGHT, SH_SUB, SH_SUB_STRONG, SH_COUNT };
-extern const char* const shaderNames[SH_COUNT]; /* snes-ds.cfg's names: off, grid, ... */
+extern const char* const shaderNames[SH_COUNT]; /* retrods.cfg's names: off, grid, ... */
 /* the fast-forward speeds the pause menu goes through (ff_speed) */
 #define FF_SPEED_MIN 2
 #define FF_SPEED_MAX 5
 /* Hotkeys: the hotkey button held with an action's button does the action
- * (game.c). snes-ds.cfg: hotkey_<name> = a button (a, b, x, y, l, r, l2, r2,
+ * (game.c). retrods.cfg: hotkey_<name> = a button (a, b, x, y, l, r, l2, r2,
  * select, start, l3, up, down, left, right) or none. */
 enum { HK_QUIT, HK_SAVE, HK_LOAD, HK_BAR, HK_SWAP, HK_SHADER, HK_COUNT };
 extern const char* const hotkeyNames[HK_COUNT]; /* quit, save_state, ... */
@@ -133,11 +133,11 @@ void config_defaults(Config* c);
 /* ---- the settings the menus offer (docs/MENUS.md): the game list's Settings
  * (for all games) and, later, the pause menu (this game or all) show the same
  * rows, from this table. A setting is a bool, an int or a string in Config
- * with a list of choices (each with the text snes-ds.cfg uses), or a number
+ * with a list of choices (each with the text retrods.cfg uses), or a number
  * in a range; fast forward is two keys in one row. */
 enum { SF_BOOL, SF_INT, SF_STR, SF_FF };
 typedef struct {
-	const char* value; /* as snes-ds.cfg writes it */
+	const char* value; /* as retrods.cfg writes it */
 	const char* label; /* as the menu says it */
 	int ival;          /* SF_BOOL / SF_INT: the field's value for it */
 } SettingChoice;
@@ -163,7 +163,7 @@ int config_setting_index(const Config* c, const Setting* s);
 void config_setting_text(const Config* c, const Setting* s, char* out, size_t n);
 /* step by dir (+1 / -1), round at the ends; false if nothing changed */
 bool config_setting_step(Config* c, const Setting* s, int dir);
-/* the lines snes-ds.cfg would hold for the setting's value: [n][2] key, value; returns n */
+/* the lines retrods.cfg would hold for the setting's value: [n][2] key, value; returns n */
 int config_setting_lines(const Config* c, const Setting* s, char lines[2][2][24]);
 /* Updates (or adds) key = value lines in a file of the app's own (prefs.cfg), keeping
  * every other line. */

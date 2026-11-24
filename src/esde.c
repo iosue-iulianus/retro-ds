@@ -15,7 +15,7 @@
  * game then work (they don't with a content link, %ROMPROVIDER%) */
 #define CMD_LINE "        " CMD_OPEN "%EMULATOR_SNES-DS% %ACTIVITY_CLEAR_TASK% %ACTIVITY_CLEAR_TOP% %EXTRA_rom%=%ROM%</command>\n"
 
-#define COPY_MARK "snes-ds: ES-DE's own gba entry"
+#define COPY_MARK "retrods: ES-DE's own gba entry"
 #define COPY_NOTE                                                                                              \
 	"        <!-- " COPY_MARK ", copied by SNES DS (Settings > SNES DS in ES-DE) with SNES DS put first.\n" \
 	"             SNES DS brings it up to date when it starts, and takes it out when that's switched off. -->\n"
@@ -51,7 +51,7 @@ static const char* const GBA_BODY =
 #define RULE_OPEN "<emulator name=\"SNES-DS\">"
 static const char* const RULE =
 	"    " RULE_OPEN "\n"
-	"        <!-- snes-ds: SNES DS, added by SNES DS (Settings > SNES DS in ES-DE); switching that off takes it out -->\n"
+	"        <!-- retrods: SNES DS, added by SNES DS (Settings > SNES DS in ES-DE); switching that off takes it out -->\n"
 	"        <rule type=\"androidpackage\">\n"
 	"            <entry>io.github.iosue_iulianus.snesds/.LauncherActivity</entry>\n"
 	"        </rule>\n"
@@ -348,7 +348,7 @@ static char* read_file(const char* path) {
 /* via a temporary file, so ES-DE never reads half a file */
 static bool write_file(const char* path, const char* text) {
 	char tmp[800];
-	snprintf(tmp, sizeof(tmp), "%s.snes-ds.tmp", path);
+	snprintf(tmp, sizeof(tmp), "%s.retrods.tmp", path);
 	FILE* f = fopen(tmp, "w");
 	if (!f) return false;
 	bool ok = fputs(text, f) >= 0;

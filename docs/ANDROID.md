@@ -84,7 +84,7 @@ RC_SRC). Differences from ROCKNIX:
   signs in with the password and keeps only the token
   (`<state_dir>/ra/login.cfg`, as on ROCKNIX). At start-up `ra_init` signs
   in with that token. Sign Out (`ra_sign_out`) deletes it. ra_username /
-  ra_password in snes-ds.cfg still override. The library loop calls
+  ra_password in retrods.cfg still override. The library loop calls
   `ra_idle()` so sign-in answers are handled there too.
 - User agent: "RetroDS/x (Android)".
 - CLAUDE.md's ra.c line still says Android has no-op stubs (the main
@@ -188,7 +188,7 @@ How it's put together:
   HOME (SDL traps it). All Android code is `#ifdef __ANDROID__`.
 - `main.c`: config, states and the log live in the app's folder
   (`Android/data/io.github.iosue_iulianus.snesds/files`, passed as `RETRODS_HOME`);
-  stderr goes to logcat (tag `RETRODS`) and `snes-ds.log` there. With no game
+  stderr goes to logcat (tag `RETRODS`) and `retrods.log` there. With no game
   given it plays the first game in `/storage/emulated/0/ROMs/gba` (or
   `GBA`) that has a map profile, else the first game. Another game:
   `adb shell am start -n io.github.iosue_iulianus.snesds/.LauncherActivity --es rom /path/to/game.gba`.
@@ -353,7 +353,7 @@ CHANGELOG until someone tests them on a more capable device.
     player's own gba system, else a copy of ES-DE's (esde.c GBA_BODY, from
     ES-DE's resources/systems/android/es_systems.xml; its RetroArch lines
     end in %ROMSAF% when es_settings.xml has RetroArchSAFMode on, as
-    es_systems_saf.xml does), marked with a "snes-ds:" comment. main.c
+    es_systems_saf.xml does), marked with a "retrods:" comment. main.c
     refreshes it at start; Off takes out only SNES DS's parts (a file left
     with no system / emulator is deleted). %EXTRA_rom%=%ROM% (a path, not
     %ROMSAF%) so patches beside the game apply. When ES-DE changes its own
@@ -366,7 +366,7 @@ CHANGELOG until someone tests them on a more capable device.
   files access is granted (else the app's folder), laid out like the
   ROCKNIX install folder: states/ (with .nomedia), cheats/ (cheat_dir),
   overlays/ and logos/ (asset_dir), screenshots/ (screenshot_dir),
-  snes-ds.log. android_config_defaults makes the folders with README.txt
+  retrods.log. android_config_defaults makes the folders with README.txt
   files. SnesDsActivity.dataFolder() copies states/ over from the app's
   folder once (builds before this used it). RetroArch's own folders
   aren't readable by other apps on newer Android, hence cheats/ there.
@@ -391,7 +391,7 @@ frontend launch intents.
   so a failing frontend shows what it sent.
 - Owner's test: the explicit template `-n io.github.iosue_iulianus.snesds/.LauncherActivity
   -a android.intent.action.VIEW -d {file.uri}` works; the default one gave
-  a black screen and no snes-ds.log (so it never reached the game). Likely
+  a black screen and no retrods.log (so it never reached the game). Likely
   cause: the launcher read every extra, and a Parcelable extra of a class
   only GammaOS has throws on reading (BadParcelableException), uncaught.
   Now each extra is read on its own inside try/catch, the ROM is resolved
@@ -427,7 +427,7 @@ frontend launch intents.
 - Result: the device crashed a second or two after a game started, right
   after "presenting the top screen in step with its display" (the game on
   the second display, interval 1). Cause not known yet (the logcat sent was
-  filtered to RETRODS). Now off by default; `vsync = 1` in SNES DS/snes-ds.cfg
+  filtered to RETRODS). Now off by default; `vsync = 1` in SNES DS/retrods.cfg
   turns it on, for getting `adb logcat -b crash` from the crash.
 - That log: not a crash but a hang. `adb logcat -b crash` was empty; the
   log repeated `BufferQueueConsumer: [SurfaceView[]#2(BLAST Consumer)]
@@ -482,7 +482,7 @@ frontend launch intents.
   highest-numbered of equals; android_pin_game_thread) and the worker
   threads (map capture, logo extraction, RetroAchievements, save writer,
   software second screen) to the others, since threads start on their
-  creator's cores. `pin_cores = 0` in SNES DS/snes-ds.cfg turns it off, for
+  creator's cores. `pin_cores = 0` in SNES DS/retrods.cfg turns it off, for
   comparing. The log lists the cores the app may use (with max MHz), and
   each slow frame and 5 s report says how often the game thread was
   preempted (getrusage RUSAGE_THREAD ru_nivcsw) and which cpu it was on.
@@ -594,7 +594,7 @@ sha256.c are in CMakeLists):
 
 The Retroid Pocket Duo Lite (Qualcomm QCS6125: Cortex-A73 + A53, ARMv8.0,
 Android 15) closed SNES DS at once, with launch.log showing only the
-launches and no snes-ds.log: the native code was built with
+launches and no retrods.log: the native code was built with
 `-mcpu=cortex-a55`, which lets the compiler use ARMv8.2 instructions, so
 it died on the first one (an illegal instruction, before any log). Now
 `-march=armv8-a -mtune=cortex-a55` (scripts/build-android.sh, for libmgba
@@ -647,7 +647,7 @@ Choose ROM folder, Choose save folder, Keep saves next to the games (when
 a save folder is set) and Save files: .sav / .srm. They set romDir,
 saveDir and saveExt (the existing save_dir / save_ext), kept in
 library.cfg (which on Android always writes all three, so it overrides
-snes-ds.cfg's). The picker is shared: `pickFor` says which folder it's for.
+retrods.cfg's). The picker is shared: `pickFor` says which folder it's for.
 A save folder must be writable (a test file; else the message asks for All
 files access). paths.c (shared): with a save_dir and no save there yet, a
 game's save next to its ROM, in either type, is copied over (left there).

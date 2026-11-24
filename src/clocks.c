@@ -17,7 +17,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define GOV_STATE "/tmp/snes-ds-governors.state"
+#define GOV_STATE "/tmp/retrods-governors.state"
 #define GOV_MAX 16
 
 static struct {

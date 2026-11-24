@@ -52,7 +52,7 @@ public class LauncherActivity extends Activity {
 
     /* ------------------------------------------------------------ launch.log
      * What frontends sent and what came of it, in the SNES DS folder, so a
-     * launch that fails before the game starts (when snes-ds.log isn't
+     * launch that fails before the game starts (when retrods.log isn't
      * written) can be looked at without adb. */
 
     static File dataDir(Context c) {

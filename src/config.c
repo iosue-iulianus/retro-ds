@@ -383,7 +383,7 @@ void config_usage(const char* argv0) {
 	        "\n"
 	        "Without a game, opens the game library (games found in --rom-dir).\n"
 	        "\n"
-	        "Options (also accepted as key=value lines in snes-ds.cfg):\n"
+	        "Options (also accepted as key=value lines in retrods.cfg):\n"
 	        "  --rom-dir=DIR[:DIR]    library folders (/storage/roms/gba)\n"
 	        "  --cheat-dir=DIR[:DIR]  RetroArch .cht folders (/config/retroarch/cheats:...)\n"
 	        "  --patch-dir=DIR        patches, a folder per game (default: patches beside the app)\n"
@@ -599,7 +599,7 @@ bool config_setting_step(Config* c, const Setting* s, int dir) {
 	}
 	int i = config_setting_index(c, s), to;
 	if (i < 0 && s->field == SF_INT) {
-		/* a number snes-ds.cfg gave that isn't on the list: the next one up or down */
+		/* a number retrods.cfg gave that isn't on the list: the next one up or down */
 		int v = *(const int*) ((const char*) c + s->off);
 		to = dir > 0 ? 0 : s->nChoices - 1;
 		for (int k = 0; k < s->nChoices; ++k) {

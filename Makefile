@@ -1,7 +1,7 @@
 # SNES DS build
 #
 #   scripts/setup-host.sh     first time: SDL2 into deps/, the cores into ../cores, then builds
-#   make / make tools         host build (build/host/snes-ds, build/host/snes-harness)
+#   make / make tools         host build (build/host/retrods, build/host/retrods-harness)
 #   make CROSS=aarch64-linux-gnu- SDL_PREFIX=../sdl-aarch64
 #
 # SDL_PREFIX an SDL2 install prefix (include/SDL2, lib/libSDL2.so)
@@ -51,9 +51,9 @@ WEBP_OBJ   := $(patsubst $(WEBP_DIR)/src/%.c,$(OUT)/libwebp/%.o,$(WEBP_SRC))
 
 APP_SRC    := src/main.c src/config.c src/i18n.c src/i18n_data.c src/font.c src/ui.c src/library.c src/mapper.c src/hotkeys.c src/folderpick.c src/game.c src/game_sm.c src/game_alttp.c src/paths.c src/image.c src/brand_data.c src/bezel.c src/bezel_logo.c src/logo.c src/cheats.c src/textfont.c src/fonts_data.c src/ra.c src/http.c src/sha256.c src/update.c src/clocks.c $(CORE_SRC)
 
-all: $(OUT)/snes-ds
+all: $(OUT)/retrods
 
-$(OUT)/snes-ds: $(APP_SRC) src/*.h VERSION $(RC_OBJ) $(WEBP_OBJ)
+$(OUT)/retrods: $(APP_SRC) src/*.h VERSION $(RC_OBJ) $(WEBP_OBJ)
 	@mkdir -p $(OUT)
 	$(CC) $(CFLAGS) -DRETRODS_RA -I$(RC_DIR)/include -I$(RC_DIR)/src -I$(WEBP_DIR) -o $@ $(APP_SRC) $(RC_OBJ) $(WEBP_OBJ) $(LDFLAGS) $(LIBS)
 
@@ -65,16 +65,16 @@ $(OUT)/libwebp/%.o: $(WEBP_DIR)/src/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(OPTFLAGS) -std=gnu11 -I$(WEBP_DIR) -c $< -o $@
 
-# development tools (host only; need libpng): the harness (tools/snes-harness.c)
-tools: build/host/snes-harness
+# development tools (host only; need libpng): the harness (tools/retrods-harness.c)
+tools: build/host/retrods-harness
 
-# The harness (tools/snes-harness.c): two copies of the core driven by a
+# The harness (tools/retrods-harness.c): two copies of the core driven by a
 # script, for finding a game's addresses and timing captures. Needs libpng.
-build/host/snes-harness: tools/snes-harness.c tools/png.c src/emu.c src/emu.h src/libretro.h src/patch.c src/smmap.c src/smmap.h src/alttp.c src/alttp.h src/alttp_dungeon.c src/alttp_dungeon.h
+build/host/retrods-harness: tools/retrods-harness.c tools/png.c src/emu.c src/emu.h src/libretro.h src/patch.c src/smmap.c src/smmap.h src/alttp.c src/alttp.h src/alttp_dungeon.c src/alttp_dungeon.h
 	@mkdir -p build/host
-	$(CC) $(CFLAGS) -o $@ tools/snes-harness.c tools/png.c src/emu.c src/patch.c src/smmap.c src/alttp.c src/alttp_dungeon.c -lpng -lz -ldl -lpthread -lm
+	$(CC) $(CFLAGS) -o $@ tools/retrods-harness.c tools/png.c src/emu.c src/patch.c src/smmap.c src/alttp.c src/alttp_dungeon.c -lpng -lz -ldl -lpthread -lm
 
-m0: build/host/snes-harness
+m0: build/host/retrods-harness
 
 clean:
 	rm -rf build

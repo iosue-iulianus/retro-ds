@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The second screens' regression check: both games' harness checks in one run.
 
-Runs the harness (build/host/snes-harness) on the test states and compares
+Runs the harness (build/host/retrods-harness) on the test states and compares
 what SNES DS draws with the game's own screens and with the Python
 references, as each check in docs/games/*.md was first made. Run it before
 merging a branch that touches a second screen (scripts/check-games.sh
@@ -48,7 +48,7 @@ import numpy as np
 from PIL import Image
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-HARNESS = os.path.join(REPO, "build", "host", "snes-harness")
+HARNESS = os.path.join(REPO, "build", "host", "retrods-harness")
 CORE = os.path.join(REPO, "build", "host", "bsnes_libretro.so")
 
 results = []

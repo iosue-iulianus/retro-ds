@@ -137,7 +137,7 @@ public class SnesDsActivity extends SDLActivity {
         }
         Log.i(TAG, "SNES DS " + BuildConfig.VERSION_NAME + ", data in " + home);
         /* launch.log: the steps up to the native side's own log, so a start
-         * that dies before snes-ds.log exists can still be followed */
+         * that dies before retrods.log exists can still be followed */
         LauncherActivity.launchLog(this, "starting SNES DS " + BuildConfig.VERSION_NAME + " on " + Build.MANUFACTURER + " "
                 + Build.MODEL + " (" + Build.HARDWARE + "), Android " + Build.VERSION.RELEASE + " (API "
                 + Build.VERSION.SDK_INT + "), ABIs " + java.util.Arrays.toString(Build.SUPPORTED_ABIS)
@@ -452,7 +452,7 @@ public class SnesDsActivity extends SDLActivity {
             id = pi.createSession(params);
             File apk = new File(path);
             try (PackageInstaller.Session s = pi.openSession(id)) {
-                try (InputStream in = new FileInputStream(apk); OutputStream out = s.openWrite("snes-ds.apk", 0, apk.length())) {
+                try (InputStream in = new FileInputStream(apk); OutputStream out = s.openWrite("retrods.apk", 0, apk.length())) {
                     byte[] buf = new byte[1 << 16];
                     for (int n; (n = in.read(buf)) > 0; ) out.write(buf, 0, n);
                     s.fsync(out);

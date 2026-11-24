@@ -426,7 +426,7 @@ bool ui_init(Config* c, bool wantDual) {
 	 * coming regardless. The environment variable still overrides this. */
 	SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 #endif
-	setenv("SDL_VIDEO_WAYLAND_WMCLASS", "snes-ds", 0);
+	setenv("SDL_VIDEO_WAYLAND_WMCLASS", "retrods", 0);
 	const Uint32 audioInit = SDL_INIT_AUDIO;
 	if (SDL_Init(SDL_INIT_VIDEO | audioInit | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) != 0) {
 		fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());

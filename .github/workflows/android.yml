@@ -35,8 +35,8 @@ jobs:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
         run: |
           if [ -n "$KEYSTORE_B64" ]; then
-            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/snes-ds.jks"
-            echo "RETRODS_KEYSTORE=$RUNNER_TEMP/snes-ds.jks" >> "$GITHUB_ENV"
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/retrods.jks"
+            echo "RETRODS_KEYSTORE=$RUNNER_TEMP/retrods.jks" >> "$GITHUB_ENV"
           else
             echo "::warning::No ANDROID_KEYSTORE_B64 secret: this APK is debug-signed and won't install over a release-signed one."
           fi
@@ -67,10 +67,10 @@ jobs:
         run: |
           echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
           # for the release notes: the APK's own checksum (the artifact digest is the zip's)
-          echo "::notice title=APK SHA-256::$(cd dist && sha256sum snes-ds-*-android.apk)"
+          echo "::notice title=APK SHA-256::$(cd dist && sha256sum retrods-*-android.apk)"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: snes-ds-v${{ steps.v.outputs.version }}-android
-          path: dist/snes-ds-*-android.apk
+          name: retrods-v${{ steps.v.outputs.version }}-android
+          path: dist/retrods-*-android.apk
           if-no-files-found: error

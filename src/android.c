@@ -59,7 +59,7 @@ void android_init_log(void) {
 	const char* home = android_home();
 	if (home) {
 		char path[1100];
-		snprintf(path, sizeof(path), "%s/snes-ds.log", home);
+		snprintf(path, sizeof(path), "%s/retrods.log", home);
 		logFile = fopen(path, "w");
 	}
 	int fds[2];
@@ -119,7 +119,7 @@ void android_config_defaults(Config* c) {
 	/* RETRODS_HOME is "SNES DS" on the internal storage (or, without All files
 	 * access, the app's folder), laid out like the ROCKNIX install folder:
 	 * states/ (the default state_dir), logos/ and overlays/ (asset_dir),
-	 * cheats/, screenshots/, snes-ds.log */
+	 * cheats/, screenshots/, retrods.log */
 	const char* home = android_home();
 	if (home) {
 		snprintf(c->screenshotDir, sizeof(c->screenshotDir), "%s/screenshots", home);
@@ -132,7 +132,7 @@ void android_config_defaults(Config* c) {
 			{ "cheats", "Put RetroArch cheat files (.cht) here, subfolders are fine.\n"
 			            "A file goes with the ROM of the same name: Metroid Fusion (World) (Code Breaker).cht\n"
 			            "with Metroid Fusion (USA).gba. Switch cheats on in the pause menu: Extras > Cheats.\n"
-			            "More in the wiki: https://github.com/iosue-iulianus/snes-ds/wiki/Playing#cheats\n" },
+			            "More in the wiki: https://github.com/iosue-iulianus/retro-ds/wiki/Playing#cheats\n" },
 			{ "overlays", "Your own overlay PNGs go in this folder. Make each one the screen's size, transparent where\n"
 			              "the picture shows.\n\n"
 			              "top.png is drawn on the top screen and bottom.png on the bottom screen, for every game.\n"
@@ -141,7 +141,7 @@ void android_config_defaults(Config* c) {
 			              "there picks the screens: Both, Top Only or Bottom Only. Swapping screens doesn't move them.\n"
 			              "A screen with no file of its own gets SNES DS's generated bezel in its default colors.\n\n"
 			              "Names for one scaling or screen shape, and more, in the wiki:\n"
-			              "https://github.com/iosue-iulianus/snes-ds/wiki/Overlays\n" },
+			              "https://github.com/iosue-iulianus/retro-ds/wiki/Overlays\n" },
 			{ "logos", "Optional: your own logo images (<CODE>.png or .bmp) override the ones extracted from the games.\n" },
 			{ "screenshots", NULL },
 		};

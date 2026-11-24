@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """SNES DS translations: extract, check and compile (docs/I18N.md).
 
-  tools/i18n.py pot        write assets/i18n/snes-ds.pot from the source
+  tools/i18n.py pot        write assets/i18n/retrods.pot from the source
   tools/i18n.py check      check the .po files against the template
   tools/i18n.py compile    write src/i18n_data.c and src/i18n_data.h
   tools/i18n.py all        pot, check, compile (what the build and CI run)
@@ -24,7 +24,7 @@ import argparse, glob, os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "src")
 I18N = os.path.join(ROOT, "assets", "i18n")
-POT = os.path.join(I18N, "snes-ds.pot")
+POT = os.path.join(I18N, "retrods.pot")
 OUT_C = os.path.join(SRC, "i18n_data.c")
 OUT_H = os.path.join(SRC, "i18n_data.h")
 
@@ -700,7 +700,7 @@ def do_check(strict_pot=True):
     if strict_pot:
         old = open(POT, encoding="utf-8").read() if os.path.exists(POT) else ""
         if old != text:
-            problems.append("assets/i18n/snes-ds.pot is out of date: run tools/i18n.py pot")
+            problems.append("assets/i18n/retrods.pot is out of date: run tools/i18n.py pot")
     langs = load_langs(msgs, problems, warnings)
     for L in langs:
         st = L.stats
@@ -758,7 +758,7 @@ def main():
             self_test()
         elif a.cmd == "pot":
             msgs, _ = do_pot()
-            print("wrote assets/i18n/snes-ds.pot: %d strings" % len(msgs))
+            print("wrote assets/i18n/retrods.pot: %d strings" % len(msgs))
         elif a.cmd == "check":
             _, _, problems = do_check()
             return 1 if problems else 0
@@ -766,7 +766,7 @@ def main():
             do_compile()
         else:
             msgs, _ = do_pot()
-            print("assets/i18n/snes-ds.pot: %d strings" % len(msgs))
+            print("assets/i18n/retrods.pot: %d strings" % len(msgs))
             do_compile()
     except Err as e:
         print("error:", e)

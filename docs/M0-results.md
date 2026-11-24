@@ -13,7 +13,7 @@ review).
 | Host | AMD Ryzen 5 5600X (6 cores), WSL2 on Windows, Ubuntu 22.04, gcc 11.4 |
 | bsnes | libretro/bsnes `63ee22f`, patched to expose work RAM (`scripts/cores/bsnes-workram.patch`), built by `scripts/build-cores.sh` with its default flags |
 | snes9x | libretro/snes9x `204ea1c`, default flags; prototyping only, never shipped |
-| Harness | `make m0`, then `build/host/snes-harness CORE ROM OUTDIR SCRIPT` (`-O2`) |
+| Harness | `make m0`, then `build/host/retrods-harness CORE ROM OUTDIR SCRIPT` (`-O2`) |
 | Super Metroid | (JU) [!], CRC32 `D63ED5F8` (no copier header) |
 | A Link to the Past | (USA), CRC32 `777AAC2F` (no copier header) |
 
@@ -192,7 +192,7 @@ trying.
 scripts/build-cores.sh snes9x
 make m0
 # OUT: a scratch directory; the scripts are in the M0 notes below
-build/host/snes-harness ../cores/bsnes/bsnes_libretro.so ROM OUT SCRIPT
+build/host/retrods-harness ../cores/bsnes/bsnes_libretro.so ROM OUT SCRIPT
 ```
 
 Super Metroid to Ceres (states are saved in OUT as `ceres.state`): wait

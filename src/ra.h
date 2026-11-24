@@ -1,7 +1,7 @@
 /* RetroAchievements, casual (softcore) mode, through rcheevos' rc_client.
  *
  * The account is ROCKNIX's (EmulationStation's RetroAchievements settings,
- * global.retroachievements.* in system.cfg) unless snes-ds.cfg names one; on
+ * global.retroachievements.* in system.cfg) unless retrods.cfg names one; on
  * Android, the one signed in in the game list's Settings (ra_sign_in), kept
  * as a token in <state_dir>/ra/login.cfg. Server requests run in a
  * background thread (the system's curl; Android: Java's HttpURLConnection);

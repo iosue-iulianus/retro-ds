@@ -17,7 +17,7 @@ and reports which of the games' rules (docs/games/*.md) still hold.
     tools/regress.py --prune           delete goldens no case uses any more
 
 Options: --fixtures DIR (default $RETRODS_TESTS, else ../gba-ds-tests),
---bin build/host/snes-ds, --harness build/host/harness, --report DIR
+--bin build/host/retrods, --harness build/host/harness, --report DIR
 (default build/regress: index.html with each failure's pictures), -j N
 (default: the CPU count + 1), --shard I/N (the Ith of N even shares of
 the cases, for running on several machines), --json FILE (each case's results, for tools/romhack.py), --any-rom (run
@@ -497,7 +497,7 @@ def write_report(results, outdir):
         if os.path.exists(cdir):
             shutil.rmtree(cdir)
         shutil.copytree(r["dir"], cdir, ignore=shutil.ignore_patterns("*.bmp", "state", "rom", "*.txt"))
-        open(os.path.join(cdir, "snes-ds.log"), "w").write(r.get("log", ""))
+        open(os.path.join(cdir, "retrods.log"), "w").write(r.get("log", ""))
         status = "pass" if r["ok"] else "FAIL"
         items = []
         if r["error"]:
@@ -529,7 +529,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("only", nargs="*", help="game slugs, case ids or globs")
     ap.add_argument("--fixtures", default=os.environ.get("RETRODS_TESTS", os.path.join(os.path.dirname(ROOT), "gba-ds-tests")))
-    ap.add_argument("--bin", default=os.path.join(ROOT, "build", "host", "snes-ds"))
+    ap.add_argument("--bin", default=os.path.join(ROOT, "build", "host", "retrods"))
     ap.add_argument("--harness", default=os.path.join(ROOT, "build", "host", "harness"))
     ap.add_argument("--report", default=os.path.join(ROOT, "build", "regress"))
     ap.add_argument("--update", action="store_true", help="save the current pictures as the goldens")

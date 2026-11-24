@@ -139,11 +139,11 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   branches cut from it (`m0-libretro`, `game/super-metroid`), merged back
   when built and tried. `main` and `dev` mirror upstream and are never
   committed to.
-- **Remotes:** `origin` is SNES DS's own repo (iosue-iulianus/snes-ds,
+- **Remotes:** `origin` is SNES DS's own repo (iosue-iulianus/retro-ds,
   private, a standalone copy with GBA DS's history, not a GitHub fork);
   `snes` is its default branch. `upstream` is GBA DS (kyannon/gba-ds):
   fetch from it to pick up fixes to shared code, never push there.
-- **Names:** the app is SNES DS everywhere: binary `snes-ds`, `snes-ds.cfg`,
+- **Names:** the app is SNES DS everywhere: binary `retrods`, `retrods.cfg`,
   `RETRODS_*` variables and macros, Android package and application ID
   `io.github.iosue_iulianus.snesds` (JNI names write its `_` as `_1`:
   `Java_io_github_iosue_1iulianus_snesds_...`), classes `SnesDsActivity` and
@@ -177,8 +177,8 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   snes9x for local experiments; `android` builds bsnes with the NDK).
 - Desktop: `scripts/setup-host.sh` once (SDL2 into `deps/`, the cores, the
   app, the harness, and `build/host/bsnes_libretro.so` linked to the core),
-  then `make` (`build/host/snes-ds`) and `make tools`
-  (`build/host/snes-harness`). Host builds run with the SDL in `deps/`
+  then `make` (`build/host/retrods`) and `make tools`
+  (`build/host/retrods-harness`). Host builds run with the SDL in `deps/`
   (rpath). The app finds its core in `RETRODS_CORE`, else
   `bsnes_libretro.so` beside the program, and copies it into
   `<state_dir>/cache/core-{a,b,c}.so`.
@@ -204,11 +204,11 @@ can't build Android itself (no SDK), so:
 2. **Wait for the Android run of that exact commit.** Each push starts
    two runs (push and pull_request events), so pick the run by commit
    and name, then wait on its id in the background:
-   `gh run list -R iosue-iulianus/snes-ds --branch BRANCH --json databaseId,name,headSha`
+   `gh run list -R iosue-iulianus/retro-ds --branch BRANCH --json databaseId,name,headSha`
    (`name == "Android"`, `headSha` the commit), then loop on
    `gh run view ID --json status` until `completed`.
 3. **Download it** into the scratchpad: `gh run download ID -R
-   iosue-iulianus/snes-ds` gives `snes-ds-vX-android/*.apk`.
+   iosue-iulianus/retro-ds` gives `retrods-vX-android/*.apk`.
 4. **Check SNES DS isn't in use.** `adb.exe -s 192.168.0.217:PORT shell
    'dumpsys activity activities | grep -E "ResumedActivity:"'`: if
    `SnesDsActivity` is resumed the owner is playing; wait (or ask). A
@@ -228,7 +228,7 @@ Device details:
   changes whenever wireless debugging restarts (`adb.exe mdns services`
   or `adb.exe devices`).
 - Paths on the device: `/storage/emulated/0/SNES DS/` (log
-  `snes-ds.log`, `states/`, `launch.log`), ROMs in
+  `retrods.log`, `states/`, `launch.log`), ROMs in
   `/storage/emulated/0/ROMs/snes/`.
 - Screenshots of each display: `adb.exe exec-out screencap -d DISPLAY_ID
   -p > file.png` with the ids from `dumpsys SurfaceFlinger --display-id`
@@ -242,8 +242,8 @@ Device details:
 
 ## Testing without the device
 
-- The harness (`build/host/snes-harness CORE ROM OUTDIR SCRIPT`, commands
-  at the top of `tools/snes-harness.c`) runs two copies of the core frame
+- The harness (`build/host/retrods-harness CORE ROM OUTDIR SCRIPT`, commands
+  at the top of `tools/retrods-harness.c`) runs two copies of the core frame
   by frame: `load/save`, `wait`, `hold`, `tap`, `shot`, `peek`, `poke`,
   `dumpram`, `copy`, `mapcap` (a capture on copy B, timed), `bench`. SNES
   addresses are written as the CPU sees them (`7E0998`). `RETRODS_SAVE`
@@ -267,7 +267,7 @@ Device details:
   for one check, `--out DIR` to keep the pictures.
 - `tools/ramdiff.py` (RAM dumps with a screen open vs closed) carries over.
 - The app runs headless: `SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy
-  SDL_RENDER_DRIVER=software RETRODS_WINDOW=1024x1536 build/host/snes-ds
+  SDL_RENDER_DRIVER=software RETRODS_WINDOW=1024x1536 build/host/retrods
   --rom-dir=DIR --state-dir=DIR --save_dir=DIR --quick_bar_hint=0
   --input-script=SCRIPT [ROM]` (script lines `TICK BUTTONS`, buttons `A B X
   Y START SELECT HOME L R L2 R2 L3`, `HOME+R` save state, `HOME+L` load,

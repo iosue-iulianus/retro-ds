@@ -1,13 +1,13 @@
 /* Hotkeys: the hotkey button (HOME, SELECT, START or L3) held with an
- * action's button does the action in a game (game.c). Set in snes-ds.cfg
+ * action's button does the action in a game (game.c). Set in retrods.cfg
  * (hotkey, hotkey_quit ...) or with Settings > Hotkeys (hotkeys_run), which
- * keeps its choices in <state_dir>/hotkeys.cfg, read after snes-ds.cfg. */
+ * keeps its choices in <state_dir>/hotkeys.cfg, read after retrods.cfg. */
 #ifndef RETRODS_HOTKEYS_H
 #define RETRODS_HOTKEYS_H
 
 #include "config.h"
 
-/* snes-ds.cfg's name for a button (B_*: "a", "start", "l3" ...) */
+/* retrods.cfg's name for a button (B_*: "a", "start", "l3" ...) */
 extern const char* const hotkeyBtnNames[];
 /* The hotkey button and each action's button (B_*, or -1 for none), as the
  * game uses them: unknown names are none, HOME and the hotkey button itself

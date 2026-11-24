@@ -22,10 +22,10 @@
 #include <time.h>
 #include <unistd.h>
 
-#define DEFAULT_URL "https://api.github.com/repos/iosue-iulianus/snes-ds/releases/latest"
+#define DEFAULT_URL "https://api.github.com/repos/iosue-iulianus/retro-ds/releases/latest"
 #define CHECK_EVERY (24 * 60 * 60)
 #ifdef __ANDROID__
-#define ASSET_END "-android.apk" /* snes-ds-vX.Y.Z-android.apk */
+#define ASSET_END "-android.apk" /* retrods-vX.Y.Z-android.apk */
 #else
 #define ASSET_END "-linux-aarch64.zip"
 #endif
@@ -37,7 +37,7 @@ static struct {
 	char stateFile[1100], workDir[1100];
 	char installDir[1024], exePath[1024];
 	char skip[32];
-	int autoCfg; /* update.cfg's auto (-1: not set; snes-ds.cfg's update_check decides) */
+	int autoCfg; /* update.cfg's auto (-1: not set; retrods.cfg's update_check decides) */
 	bool autoDefault;
 	bool checkedThisRun, notice, noticeSeen, busy;
 	/* the release found */
@@ -260,7 +260,7 @@ static int check_thread(void* ud) {
 	if (assets && *assets == '[') {
 		const char* p = skip_ws(assets + 1);
 		while (*p == '{') {
-			if (json_string(json_find(p, "name"), name, sizeof(name)) && !strncmp(name, "snes-ds-v", 8) &&
+			if (json_string(json_find(p, "name"), name, sizeof(name)) && !strncmp(name, "retrods-v", 8) &&
 			    strstr(name, ASSET_END)) {
 				snprintf(assetName, sizeof(assetName), "%s", name);
 				json_string(json_find(p, "browser_download_url"), asset, sizeof(asset));
@@ -423,13 +423,13 @@ static void android_poll(void) {
 	if (st == -3) {
 		snprintf(U.info.error, sizeof(U.info.error),
 		         "Android won't install v%s over this copy of SNES DS: it was signed with another key (a test build?). "
-		         "Uninstall SNES DS, then install the new version from github.com/iosue-iulianus/snes-ds/releases. Your files in "
+		         "Uninstall SNES DS, then install the new version from github.com/iosue-iulianus/retro-ds/releases. Your files in "
 		         "the SNES DS folder are kept.", U.info.version);
 	} else if (st == -5) {
 		snprintf(U.info.error, sizeof(U.info.error),
 		         "Android won't install v%s over this copy of SNES DS: this copy is a test build made after it, and "
 		         "Android doesn't go back to an earlier build. Keep this one, or uninstall SNES DS and install v%s from "
-		         "github.com/iosue-iulianus/snes-ds/releases (your files in the SNES DS folder are kept).", U.info.version,
+		         "github.com/iosue-iulianus/retro-ds/releases (your files in the SNES DS folder are kept).", U.info.version,
 		         U.info.version);
 	} else if (st == -4) {
 		snprintf(U.info.error, sizeof(U.info.error), "There isn't enough storage free to install the update.");

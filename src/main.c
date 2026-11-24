@@ -111,16 +111,19 @@ int main(int argc, char** argv) {
 	if (android_home()) snprintf(exeDir, sizeof(exeDir), "%s", android_home());
 #endif
 
-	/* defaults < snes-ds.cfg < states/prefs.cfg (choices made in the menu),
+	/* defaults < retrods.cfg < states/prefs.cfg (choices made in the menu),
 	 * library.cfg and hotkeys.cfg (the game list's Settings) < command line */
 	char path[1100];
 	if (getenv("RETRODS_CONFIG")) {
 		config_load_file(&cfg, getenv("RETRODS_CONFIG"));
 	} else {
-		snprintf(path, sizeof(path), "%s/snes-ds.cfg", exeDir);
+		snprintf(path, sizeof(path), "%s/retrods.cfg", exeDir);
 		config_load_file(&cfg, path);
 		if (getenv("HOME")) {
-			snprintf(path, sizeof(path), "%s/.config/snes-ds/snes-ds.cfg", getenv("HOME"));
+			snprintf(path, sizeof(path), "%s/.config/retrods/retrods.cfg", getenv("HOME"));
+			/* RetroDS was SNES DS: without a retrods.cfg, read the old one */
+			if (access(path, R_OK) != 0)
+				snprintf(path, sizeof(path), "%s/.config/snes-ds/snes-ds.cfg", getenv("HOME"));
 			config_load_file(&cfg, path);
 		}
 #if !defined(__ANDROID__)
@@ -173,7 +176,7 @@ int main(int argc, char** argv) {
 #endif
 	}
 	snprintf(path, sizeof(path), "%s/prefs.cfg", cfg.stateDir);
-	/* (map_interval and show_fps were left to snes-ds.cfg until v1.5.4; the game list's Settings can change them now) */
+	/* (map_interval and show_fps were left to retrods.cfg until v1.5.4; the game list's Settings can change them now) */
 	config_load_file(&cfg, path);
 	/* the game list's Settings (Android: the ROM folder) */
 	snprintf(path, sizeof(path), "%s/library.cfg", cfg.stateDir);

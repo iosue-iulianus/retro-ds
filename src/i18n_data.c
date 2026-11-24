@@ -13,7 +13,7 @@ static const char* const lang_de_f8[] = { "%d Datei gepr\303\274ft", "%d Dateien
 static const char* const lang_de_f9[] = { "%d Spiel gefunden", "%d Spiele gefunden" };
 static const char* const lang_de_f10[] = { "%d Spiel gefunden.", "%d Spiele gefunden." };
 static const char* const lang_de_f11[] = { "%d von %d" };
-static const char* const lang_de_f12[] = { "%d von %d f\303\274r %s festgelegt, gespeichert in controllers.txt neben den Spielst\303\244nden von SNES DS. Die Zeile steht auch in snes-ds.log: Schick sie ein, damit sie f\303\274r dieses Ger\303\244t in SNES DS aufgenommen wird." };
+static const char* const lang_de_f12[] = { "%d von %d f\303\274r %s festgelegt, gespeichert in controllers.txt neben den Spielst\303\244nden von SNES DS. Die Zeile steht auch in retrods.log: Schick sie ein, damit sie f\303\274r dieses Ger\303\244t in SNES DS aufgenommen wird." };
 static const char* const lang_de_f13[] = { "%d aktiv" };
 static const char* const lang_de_f14[] = { "%s" };
 static const char* const lang_de_f15[] = { "%s %s. W\303\244hle einen anderen, wenn RetroArch seine Spielst\303\244nde woanders ablegt." };
@@ -110,7 +110,7 @@ static const char* const lang_de_f105[] = { "Zentriert" };
 static const char* const lang_de_f106[] = { "\303\204ndert einige derselben Bytes wie %s und \303\274berschreibt sie dort: M\303\266glicherweise funktionieren sie nicht zusammen" };
 static const char* const lang_de_f107[] = { "Cheats" };
 static const char* const lang_de_f108[] = { "Jetzt pr\303\274fen" };
-static const char* const lang_de_f109[] = { "Pr\303\274fe ra_username und ra_password in snes-ds.cfg" };
+static const char* const lang_de_f109[] = { "Pr\303\274fe ra_username und ra_password in retrods.cfg" };
 static const char* const lang_de_f110[] = { "Pr\303\274fe das Konto in den RetroAchievements-Einstellungen von EmulationStation" };
 static const char* const lang_de_f111[] = { "ROM-Ordner w\303\244hlen" };
 static const char* const lang_de_f112[] = { "SNES-DS-Ordner w\303\244hlen" };
@@ -536,7 +536,7 @@ static const char* const lang_de_f531[] = { "Bildschirme tauschen" };
 static const char* const lang_de_f532[] = { "Bildschirme tauschen" };
 static const char* const lang_de_f533[] = { "Getauscht" };
 static const char* const lang_de_f534[] = { "Nach oben wischen f\303\274r das Schnellmen\303\274" };
-static const char* const lang_de_f535[] = { "In snes-ds.cfg ausgeschaltet (retroachievements = 0)." };
+static const char* const lang_de_f535[] = { "In retrods.cfg ausgeschaltet (retroachievements = 0)." };
 static const char* const lang_de_f536[] = { "System" };
 static const char* const lang_de_f537[] = { "Tags im Dateinamen einer ROM, wie (USA) oder (En,Fr,De)." };
 static const char* const lang_de_f538[] = { "Screenshot aufnehmen" };
@@ -612,11 +612,11 @@ static const char* const lang_de_f607[] = { "Auf welchem Bildschirm das Spiel l\
 static const char* const lang_de_f608[] = { "Welche Bildschirme sie haben." };
 static const char* const lang_de_f609[] = { "Mit aktivem Patch hat das Spiel seinen eigenen Batteriespeicher (\342\200\236<Spiel> + <Patch>\342\200\234): aus, nutzt es den des Originals" };
 static const char* const lang_de_f610[] = { "Mit aktivem Patch hat das Spiel eigene Spielst\303\244nde: aus, nutzt es die des Originals (ein Spielstand kann im anderen verf\303\244lscht herauskommen)" };
-static const char* const lang_de_f611[] = { "Bei aktiver automatischer Pr\303\274fung sucht SNES DS einmal am Tag beim \303\226ffnen der Spieleliste nach einer neuen Version und fragt, bevor es etwas herunterl\303\244dt. Updates kommen aus den Releases auf github.com/iosue-iulianus/snes-ds." };
+static const char* const lang_de_f611[] = { "Bei aktiver automatischer Pr\303\274fung sucht SNES DS einmal am Tag beim \303\226ffnen der Spieleliste nach einer neuen Version und fragt, bevor es etwas herunterl\303\244dt. Updates kommen aus den Releases auf github.com/iosue-iulianus/retro-ds." };
 static const char* const lang_de_f612[] = { "Mit Tags, wie (USA)" };
 static const char* const lang_de_f613[] = { "X-Taste (oben)" };
 static const char* const lang_de_f614[] = { "Y-Taste (links)" };
-static const char* const lang_de_f615[] = { "Deine eigenen PNGs in snes-ds/overlays/. Ein Bildschirm ohne einen bekommt den generierten Rahmen in seinen Standardfarben." };
+static const char* const lang_de_f615[] = { "Deine eigenen PNGs in retrods/overlays/. Ein Bildschirm ohne einen bekommt den generierten Rahmen in seinen Standardfarben." };
 static const char* const lang_de_f616[] = { "Deine eigenen und extrahierte Logos auf dem zweiten Bildschirm." };
 static const char* const lang_de_f617[] = { "Deine Bildschirme haben dieselbe Form: nichts anzugleichen" };
 static const char* const lang_de_f618[] = { "Zoom" };
@@ -668,7 +668,7 @@ static const I18nEntry lang_de_entries[] = {
 	{ "%d game found", lang_de_f9, 2 },
 	{ "%d game found.", lang_de_f10, 2 },
 	{ "%d of %d", lang_de_f11, 1 },
-	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in snes-ds.log too: send it in to have it built into SNES DS for this device.", lang_de_f12, 1 },
+	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in retrods.log too: send it in to have it built into SNES DS for this device.", lang_de_f12, 1 },
 	{ "%d on", lang_de_f13, 1 },
 	{ "%s", lang_de_f14, 1 },
 	{ "%s %s. Choose another if RetroArch keeps its states somewhere else.", lang_de_f15, 1 },
@@ -765,7 +765,7 @@ static const I18nEntry lang_de_entries[] = {
 	{ "Changes some of the same bytes as %s, and goes over it there: they may not work together", lang_de_f106, 1 },
 	{ "Cheats", lang_de_f107, 1 },
 	{ "Check now", lang_de_f108, 1 },
-	{ "Check ra_username and ra_password in snes-ds.cfg", lang_de_f109, 1 },
+	{ "Check ra_username and ra_password in retrods.cfg", lang_de_f109, 1 },
 	{ "Check the account in EmulationStation's RetroAchievements settings", lang_de_f110, 1 },
 	{ "Choose ROM folder", lang_de_f111, 1 },
 	{ "Choose SNES DS folder", lang_de_f112, 1 },
@@ -1191,7 +1191,7 @@ static const I18nEntry lang_de_entries[] = {
 	{ "Swap screens", lang_de_f532, 1 },
 	{ "Swapped", lang_de_f533, 1 },
 	{ "Swipe up for quick menu", lang_de_f534, 1 },
-	{ "Switched off in snes-ds.cfg (retroachievements = 0).", lang_de_f535, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_de_f535, 1 },
 	{ "System", lang_de_f536, 1 },
 	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_de_f537, 1 },
 	{ "Take Screenshot", lang_de_f538, 1 },
@@ -1267,11 +1267,11 @@ static const I18nEntry lang_de_entries[] = {
 	{ "Which screens have them.", lang_de_f608, 1 },
 	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_de_f609, 1 },
 	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_de_f610, 1 },
-	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/snes-ds.", lang_de_f611, 1 },
+	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_de_f611, 1 },
 	{ "With tags, like (USA)", lang_de_f612, 1 },
 	{ "X (top) button", lang_de_f613, 1 },
 	{ "Y (left) button", lang_de_f614, 1 },
-	{ "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors.", lang_de_f615, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_de_f615, 1 },
 	{ "Your own and scraped logos on the second screen.", lang_de_f616, 1 },
 	{ "Your screens are the same shape: nothing to match", lang_de_f617, 1 },
 	{ "Zoom", lang_de_f618, 1 },
@@ -1324,7 +1324,7 @@ static const char* const lang_es_f8[] = { "%d archivo revisado", "%d archivos re
 static const char* const lang_es_f9[] = { "%d juego encontrado", "%d juegos encontrados" };
 static const char* const lang_es_f10[] = { "%d juego encontrado.", "%d juegos encontrados." };
 static const char* const lang_es_f11[] = { "%d de %d" };
-static const char* const lang_es_f12[] = { "%d de %d configurados para %s, guardados en controllers.txt junto a los estados guardados de SNES DS. La l\303\255nea tambi\303\251n est\303\241 en snes-ds.log: env\303\255ala para que se incluya en SNES DS para este dispositivo." };
+static const char* const lang_es_f12[] = { "%d de %d configurados para %s, guardados en controllers.txt junto a los estados guardados de SNES DS. La l\303\255nea tambi\303\251n est\303\241 en retrods.log: env\303\255ala para que se incluya en SNES DS para este dispositivo." };
 static const char* const lang_es_f13[] = { "%d activados" };
 static const char* const lang_es_f14[] = { "%s" };
 static const char* const lang_es_f15[] = { "%s %s. Elige otra si RetroArch guarda sus estados en otro sitio." };
@@ -1421,7 +1421,7 @@ static const char* const lang_es_f105[] = { "Centrado" };
 static const char* const lang_es_f106[] = { "Cambia algunos de los mismos bytes que %s y lo pisa ah\303\255: puede que no funcionen juntos" };
 static const char* const lang_es_f107[] = { "Trucos" };
 static const char* const lang_es_f108[] = { "Comprobar ahora" };
-static const char* const lang_es_f109[] = { "Revisa ra_username y ra_password en snes-ds.cfg" };
+static const char* const lang_es_f109[] = { "Revisa ra_username y ra_password en retrods.cfg" };
 static const char* const lang_es_f110[] = { "Revisa la cuenta en los ajustes de RetroAchievements de EmulationStation" };
 static const char* const lang_es_f111[] = { "Elegir carpeta de ROMs" };
 static const char* const lang_es_f112[] = { "Elegir carpeta de SNES DS" };
@@ -1847,7 +1847,7 @@ static const char* const lang_es_f531[] = { "Intercambiar pantallas" };
 static const char* const lang_es_f532[] = { "Intercambiar pantallas" };
 static const char* const lang_es_f533[] = { "Intercambiadas" };
 static const char* const lang_es_f534[] = { "Desliza hacia arriba para el men\303\272 r\303\241pido" };
-static const char* const lang_es_f535[] = { "Desactivado en snes-ds.cfg (retroachievements = 0)." };
+static const char* const lang_es_f535[] = { "Desactivado en retrods.cfg (retroachievements = 0)." };
 static const char* const lang_es_f536[] = { "Sistema" };
 static const char* const lang_es_f537[] = { "Etiquetas en el nombre del archivo de una ROM, como (USA) o (En,Fr,De)." };
 static const char* const lang_es_f538[] = { "Hacer captura" };
@@ -1923,11 +1923,11 @@ static const char* const lang_es_f607[] = { "En qu\303\251 pantalla est\303\241 
 static const char* const lang_es_f608[] = { "Qu\303\251 pantallas lo tienen." };
 static const char* const lang_es_f609[] = { "Con un parche activado, el juego usa su propia partida guardada (\"<juego> + <parche>\"): desactivado, usa la del original" };
 static const char* const lang_es_f610[] = { "Con un parche activado, el juego usa sus propios estados guardados: desactivado, usa los del original (un estado puede salir corrupto en el otro)" };
-static const char* const lang_es_f611[] = { "Con la comprobaci\303\263n autom\303\241tica activada, SNES DS busca una versi\303\263n nueva una vez al d\303\255a al abrir la lista de juegos, y pregunta antes de descargar nada. Las actualizaciones vienen de las versiones publicadas en github.com/iosue-iulianus/snes-ds." };
+static const char* const lang_es_f611[] = { "Con la comprobaci\303\263n autom\303\241tica activada, SNES DS busca una versi\303\263n nueva una vez al d\303\255a al abrir la lista de juegos, y pregunta antes de descargar nada. Las actualizaciones vienen de las versiones publicadas en github.com/iosue-iulianus/retro-ds." };
 static const char* const lang_es_f612[] = { "Con etiquetas, como (USA)" };
 static const char* const lang_es_f613[] = { "Bot\303\263n X (arriba)" };
 static const char* const lang_es_f614[] = { "Bot\303\263n Y (izquierda)" };
-static const char* const lang_es_f615[] = { "Tus propios PNG en snes-ds/overlays/. Una pantalla sin uno recibe el marco generado en sus colores por defecto." };
+static const char* const lang_es_f615[] = { "Tus propios PNG en retrods/overlays/. Una pantalla sin uno recibe el marco generado en sus colores por defecto." };
 static const char* const lang_es_f616[] = { "Tus propios logos y los extra\303\255dos en la segunda pantalla." };
 static const char* const lang_es_f617[] = { "Tus pantallas tienen la misma forma: nada que igualar" };
 static const char* const lang_es_f618[] = { "Zoom" };
@@ -1979,7 +1979,7 @@ static const I18nEntry lang_es_entries[] = {
 	{ "%d game found", lang_es_f9, 2 },
 	{ "%d game found.", lang_es_f10, 2 },
 	{ "%d of %d", lang_es_f11, 1 },
-	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in snes-ds.log too: send it in to have it built into SNES DS for this device.", lang_es_f12, 1 },
+	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in retrods.log too: send it in to have it built into SNES DS for this device.", lang_es_f12, 1 },
 	{ "%d on", lang_es_f13, 1 },
 	{ "%s", lang_es_f14, 1 },
 	{ "%s %s. Choose another if RetroArch keeps its states somewhere else.", lang_es_f15, 1 },
@@ -2076,7 +2076,7 @@ static const I18nEntry lang_es_entries[] = {
 	{ "Changes some of the same bytes as %s, and goes over it there: they may not work together", lang_es_f106, 1 },
 	{ "Cheats", lang_es_f107, 1 },
 	{ "Check now", lang_es_f108, 1 },
-	{ "Check ra_username and ra_password in snes-ds.cfg", lang_es_f109, 1 },
+	{ "Check ra_username and ra_password in retrods.cfg", lang_es_f109, 1 },
 	{ "Check the account in EmulationStation's RetroAchievements settings", lang_es_f110, 1 },
 	{ "Choose ROM folder", lang_es_f111, 1 },
 	{ "Choose SNES DS folder", lang_es_f112, 1 },
@@ -2502,7 +2502,7 @@ static const I18nEntry lang_es_entries[] = {
 	{ "Swap screens", lang_es_f532, 1 },
 	{ "Swapped", lang_es_f533, 1 },
 	{ "Swipe up for quick menu", lang_es_f534, 1 },
-	{ "Switched off in snes-ds.cfg (retroachievements = 0).", lang_es_f535, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_es_f535, 1 },
 	{ "System", lang_es_f536, 1 },
 	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_es_f537, 1 },
 	{ "Take Screenshot", lang_es_f538, 1 },
@@ -2578,11 +2578,11 @@ static const I18nEntry lang_es_entries[] = {
 	{ "Which screens have them.", lang_es_f608, 1 },
 	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_es_f609, 1 },
 	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_es_f610, 1 },
-	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/snes-ds.", lang_es_f611, 1 },
+	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_es_f611, 1 },
 	{ "With tags, like (USA)", lang_es_f612, 1 },
 	{ "X (top) button", lang_es_f613, 1 },
 	{ "Y (left) button", lang_es_f614, 1 },
-	{ "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors.", lang_es_f615, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_es_f615, 1 },
 	{ "Your own and scraped logos on the second screen.", lang_es_f616, 1 },
 	{ "Your screens are the same shape: nothing to match", lang_es_f617, 1 },
 	{ "Zoom", lang_es_f618, 1 },
@@ -2635,7 +2635,7 @@ static const char* const lang_fr_f8[] = { "%d fichier v\303\251rifi\303\251", "%
 static const char* const lang_fr_f9[] = { "%d jeu trouv\303\251", "%d jeux trouv\303\251s" };
 static const char* const lang_fr_f10[] = { "%d jeu trouv\303\251.", "%d jeux trouv\303\251s." };
 static const char* const lang_fr_f11[] = { "%d sur %d" };
-static const char* const lang_fr_f12[] = { "%d sur %d d\303\251finis pour %s, enregistr\303\251s dans controllers.txt \303\240 c\303\264t\303\251 des \303\251tats de SNES DS. La ligne figure aussi dans snes-ds.log : envoyez-la pour qu'elle soit int\303\251gr\303\251e \303\240 SNES DS pour cet appareil." };
+static const char* const lang_fr_f12[] = { "%d sur %d d\303\251finis pour %s, enregistr\303\251s dans controllers.txt \303\240 c\303\264t\303\251 des \303\251tats de SNES DS. La ligne figure aussi dans retrods.log : envoyez-la pour qu'elle soit int\303\251gr\303\251e \303\240 SNES DS pour cet appareil." };
 static const char* const lang_fr_f13[] = { "%d activ\303\251s" };
 static const char* const lang_fr_f14[] = { "%s" };
 static const char* const lang_fr_f15[] = { "%s %s. Choisissez-en un autre si RetroArch garde ses \303\251tats ailleurs." };
@@ -2732,7 +2732,7 @@ static const char* const lang_fr_f105[] = { "Centr\303\251" };
 static const char* const lang_fr_f106[] = { "Modifie certains des m\303\252mes octets que %s et les \303\251crase : ils risquent de ne pas fonctionner ensemble" };
 static const char* const lang_fr_f107[] = { "Codes de triche" };
 static const char* const lang_fr_f108[] = { "V\303\251rifier maintenant" };
-static const char* const lang_fr_f109[] = { "V\303\251rifiez ra_username et ra_password dans snes-ds.cfg" };
+static const char* const lang_fr_f109[] = { "V\303\251rifiez ra_username et ra_password dans retrods.cfg" };
 static const char* const lang_fr_f110[] = { "V\303\251rifiez le compte dans les r\303\251glages RetroAchievements d'EmulationStation" };
 static const char* const lang_fr_f111[] = { "Choisir le dossier des ROM" };
 static const char* const lang_fr_f112[] = { "Choisir le dossier de SNES DS" };
@@ -3158,7 +3158,7 @@ static const char* const lang_fr_f531[] = { "\303\211changer les \303\251crans" 
 static const char* const lang_fr_f532[] = { "\303\211changer les \303\251crans" };
 static const char* const lang_fr_f533[] = { "\303\211chang\303\251s" };
 static const char* const lang_fr_f534[] = { "Balayez vers le haut pour le menu rapide" };
-static const char* const lang_fr_f535[] = { "D\303\251sactiv\303\251 dans snes-ds.cfg (retroachievements = 0)." };
+static const char* const lang_fr_f535[] = { "D\303\251sactiv\303\251 dans retrods.cfg (retroachievements = 0)." };
 static const char* const lang_fr_f536[] = { "Syst\303\250me" };
 static const char* const lang_fr_f537[] = { "Les \303\251tiquettes dans le nom de fichier d'une ROM, comme (USA) ou (En,Fr,De)." };
 static const char* const lang_fr_f538[] = { "Faire une capture d'\303\251cran" };
@@ -3234,11 +3234,11 @@ static const char* const lang_fr_f607[] = { "Sur quel \303\251cran se trouve le 
 static const char* const lang_fr_f608[] = { "Quels \303\251crans les ont." };
 static const char* const lang_fr_f609[] = { "Avec un patch activ\303\251, le jeu garde sa propre sauvegarde de batterie (\302\253 <jeu> + <patch> \302\273) : d\303\251sactiv\303\251, il utilise celle de l'original" };
 static const char* const lang_fr_f610[] = { "Avec un patch activ\303\251, le jeu garde ses propres \303\251tats : d\303\251sactiv\303\251, il utilise ceux de l'original (un \303\251tat peut sortir corrompu dans l'autre)" };
-static const char* const lang_fr_f611[] = { "Quand la v\303\251rification automatique est activ\303\251e, SNES DS cherche une nouvelle version une fois par jour \303\240 l'ouverture de la liste des jeux et demande avant de t\303\251l\303\251charger quoi que ce soit. Les mises \303\240 jour viennent des versions publi\303\251es sur github.com/iosue-iulianus/snes-ds." };
+static const char* const lang_fr_f611[] = { "Quand la v\303\251rification automatique est activ\303\251e, SNES DS cherche une nouvelle version une fois par jour \303\240 l'ouverture de la liste des jeux et demande avant de t\303\251l\303\251charger quoi que ce soit. Les mises \303\240 jour viennent des versions publi\303\251es sur github.com/iosue-iulianus/retro-ds." };
 static const char* const lang_fr_f612[] = { "Avec \303\251tiquettes, comme (USA)" };
 static const char* const lang_fr_f613[] = { "Bouton X (haut)" };
 static const char* const lang_fr_f614[] = { "Bouton Y (gauche)" };
-static const char* const lang_fr_f615[] = { "Vos propres PNG dans snes-ds/overlays/. Un \303\251cran sans PNG re\303\247oit le cadre g\303\251n\303\251r\303\251 dans ses couleurs par d\303\251faut." };
+static const char* const lang_fr_f615[] = { "Vos propres PNG dans retrods/overlays/. Un \303\251cran sans PNG re\303\247oit le cadre g\303\251n\303\251r\303\251 dans ses couleurs par d\303\251faut." };
 static const char* const lang_fr_f616[] = { "Vos propres logos et ceux r\303\251cup\303\251r\303\251s sur le deuxi\303\250me \303\251cran." };
 static const char* const lang_fr_f617[] = { "Vos \303\251crans ont la m\303\252me forme : rien \303\240 faire correspondre" };
 static const char* const lang_fr_f618[] = { "Zoom" };
@@ -3290,7 +3290,7 @@ static const I18nEntry lang_fr_entries[] = {
 	{ "%d game found", lang_fr_f9, 2 },
 	{ "%d game found.", lang_fr_f10, 2 },
 	{ "%d of %d", lang_fr_f11, 1 },
-	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in snes-ds.log too: send it in to have it built into SNES DS for this device.", lang_fr_f12, 1 },
+	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in retrods.log too: send it in to have it built into SNES DS for this device.", lang_fr_f12, 1 },
 	{ "%d on", lang_fr_f13, 1 },
 	{ "%s", lang_fr_f14, 1 },
 	{ "%s %s. Choose another if RetroArch keeps its states somewhere else.", lang_fr_f15, 1 },
@@ -3387,7 +3387,7 @@ static const I18nEntry lang_fr_entries[] = {
 	{ "Changes some of the same bytes as %s, and goes over it there: they may not work together", lang_fr_f106, 1 },
 	{ "Cheats", lang_fr_f107, 1 },
 	{ "Check now", lang_fr_f108, 1 },
-	{ "Check ra_username and ra_password in snes-ds.cfg", lang_fr_f109, 1 },
+	{ "Check ra_username and ra_password in retrods.cfg", lang_fr_f109, 1 },
 	{ "Check the account in EmulationStation's RetroAchievements settings", lang_fr_f110, 1 },
 	{ "Choose ROM folder", lang_fr_f111, 1 },
 	{ "Choose SNES DS folder", lang_fr_f112, 1 },
@@ -3813,7 +3813,7 @@ static const I18nEntry lang_fr_entries[] = {
 	{ "Swap screens", lang_fr_f532, 1 },
 	{ "Swapped", lang_fr_f533, 1 },
 	{ "Swipe up for quick menu", lang_fr_f534, 1 },
-	{ "Switched off in snes-ds.cfg (retroachievements = 0).", lang_fr_f535, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_fr_f535, 1 },
 	{ "System", lang_fr_f536, 1 },
 	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_fr_f537, 1 },
 	{ "Take Screenshot", lang_fr_f538, 1 },
@@ -3889,11 +3889,11 @@ static const I18nEntry lang_fr_entries[] = {
 	{ "Which screens have them.", lang_fr_f608, 1 },
 	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_fr_f609, 1 },
 	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_fr_f610, 1 },
-	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/snes-ds.", lang_fr_f611, 1 },
+	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_fr_f611, 1 },
 	{ "With tags, like (USA)", lang_fr_f612, 1 },
 	{ "X (top) button", lang_fr_f613, 1 },
 	{ "Y (left) button", lang_fr_f614, 1 },
-	{ "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors.", lang_fr_f615, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_fr_f615, 1 },
 	{ "Your own and scraped logos on the second screen.", lang_fr_f616, 1 },
 	{ "Your screens are the same shape: nothing to match", lang_fr_f617, 1 },
 	{ "Zoom", lang_fr_f618, 1 },
@@ -3946,7 +3946,7 @@ static const char* const lang_it_f8[] = { "%d file controllato", "%d file contro
 static const char* const lang_it_f9[] = { "%d gioco trovato", "%d giochi trovati" };
 static const char* const lang_it_f10[] = { "%d gioco trovato.", "%d giochi trovati." };
 static const char* const lang_it_f11[] = { "%d di %d" };
-static const char* const lang_it_f12[] = { "%d di %d impostati per %s, salvati in controllers.txt accanto agli stati di SNES DS. La riga \303\250 anche in snes-ds.log: inviala per farla integrare in SNES DS per questo dispositivo." };
+static const char* const lang_it_f12[] = { "%d di %d impostati per %s, salvati in controllers.txt accanto agli stati di SNES DS. La riga \303\250 anche in retrods.log: inviala per farla integrare in SNES DS per questo dispositivo." };
 static const char* const lang_it_f13[] = { "%d attivi" };
 static const char* const lang_it_f14[] = { "%s" };
 static const char* const lang_it_f15[] = { "%s %s. Scegline un'altra se RetroArch tiene i suoi stati altrove." };
@@ -4043,7 +4043,7 @@ static const char* const lang_it_f105[] = { "Centrato" };
 static const char* const lang_it_f106[] = { "Modifica alcuni degli stessi byte di %s e li sovrascrive: potrebbero non funzionare insieme" };
 static const char* const lang_it_f107[] = { "Trucchi" };
 static const char* const lang_it_f108[] = { "Controlla ora" };
-static const char* const lang_it_f109[] = { "Controlla ra_username e ra_password in snes-ds.cfg" };
+static const char* const lang_it_f109[] = { "Controlla ra_username e ra_password in retrods.cfg" };
 static const char* const lang_it_f110[] = { "Controlla l'account nelle impostazioni RetroAchievements di EmulationStation" };
 static const char* const lang_it_f111[] = { "Scegli la cartella delle ROM" };
 static const char* const lang_it_f112[] = { "Scegli la cartella di SNES DS" };
@@ -4469,7 +4469,7 @@ static const char* const lang_it_f531[] = { "Scambia gli schermi" };
 static const char* const lang_it_f532[] = { "Scambia gli schermi" };
 static const char* const lang_it_f533[] = { "Scambiati" };
 static const char* const lang_it_f534[] = { "Scorri verso l'alto per il menu rapido" };
-static const char* const lang_it_f535[] = { "Disattivato in snes-ds.cfg (retroachievements = 0)." };
+static const char* const lang_it_f535[] = { "Disattivato in retrods.cfg (retroachievements = 0)." };
 static const char* const lang_it_f536[] = { "Sistema" };
 static const char* const lang_it_f537[] = { "I tag nel nome file di una ROM, come (USA) o (En,Fr,De)." };
 static const char* const lang_it_f538[] = { "Fai uno screenshot" };
@@ -4545,11 +4545,11 @@ static const char* const lang_it_f607[] = { "Su quale schermo sta il gioco." };
 static const char* const lang_it_f608[] = { "Quali schermi li hanno." };
 static const char* const lang_it_f609[] = { "Con una patch attiva, il gioco tiene un proprio salvataggio della batteria (\302\253<gioco> + <patch>\302\273): disattivato, usa quello dell'originale" };
 static const char* const lang_it_f610[] = { "Con una patch attiva, il gioco tiene propri stati: disattivato, usa quelli dell'originale (uno stato pu\303\262 risultare corrotto nell'altro)" };
-static const char* const lang_it_f611[] = { "Con il controllo automatico attivo, SNES DS cerca una nuova versione una volta al giorno all'apertura dell'elenco giochi e chiede prima di scaricare qualsiasi cosa. Gli aggiornamenti arrivano dalle release su github.com/iosue-iulianus/snes-ds." };
+static const char* const lang_it_f611[] = { "Con il controllo automatico attivo, SNES DS cerca una nuova versione una volta al giorno all'apertura dell'elenco giochi e chiede prima di scaricare qualsiasi cosa. Gli aggiornamenti arrivano dalle release su github.com/iosue-iulianus/retro-ds." };
 static const char* const lang_it_f612[] = { "Con i tag, come (USA)" };
 static const char* const lang_it_f613[] = { "Pulsante X (alto)" };
 static const char* const lang_it_f614[] = { "Pulsante Y (sinistra)" };
-static const char* const lang_it_f615[] = { "I tuoi PNG in snes-ds/overlays/. Uno schermo senza ne riceve la cornice generata nei suoi colori predefiniti." };
+static const char* const lang_it_f615[] = { "I tuoi PNG in retrods/overlays/. Uno schermo senza ne riceve la cornice generata nei suoi colori predefiniti." };
 static const char* const lang_it_f616[] = { "I tuoi loghi e quelli recuperati sul secondo schermo." };
 static const char* const lang_it_f617[] = { "I tuoi schermi hanno la stessa forma: niente da abbinare" };
 static const char* const lang_it_f618[] = { "Zoom" };
@@ -4601,7 +4601,7 @@ static const I18nEntry lang_it_entries[] = {
 	{ "%d game found", lang_it_f9, 2 },
 	{ "%d game found.", lang_it_f10, 2 },
 	{ "%d of %d", lang_it_f11, 1 },
-	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in snes-ds.log too: send it in to have it built into SNES DS for this device.", lang_it_f12, 1 },
+	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in retrods.log too: send it in to have it built into SNES DS for this device.", lang_it_f12, 1 },
 	{ "%d on", lang_it_f13, 1 },
 	{ "%s", lang_it_f14, 1 },
 	{ "%s %s. Choose another if RetroArch keeps its states somewhere else.", lang_it_f15, 1 },
@@ -4698,7 +4698,7 @@ static const I18nEntry lang_it_entries[] = {
 	{ "Changes some of the same bytes as %s, and goes over it there: they may not work together", lang_it_f106, 1 },
 	{ "Cheats", lang_it_f107, 1 },
 	{ "Check now", lang_it_f108, 1 },
-	{ "Check ra_username and ra_password in snes-ds.cfg", lang_it_f109, 1 },
+	{ "Check ra_username and ra_password in retrods.cfg", lang_it_f109, 1 },
 	{ "Check the account in EmulationStation's RetroAchievements settings", lang_it_f110, 1 },
 	{ "Choose ROM folder", lang_it_f111, 1 },
 	{ "Choose SNES DS folder", lang_it_f112, 1 },
@@ -5124,7 +5124,7 @@ static const I18nEntry lang_it_entries[] = {
 	{ "Swap screens", lang_it_f532, 1 },
 	{ "Swapped", lang_it_f533, 1 },
 	{ "Swipe up for quick menu", lang_it_f534, 1 },
-	{ "Switched off in snes-ds.cfg (retroachievements = 0).", lang_it_f535, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_it_f535, 1 },
 	{ "System", lang_it_f536, 1 },
 	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_it_f537, 1 },
 	{ "Take Screenshot", lang_it_f538, 1 },
@@ -5200,11 +5200,11 @@ static const I18nEntry lang_it_entries[] = {
 	{ "Which screens have them.", lang_it_f608, 1 },
 	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_it_f609, 1 },
 	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_it_f610, 1 },
-	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/snes-ds.", lang_it_f611, 1 },
+	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_it_f611, 1 },
 	{ "With tags, like (USA)", lang_it_f612, 1 },
 	{ "X (top) button", lang_it_f613, 1 },
 	{ "Y (left) button", lang_it_f614, 1 },
-	{ "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors.", lang_it_f615, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_it_f615, 1 },
 	{ "Your own and scraped logos on the second screen.", lang_it_f616, 1 },
 	{ "Your screens are the same shape: nothing to match", lang_it_f617, 1 },
 	{ "Zoom", lang_it_f618, 1 },
@@ -5257,7 +5257,7 @@ static const char* const lang_ja_f8[] = { "%d \345\200\213\343\201\256\343\203\2
 static const char* const lang_ja_f9[] = { "%d \345\200\213\343\201\256\343\202\262\343\203\274\343\203\240\343\202\222\346\244\234\345\207\272" };
 static const char* const lang_ja_f10[] = { "%d \345\200\213\343\201\256\343\202\262\343\203\274\343\203\240\343\202\222\346\244\234\345\207\272\343\200\202" };
 static const char* const lang_ja_f11[] = { "%d / %d" };
-static const char* const lang_ja_f12[] = { "%2$d \345\200\213\344\270\255 %1$d \345\200\213\343\202\222 %3$s \343\201\253\350\250\255\345\256\232\343\201\227\343\201\276\343\201\227\343\201\237\343\200\202SNES DS \343\201\256\343\202\271\343\203\206\343\203\274\343\203\210\343\201\256\351\232\243\343\201\253\343\201\202\343\202\213 controllers.txt \343\201\253\344\277\235\345\255\230\343\201\225\343\202\214\343\201\246\343\201\204\343\201\276\343\201\231\343\200\202\343\201\235\343\201\256\350\241\214\343\201\257 snes-ds.log \343\201\253\343\202\202\343\201\202\343\202\212\343\201\276\343\201\231\343\200\202\343\201\223\343\201\256\347\253\257\346\234\253\347\224\250\343\201\253 SNES DS \343\201\270\347\265\204\343\201\277\350\276\274\343\202\200\343\201\237\343\202\201\343\200\201\351\200\201\343\201\243\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204\343\200\202" };
+static const char* const lang_ja_f12[] = { "%2$d \345\200\213\344\270\255 %1$d \345\200\213\343\202\222 %3$s \343\201\253\350\250\255\345\256\232\343\201\227\343\201\276\343\201\227\343\201\237\343\200\202SNES DS \343\201\256\343\202\271\343\203\206\343\203\274\343\203\210\343\201\256\351\232\243\343\201\253\343\201\202\343\202\213 controllers.txt \343\201\253\344\277\235\345\255\230\343\201\225\343\202\214\343\201\246\343\201\204\343\201\276\343\201\231\343\200\202\343\201\235\343\201\256\350\241\214\343\201\257 retrods.log \343\201\253\343\202\202\343\201\202\343\202\212\343\201\276\343\201\231\343\200\202\343\201\223\343\201\256\347\253\257\346\234\253\347\224\250\343\201\253 SNES DS \343\201\270\347\265\204\343\201\277\350\276\274\343\202\200\343\201\237\343\202\201\343\200\201\351\200\201\343\201\243\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204\343\200\202" };
 static const char* const lang_ja_f13[] = { "%d \345\200\213\343\202\252\343\203\263" };
 static const char* const lang_ja_f14[] = { "%s" };
 static const char* const lang_ja_f15[] = { "%s %s\343\200\202RetroArch \343\201\214\343\202\271\343\203\206\343\203\274\343\203\210\343\202\222\345\210\245\343\201\256\345\240\264\346\211\200\343\201\253\344\277\235\345\255\230\343\201\227\343\201\246\343\201\204\343\202\213\345\240\264\345\220\210\343\201\257\343\200\201\345\210\245\343\201\256\343\203\225\343\202\251\343\203\253\343\203\200\343\202\222\351\201\270\343\202\223\343\201\247\343\201\217\343\201\240\343\201\225\343\201\204\343\200\202" };
@@ -5354,7 +5354,7 @@ static const char* const lang_ja_f105[] = { "\344\270\255\345\244\256" };
 static const char* const lang_ja_f106[] = { "%s \343\201\250\345\220\214\343\201\230\343\203\220\343\202\244\343\203\210\343\202\222\344\270\200\351\203\250\345\244\211\346\233\264\343\201\227\343\200\201\343\201\235\343\201\256\351\203\250\345\210\206\343\202\222\344\270\212\346\233\270\343\201\215\343\201\227\343\201\276\343\201\231\343\200\202\344\270\200\347\267\222\343\201\253\344\275\277\343\201\210\343\201\252\343\201\204\345\217\257\350\203\275\346\200\247\343\201\214\343\201\202\343\202\212\343\201\276\343\201\231" };
 static const char* const lang_ja_f107[] = { "\343\203\201\343\203\274\343\203\210" };
 static const char* const lang_ja_f108[] = { "\344\273\212\343\201\231\343\201\220\347\242\272\350\252\215" };
-static const char* const lang_ja_f109[] = { "snes-ds.cfg \343\201\256 ra_username \343\201\250 ra_password \343\202\222\347\242\272\350\252\215\343\201\227\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204" };
+static const char* const lang_ja_f109[] = { "retrods.cfg \343\201\256 ra_username \343\201\250 ra_password \343\202\222\347\242\272\350\252\215\343\201\227\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204" };
 static const char* const lang_ja_f110[] = { "EmulationStation \343\201\256 RetroAchievements \350\250\255\345\256\232\343\201\247\343\202\242\343\202\253\343\202\246\343\203\263\343\203\210\343\202\222\347\242\272\350\252\215\343\201\227\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204" };
 static const char* const lang_ja_f111[] = { "ROM \343\203\225\343\202\251\343\203\253\343\203\200\343\202\222\351\201\270\346\212\236" };
 static const char* const lang_ja_f112[] = { "SNES DS \343\201\256\343\203\225\343\202\251\343\203\253\343\203\200\343\202\222\351\201\270\346\212\236" };
@@ -5780,7 +5780,7 @@ static const char* const lang_ja_f531[] = { "\347\224\273\351\235\242\343\202\22
 static const char* const lang_ja_f532[] = { "\347\224\273\351\235\242\343\202\222\345\205\245\343\202\214\346\233\277\343\201\210" };
 static const char* const lang_ja_f533[] = { "\345\205\245\343\202\214\346\233\277\343\201\210\343\201\276\343\201\227\343\201\237" };
 static const char* const lang_ja_f534[] = { "\344\270\212\343\201\253\343\202\271\343\203\257\343\202\244\343\203\227\343\201\247\343\202\257\343\202\244\343\203\203\343\202\257\343\203\241\343\203\213\343\203\245\343\203\274" };
-static const char* const lang_ja_f535[] = { "snes-ds.cfg \343\201\247\343\202\252\343\203\225\343\201\253\343\201\252\343\201\243\343\201\246\343\201\204\343\201\276\343\201\231 (retroachievements = 0)\343\200\202" };
+static const char* const lang_ja_f535[] = { "retrods.cfg \343\201\247\343\202\252\343\203\225\343\201\253\343\201\252\343\201\243\343\201\246\343\201\204\343\201\276\343\201\231 (retroachievements = 0)\343\200\202" };
 static const char* const lang_ja_f536[] = { "\343\202\267\343\202\271\343\203\206\343\203\240" };
 static const char* const lang_ja_f537[] = { "ROM \343\201\256\343\203\225\343\202\241\343\202\244\343\203\253\345\220\215\343\201\253\343\201\202\343\202\213\343\202\277\343\202\260\343\200\202(USA) \343\202\204 (En,Fr,De) \343\201\252\343\201\251\343\200\202" };
 static const char* const lang_ja_f538[] = { "\343\202\271\343\202\257\343\203\252\343\203\274\343\203\263\343\202\267\343\203\247\343\203\203\343\203\210\343\202\222\346\222\256\343\202\213" };
@@ -5856,11 +5856,11 @@ static const char* const lang_ja_f607[] = { "\343\202\262\343\203\274\343\203\24
 static const char* const lang_ja_f608[] = { "\343\201\235\343\202\214\343\202\211\343\202\222\346\214\201\343\201\244\347\224\273\351\235\242\343\200\202" };
 static const char* const lang_ja_f609[] = { "\343\203\221\343\203\203\343\203\201\343\201\214\343\202\252\343\203\263\343\201\256\343\201\250\343\201\215\343\200\201\343\202\262\343\203\274\343\203\240\343\201\257\347\213\254\350\207\252\343\201\256\343\203\220\343\203\203\343\203\206\343\203\252\343\203\274\343\202\273\343\203\274\343\203\226 (\343\200\214<\343\202\262\343\203\274\343\203\240> + <\343\203\221\343\203\203\343\203\201>\343\200\215) \343\202\222\344\275\277\343\201\204\343\201\276\343\201\231\343\200\202\343\202\252\343\203\225\343\201\247\343\201\257\345\205\203\343\201\256\343\202\202\343\201\256\343\202\222\344\275\277\343\201\204\343\201\276\343\201\231" };
 static const char* const lang_ja_f610[] = { "\343\203\221\343\203\203\343\203\201\343\201\214\343\202\252\343\203\263\343\201\256\343\201\250\343\201\215\343\200\201\343\202\262\343\203\274\343\203\240\343\201\257\347\213\254\350\207\252\343\201\256\343\202\271\343\203\206\343\203\274\343\203\210\343\202\222\344\275\277\343\201\204\343\201\276\343\201\231\343\200\202\343\202\252\343\203\225\343\201\247\343\201\257\345\205\203\343\201\256\343\202\202\343\201\256\343\202\222\344\275\277\343\201\204\343\201\276\343\201\231 (\343\202\202\343\201\206\344\270\200\346\226\271\343\201\247\343\202\271\343\203\206\343\203\274\343\203\210\343\201\214\346\226\207\345\255\227\345\214\226\343\201\221\343\201\231\343\202\213\343\201\223\343\201\250\343\201\214\343\201\202\343\202\212\343\201\276\343\201\231)" };
-static const char* const lang_ja_f611[] = { "\350\207\252\345\213\225\343\203\201\343\202\247\343\203\203\343\202\257\343\201\214\343\202\252\343\203\263\343\201\256\345\240\264\345\220\210\343\200\201SNES DS \343\201\257\343\202\262\343\203\274\343\203\240\343\203\252\343\202\271\343\203\210\343\202\222\351\226\213\343\201\217\343\201\250\343\201\215\343\201\253 1 \346\227\245 1 \345\233\236\346\226\260\343\201\227\343\201\204\343\203\220\343\203\274\343\202\270\343\203\247\343\203\263\343\202\222\347\242\272\350\252\215\343\201\227\343\200\201\343\203\200\343\202\246\343\203\263\343\203\255\343\203\274\343\203\211\343\201\231\343\202\213\345\211\215\343\201\253\347\242\272\350\252\215\343\202\222\346\261\202\343\202\201\343\201\276\343\201\231\343\200\202\346\233\264\346\226\260\343\201\257 github.com/iosue-iulianus/snes-ds \343\201\256\343\203\252\343\203\252\343\203\274\343\202\271\343\201\213\343\202\211\345\217\226\345\276\227\343\201\227\343\201\276\343\201\231\343\200\202" };
+static const char* const lang_ja_f611[] = { "\350\207\252\345\213\225\343\203\201\343\202\247\343\203\203\343\202\257\343\201\214\343\202\252\343\203\263\343\201\256\345\240\264\345\220\210\343\200\201SNES DS \343\201\257\343\202\262\343\203\274\343\203\240\343\203\252\343\202\271\343\203\210\343\202\222\351\226\213\343\201\217\343\201\250\343\201\215\343\201\253 1 \346\227\245 1 \345\233\236\346\226\260\343\201\227\343\201\204\343\203\220\343\203\274\343\202\270\343\203\247\343\203\263\343\202\222\347\242\272\350\252\215\343\201\227\343\200\201\343\203\200\343\202\246\343\203\263\343\203\255\343\203\274\343\203\211\343\201\231\343\202\213\345\211\215\343\201\253\347\242\272\350\252\215\343\202\222\346\261\202\343\202\201\343\201\276\343\201\231\343\200\202\346\233\264\346\226\260\343\201\257 github.com/iosue-iulianus/retro-ds \343\201\256\343\203\252\343\203\252\343\203\274\343\202\271\343\201\213\343\202\211\345\217\226\345\276\227\343\201\227\343\201\276\343\201\231\343\200\202" };
 static const char* const lang_ja_f612[] = { "\343\202\277\343\202\260\343\201\202\343\202\212 (\344\276\213: (USA))" };
 static const char* const lang_ja_f613[] = { "X \343\203\234\343\202\277\343\203\263 (\344\270\212)" };
 static const char* const lang_ja_f614[] = { "Y \343\203\234\343\202\277\343\203\263 (\345\267\246)" };
-static const char* const lang_ja_f615[] = { "snes-ds/overlays/ \345\206\205\343\201\256\347\213\254\350\207\252\343\201\256 PNG\343\200\202PNG \343\201\256\343\201\252\343\201\204\347\224\273\351\235\242\343\201\253\343\201\257\343\200\201\346\227\242\345\256\232\343\201\256\350\211\262\343\201\247\347\224\237\346\210\220\343\201\227\343\201\237\343\203\231\343\202\274\343\203\253\343\202\222\344\275\277\343\201\204\343\201\276\343\201\231\343\200\202" };
+static const char* const lang_ja_f615[] = { "retrods/overlays/ \345\206\205\343\201\256\347\213\254\350\207\252\343\201\256 PNG\343\200\202PNG \343\201\256\343\201\252\343\201\204\347\224\273\351\235\242\343\201\253\343\201\257\343\200\201\346\227\242\345\256\232\343\201\256\350\211\262\343\201\247\347\224\237\346\210\220\343\201\227\343\201\237\343\203\231\343\202\274\343\203\253\343\202\222\344\275\277\343\201\204\343\201\276\343\201\231\343\200\202" };
 static const char* const lang_ja_f616[] = { "\347\213\254\350\207\252\343\201\256\343\203\255\343\202\264\343\201\250\345\217\226\345\276\227\343\201\227\343\201\237\343\203\255\343\202\264\343\202\222 2 \347\224\273\351\235\242\347\233\256\343\201\253\350\241\250\347\244\272\343\201\227\343\201\276\343\201\231\343\200\202" };
 static const char* const lang_ja_f617[] = { "2 \343\201\244\343\201\256\347\224\273\351\235\242\343\201\257\345\220\214\343\201\230\345\275\242\343\201\247\343\201\231\343\200\202\345\220\210\343\202\217\343\201\233\343\202\213\343\202\202\343\201\256\343\201\257\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223" };
 static const char* const lang_ja_f618[] = { "\343\202\272\343\203\274\343\203\240" };
@@ -5912,7 +5912,7 @@ static const I18nEntry lang_ja_entries[] = {
 	{ "%d game found", lang_ja_f9, 1 },
 	{ "%d game found.", lang_ja_f10, 1 },
 	{ "%d of %d", lang_ja_f11, 1 },
-	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in snes-ds.log too: send it in to have it built into SNES DS for this device.", lang_ja_f12, 1 },
+	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in retrods.log too: send it in to have it built into SNES DS for this device.", lang_ja_f12, 1 },
 	{ "%d on", lang_ja_f13, 1 },
 	{ "%s", lang_ja_f14, 1 },
 	{ "%s %s. Choose another if RetroArch keeps its states somewhere else.", lang_ja_f15, 1 },
@@ -6009,7 +6009,7 @@ static const I18nEntry lang_ja_entries[] = {
 	{ "Changes some of the same bytes as %s, and goes over it there: they may not work together", lang_ja_f106, 1 },
 	{ "Cheats", lang_ja_f107, 1 },
 	{ "Check now", lang_ja_f108, 1 },
-	{ "Check ra_username and ra_password in snes-ds.cfg", lang_ja_f109, 1 },
+	{ "Check ra_username and ra_password in retrods.cfg", lang_ja_f109, 1 },
 	{ "Check the account in EmulationStation's RetroAchievements settings", lang_ja_f110, 1 },
 	{ "Choose ROM folder", lang_ja_f111, 1 },
 	{ "Choose SNES DS folder", lang_ja_f112, 1 },
@@ -6435,7 +6435,7 @@ static const I18nEntry lang_ja_entries[] = {
 	{ "Swap screens", lang_ja_f532, 1 },
 	{ "Swapped", lang_ja_f533, 1 },
 	{ "Swipe up for quick menu", lang_ja_f534, 1 },
-	{ "Switched off in snes-ds.cfg (retroachievements = 0).", lang_ja_f535, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_ja_f535, 1 },
 	{ "System", lang_ja_f536, 1 },
 	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_ja_f537, 1 },
 	{ "Take Screenshot", lang_ja_f538, 1 },
@@ -6511,11 +6511,11 @@ static const I18nEntry lang_ja_entries[] = {
 	{ "Which screens have them.", lang_ja_f608, 1 },
 	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_ja_f609, 1 },
 	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_ja_f610, 1 },
-	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/snes-ds.", lang_ja_f611, 1 },
+	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_ja_f611, 1 },
 	{ "With tags, like (USA)", lang_ja_f612, 1 },
 	{ "X (top) button", lang_ja_f613, 1 },
 	{ "Y (left) button", lang_ja_f614, 1 },
-	{ "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors.", lang_ja_f615, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_ja_f615, 1 },
 	{ "Your own and scraped logos on the second screen.", lang_ja_f616, 1 },
 	{ "Your screens are the same shape: nothing to match", lang_ja_f617, 1 },
 	{ "Zoom", lang_ja_f618, 1 },
@@ -6568,7 +6568,7 @@ static const char* const lang_ko_f8[] = { "\355\214\214\354\235\274 %d\352\260\2
 static const char* const lang_ko_f9[] = { "\352\262\214\354\236\204 %d\352\260\234 \353\260\234\352\262\254" };
 static const char* const lang_ko_f10[] = { "\352\262\214\354\236\204 %d\352\260\234 \353\260\234\352\262\254." };
 static const char* const lang_ko_f11[] = { "%d / %d" };
-static const char* const lang_ko_f12[] = { "%3$s\354\227\220 %2$d\352\260\234 \354\244\221 %1$d\352\260\234\353\245\274 \354\204\244\354\240\225\355\226\210\354\212\265\353\213\210\353\213\244. SNES DS \354\203\201\355\203\234 \355\214\214\354\235\274 \354\230\206\354\235\230 controllers.txt\354\227\220 \354\240\200\354\236\245\353\220\251\353\213\210\353\213\244. \355\225\264\353\213\271 \354\244\204\354\235\200 snes-ds.log\354\227\220\353\217\204 \354\236\210\354\234\274\353\213\210, \354\235\264 \352\270\260\352\270\260\354\232\251\354\234\274\353\241\234 SNES DS\354\227\220 \353\260\230\354\230\201\355\225\240 \354\210\230 \354\236\210\352\262\214 \353\263\264\353\202\264 \354\243\274\354\204\270\354\232\224." };
+static const char* const lang_ko_f12[] = { "%3$s\354\227\220 %2$d\352\260\234 \354\244\221 %1$d\352\260\234\353\245\274 \354\204\244\354\240\225\355\226\210\354\212\265\353\213\210\353\213\244. SNES DS \354\203\201\355\203\234 \355\214\214\354\235\274 \354\230\206\354\235\230 controllers.txt\354\227\220 \354\240\200\354\236\245\353\220\251\353\213\210\353\213\244. \355\225\264\353\213\271 \354\244\204\354\235\200 retrods.log\354\227\220\353\217\204 \354\236\210\354\234\274\353\213\210, \354\235\264 \352\270\260\352\270\260\354\232\251\354\234\274\353\241\234 SNES DS\354\227\220 \353\260\230\354\230\201\355\225\240 \354\210\230 \354\236\210\352\262\214 \353\263\264\353\202\264 \354\243\274\354\204\270\354\232\224." };
 static const char* const lang_ko_f13[] = { "%d\352\260\234 \354\274\234\354\247\220" };
 static const char* const lang_ko_f14[] = { "%s" };
 static const char* const lang_ko_f15[] = { "%s %s. RetroArch\352\260\200 \354\203\201\355\203\234\353\245\274 \353\213\244\353\245\270 \352\263\263\354\227\220 \353\263\264\352\264\200\355\225\234\353\213\244\353\251\264 \353\213\244\353\245\270 \355\217\264\353\215\224\353\245\274 \354\204\240\355\203\235\355\225\230\354\204\270\354\232\224." };
@@ -6665,7 +6665,7 @@ static const char* const lang_ko_f105[] = { "\352\260\200\354\232\264\353\215\26
 static const char* const lang_ko_f106[] = { "%s\352\263\274(\354\231\200) \352\260\231\354\235\200 \353\260\224\354\235\264\355\212\270 \354\235\274\353\266\200\353\245\274 \353\263\200\352\262\275\355\225\230\354\227\254 \353\215\256\354\226\264\354\224\201\353\213\210\353\213\244. \355\225\250\352\273\230 \354\236\221\353\217\231\355\225\230\354\247\200 \354\225\212\354\235\204 \354\210\230 \354\236\210\354\212\265\353\213\210\353\213\244" };
 static const char* const lang_ko_f107[] = { "\354\271\230\355\212\270" };
 static const char* const lang_ko_f108[] = { "\354\247\200\352\270\210 \355\231\225\354\235\270" };
-static const char* const lang_ko_f109[] = { "snes-ds.cfg\354\235\230 ra_username\352\263\274 ra_password\353\245\274 \355\231\225\354\235\270\355\225\230\354\204\270\354\232\224" };
+static const char* const lang_ko_f109[] = { "retrods.cfg\354\235\230 ra_username\352\263\274 ra_password\353\245\274 \355\231\225\354\235\270\355\225\230\354\204\270\354\232\224" };
 static const char* const lang_ko_f110[] = { "EmulationStation\354\235\230 RetroAchievements \354\204\244\354\240\225\354\227\220\354\204\234 \352\263\204\354\240\225\354\235\204 \355\231\225\354\235\270\355\225\230\354\204\270\354\232\224" };
 static const char* const lang_ko_f111[] = { "ROM \355\217\264\353\215\224 \354\204\240\355\203\235" };
 static const char* const lang_ko_f112[] = { "SNES DS \355\217\264\353\215\224 \354\204\240\355\203\235" };
@@ -7091,7 +7091,7 @@ static const char* const lang_ko_f531[] = { "\355\231\224\353\251\264 \353\260\2
 static const char* const lang_ko_f532[] = { "\355\231\224\353\251\264 \353\260\224\352\276\270\352\270\260" };
 static const char* const lang_ko_f533[] = { "\353\260\224\353\200\234" };
 static const char* const lang_ko_f534[] = { "\354\234\204\353\241\234 \354\212\244\354\231\200\354\235\264\355\224\204\355\225\230\354\227\254 \353\271\240\353\245\270 \353\251\224\353\211\264" };
-static const char* const lang_ko_f535[] = { "snes-ds.cfg\354\227\220\354\204\234 \352\272\274\354\240\270 \354\236\210\354\212\265\353\213\210\353\213\244 (retroachievements = 0)." };
+static const char* const lang_ko_f535[] = { "retrods.cfg\354\227\220\354\204\234 \352\272\274\354\240\270 \354\236\210\354\212\265\353\213\210\353\213\244 (retroachievements = 0)." };
 static const char* const lang_ko_f536[] = { "\354\213\234\354\212\244\355\205\234" };
 static const char* const lang_ko_f537[] = { "ROM \355\214\214\354\235\274 \354\235\264\353\246\204\354\235\230 \355\203\234\352\267\270, \354\230\210: (USA) \353\230\220\353\212\224 (En,Fr,De)." };
 static const char* const lang_ko_f538[] = { "\354\212\244\355\201\254\353\246\260\354\203\267 \354\260\215\352\270\260" };
@@ -7167,11 +7167,11 @@ static const char* const lang_ko_f607[] = { "\352\262\214\354\236\204\354\235\26
 static const char* const lang_ko_f608[] = { "\354\226\264\353\212\220 \355\231\224\353\251\264\354\227\220 \354\236\210\353\212\224\354\247\200." };
 static const char* const lang_ko_f609[] = { "\355\214\250\354\271\230\353\245\274 \354\274\234\353\251\264 \352\262\214\354\236\204\354\235\264 \354\236\220\354\262\264 \353\260\260\355\204\260\353\246\254 \354\240\200\354\236\245 \353\215\260\354\235\264\355\204\260(\"<\352\262\214\354\236\204> + <\355\214\250\354\271\230>\")\353\245\274 \353\263\264\352\264\200\355\225\230\352\263\240, \353\201\204\353\251\264 \354\233\220\353\263\270\354\235\230 \352\262\203\354\235\204 \354\202\254\354\232\251\355\225\251\353\213\210\353\213\244" };
 static const char* const lang_ko_f610[] = { "\355\214\250\354\271\230\353\245\274 \354\274\234\353\251\264 \352\262\214\354\236\204\354\235\264 \354\236\220\354\262\264 \354\203\201\355\203\234\353\245\274 \353\263\264\352\264\200\355\225\230\352\263\240, \353\201\204\353\251\264 \354\233\220\353\263\270\354\235\230 \352\262\203\354\235\204 \354\202\254\354\232\251\355\225\251\353\213\210\353\213\244 (\354\203\201\355\203\234\352\260\200 \353\213\244\353\245\270 \354\252\275\354\227\220\354\204\234 \352\271\250\354\247\210 \354\210\230 \354\236\210\354\235\214)" };
-static const char* const lang_ko_f611[] = { "\354\236\220\353\217\231 \355\231\225\354\235\270\354\235\204 \354\274\234\353\251\264 SNES DS\352\260\200 \352\262\214\354\236\204 \353\252\251\353\241\235\354\235\204 \354\227\264 \353\225\214 \355\225\230\353\243\250\354\227\220 \355\225\234 \353\262\210 \354\203\210 \353\262\204\354\240\204\354\235\204 \355\231\225\354\235\270\355\225\230\352\263\240, \353\213\244\354\232\264\353\241\234\353\223\234\355\225\230\352\270\260 \354\240\204\354\227\220 \353\250\274\354\240\200 \353\254\273\354\212\265\353\213\210\353\213\244. \354\227\205\353\215\260\354\235\264\355\212\270\353\212\224 github.com/iosue-iulianus/snes-ds\354\227\220 \352\263\265\352\260\234\353\220\234 \353\262\204\354\240\204\354\227\220\354\204\234 \352\260\200\354\240\270\354\230\265\353\213\210\353\213\244." };
+static const char* const lang_ko_f611[] = { "\354\236\220\353\217\231 \355\231\225\354\235\270\354\235\204 \354\274\234\353\251\264 SNES DS\352\260\200 \352\262\214\354\236\204 \353\252\251\353\241\235\354\235\204 \354\227\264 \353\225\214 \355\225\230\353\243\250\354\227\220 \355\225\234 \353\262\210 \354\203\210 \353\262\204\354\240\204\354\235\204 \355\231\225\354\235\270\355\225\230\352\263\240, \353\213\244\354\232\264\353\241\234\353\223\234\355\225\230\352\270\260 \354\240\204\354\227\220 \353\250\274\354\240\200 \353\254\273\354\212\265\353\213\210\353\213\244. \354\227\205\353\215\260\354\235\264\355\212\270\353\212\224 github.com/iosue-iulianus/retro-ds\354\227\220 \352\263\265\352\260\234\353\220\234 \353\262\204\354\240\204\354\227\220\354\204\234 \352\260\200\354\240\270\354\230\265\353\213\210\353\213\244." };
 static const char* const lang_ko_f612[] = { "\355\203\234\352\267\270 \355\217\254\355\225\250, \354\230\210: (USA)" };
 static const char* const lang_ko_f613[] = { "X \353\262\204\355\212\274 (\354\234\204)" };
 static const char* const lang_ko_f614[] = { "Y \353\262\204\355\212\274 (\354\231\274\354\252\275)" };
-static const char* const lang_ko_f615[] = { "snes-ds/overlays/ \354\225\210\354\235\230 \354\247\201\354\240\221 \353\247\214\353\223\240 PNG. PNG\352\260\200 \354\227\206\353\212\224 \355\231\224\353\251\264\354\227\220\353\212\224 \352\270\260\353\263\270 \354\203\211\354\203\201\354\235\230 \354\203\235\354\204\261\353\220\234 \353\262\240\354\240\244\354\235\264 \355\221\234\354\213\234\353\220\251\353\213\210\353\213\244." };
+static const char* const lang_ko_f615[] = { "retrods/overlays/ \354\225\210\354\235\230 \354\247\201\354\240\221 \353\247\214\353\223\240 PNG. PNG\352\260\200 \354\227\206\353\212\224 \355\231\224\353\251\264\354\227\220\353\212\224 \352\270\260\353\263\270 \354\203\211\354\203\201\354\235\230 \354\203\235\354\204\261\353\220\234 \353\262\240\354\240\244\354\235\264 \355\221\234\354\213\234\353\220\251\353\213\210\353\213\244." };
 static const char* const lang_ko_f616[] = { "\354\247\201\354\240\221 \353\247\214\353\223\240 \353\241\234\352\263\240\354\231\200 \353\221\220 \353\262\210\354\247\270 \355\231\224\353\251\264\354\227\220\354\204\234 \352\260\200\354\240\270\354\230\250 \353\241\234\352\263\240." };
 static const char* const lang_ko_f617[] = { "\355\231\224\353\251\264\354\235\230 \353\252\250\354\226\221\354\235\264 \352\260\231\354\212\265\353\213\210\353\213\244: \353\247\236\354\266\234 \352\262\203\354\235\264 \354\227\206\354\212\265\353\213\210\353\213\244" };
 static const char* const lang_ko_f618[] = { "\355\231\225\353\214\200" };
@@ -7223,7 +7223,7 @@ static const I18nEntry lang_ko_entries[] = {
 	{ "%d game found", lang_ko_f9, 1 },
 	{ "%d game found.", lang_ko_f10, 1 },
 	{ "%d of %d", lang_ko_f11, 1 },
-	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in snes-ds.log too: send it in to have it built into SNES DS for this device.", lang_ko_f12, 1 },
+	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in retrods.log too: send it in to have it built into SNES DS for this device.", lang_ko_f12, 1 },
 	{ "%d on", lang_ko_f13, 1 },
 	{ "%s", lang_ko_f14, 1 },
 	{ "%s %s. Choose another if RetroArch keeps its states somewhere else.", lang_ko_f15, 1 },
@@ -7320,7 +7320,7 @@ static const I18nEntry lang_ko_entries[] = {
 	{ "Changes some of the same bytes as %s, and goes over it there: they may not work together", lang_ko_f106, 1 },
 	{ "Cheats", lang_ko_f107, 1 },
 	{ "Check now", lang_ko_f108, 1 },
-	{ "Check ra_username and ra_password in snes-ds.cfg", lang_ko_f109, 1 },
+	{ "Check ra_username and ra_password in retrods.cfg", lang_ko_f109, 1 },
 	{ "Check the account in EmulationStation's RetroAchievements settings", lang_ko_f110, 1 },
 	{ "Choose ROM folder", lang_ko_f111, 1 },
 	{ "Choose SNES DS folder", lang_ko_f112, 1 },
@@ -7746,7 +7746,7 @@ static const I18nEntry lang_ko_entries[] = {
 	{ "Swap screens", lang_ko_f532, 1 },
 	{ "Swapped", lang_ko_f533, 1 },
 	{ "Swipe up for quick menu", lang_ko_f534, 1 },
-	{ "Switched off in snes-ds.cfg (retroachievements = 0).", lang_ko_f535, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_ko_f535, 1 },
 	{ "System", lang_ko_f536, 1 },
 	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_ko_f537, 1 },
 	{ "Take Screenshot", lang_ko_f538, 1 },
@@ -7822,11 +7822,11 @@ static const I18nEntry lang_ko_entries[] = {
 	{ "Which screens have them.", lang_ko_f608, 1 },
 	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_ko_f609, 1 },
 	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_ko_f610, 1 },
-	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/snes-ds.", lang_ko_f611, 1 },
+	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_ko_f611, 1 },
 	{ "With tags, like (USA)", lang_ko_f612, 1 },
 	{ "X (top) button", lang_ko_f613, 1 },
 	{ "Y (left) button", lang_ko_f614, 1 },
-	{ "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors.", lang_ko_f615, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_ko_f615, 1 },
 	{ "Your own and scraped logos on the second screen.", lang_ko_f616, 1 },
 	{ "Your screens are the same shape: nothing to match", lang_ko_f617, 1 },
 	{ "Zoom", lang_ko_f618, 1 },
@@ -7879,7 +7879,7 @@ static const char* const lang_pt_f8[] = { "%d arquivo verificado", "%d arquivos 
 static const char* const lang_pt_f9[] = { "%d jogo encontrado", "%d jogos encontrados" };
 static const char* const lang_pt_f10[] = { "%d jogo encontrado.", "%d jogos encontrados." };
 static const char* const lang_pt_f11[] = { "%d de %d" };
-static const char* const lang_pt_f12[] = { "%d de %d definidos para %s, guardados em controllers.txt ao lado dos estados do SNES DS. A linha tamb\303\251m est\303\241 em snes-ds.log: envie-a para que seja inclu\303\255da no SNES DS para este dispositivo." };
+static const char* const lang_pt_f12[] = { "%d de %d definidos para %s, guardados em controllers.txt ao lado dos estados do SNES DS. A linha tamb\303\251m est\303\241 em retrods.log: envie-a para que seja inclu\303\255da no SNES DS para este dispositivo." };
 static const char* const lang_pt_f13[] = { "%d ativados" };
 static const char* const lang_pt_f14[] = { "%s" };
 static const char* const lang_pt_f15[] = { "%s %s. Escolha outra se o RetroArch guarda seus estados em outro lugar." };
@@ -7976,7 +7976,7 @@ static const char* const lang_pt_f105[] = { "Centralizado" };
 static const char* const lang_pt_f106[] = { "Altera alguns dos mesmos bytes de %s e os sobrescreve: podem n\303\243o funcionar juntos" };
 static const char* const lang_pt_f107[] = { "Cheats" };
 static const char* const lang_pt_f108[] = { "Verificar agora" };
-static const char* const lang_pt_f109[] = { "Verifique ra_username e ra_password em snes-ds.cfg" };
+static const char* const lang_pt_f109[] = { "Verifique ra_username e ra_password em retrods.cfg" };
 static const char* const lang_pt_f110[] = { "Verifique a conta nas configura\303\247\303\265es do RetroAchievements do EmulationStation" };
 static const char* const lang_pt_f111[] = { "Escolher a pasta das ROMs" };
 static const char* const lang_pt_f112[] = { "Escolher a pasta do SNES DS" };
@@ -8402,7 +8402,7 @@ static const char* const lang_pt_f531[] = { "Trocar as telas" };
 static const char* const lang_pt_f532[] = { "Trocar as telas" };
 static const char* const lang_pt_f533[] = { "Trocadas" };
 static const char* const lang_pt_f534[] = { "Deslize para cima para o menu r\303\241pido" };
-static const char* const lang_pt_f535[] = { "Desativado em snes-ds.cfg (retroachievements = 0)." };
+static const char* const lang_pt_f535[] = { "Desativado em retrods.cfg (retroachievements = 0)." };
 static const char* const lang_pt_f536[] = { "Sistema" };
 static const char* const lang_pt_f537[] = { "As tags no nome do arquivo de uma ROM, como (USA) ou (En,Fr,De)." };
 static const char* const lang_pt_f538[] = { "Tirar captura de tela" };
@@ -8478,11 +8478,11 @@ static const char* const lang_pt_f607[] = { "Em qual tela o jogo fica." };
 static const char* const lang_pt_f608[] = { "Quais telas os t\303\252m." };
 static const char* const lang_pt_f609[] = { "Com um patch ativado, o jogo guarda seu pr\303\263prio save de bateria (\"<jogo> + <patch>\"): desativado, usa o do original" };
 static const char* const lang_pt_f610[] = { "Com um patch ativado, o jogo guarda seus pr\303\263prios estados: desativado, usa os do original (um estado pode sair corrompido no outro)" };
-static const char* const lang_pt_f611[] = { "Com a verifica\303\247\303\243o autom\303\241tica ativada, o SNES DS procura uma nova vers\303\243o uma vez por dia ao abrir a lista de jogos e pergunta antes de baixar qualquer coisa. As atualiza\303\247\303\265es v\303\252m das vers\303\265es publicadas em github.com/iosue-iulianus/snes-ds." };
+static const char* const lang_pt_f611[] = { "Com a verifica\303\247\303\243o autom\303\241tica ativada, o SNES DS procura uma nova vers\303\243o uma vez por dia ao abrir a lista de jogos e pergunta antes de baixar qualquer coisa. As atualiza\303\247\303\265es v\303\252m das vers\303\265es publicadas em github.com/iosue-iulianus/retro-ds." };
 static const char* const lang_pt_f612[] = { "Com tags, como (USA)" };
 static const char* const lang_pt_f613[] = { "Bot\303\243o X (cima)" };
 static const char* const lang_pt_f614[] = { "Bot\303\243o Y (esquerda)" };
-static const char* const lang_pt_f615[] = { "Seus pr\303\263prios PNGs em snes-ds/overlays/. Uma tela sem um recebe a moldura gerada em suas cores padr\303\243o." };
+static const char* const lang_pt_f615[] = { "Seus pr\303\263prios PNGs em retrods/overlays/. Uma tela sem um recebe a moldura gerada em suas cores padr\303\243o." };
 static const char* const lang_pt_f616[] = { "Seus pr\303\263prios logos e os obtidos na segunda tela." };
 static const char* const lang_pt_f617[] = { "Suas telas t\303\252m o mesmo formato: nada para igualar" };
 static const char* const lang_pt_f618[] = { "Zoom" };
@@ -8534,7 +8534,7 @@ static const I18nEntry lang_pt_entries[] = {
 	{ "%d game found", lang_pt_f9, 2 },
 	{ "%d game found.", lang_pt_f10, 2 },
 	{ "%d of %d", lang_pt_f11, 1 },
-	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in snes-ds.log too: send it in to have it built into SNES DS for this device.", lang_pt_f12, 1 },
+	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in retrods.log too: send it in to have it built into SNES DS for this device.", lang_pt_f12, 1 },
 	{ "%d on", lang_pt_f13, 1 },
 	{ "%s", lang_pt_f14, 1 },
 	{ "%s %s. Choose another if RetroArch keeps its states somewhere else.", lang_pt_f15, 1 },
@@ -8631,7 +8631,7 @@ static const I18nEntry lang_pt_entries[] = {
 	{ "Changes some of the same bytes as %s, and goes over it there: they may not work together", lang_pt_f106, 1 },
 	{ "Cheats", lang_pt_f107, 1 },
 	{ "Check now", lang_pt_f108, 1 },
-	{ "Check ra_username and ra_password in snes-ds.cfg", lang_pt_f109, 1 },
+	{ "Check ra_username and ra_password in retrods.cfg", lang_pt_f109, 1 },
 	{ "Check the account in EmulationStation's RetroAchievements settings", lang_pt_f110, 1 },
 	{ "Choose ROM folder", lang_pt_f111, 1 },
 	{ "Choose SNES DS folder", lang_pt_f112, 1 },
@@ -9057,7 +9057,7 @@ static const I18nEntry lang_pt_entries[] = {
 	{ "Swap screens", lang_pt_f532, 1 },
 	{ "Swapped", lang_pt_f533, 1 },
 	{ "Swipe up for quick menu", lang_pt_f534, 1 },
-	{ "Switched off in snes-ds.cfg (retroachievements = 0).", lang_pt_f535, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_pt_f535, 1 },
 	{ "System", lang_pt_f536, 1 },
 	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_pt_f537, 1 },
 	{ "Take Screenshot", lang_pt_f538, 1 },
@@ -9133,11 +9133,11 @@ static const I18nEntry lang_pt_entries[] = {
 	{ "Which screens have them.", lang_pt_f608, 1 },
 	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_pt_f609, 1 },
 	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_pt_f610, 1 },
-	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/snes-ds.", lang_pt_f611, 1 },
+	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_pt_f611, 1 },
 	{ "With tags, like (USA)", lang_pt_f612, 1 },
 	{ "X (top) button", lang_pt_f613, 1 },
 	{ "Y (left) button", lang_pt_f614, 1 },
-	{ "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors.", lang_pt_f615, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_pt_f615, 1 },
 	{ "Your own and scraped logos on the second screen.", lang_pt_f616, 1 },
 	{ "Your screens are the same shape: nothing to match", lang_pt_f617, 1 },
 	{ "Zoom", lang_pt_f618, 1 },
@@ -9190,7 +9190,7 @@ static const char* const lang_zh_CN_f8[] = { "\345\267\262\346\243\200\346\237\2
 static const char* const lang_zh_CN_f9[] = { "\346\211\276\345\210\260 %d \344\270\252\346\270\270\346\210\217" };
 static const char* const lang_zh_CN_f10[] = { "\346\211\276\345\210\260 %d \344\270\252\346\270\270\346\210\217\343\200\202" };
 static const char* const lang_zh_CN_f11[] = { "\347\254\254 %d / %d \344\270\252" };
-static const char* const lang_zh_CN_f12[] = { "%d/%d \344\270\252\346\214\211\351\224\256\350\256\276\347\275\256\345\245\275\344\272\206\357\274\210%s\357\274\211\357\274\214\344\277\235\345\255\230\345\234\250 SNES DS \345\215\263\346\227\266\345\255\230\346\241\243\346\227\201\350\276\271\347\232\204 controllers.txt \351\207\214\343\200\202snes-ds.log \351\207\214\344\271\237\346\234\211\345\257\271\345\272\224\347\232\204\350\241\214\357\274\232\346\212\212\345\256\203\345\217\221\350\277\207\346\235\245\357\274\214\345\260\261\350\203\275\344\270\272\350\277\231\345\217\260\350\256\276\345\244\207\346\212\212\345\256\203\345\206\205\347\275\256\345\210\260 SNES DS \351\207\214\343\200\202" };
+static const char* const lang_zh_CN_f12[] = { "%d/%d \344\270\252\346\214\211\351\224\256\350\256\276\347\275\256\345\245\275\344\272\206\357\274\210%s\357\274\211\357\274\214\344\277\235\345\255\230\345\234\250 SNES DS \345\215\263\346\227\266\345\255\230\346\241\243\346\227\201\350\276\271\347\232\204 controllers.txt \351\207\214\343\200\202retrods.log \351\207\214\344\271\237\346\234\211\345\257\271\345\272\224\347\232\204\350\241\214\357\274\232\346\212\212\345\256\203\345\217\221\350\277\207\346\235\245\357\274\214\345\260\261\350\203\275\344\270\272\350\277\231\345\217\260\350\256\276\345\244\207\346\212\212\345\256\203\345\206\205\347\275\256\345\210\260 SNES DS \351\207\214\343\200\202" };
 static const char* const lang_zh_CN_f13[] = { "\345\267\262\345\274\200 %d \351\241\271" };
 static const char* const lang_zh_CN_f14[] = { "%s" };
 static const char* const lang_zh_CN_f15[] = { "%s%s\343\200\202\345\246\202\346\236\234 RetroArch \346\212\212\347\212\266\346\200\201\345\255\230\345\234\250\345\210\253\345\244\204\357\274\214\350\257\267\345\217\246\351\200\211\343\200\202" };
@@ -9287,7 +9287,7 @@ static const char* const lang_zh_CN_f105[] = { "\345\261\205\344\270\255" };
 static const char* const lang_zh_CN_f106[] = { "\344\270\216 %s \346\224\271\344\272\206\345\220\214\344\270\200\346\211\271\345\255\227\350\212\202\345\271\266\350\246\206\347\233\226\345\256\203\357\274\232\344\270\244\350\200\205\345\217\257\350\203\275\346\227\240\346\263\225\344\270\200\350\265\267\347\224\250" };
 static const char* const lang_zh_CN_f107[] = { "\351\207\221\346\211\213\346\214\207" };
 static const char* const lang_zh_CN_f108[] = { "\347\253\213\345\215\263\346\243\200\346\237\245" };
-static const char* const lang_zh_CN_f109[] = { "\346\243\200\346\237\245 snes-ds.cfg \351\207\214\347\232\204 ra_username \345\222\214 ra_password" };
+static const char* const lang_zh_CN_f109[] = { "\346\243\200\346\237\245 retrods.cfg \351\207\214\347\232\204 ra_username \345\222\214 ra_password" };
 static const char* const lang_zh_CN_f110[] = { "\346\243\200\346\237\245 EmulationStation \347\232\204 RetroAchievements \350\256\276\347\275\256\351\207\214\347\232\204\350\264\246\345\217\267" };
 static const char* const lang_zh_CN_f111[] = { "\351\200\211\346\213\251 ROM \346\226\207\344\273\266\345\244\271" };
 static const char* const lang_zh_CN_f112[] = { "\351\200\211\346\213\251 SNES DS \346\226\207\344\273\266\345\244\271" };
@@ -9713,7 +9713,7 @@ static const char* const lang_zh_CN_f531[] = { "\344\272\244\346\215\242\345\261
 static const char* const lang_zh_CN_f532[] = { "\344\272\244\346\215\242\345\261\217\345\271\225" };
 static const char* const lang_zh_CN_f533[] = { "\344\272\244\346\215\242" };
 static const char* const lang_zh_CN_f534[] = { "\344\270\212\346\273\221\346\211\223\345\274\200\345\277\253\346\215\267\350\217\234\345\215\225" };
-static const char* const lang_zh_CN_f535[] = { "\345\267\262\345\234\250 snes-ds.cfg \344\270\255\345\205\263\351\227\255\357\274\210retroachievements = 0\357\274\211\343\200\202" };
+static const char* const lang_zh_CN_f535[] = { "\345\267\262\345\234\250 retrods.cfg \344\270\255\345\205\263\351\227\255\357\274\210retroachievements = 0\357\274\211\343\200\202" };
 static const char* const lang_zh_CN_f536[] = { "\347\263\273\347\273\237" };
 static const char* const lang_zh_CN_f537[] = { "ROM \346\226\207\344\273\266\345\220\215\351\207\214\347\232\204\346\240\207\347\255\276\357\274\214\344\276\213\345\246\202 (USA) \346\210\226 (En,Fr,De)\343\200\202" };
 static const char* const lang_zh_CN_f538[] = { "\346\210\252\345\233\276" };
@@ -9789,11 +9789,11 @@ static const char* const lang_zh_CN_f607[] = { "\346\270\270\346\210\217\345\234
 static const char* const lang_zh_CN_f608[] = { "\345\223\252\345\235\227\345\261\217\345\271\225\346\234\211\350\246\206\347\233\226\345\261\202\343\200\202" };
 static const char* const lang_zh_CN_f609[] = { "\345\274\200\347\235\200\350\241\245\344\270\201\346\227\266\357\274\214\346\270\270\346\210\217\347\224\250\350\207\252\345\267\261\347\213\254\347\253\213\347\232\204\347\224\265\346\261\240\345\255\230\346\241\243\357\274\210\342\200\234<game> + <patch>\342\200\235\357\274\211\357\274\233\345\205\263\346\216\211\345\260\261\347\224\250\345\216\237\347\211\210\347\232\204" };
 static const char* const lang_zh_CN_f610[] = { "\345\274\200\347\235\200\350\241\245\344\270\201\346\227\266\357\274\214\346\270\270\346\210\217\347\224\250\350\207\252\345\267\261\347\213\254\347\253\213\347\232\204\345\215\263\346\227\266\345\255\230\346\241\243\357\274\233\345\205\263\346\216\211\345\260\261\347\224\250\345\216\237\347\211\210\347\232\204\357\274\210\344\270\244\350\276\271\346\267\267\347\235\200\347\224\250\345\217\257\350\203\275\350\257\273\345\217\226\345\207\272\351\224\231\357\274\211" };
-static const char* const lang_zh_CN_f611[] = { "\345\274\200\345\220\257\350\207\252\345\212\250\346\243\200\346\237\245\345\220\216\357\274\214SNES DS \346\257\217\345\244\251\345\234\250\346\211\223\345\274\200\346\270\270\346\210\217\345\210\227\350\241\250\346\227\266\346\237\245\346\211\276\344\270\200\346\254\241\346\226\260\347\211\210\346\234\254\357\274\214\344\270\213\350\275\275\345\211\215\344\274\232\345\205\210\350\257\242\351\227\256\343\200\202\346\233\264\346\226\260\346\235\245\350\207\252 github.com/iosue-iulianus/snes-ds \347\232\204\345\217\221\345\270\203\351\241\265\343\200\202" };
+static const char* const lang_zh_CN_f611[] = { "\345\274\200\345\220\257\350\207\252\345\212\250\346\243\200\346\237\245\345\220\216\357\274\214SNES DS \346\257\217\345\244\251\345\234\250\346\211\223\345\274\200\346\270\270\346\210\217\345\210\227\350\241\250\346\227\266\346\237\245\346\211\276\344\270\200\346\254\241\346\226\260\347\211\210\346\234\254\357\274\214\344\270\213\350\275\275\345\211\215\344\274\232\345\205\210\350\257\242\351\227\256\343\200\202\346\233\264\346\226\260\346\235\245\350\207\252 github.com/iosue-iulianus/retro-ds \347\232\204\345\217\221\345\270\203\351\241\265\343\200\202" };
 static const char* const lang_zh_CN_f612[] = { "\345\270\246\346\240\207\347\255\276\357\274\214\345\246\202 (USA)" };
 static const char* const lang_zh_CN_f613[] = { "X\357\274\210\344\270\212\357\274\211\351\224\256" };
 static const char* const lang_zh_CN_f614[] = { "Y\357\274\210\345\267\246\357\274\211\351\224\256" };
-static const char* const lang_zh_CN_f615[] = { "\344\275\240\350\207\252\345\267\261\347\232\204 PNG \346\224\276\345\234\250 snes-ds/overlays/\343\200\202\346\237\220\345\235\227\345\261\217\345\271\225\346\262\241\346\234\211\345\260\261\347\224\250\351\273\230\350\256\244\351\242\234\350\211\262\347\232\204\347\224\237\346\210\220\350\276\271\346\241\206\343\200\202" };
+static const char* const lang_zh_CN_f615[] = { "\344\275\240\350\207\252\345\267\261\347\232\204 PNG \346\224\276\345\234\250 retrods/overlays/\343\200\202\346\237\220\345\235\227\345\261\217\345\271\225\346\262\241\346\234\211\345\260\261\347\224\250\351\273\230\350\256\244\351\242\234\350\211\262\347\232\204\347\224\237\346\210\220\350\276\271\346\241\206\343\200\202" };
 static const char* const lang_zh_CN_f616[] = { "\345\211\257\345\261\217\344\270\212\346\230\276\347\244\272\344\275\240\350\207\252\345\267\261\347\232\204\346\210\226\346\212\223\345\217\226\346\235\245\347\232\204\345\276\275\346\240\207\343\200\202" };
 static const char* const lang_zh_CN_f617[] = { "\344\270\244\345\235\227\345\261\217\345\271\225\345\275\242\347\212\266\347\233\270\345\220\214\357\274\232\346\227\240\351\234\200\345\214\271\351\205\215" };
 static const char* const lang_zh_CN_f618[] = { "\346\224\276\345\244\247" };
@@ -9845,7 +9845,7 @@ static const I18nEntry lang_zh_CN_entries[] = {
 	{ "%d game found", lang_zh_CN_f9, 1 },
 	{ "%d game found.", lang_zh_CN_f10, 1 },
 	{ "%d of %d", lang_zh_CN_f11, 1 },
-	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in snes-ds.log too: send it in to have it built into SNES DS for this device.", lang_zh_CN_f12, 1 },
+	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in retrods.log too: send it in to have it built into SNES DS for this device.", lang_zh_CN_f12, 1 },
 	{ "%d on", lang_zh_CN_f13, 1 },
 	{ "%s", lang_zh_CN_f14, 1 },
 	{ "%s %s. Choose another if RetroArch keeps its states somewhere else.", lang_zh_CN_f15, 1 },
@@ -9942,7 +9942,7 @@ static const I18nEntry lang_zh_CN_entries[] = {
 	{ "Changes some of the same bytes as %s, and goes over it there: they may not work together", lang_zh_CN_f106, 1 },
 	{ "Cheats", lang_zh_CN_f107, 1 },
 	{ "Check now", lang_zh_CN_f108, 1 },
-	{ "Check ra_username and ra_password in snes-ds.cfg", lang_zh_CN_f109, 1 },
+	{ "Check ra_username and ra_password in retrods.cfg", lang_zh_CN_f109, 1 },
 	{ "Check the account in EmulationStation's RetroAchievements settings", lang_zh_CN_f110, 1 },
 	{ "Choose ROM folder", lang_zh_CN_f111, 1 },
 	{ "Choose SNES DS folder", lang_zh_CN_f112, 1 },
@@ -10368,7 +10368,7 @@ static const I18nEntry lang_zh_CN_entries[] = {
 	{ "Swap screens", lang_zh_CN_f532, 1 },
 	{ "Swapped", lang_zh_CN_f533, 1 },
 	{ "Swipe up for quick menu", lang_zh_CN_f534, 1 },
-	{ "Switched off in snes-ds.cfg (retroachievements = 0).", lang_zh_CN_f535, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_zh_CN_f535, 1 },
 	{ "System", lang_zh_CN_f536, 1 },
 	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_zh_CN_f537, 1 },
 	{ "Take Screenshot", lang_zh_CN_f538, 1 },
@@ -10444,11 +10444,11 @@ static const I18nEntry lang_zh_CN_entries[] = {
 	{ "Which screens have them.", lang_zh_CN_f608, 1 },
 	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_zh_CN_f609, 1 },
 	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_zh_CN_f610, 1 },
-	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/snes-ds.", lang_zh_CN_f611, 1 },
+	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_zh_CN_f611, 1 },
 	{ "With tags, like (USA)", lang_zh_CN_f612, 1 },
 	{ "X (top) button", lang_zh_CN_f613, 1 },
 	{ "Y (left) button", lang_zh_CN_f614, 1 },
-	{ "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors.", lang_zh_CN_f615, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_zh_CN_f615, 1 },
 	{ "Your own and scraped logos on the second screen.", lang_zh_CN_f616, 1 },
 	{ "Your screens are the same shape: nothing to match", lang_zh_CN_f617, 1 },
 	{ "Zoom", lang_zh_CN_f618, 1 },
@@ -10501,7 +10501,7 @@ static const char* const lang_zh_TW_f8[] = { "\345\267\262\346\252\242\346\237\2
 static const char* const lang_zh_TW_f9[] = { "\346\211\276\345\210\260 %d \345\200\213\351\201\212\346\210\262" };
 static const char* const lang_zh_TW_f10[] = { "\346\211\276\345\210\260 %d \345\200\213\351\201\212\346\210\262\343\200\202" };
 static const char* const lang_zh_TW_f11[] = { "\347\254\254 %d / %d \345\200\213" };
-static const char* const lang_zh_TW_f12[] = { "%d/%d \345\200\213\346\214\211\351\215\265\350\250\255\345\256\232\345\245\275\344\272\206\357\274\210%s\357\274\211\357\274\214\345\204\262\345\255\230\345\234\250 SNES DS \345\215\263\346\231\202\345\255\230\346\252\224\346\227\201\351\202\212\347\232\204 controllers.txt \350\243\241\343\200\202snes-ds.log \350\243\241\344\271\237\346\234\211\345\260\215\346\207\211\347\232\204\350\241\214\357\274\232\346\212\212\345\256\203\347\231\274\351\201\216\344\276\206\357\274\214\345\260\261\350\203\275\347\202\272\351\200\231\350\207\272\350\243\235\347\275\256\346\212\212\345\256\203\345\205\247\345\273\272\345\210\260 SNES DS \350\243\241\343\200\202" };
+static const char* const lang_zh_TW_f12[] = { "%d/%d \345\200\213\346\214\211\351\215\265\350\250\255\345\256\232\345\245\275\344\272\206\357\274\210%s\357\274\211\357\274\214\345\204\262\345\255\230\345\234\250 SNES DS \345\215\263\346\231\202\345\255\230\346\252\224\346\227\201\351\202\212\347\232\204 controllers.txt \350\243\241\343\200\202retrods.log \350\243\241\344\271\237\346\234\211\345\260\215\346\207\211\347\232\204\350\241\214\357\274\232\346\212\212\345\256\203\347\231\274\351\201\216\344\276\206\357\274\214\345\260\261\350\203\275\347\202\272\351\200\231\350\207\272\350\243\235\347\275\256\346\212\212\345\256\203\345\205\247\345\273\272\345\210\260 SNES DS \350\243\241\343\200\202" };
 static const char* const lang_zh_TW_f13[] = { "\345\267\262\351\226\213 %d \351\240\205" };
 static const char* const lang_zh_TW_f14[] = { "%s" };
 static const char* const lang_zh_TW_f15[] = { "%s%s\343\200\202\345\246\202\346\236\234 RetroArch \346\212\212\347\213\200\346\205\213\345\255\230\345\234\250\345\210\245\350\231\225\357\274\214\350\253\213\345\217\246\351\201\270\343\200\202" };
@@ -10598,7 +10598,7 @@ static const char* const lang_zh_TW_f105[] = { "\345\261\205\344\270\255" };
 static const char* const lang_zh_TW_f106[] = { "\350\210\207 %s \346\224\271\344\272\206\345\220\214\344\270\200\346\211\271\344\275\215\345\205\203\347\265\204\344\270\246\350\246\206\350\223\213\345\256\203\357\274\232\345\205\251\350\200\205\345\217\257\350\203\275\347\204\241\346\263\225\344\270\200\350\265\267\347\224\250" };
 static const char* const lang_zh_TW_f107[] = { "\351\207\221\346\211\213\346\214\207" };
 static const char* const lang_zh_TW_f108[] = { "\347\253\213\345\215\263\346\252\242\346\237\245" };
-static const char* const lang_zh_TW_f109[] = { "\346\252\242\346\237\245 snes-ds.cfg \350\243\241\347\232\204 ra_username \345\222\214 ra_password" };
+static const char* const lang_zh_TW_f109[] = { "\346\252\242\346\237\245 retrods.cfg \350\243\241\347\232\204 ra_username \345\222\214 ra_password" };
 static const char* const lang_zh_TW_f110[] = { "\346\252\242\346\237\245 EmulationStation \347\232\204 RetroAchievements \350\250\255\345\256\232\350\243\241\347\232\204\350\263\254\350\231\237" };
 static const char* const lang_zh_TW_f111[] = { "\351\201\270\346\223\207 ROM \350\263\207\346\226\231\345\244\276" };
 static const char* const lang_zh_TW_f112[] = { "\351\201\270\346\223\207 SNES DS \350\263\207\346\226\231\345\244\276" };
@@ -11024,7 +11024,7 @@ static const char* const lang_zh_TW_f531[] = { "\344\272\244\346\217\233\350\236
 static const char* const lang_zh_TW_f532[] = { "\344\272\244\346\217\233\350\236\242\345\271\225" };
 static const char* const lang_zh_TW_f533[] = { "\344\272\244\346\217\233" };
 static const char* const lang_zh_TW_f534[] = { "\344\270\212\346\273\221\351\226\213\345\225\237\345\277\253\346\215\267\351\201\270\345\226\256" };
-static const char* const lang_zh_TW_f535[] = { "\345\267\262\345\234\250 snes-ds.cfg \344\270\255\351\227\234\351\226\211\357\274\210retroachievements = 0\357\274\211\343\200\202" };
+static const char* const lang_zh_TW_f535[] = { "\345\267\262\345\234\250 retrods.cfg \344\270\255\351\227\234\351\226\211\357\274\210retroachievements = 0\357\274\211\343\200\202" };
 static const char* const lang_zh_TW_f536[] = { "\347\263\273\347\265\261" };
 static const char* const lang_zh_TW_f537[] = { "ROM \346\252\224\345\220\215\350\243\241\347\232\204\346\250\231\347\261\244\357\274\214\344\276\213\345\246\202 (USA) \346\210\226 (En,Fr,De)\343\200\202" };
 static const char* const lang_zh_TW_f538[] = { "\346\210\252\345\234\226" };
@@ -11100,11 +11100,11 @@ static const char* const lang_zh_TW_f607[] = { "\351\201\212\346\210\262\345\234
 static const char* const lang_zh_TW_f608[] = { "\345\223\252\345\241\212\350\236\242\345\271\225\346\234\211\350\246\206\350\223\213\345\261\244\343\200\202" };
 static const char* const lang_zh_TW_f609[] = { "\351\226\213\350\221\227\350\243\234\344\270\201\346\231\202\357\274\214\351\201\212\346\210\262\347\224\250\350\207\252\345\267\261\347\215\250\347\253\213\347\232\204\351\233\273\346\261\240\345\255\230\346\252\224\357\274\210\342\200\234<game> + <patch>\342\200\235\357\274\211\357\274\233\351\227\234\346\216\211\345\260\261\347\224\250\345\216\237\347\211\210\347\232\204" };
 static const char* const lang_zh_TW_f610[] = { "\351\226\213\350\221\227\350\243\234\344\270\201\346\231\202\357\274\214\351\201\212\346\210\262\347\224\250\350\207\252\345\267\261\347\215\250\347\253\213\347\232\204\345\215\263\346\231\202\345\255\230\346\252\224\357\274\233\351\227\234\346\216\211\345\260\261\347\224\250\345\216\237\347\211\210\347\232\204\357\274\210\345\205\251\351\202\212\346\267\267\350\221\227\347\224\250\345\217\257\350\203\275\350\256\200\345\217\226\345\207\272\351\214\257\357\274\211" };
-static const char* const lang_zh_TW_f611[] = { "\351\226\213\345\225\237\350\207\252\345\213\225\346\252\242\346\237\245\345\276\214\357\274\214SNES DS \346\257\217\345\244\251\345\234\250\351\226\213\345\225\237\351\201\212\346\210\262\345\210\227\350\241\250\346\231\202\346\237\245\350\251\242\344\270\200\346\254\241\346\226\260\347\211\210\346\234\254\357\274\214\344\270\213\350\274\211\345\211\215\346\234\203\345\205\210\350\251\242\345\225\217\343\200\202\346\233\264\346\226\260\344\276\206\350\207\252 github.com/iosue-iulianus/snes-ds \347\232\204\351\207\213\345\207\272\351\240\201\343\200\202" };
+static const char* const lang_zh_TW_f611[] = { "\351\226\213\345\225\237\350\207\252\345\213\225\346\252\242\346\237\245\345\276\214\357\274\214SNES DS \346\257\217\345\244\251\345\234\250\351\226\213\345\225\237\351\201\212\346\210\262\345\210\227\350\241\250\346\231\202\346\237\245\350\251\242\344\270\200\346\254\241\346\226\260\347\211\210\346\234\254\357\274\214\344\270\213\350\274\211\345\211\215\346\234\203\345\205\210\350\251\242\345\225\217\343\200\202\346\233\264\346\226\260\344\276\206\350\207\252 github.com/iosue-iulianus/retro-ds \347\232\204\351\207\213\345\207\272\351\240\201\343\200\202" };
 static const char* const lang_zh_TW_f612[] = { "\345\270\266\346\250\231\347\261\244\357\274\214\345\246\202 (USA)" };
 static const char* const lang_zh_TW_f613[] = { "X\357\274\210\344\270\212\357\274\211\351\215\265" };
 static const char* const lang_zh_TW_f614[] = { "Y\357\274\210\345\267\246\357\274\211\351\215\265" };
-static const char* const lang_zh_TW_f615[] = { "\344\275\240\350\207\252\345\267\261\347\232\204 PNG \346\224\276\345\234\250 snes-ds/overlays/\343\200\202\346\237\220\345\241\212\350\236\242\345\271\225\346\262\222\346\234\211\345\260\261\347\224\250\351\240\220\350\250\255\351\241\217\350\211\262\347\232\204\347\224\237\346\210\220\351\202\212\346\241\206\343\200\202" };
+static const char* const lang_zh_TW_f615[] = { "\344\275\240\350\207\252\345\267\261\347\232\204 PNG \346\224\276\345\234\250 retrods/overlays/\343\200\202\346\237\220\345\241\212\350\236\242\345\271\225\346\262\222\346\234\211\345\260\261\347\224\250\351\240\220\350\250\255\351\241\217\350\211\262\347\232\204\347\224\237\346\210\220\351\202\212\346\241\206\343\200\202" };
 static const char* const lang_zh_TW_f616[] = { "\345\211\257\345\261\217\344\270\212\351\241\257\347\244\272\344\275\240\350\207\252\345\267\261\347\232\204\346\210\226\346\212\223\345\217\226\344\276\206\347\232\204\346\250\231\350\252\214\343\200\202" };
 static const char* const lang_zh_TW_f617[] = { "\345\205\251\345\241\212\350\236\242\345\271\225\345\275\242\347\213\200\347\233\270\345\220\214\357\274\232\347\204\241\351\234\200\345\214\271\351\205\215" };
 static const char* const lang_zh_TW_f618[] = { "\346\224\276\345\244\247" };
@@ -11156,7 +11156,7 @@ static const I18nEntry lang_zh_TW_entries[] = {
 	{ "%d game found", lang_zh_TW_f9, 1 },
 	{ "%d game found.", lang_zh_TW_f10, 1 },
 	{ "%d of %d", lang_zh_TW_f11, 1 },
-	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in snes-ds.log too: send it in to have it built into SNES DS for this device.", lang_zh_TW_f12, 1 },
+	{ "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in retrods.log too: send it in to have it built into SNES DS for this device.", lang_zh_TW_f12, 1 },
 	{ "%d on", lang_zh_TW_f13, 1 },
 	{ "%s", lang_zh_TW_f14, 1 },
 	{ "%s %s. Choose another if RetroArch keeps its states somewhere else.", lang_zh_TW_f15, 1 },
@@ -11253,7 +11253,7 @@ static const I18nEntry lang_zh_TW_entries[] = {
 	{ "Changes some of the same bytes as %s, and goes over it there: they may not work together", lang_zh_TW_f106, 1 },
 	{ "Cheats", lang_zh_TW_f107, 1 },
 	{ "Check now", lang_zh_TW_f108, 1 },
-	{ "Check ra_username and ra_password in snes-ds.cfg", lang_zh_TW_f109, 1 },
+	{ "Check ra_username and ra_password in retrods.cfg", lang_zh_TW_f109, 1 },
 	{ "Check the account in EmulationStation's RetroAchievements settings", lang_zh_TW_f110, 1 },
 	{ "Choose ROM folder", lang_zh_TW_f111, 1 },
 	{ "Choose SNES DS folder", lang_zh_TW_f112, 1 },
@@ -11679,7 +11679,7 @@ static const I18nEntry lang_zh_TW_entries[] = {
 	{ "Swap screens", lang_zh_TW_f532, 1 },
 	{ "Swapped", lang_zh_TW_f533, 1 },
 	{ "Swipe up for quick menu", lang_zh_TW_f534, 1 },
-	{ "Switched off in snes-ds.cfg (retroachievements = 0).", lang_zh_TW_f535, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_zh_TW_f535, 1 },
 	{ "System", lang_zh_TW_f536, 1 },
 	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_zh_TW_f537, 1 },
 	{ "Take Screenshot", lang_zh_TW_f538, 1 },
@@ -11755,11 +11755,11 @@ static const I18nEntry lang_zh_TW_entries[] = {
 	{ "Which screens have them.", lang_zh_TW_f608, 1 },
 	{ "With a patch on, the game keeps its own battery save (\"<game> + <patch>\"): off, it uses the original's", lang_zh_TW_f609, 1 },
 	{ "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)", lang_zh_TW_f610, 1 },
-	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/snes-ds.", lang_zh_TW_f611, 1 },
+	{ "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds.", lang_zh_TW_f611, 1 },
 	{ "With tags, like (USA)", lang_zh_TW_f612, 1 },
 	{ "X (top) button", lang_zh_TW_f613, 1 },
 	{ "Y (left) button", lang_zh_TW_f614, 1 },
-	{ "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors.", lang_zh_TW_f615, 1 },
+	{ "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", lang_zh_TW_f615, 1 },
 	{ "Your own and scraped logos on the second screen.", lang_zh_TW_f616, 1 },
 	{ "Your screens are the same shape: nothing to match", lang_zh_TW_f617, 1 },
 	{ "Zoom", lang_zh_TW_f618, 1 },

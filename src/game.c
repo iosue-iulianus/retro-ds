@@ -2577,7 +2577,7 @@ static void draw_ovl_menu(int scr) {
 	if (cfg->overlayMode == OVM_CUSTOM) {
 		SDL_Rect last = ovl_row_rect(scr, n - 1);
 		ui_font_wrap(scr, TF_BODY, mg.margin + mg.pad, last.y + last.h + mg.gap * 2, mg.w - mg.pad * 2, mg.noteCap,
-		             "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors.", C_DIS);
+		             "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors.", C_DIS);
 	}
 }
 
@@ -2699,7 +2699,7 @@ static void ovl_close_all(void) {
  * GEN-10: which GBA button each face button gives the game, by position
  * (right, bottom, top, left): GBA A / B / L / R, Start, Select, Turbo A /
  * Turbo B or nothing. Controls > the four button rows (button_right ... in
- * snes-ds.cfg, for this game or for all games); with none chosen, ab_swap's
+ * retrods.cfg, for this game or for all games); with none chosen, ab_swap's
  * layout. Before v1.5.4 a game's choices were kept in <game>.buttons: read
  * once into the game's own settings (fb_load). Only the game's keys change
  * (run loop, the GBA layout's branch): SNES DS's own screens keep B_A / B_B.
@@ -3502,7 +3502,7 @@ static const char bugReadme[] =
 	"   restarting, play on for 10 seconds before making one.\n"
 	"2. Copy the zip from this folder to a computer or phone.\n"
 	"3. Open a new issue on GitHub:\n"
-	"   https://github.com/iosue-iulianus/snes-ds/issues/new\n"
+	"   https://github.com/iosue-iulianus/retro-ds/issues/new\n"
 	"   (you need a free GitHub account).\n"
 	"4. Give it a short title: the game and what's wrong, for example\n"
 	"   \"F-Zero: GP Legend: the course map flickers\".\n"
@@ -3523,11 +3523,11 @@ static const char bugReadme[] =
 	"  - Whether it happens every time, and how to make it happen again.\n"
 	"  - Photos or screenshots of both screens, if it's something you see.\n"
 	"    A photo of the device is fine.\n"
-	"  - Anything you changed in Settings or snes-ds.cfg, and whether cheats\n"
+	"  - Anything you changed in Settings or retrods.cfg, and whether cheats\n"
 	"    were on.\n"
 	"\n"
 	"If SNES DS crashes, won't start, or a game won't load (so there's no way\n"
-	"to make a report), attach snes-ds.log instead: it's in the SNES DS folder,\n"
+	"to make a report), attach retrods.log instead: it's in the SNES DS folder,\n"
 	"next to this bug-reports folder. Say which system you use (ROCKNIX,\n"
 	"BananaOS, Anbernic's own system, Android) and which device.\n"
 	"\n"
@@ -3617,7 +3617,7 @@ static uint8_t* read_whole(const char* path, size_t* size) {
 }
 
 static void keys_name(char* out, size_t size, unsigned k) {
-	/* (emu.h's bit order; the names tools/snes-harness.c reads) */
+	/* (emu.h's bit order; the names tools/retrods-harness.c reads) */
 	static const char* const names[12] = { "B", "Y", "SELECT", "START", "UP", "DOWN", "LEFT", "RIGHT", "A", "X", "L", "R" };
 	out[0] = 0;
 	for (int i = 0; i < 12; ++i) {
@@ -3661,7 +3661,7 @@ static void read_line(const char* path, char* out, size_t size) {
 static void log_path(char* out, size_t size) {
 	out[0] = 0;
 #ifdef __ANDROID__
-	if (android_home()) snprintf(out, size, "%s/snes-ds.log", android_home());
+	if (android_home()) snprintf(out, size, "%s/retrods.log", android_home());
 #else
 	struct stat st;
 	if (fstat(2, &st) != 0 || !S_ISREG(st.st_mode)) return;
@@ -3882,7 +3882,7 @@ static bool bug_report(char* out, size_t outSize) {
 			         (unsigned long long) (to - since[b]));
 		}
 	}
-	text_add(&t, "#\n# To play it back: build/host/snes-harness CORE ROM OUTDIR %s, run in the folder this\n", name[2]);
+	text_add(&t, "#\n# To play it back: build/host/retrods-harness CORE ROM OUTDIR %s, run in the folder this\n", name[2]);
 	text_add(&t, "# report was unzipped to; it ends where %s is.\n", name[0]);
 	text_add(&t, "load ./%s\n", name[1]);
 	for (uint64_t f = from; f < to;) {
@@ -4429,7 +4429,7 @@ static void rewind_setup(void) {
 	fprintf(stderr, "rewind: %d s (%d states)\n", secs, secs * 30);
 }
 
-/* ff_speed as snes-ds.cfg writes it: a number, or max (0, as atoi reads it) */
+/* ff_speed as retrods.cfg writes it: a number, or max (0, as atoi reads it) */
 static const char* ff_speed_name(const Config* c) {
 	static char s[12];
 	if (c->ffSpeed <= 0) return "max";
@@ -4456,7 +4456,7 @@ void prefs_save(Config* cfg) {
 		{ "bezel_inner", cfg->bezelInner },
 		{ "bezel_outer", cfg->bezelOuter },
 	};
-	config_kv_update(prefs, "# written by snes-ds's menus; overrides snes-ds.cfg", 4, kv);
+	config_kv_update(prefs, "# written by retrods's menus; overrides retrods.cfg", 4, kv);
 }
 
 static bool gameTexAll = true; /* upload the game's frame to every view next time */
@@ -4489,7 +4489,7 @@ static void set_shader(int sh) {
 }
 
 /* ---- hotkeys (hotkeys.c): the hotkey button (HOME, SELECT, START or L3)
- * held with an action's button (Settings > Hotkeys, snes-ds.cfg).
+ * held with an action's button (Settings > Hotkeys, retrods.cfg).
  * SELECT or START as the hotkey still reach the game when tapped alone;
  * L3 tapped alone opens the quick menu, as it does when it isn't the hotkey. */
 static void hotkeys_setup(void) {
@@ -4999,7 +4999,7 @@ static void open_menu(void) {
  * games while the game runs (cfg has this game's put over them). */
 static Config uniCfg;
 static const char* const gameHeader = "# this game's own settings: they win over the ones for all games";
-static const char* const prefsHeader = "# written by snes-ds's menus; overrides snes-ds.cfg";
+static const char* const prefsHeader = "# written by retrods's menus; overrides retrods.cfg";
 
 static void game_keys_reload(void) {
 	nGameKeys = config_kv_keys(gp.settings, 48, gameKeys);

@@ -428,7 +428,7 @@ void mapper_run(const Config* cfg) {
 				if (v.saved) {
 					snprintf(v.doneText, sizeof(v.doneText),
 					         tr("%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. "
-					         "The line for it is in snes-ds.log too: send it in to have it built into SNES DS for this device."),
+					         "The line for it is in retrods.log too: send it in to have it built into SNES DS for this device."),
 					         n, N_STEPS, name);
 				} else {
 					snprintf(v.doneText, sizeof(v.doneText), tr("Set for now, but %s couldn't be written."), path);

@@ -229,7 +229,7 @@ static bool ra_cfg_bool(const char* text, const char* key, bool def) {
 #define ROCKNIX_RA_CFG "/storage/.config/retroarch/retroarch.cfg"
 #define ROCKNIX_ROMS "/storage/roms"
 
-/* retroarch.cfg: snes-ds.cfg's retroarch_cfg, else ROCKNIX's, BananaOS's
+/* retroarch.cfg: retrods.cfg's retroarch_cfg, else ROCKNIX's, BananaOS's
  * (its own copy, or the one it starts from before RetroArch's first
  * start), the usual one in the home folder or Flatpak's */
 static bool ra_cfg_find(const Config* cfg, char* out, size_t n, bool* rocknix) {
@@ -522,7 +522,7 @@ static bool inside(const char* path, const char* dir) {
 
 static bool can_write(const char* dir) {
 	char test[1100];
-	snprintf(test, sizeof(test), "%s/.snes-ds-write-test", dir);
+	snprintf(test, sizeof(test), "%s/.retrods-write-test", dir);
 	FILE* f = fopen(test, "w");
 	if (!f) return false;
 	bool ok = fclose(f) == 0;

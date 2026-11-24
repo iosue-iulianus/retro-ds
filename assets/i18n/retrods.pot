@@ -61,7 +61,7 @@ msgstr ""
 
 #: src/mapper.c:430
 #, c-format
-msgid "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in snes-ds.log too: send it in to have it built into SNES DS for this device."
+msgid "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in retrods.log too: send it in to have it built into SNES DS for this device."
 msgstr ""
 
 #: src/game.c:877
@@ -509,7 +509,7 @@ msgid "Check now"
 msgstr ""
 
 #: src/ra.c:719 src/ra.c:722
-msgid "Check ra_username and ra_password in snes-ds.cfg"
+msgid "Check ra_username and ra_password in retrods.cfg"
 msgstr ""
 
 #: src/ra.c:722
@@ -2335,7 +2335,7 @@ msgid "Swipe up for quick menu"
 msgstr ""
 
 #: src/library.c:1723
-msgid "Switched off in snes-ds.cfg (retroachievements = 0)."
+msgid "Switched off in retrods.cfg (retroachievements = 0)."
 msgstr ""
 
 #: src/library.c:1231
@@ -2716,7 +2716,7 @@ msgid "with another version of the game (other patches, or another ROM)"
 msgstr ""
 
 #: src/library.c:2297
-msgid "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/snes-ds."
+msgid "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds."
 msgstr ""
 
 #: src/config.c:441
@@ -2749,7 +2749,7 @@ msgid "Your own and scraped logos on the second screen."
 msgstr ""
 
 #: src/game.c:2579
-msgid "Your own PNGs in snes-ds/overlays/. A screen without one gets the generated bezel in its default colors."
+msgid "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors."
 msgstr ""
 
 #: src/game.c:5207

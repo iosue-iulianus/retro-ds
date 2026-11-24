@@ -27,7 +27,7 @@ Uint32 android_touch_event(void);
 void android_touch_pos(const SDL_Event* ev, float* x, float* y);
 
 /* stderr (where all of SNES DS's logging goes) to logcat (tag RETRODS) and to
- * <RETRODS_HOME>/snes-ds.log. Call first thing in main. */
+ * <RETRODS_HOME>/retrods.log. Call first thing in main. */
 void android_init_log(void);
 /* The folder Java gave us for config, states, logos (RETRODS_HOME), or NULL. */
 const char* android_home(void);

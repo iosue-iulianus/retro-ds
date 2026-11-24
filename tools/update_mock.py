@@ -7,9 +7,9 @@ offline (docs/TESTING.md, "Updates"):
                                [--bad-digest] [--slow] [--status 200]
 
 then run SNES DS with
-  --update-url=http://127.0.0.1:8098/repos/iosue-iulianus/snes-ds/releases/latest
+  --update-url=http://127.0.0.1:8098/repos/iosue-iulianus/retro-ds/releases/latest
 
-GET /repos/iosue-iulianus/snes-ds/releases/latest answers like GitHub (tag_name,
+GET /repos/iosue-iulianus/retro-ds/releases/latest answers like GitHub (tag_name,
 body, assets with name / size / digest / browser_download_url); the asset
 is the zip given (the Linux updater's) or the APK (Android's), served
 from /download/<name>; the other platform's asset is listed too, as a
@@ -32,8 +32,8 @@ ap.add_argument("--status", type=int, default=200)
 args = ap.parse_args()
 
 data = open(args.zip or args.apk, "rb").read()
-zipName = f"snes-ds-v{args.version}-linux-aarch64.zip"
-apkName = f"snes-ds-v{args.version}-android.apk"
+zipName = f"retrods-v{args.version}-linux-aarch64.zip"
+apkName = f"retrods-v{args.version}-android.apk"
 name = zipName if args.zip else apkName
 other = apkName if args.zip else zipName
 digest = "sha256:" + ("0" * 64 if args.bad_digest else hashlib.sha256(data).hexdigest())
@@ -68,7 +68,7 @@ class H(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
-        if self.path == "/repos/iosue-iulianus/snes-ds/releases/latest":
+        if self.path == "/repos/iosue-iulianus/retro-ds/releases/latest":
             if args.status != 200:
                 return self.reply(args.status, json.dumps({"message": "Not Found"}))
             rel = {
@@ -76,8 +76,8 @@ class H(BaseHTTPRequestHandler):
                 "body": NOTES,
                 "author": {"login": "kyannon", "name": "not an asset"},
                 "assets": [
-                    {"name": "snes-ds-cocoon-player.json", "size": 10, "digest": "sha256:" + "1" * 64,
-                     "browser_download_url": host + "/download/snes-ds-cocoon-player.json",
+                    {"name": "retrods-cocoon-player.json", "size": 10, "digest": "sha256:" + "1" * 64,
+                     "browser_download_url": host + "/download/retrods-cocoon-player.json",
                      "uploader": {"login": "kyannon"}},
                     {"name": name, "size": len(data), "digest": digest, "content_type": "application/octet-stream",
                      "browser_download_url": host + "/download/" + name, "uploader": {"login": "kyannon", "name": "x"}},

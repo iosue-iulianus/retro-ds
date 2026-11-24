@@ -22,7 +22,7 @@ ROMs and save states never go in this repository.
 ## Running
 
 ```sh
-make && make tools                          # build/host/snes-ds and harness
+make && make tools                          # build/host/retrods and harness
 git clone https://github.com/kyannon/gba-ds-tests ../gba-ds-tests
 tools/regress.py                            # every case (once per release; see "When to run what")
 tools/regress.py fire-emblem                # one game
@@ -84,7 +84,7 @@ prints each changed file and what it picked:
 the same thing for reading: per game, the files and functions it runs)
 lists, for every function of `src/`, the games whose cases execute it
 (`"*"`: all of them; `[]`: none does). It's measured: the app is built with
-gcov (`make OUT=build/cov OPTFLAGS="-O0 -g --coverage" build/cov/snes-ds`)
+gcov (`make OUT=build/cov OPTFLAGS="-O0 -g --coverage" build/cov/retrods`)
 and `tools/regress_deps.py measure` runs each game's cases on it
 (`GCOV_PREFIX` keeps the games' counters apart), then `build` merges the
 results into the two files. `--changed` uses it for changes to `src/`:
@@ -279,20 +279,20 @@ won't read USA saves), make a state by playing in from a new game.
 The updater (`src/update.c`) is tested against `tools/update_mock.py`, a
 stand-in for GitHub's latest-release API serving a zip you give it:
 
-1. Make a fake release zip laid out like the real one (`snes-ds/snes-ds`,
-   `snes-ds/launch.sh`, `snes-ds/snes-ds.cfg`, `GBA DS.sh`, `images/`). A
-   `snes-ds/snes-ds` that's a shell script writing a file shows the restart
+1. Make a fake release zip laid out like the real one (`retrods/retrods`,
+   `retrods/launch.sh`, `retrods/retrods.cfg`, `GBA DS.sh`, `images/`). A
+   `retrods/retrods` that's a shell script writing a file shows the restart
    worked.
-2. Copy `build/host/snes-ds` into an install folder like the device's
-   (`ports/snes-ds/snes-ds`, with an old `launch.sh`, a `snes-ds.cfg` of your
+2. Copy `build/host/retrods` into an install folder like the device's
+   (`ports/retrods/retrods`, with an old `launch.sh`, a `retrods.cfg` of your
    own and `ports/GBA DS.sh`).
 3. `python3 tools/update_mock.py --zip release.zip [--slow] [--bad-digest]
    [--status 404]`, then run that copy headless with
-   `--update-url=http://127.0.0.1:8098/repos/iosue-iulianus/snes-ds/releases/latest`
+   `--update-url=http://127.0.0.1:8098/repos/iosue-iulianus/retro-ds/releases/latest`
    (unset `https_proxy`). With no `states/update.cfg` the automatic check
    runs at once and the notice appears; `auto = 0` in it tests the Settings
    path (SELECT, DOWN to Updates, A, A to check).
-4. Check: the new files are in place, `snes-ds.cfg` is yours, `GBA DS.sh` is
+4. Check: the new files are in place, `retrods.cfg` is yours, `GBA DS.sh` is
    the new one (an `images/` folder that wasn't there isn't created), the
    restart ran with the same arguments, and `states/update/` is empty.
    `--apk APP.apk` instead of `--zip` serves an Android release (the APK

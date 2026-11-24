@@ -236,7 +236,7 @@ void cheats_save(const Cheats* c) {
 	if (!c->prefs[0] || !c->n) return;
 	FILE* f = fopen(c->prefs, "w");
 	if (!f) return;
-	fprintf(f, "# snes-ds cheats that are on: cht file<TAB>description\n");
+	fprintf(f, "# retrods cheats that are on: cht file<TAB>description\n");
 	for (int i = 0; i < c->n; ++i) {
 		if (c->items[i].on) fprintf(f, "%s\t%s\n", file_name(c->files[c->items[i].file].path), c->items[i].desc);
 	}
@@ -275,7 +275,7 @@ void cheats_load(Cheats* c, const Config* cfg, const char* romPath, const char* 
 #ifdef __ANDROID__
 	snprintf(dirs, sizeof(dirs), "%s", cfg->cheatDir);
 #else
-	/* SNES DS's own cheats folder (snes-ds/cheats), then cheat_dir's folders */
+	/* SNES DS's own cheats folder (retrods/cheats), then cheat_dir's folders */
 	snprintf(dirs, sizeof(dirs), "%s/cheats:%s", cfg->assetDir, cfg->cheatDir);
 #endif
 	char* save;
