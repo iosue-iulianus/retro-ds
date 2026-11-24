@@ -101,6 +101,14 @@ static const uint32_t* alt_items_clear(const uint32_t* in) {
 /* ALTTP-1: how far the items are up (0 away below the screen, 1 up) */
 static float altItemsUp = 1;
 static Uint64 altSlideT;
+/* ALTTP-7, ALTTP-12: where there's no map, the logo (houses and caves, the
+ * special areas such as Zora's waterfall); the items slide over black */
+bool alt_no_map(void) {
+	return alt && (alttp_in_special(alt) || alttp_in_house_or_cave(alt));
+}
+bool alt_items_away(void) {
+	return altItemsUp <= 0;
+}
 
 
 /* The map's pieces on the GPU (alttp_piece): made when first shown, made
@@ -1023,8 +1031,8 @@ void draw_alt(int s) {
 	/* in a dungeon the items slide over black, and the dungeon's map shows
 	 * once they're away (the owner, Nov 24, 2026: the map under them on the
 	 * overworld only) */
-	bool dungeon = alttp_in_dungeon(alt);
-	if (dungeon && altItemsUp > 0) {
+	bool dungeon = alttp_in_dungeon(alt), nomap = alt_no_map();
+	if ((dungeon || nomap) && altItemsUp > 0) {
 		/* (black: the screen's fill, as before) */
 	} else if (dungeon) {
 		/* the picture's own scale, the canvas as many of its pixels as the screen holds */
@@ -1085,7 +1093,7 @@ void draw_alt(int s) {
 	shown:
 		ui_image_pixels(s, altDunFlip ? altDunWideTexB : altDunWideTex, W, H, cfg->mapScale, SHADER_ON);
 	}
-	else draw_alt_map(s);
+	else if (!nomap) draw_alt_map(s);
 	/* ALTTP-1: the items over it, sliding up from the screen's bottom or
 	 * down off it at the game's speed: 8 of the items' pixels a frame of
 	 * the game's (60.1 a second), whatever the display's rate */
@@ -1142,14 +1150,16 @@ static void alt_sound(uint8_t id) {
  * RetroAchievements' hardcore it is to be switched off, ra.c plays casual
  * only for now); on the map, the next zoom (ALTTP-3) */
 static void alt_tap(int x, int y) {
-	if (altPage == 1 && alttp_in_special(alt)) return; /* (the logo) */
+	if (altPage == 1 && alt_no_map()) return; /* (the logo) */
 	if (altPage == 1 && !alttp_in_dungeon(alt)) {
 		/* (alt_step glides there, the place tapped gliding to the middle:
 		 * the owner, Nov 23, 2026; a pinch zooms round its fingers) */
 		altFocusX = altVX + x * altZ, altFocusY = altVY + y * altZ, altFocus = true;
 		altUser = true, altVelX = altVelY = 0;
+		/* ALTTP-16: closer, the closing sound; from the closest back out to
+		 * the farthest, the opening one (the owner, Nov 25, 2026) */
+		alt_sound(altZoomI == 0 ? ALT_SFX_OPEN : ALT_SFX_CLOSE);
 		altZoomI = (altZoomI + ALT_ZOOMS - 1) % ALT_ZOOMS; /* (closer: the owner, Nov 24, 2026) */
-		alt_sound(ALT_SFX_OPEN); /* ALTTP-16 */
 		fprintf(stderr, "map zoom: %g world pixels a pixel\n", altZooms[altZoomI]);
 		return;
 	}
@@ -1189,7 +1199,7 @@ static bool alt_mark_touch(const Pointer* p) {
 	int s = 1 - game_screen();
 	if (p->kind >= 4) return altMarkDrag >= 0; /* (no pinch while one's carried) */
 	if (p->kind == 1) {
-		if (altPage != 1 || alttp_in_dungeon(alt) || alttp_in_special(alt) || !altShown || p->screen != s) return false;
+		if (altPage != 1 || alttp_in_dungeon(alt) || alt_no_map() || !altShown || p->screen != s) return false;
 		if (altMarksFor != altFile) alt_marks_load();
 		int k;
 		SDL_Rect pane = alt_mark_pane(s, &k);
@@ -1249,7 +1259,7 @@ int alt_touch(const Pointer* p) {
 		 * which stays under them; let go, the zoom settles on the nearest
 		 * level; the finger left drags on */
 		int s = 1 - game_screen();
-		if (altPage != 1 || alttp_in_dungeon(alt) || alttp_in_special(alt) || !altShown || p->screen != s) return 1;
+		if (altPage != 1 || alttp_in_dungeon(alt) || alt_no_map() || !altShown || p->screen != s) return 1;
 		SDL_Rect a = { 0, 0, screens[s].rect.w, screens[s].rect.h }; /* (as draw_alt_map's) */
 		if (p->kind == 5) {
 			if (altPinch) {
@@ -1298,7 +1308,7 @@ int alt_touch(const Pointer* p) {
 	alt_rect(1 - game_screen(), &kx, &ky);
 	if (kx <= 0 || ky <= 0) return 1;
 	if (fabsf((p->x - altDownX) / kx) > 4 || fabsf((p->y - altDownY) / ky) > 4) altDragMoved = true;
-	if (altDragMoved && altPage == 1 && !alttp_in_dungeon(alt) && !alttp_in_special(alt)) {
+	if (altDragMoved && altPage == 1 && !alttp_in_dungeon(alt) && !alt_no_map()) {
 		altVX = altDownVX - (p->x - altDownX) * ALT_Z, altVY = altDownVY - (p->y - altDownY) * ALT_Z;
 		alt_clamp(&altVX, &altVY);
 		altUser = true;

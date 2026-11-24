@@ -184,6 +184,8 @@ bool alttp_seen_merge(Alttp* a, const void* data, size_t n);
  * until the next call. */
 #define ALTTP_FLOOR_AS_GAME (-128)
 bool alttp_in_dungeon(const Alttp* a);
+/* indoors outside dungeons: houses and caves ($040C = $FF) */
+bool alttp_in_house_or_cave(const Alttp* a);
 /* Link is in a special area of the overworld (area $80 and up: the Master
  * Sword's grove, Zora's waterfall...), which the world map doesn't show */
 bool alttp_in_special(const Alttp* a);

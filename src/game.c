@@ -4991,8 +4991,8 @@ static void draw_game(void) {
 		} else if (alt && alttp_title(alt) && nScreens == 2) {
 			alt_sword_load();
 			draw_alt_title(s);
-		} else if (alt && altShown && !(altPage == 1 && alttp_in_special(alt))) {
-			/* (ALTTP-12: in a special area the map gives way to the logo) */
+		} else if (alt && altShown && !(altPage == 1 && alt_no_map() && alt_items_away())) {
+			/* (ALTTP-7, ALTTP-12: where there's no map, the logo once the items are away) */
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			draw_alt(s);
 		} else if (mapShownIdx >= 0 && !logoForced) {

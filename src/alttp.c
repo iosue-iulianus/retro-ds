@@ -1579,6 +1579,10 @@ bool alttp_in_dungeon(const Alttp* a) {
 	return a->have && r8(a, R_INDOORS) && r8(a, R_DUNGEON) != 0xFF;
 }
 
+bool alttp_in_house_or_cave(const Alttp* a) {
+	return a->have && r8(a, R_INDOORS) && r8(a, R_DUNGEON) == 0xFF;
+}
+
 const uint32_t* alttp_dungeon_map(Alttp* a, const uint8_t* vram, int view) {
 	uint32_t* out = NULL;
 	if (!a->dun || !alttp_in_dungeon(a) || !altdun_draw(a->dun, a->ram, vram, view, &out)) return NULL;
