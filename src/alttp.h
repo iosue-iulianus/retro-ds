@@ -9,8 +9,8 @@
  *   world, the rest under the world map's clouds; saved per file.
  *
  * Pictures are 0xAABBGGRR (SDL_PIXELFORMAT_ABGR8888). */
-#ifndef SNESDS_ALTTP_H
-#define SNESDS_ALTTP_H
+#ifndef RETRODS_ALTTP_H
+#define RETRODS_ALTTP_H
 
 #include <stdbool.h>
 #include <stddef.h>

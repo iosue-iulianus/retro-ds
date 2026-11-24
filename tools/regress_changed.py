@@ -29,7 +29,7 @@ import glob, os, re, subprocess, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import regress_deps
 
-ROOT = os.environ.get("SNESDS_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.environ.get("RETRODS_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROFILES = "src/profiles.c"
 
 # paths (prefixes or globs) that can't change what the app does under test

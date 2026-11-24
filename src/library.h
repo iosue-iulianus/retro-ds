@@ -1,5 +1,5 @@
-#ifndef SNESDS_LIBRARY_H
-#define SNESDS_LIBRARY_H
+#ifndef RETRODS_LIBRARY_H
+#define RETRODS_LIBRARY_H
 
 #include "config.h"
 

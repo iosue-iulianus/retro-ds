@@ -67,7 +67,7 @@ static __thread Emu* cur;
 
 static bool debugLog(void) {
 	static int on = -1;
-	if (on < 0) on = getenv("SNESDS_DEBUG") != NULL;
+	if (on < 0) on = getenv("RETRODS_DEBUG") != NULL;
 	return on;
 }
 

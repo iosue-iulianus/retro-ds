@@ -70,7 +70,7 @@ SDL.
 ## RetroAchievements
 
 `src/ra.c` and `third_party/rcheevos` are compiled into libmain with
-SNESDS_RA (CMakeLists: rcheevos as its own static library, the Makefile's
+RETRODS_RA (CMakeLists: rcheevos as its own static library, the Makefile's
 RC_SRC). Differences from ROCKNIX:
 
 - HTTP: Android has no curl, so `run_job()` calls `android_http()`
@@ -86,7 +86,7 @@ RC_SRC). Differences from ROCKNIX:
   in with that token. Sign Out (`ra_sign_out`) deletes it. ra_username /
   ra_password in snes-ds.cfg still override. The library loop calls
   `ra_idle()` so sign-in answers are handled there too.
-- User agent: "SNESDS/x (Android)".
+- User agent: "RetroDS/x (Android)".
 - CLAUDE.md's ra.c line still says Android has no-op stubs (the main
   session's file): it should say ra.c is built on Android too, with HTTP
   through `android_http()`.
@@ -182,13 +182,13 @@ How it's put together:
 - `ui.c`: on Android, view 1 is a software SDL_Renderer on an SDL_Surface
   the size of the second display; `ui_present` copies it to the
   Presentation's ANativeWindow. Second-screen touches are pushed into SDL's
-  event queue as finger events with window id `SNESDS_SECOND_WINDOW_ID`, so
+  event queue as finger events with window id `RETRODS_SECOND_WINDOW_ID`, so
   `queue_pointer` sees them as view 1. Every touch down/up is logged. The
   touch screen (menus) is whichever screen was touched last. BACK acts as
   HOME (SDL traps it). All Android code is `#ifdef __ANDROID__`.
 - `main.c`: config, states and the log live in the app's folder
-  (`Android/data/io.github.iosue_iulianus.snesds/files`, passed as `SNESDS_HOME`);
-  stderr goes to logcat (tag `SNESDS`) and `snes-ds.log` there. With no game
+  (`Android/data/io.github.iosue_iulianus.snesds/files`, passed as `RETRODS_HOME`);
+  stderr goes to logcat (tag `RETRODS`) and `snes-ds.log` there. With no game
   given it plays the first game in `/storage/emulated/0/ROMs/gba` (or
   `GBA`) that has a map profile, else the first game. Another game:
   `adb shell am start -n io.github.iosue_iulianus.snesds/.LauncherActivity --es rom /path/to/game.gba`.
@@ -199,7 +199,7 @@ How it's put together:
   the owner (alias `snesds`, SHA-256 fingerprint
   95:24:1F:DD:11:B5:67:F6:D6:80:C4:C7:67:8E:BB:F6:46:3C:52:A6:E3:C9:50:5B:14:C6:A7:96:2F:04:69:58).
 
-What the device test should answer (`adb logcat -s SNESDS`):
+What the device test should answer (`adb logcat -s RETRODS`):
 
 - Do both screens show (game on display 0, logo then map on display 2)?
 - Which display is the touchscreen: the log says `touch down on screen N
@@ -242,7 +242,7 @@ swapped; 20-30 fps. Changes since:
   ui.c replays the recorded calls through the game screen's renderer
   between `android_second_begin` / `_end`. View 1 shares view 0's
   renderer (`View.offwin`). The software renderer remains the fallback
-  (no GLES renderer, or `SNESDS_SOFT_SECOND` set). Tested on the desktop
+  (no GLES renderer, or `RETRODS_SOFT_SECOND` set). Tested on the desktop
   with the offscreen driver (also GLES/EGL) and a pbuffer standing in for
   the window: menus match the software path, render targets and the LCD
   grid work, the game screen is unaffected. Screenshots read the second
@@ -344,7 +344,7 @@ CHANGELOG until someone tests them on a more capable device.
   ES-DE: Settings > "SNES DS in ES-DE" (src/esde.c, the row only when
     ES-DE's folder is found: /storage/emulated/0/ES-DE, else
     /storage/<volume>/ES-DE, with settings/es_settings.xml;
-    SNESDS_ESDE_DIR overrides for the desktop test kit) writes into
+    RETRODS_ESDE_DIR overrides for the desktop test kit) writes into
     ES-DE/custom_systems: the SNES-DS find rule (androidpackage
     io.github.iosue_iulianus.snesds/.LauncherActivity) in es_find_rules.xml, and
     `<command label="SNES DS (Standalone)">%EMULATOR_SNES-DS%
@@ -362,7 +362,7 @@ CHANGELOG until someone tests them on a more capable device.
   Daijisho player: package io.github.iosue_iulianus.snesds, activity
   .LauncherActivity, `-a android.intent.action.VIEW -d {file.uri}` (or
   `-e rom {file.path}`).
-- Data folder (SNESDS_HOME): "SNES DS" on the internal storage when All
+- Data folder (RETRODS_HOME): "SNES DS" on the internal storage when All
   files access is granted (else the app's folder), laid out like the
   ROCKNIX install folder: states/ (with .nomedia), cheats/ (cheat_dir),
   overlays/ and logos/ (asset_dir), screenshots/ (screenshot_dir),
@@ -427,7 +427,7 @@ frontend launch intents.
 - Result: the device crashed a second or two after a game started, right
   after "presenting the top screen in step with its display" (the game on
   the second display, interval 1). Cause not known yet (the logcat sent was
-  filtered to SNESDS). Now off by default; `vsync = 1` in SNES DS/snes-ds.cfg
+  filtered to RETRODS). Now off by default; `vsync = 1` in SNES DS/snes-ds.cfg
   turns it on, for getting `adb logcat -b crash` from the crash.
 - That log: not a crash but a hang. `adb logcat -b crash` was empty; the
   log repeated `BufferQueueConsumer: [SurfaceView[]#2(BLAST Consumer)]
@@ -468,7 +468,7 @@ frontend launch intents.
   both parts (0-20% vs 2-33%), so the hidden core isn't the cause; drawing
   both displays in one frame is. ui_present now draws the game's view
   first and, if the frame is already past 70% of its time
-  (ui_present_budget; SNESDS_DRAW_BUDGET=ms overrides, for testing), puts the
+  (ui_present_budget; RETRODS_DRAW_BUDGET=ms overrides, for testing), puts the
   other view's redraw off to the next frame, at most 3 frames in a row
   (logged: "N redraw(s) of the other screen put off a frame"). Desktop
   check with a 0 ms budget: the map still steps (73 of 300 redraws vs 75).
@@ -527,7 +527,7 @@ frontend launch intents.
 - Slow frames: game.c logs, each second there are any, the worst frame's
   breakdown ("slow frames: N in the last second; worst ... input/menu,
   emulating, RetroAchievements, map, drawing (which screens redrawn)").
-  Always on Android, with SNESDS_DEBUG elsewhere.
+  Always on Android, with RETRODS_DEBUG elsewhere.
 
 - Match Display Rate (main session, v1.1.6-dev; shared code, off by
   default; `match_display`, pause menu → Display): game.c's
@@ -553,7 +553,7 @@ frontend launch intents.
 ## Updates (Oct 28, 2026)
 
 The Linux updater (`src/update.c`, v1.3.2) runs on Android too
-(SNESDS_UPDATES is on everywhere but the web build; update.c, http.c and
+(RETRODS_UPDATES is on everywhere but the web build; update.c, http.c and
 sha256.c are in CMakeLists):
 
 - **Check:** the same GitHub call (`releases/latest`, stable only), taking
@@ -669,11 +669,11 @@ Settings > Folders > Choose SNES DS folder (FB_DATA, PICK_DATA in
 library.c): the picked folder is SNES DS's folder if it's empty or already
 has `states/`, else `<picked>/SNES DS`. Written as `data_dir` into
 `data-folder.cfg` in the app's own storage (getFilesDir(), passed to native
-as SNESDS_APP_FILES; kept through updates, gone on uninstall). At the next
+as RETRODS_APP_FILES; kept through updates, gone on uninstall). At the next
 start, before the log, android_data_setup runs paths.c data_dir_setup with
 `all`: everything in the old folder moves (rename, or copy then delete
 across storages; states/ first, all or nothing) and the old folder goes;
-`data_dir_now` records where it is, SNESDS_HOME is set to it. Java's
+`data_dir_now` records where it is, RETRODS_HOME is set to it. Java's
 dataFolder() doesn't make "SNES DS" at the top of the storage while
 data_dir_now is elsewhere, and launch.log follows data_dir_now
 (LauncherActivity.dataFolderSetting). Linux uses the same code with
@@ -704,7 +704,7 @@ one way round only (upside down with the controller's cable on the left).
   before (span-h from 1.8:1, span-v from 1:1.2, else single). The log
   says `screens: one window, WxH LAYOUT gap N`.
 - tools/androidtest: `STUB_SECOND=none`, `STUB_HINGE` / `STUB_HINGE_LONG`;
-  SNESDS_WINDOW now sizes the window there (SDL's offscreen driver made a
+  RETRODS_WINDOW now sizes the window there (SDL's offscreen driver made a
   full-screen one 1024x768 whatever it said).
 - Checked on the RG DS Plus (GammaOS, Nov 14): unchanged, still landscape.
 - Not tried on a Duo yet: the questions are with the player on the issue.
@@ -807,7 +807,7 @@ one session"). Empty after each release.
 ### Notes for sessions: Rotation (issue #60, `android`)
 
 - The choice is `rotation.cfg` (one word: auto / portrait / landscape) in the
-  app's own storage (`SNESDS_APP_FILES`, like `data-folder.cfg`), so Java can
+  app's own storage (`RETRODS_APP_FILES`, like `data-folder.cfg`), so Java can
   read it in `onCreate` before the window exists (`SnesDsActivity.rotationMode`,
   used by `orientationWanted`: SENSOR_PORTRAIT / SENSOR_LANDSCAPE / FULL_USER).
   `android_rotation_set` (android.c) writes it and calls `applyRotation`, which

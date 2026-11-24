@@ -281,10 +281,10 @@ static void enqueue(const char* romPath, const char* gameCode, const char* outPn
 		while (*tail) tail = &(*tail)->next;
 	}
 	*tail = j;
-	/* (SNESDS_SYNC=1, regression tests: inline) */
-	if (!running && !(getenv("SNESDS_SYNC") && atoi(getenv("SNESDS_SYNC")))) running = pthread_create(&thread, NULL, worker, NULL) == 0;
+	/* (RETRODS_SYNC=1, regression tests: inline) */
+	if (!running && !(getenv("RETRODS_SYNC") && atoi(getenv("RETRODS_SYNC")))) running = pthread_create(&thread, NULL, worker, NULL) == 0;
 	if (!running) {
-		/* no thread (SNESDS_SYNC, or it couldn't start): the work now */
+		/* no thread (RETRODS_SYNC, or it couldn't start): the work now */
 		while (queue) {
 			Job* q = queue;
 			queue = q->next;

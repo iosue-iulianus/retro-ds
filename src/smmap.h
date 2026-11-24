@@ -12,8 +12,8 @@
  * - the marker: Samus's position, blinking, drawn over the layer;
  * - the chrome's pixels that cover the map (smmap_over), drawn last.
  * Views are the game's own (its BG1 scroll, $B1 and $B3). */
-#ifndef SNESDS_SMMAP_H
-#define SNESDS_SMMAP_H
+#ifndef RETRODS_SMMAP_H
+#define RETRODS_SMMAP_H
 
 #include <stdbool.h>
 #include <stddef.h>

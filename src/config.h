@@ -1,5 +1,5 @@
-#ifndef SNESDS_CONFIG_H
-#define SNESDS_CONFIG_H
+#ifndef RETRODS_CONFIG_H
+#define RETRODS_CONFIG_H
 
 #include <stdbool.h>
 #include <stddef.h>

@@ -113,7 +113,7 @@ public class SnesDsActivity extends SDLActivity {
         };
     }
 
-    private static final String TAG = "SNESDS";
+    private static final String TAG = "RETRODS";
     private SecondScreen second;
 
     /** The game activity in this process, if one is running (this class or
@@ -127,11 +127,11 @@ public class SnesDsActivity extends SDLActivity {
         /* before SDL starts the native thread: where config, states and the log go */
         File home = dataFolder();
         try {
-            Os.setenv("SNESDS_HOME", home.getAbsolutePath(), true);
+            Os.setenv("RETRODS_HOME", home.getAbsolutePath(), true);
             /* data-folder.cfg there: the folder the player chose instead (android.c android_data_setup) */
-            Os.setenv("SNESDS_APP_FILES", getFilesDir().getAbsolutePath(), true);
+            Os.setenv("RETRODS_APP_FILES", getFilesDir().getAbsolutePath(), true);
             /* the emulator's core copies (libsnes_a.so ...: src/emu.h) */
-            Os.setenv("SNESDS_CORE_DIR", getApplicationInfo().nativeLibraryDir, true);
+            Os.setenv("RETRODS_CORE_DIR", getApplicationInfo().nativeLibraryDir, true);
         } catch (ErrnoException e) {
             Log.e(TAG, "setenv: " + e);
         }

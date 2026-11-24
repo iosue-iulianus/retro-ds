@@ -1,5 +1,5 @@
-#ifndef SNESDS_PATHS_H
-#define SNESDS_PATHS_H
+#ifndef RETRODS_PATHS_H
+#define RETRODS_PATHS_H
 
 #include "config.h"
 

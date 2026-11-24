@@ -1,5 +1,5 @@
-#ifndef SNESDS_GAME_H
-#define SNESDS_GAME_H
+#ifndef RETRODS_GAME_H
+#define RETRODS_GAME_H
 
 #include "config.h"
 

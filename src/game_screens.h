@@ -18,7 +18,7 @@
 /* ---- game.c's, used by the second screens */
 extern Config* cfg;
 extern Emu emu;
-extern bool debug;           /* SNESDS_DEBUG */
+extern bool debug;           /* RETRODS_DEBUG */
 extern uint64_t frameCount;
 extern GamePaths gp;
 extern bool hudHide;         /* the profile's hide rectangles are covered now (SM-6) */

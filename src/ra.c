@@ -1,5 +1,5 @@
 /* RetroAchievements (see ra.h). */
-#ifdef SNESDS_RA
+#ifdef RETRODS_RA
 
 #include "ra.h"
 #include "i18n.h"
@@ -887,16 +887,16 @@ static bool client_setup(void) {
 	mkdirs(badges);
 	client = rc_client_create(read_memory, server_call);
 	if (!client) return false;
-	rc_client_enable_logging(client, getenv("SNESDS_DEBUG") ? RC_CLIENT_LOG_LEVEL_VERBOSE : RC_CLIENT_LOG_LEVEL_WARN, log_message);
+	rc_client_enable_logging(client, getenv("RETRODS_DEBUG") ? RC_CLIENT_LOG_LEVEL_VERBOSE : RC_CLIENT_LOG_LEVEL_WARN, log_message);
 	rc_client_set_event_handler(client, on_event);
 	rc_client_set_hardcore_enabled(client, 0); /* casual only, for now */
 	if (cfg->raHost[0]) rc_client_set_host(client, cfg->raHost);
 	char clause[64] = "";
 	rc_client_get_user_agent_clause(client, clause, sizeof(clause));
 #ifdef __ANDROID__
-	snprintf(userAgent, sizeof(userAgent), "SNESDS/%s (Android) %s", SNESDS_VERSION, clause);
+	snprintf(userAgent, sizeof(userAgent), "RetroDS/%s (Android) %s", RETRODS_VERSION, clause);
 #else
-	snprintf(userAgent, sizeof(userAgent), "SNESDS/%s (Linux) %s", SNESDS_VERSION, clause);
+	snprintf(userAgent, sizeof(userAgent), "RetroDS/%s (Linux) %s", RETRODS_VERSION, clause);
 #endif
 	return true;
 }

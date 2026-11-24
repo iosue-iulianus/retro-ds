@@ -22,7 +22,7 @@ import android.view.WindowManager;
  * pointer queue.
  */
 public class SecondScreen extends Presentation implements SurfaceHolder.Callback {
-    private static final String TAG = "SNESDS";
+    private static final String TAG = "RETRODS";
     private SurfaceView view;
 
     static native void nativeSetDisplay(int width, int height);

@@ -1,8 +1,8 @@
 /* UI text in Jost (TrueType, via stb_truetype): measuring and rasterizing
  * UTF-8 strings, from Jost and, for what Jost lacks, fallback faces. ui.c turns
  * the results into textures. */
-#ifndef SNESDS_TEXTFONT_H
-#define SNESDS_TEXTFONT_H
+#ifndef RETRODS_TEXTFONT_H
+#define RETRODS_TEXTFONT_H
 
 #include <stdbool.h>
 #include <stdint.h>

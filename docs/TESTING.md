@@ -34,7 +34,7 @@ tools/regress.py --uncovered                # rules no case covers yet, the ones
 tools/regress.py --prune                    # delete goldens no case uses (after removing or renaming shots)
 ```
 
-The fixtures are looked for in `../gba-ds-tests`, or `$SNESDS_TESTS`, or
+The fixtures are looked for in `../gba-ds-tests`, or `$RETRODS_TESTS`, or
 `--fixtures DIR`. Each run writes `build/regress/index.html`: every case,
 failures first, with each check's result, and for a golden that differs the
 picture, the golden and a diff side by side.
@@ -128,7 +128,7 @@ failing share keeps its report as an artifact for 7 days.
 The app runs headless (`SDL_VIDEODRIVER=offscreen`) in a 1024x1536 window
 (both RG DS Plus screens stacked: the game screen on top), drawn by SDL's
 own software renderer (`SDL_RENDER_DRIVER=software`), with
-`SNESDS_SYNC=1`. The software renderer does the same arithmetic on any
+`RETRODS_SYNC=1`. The software renderer does the same arithmetic on any
 machine: through OpenGL (Mesa's llvmpipe, where a machine has it)
 blended pictures (text and its shadow, a dimmed map, a menu's panels)
 came out a shade apart from one CPU or Mesa to another, so goldens
@@ -136,8 +136,8 @@ approved on a session's container failed on GitHub's runners, which
 have no OpenGL (71 cases, Nov 11, 2026). That switch makes map captures and logo extraction run
 inline at the frame they're asked for instead of on background threads, so
 every run of a case gives exactly the same pictures. The app also runs
-as fast as it can (`SNESDS_NOPACE=1`) and draws only the frames that need
-it (`SNESDS_DRAW_SHOTS_ONLY=1`: a screenshot's, and those within 30 frames
+as fast as it can (`RETRODS_NOPACE=1`) and draws only the frames that need
+it (`RETRODS_DRAW_SHOTS_ONLY=1`: a screenshot's, and those within 30 frames
 of a tap, swipe, state load or joystick line): the game, map and HUD
 pictures are still made every frame, only the screens aren't put
 together, so the pictures are the same as when it draws every frame, in
@@ -226,7 +226,7 @@ Check types:
 | `pixels` / `not_pixels` | at least `min` (default all) / none of `probes` (`[x, y, "RRGGBB"]`) match, within `tol` (default 12) |
 | `uniform` / `not_uniform` | at least / under `frac` (default 0.99) of `rect` (`[x0, y0, x1, y1]`) is `color` |
 | `same` / `differs` | rect `a` of one shot and rect `b` of another differ in at most / more than `frac` (default 1%) of their pixels |
-| `log` / `no_log` | the app's log (`SNESDS_DEBUG=1`) matches / doesn't match the regex `match` (e.g. `map updated`) |
+| `log` / `no_log` | the app's log (`RETRODS_DEBUG=1`) matches / doesn't match the regex `match` (e.g. `map updated`) |
 | `file` / `no_file` | `path` in a `retroarch` case's state folder is there and starts with `starts` (its bytes as Latin-1: `"#RZIPv\u0001#"`, `"RASTATE\u0001"`, `"\u0089PNG"`) / isn't there |
 
 Rule checks say *why* a picture is right and keep passing through
@@ -298,5 +298,5 @@ stand-in for GitHub's latest-release API serving a zip you give it:
    `--apk APP.apk` instead of `--zip` serves an Android release (the APK
    asset); docs/ANDROID.md, "Updates", says how the Android side was tested.
    `PATH=/nonexistent` tests the libcurl fallback (BananaOS); running a copy
-   from elsewhere with `SNESDS_HOME` set tests launch.sh's copied binary
+   from elsewhere with `RETRODS_HOME` set tests launch.sh's copied binary
    (both copies are replaced).

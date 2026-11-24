@@ -121,7 +121,7 @@ static bool aheadInFlight; /* the worker is emulating the next frame */
 static bool aheadReady;    /* it has: that frame is emulated but not yet used */
 static uint32_t aheadFb[EMU_MAX_W * EMU_MAX_H]; /* the frame on screen, while the worker writes the next */
 
-bool debug; /* SNESDS_DEBUG (declared again below) */
+bool debug; /* RETRODS_DEBUG (declared again below) */
 
 /* One frame of the game with these keys (on the worker too, while the main
  * thread leaves the core alone). */
@@ -379,7 +379,7 @@ static double fps, speedPct;
 static Uint64 emuTicks, drawTicks; /* time spent emulating / drawing, for the 5 s report */
 
 /* Slow frames (work over a frame's time): the worst each second, broken down,
- * logged on Android (where frame time is tight) or with SNESDS_DEBUG. */
+ * logged on Android (where frame time is tight) or with RETRODS_DEBUG. */
 typedef struct {
 	double total, input, emulate, ra, map, draw, top, bottom;
 	int redraws;
@@ -395,7 +395,7 @@ static SlowFrame slowWorst;
 static int slowCount;
 
 /* Stalls (issue #50): a loop iteration over STALL_MS from top to top, any
- * build, no SNESDS_DEBUG needed. Each part of the iteration is timed, the
+ * build, no RETRODS_DEBUG needed. Each part of the iteration is timed, the
  * wait before the frame and the sleep after it included (slow frames above
  * only see the work in between), so one line in a player's log says where
  * the time went. At most STALL_LINES lines per 5 s; the 5 s report counts
@@ -3673,8 +3673,8 @@ static void log_path(char* out, size_t size) {
 /* The report's -info.txt: the device and system, SNES DS's settings, the
  * game and the end of the log (without lines about passwords or tokens). */
 static void bug_info(Text* t, const char* date, uint64_t back) {
-#ifdef SNESDS_VERSION
-	text_add(t, "SNES DS %s bug report, %s\n\n", SNESDS_VERSION, date);
+#ifdef RETRODS_VERSION
+	text_add(t, "SNES DS %s bug report, %s\n\n", RETRODS_VERSION, date);
 #endif
 	text_add(t, "== Device\n");
 	char line[256];
@@ -3841,8 +3841,8 @@ static bool bug_report(char* out, size_t outSize) {
 	double fps60 = game_fps();
 	char date[64], k[64];
 	strftime(date, sizeof(date), "%Y-%m-%d %H:%M:%S", &tm);
-#ifdef SNESDS_VERSION
-	const char* version = SNESDS_VERSION;
+#ifdef RETRODS_VERSION
+	const char* version = RETRODS_VERSION;
 #else
 	const char* version = "?";
 #endif
@@ -5459,7 +5459,7 @@ enum GameExit game_run(Config* c, const char* rom, bool fromLibrary) {
 
 static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary) {
 	cfg = c;
-	debug = getenv("SNESDS_DEBUG") != NULL;
+	debug = getenv("RETRODS_DEBUG") != NULL;
 	romPath = rom, lastLoop = 0;
 	game_paths(cfg, rom, &gp);
 	ui_brightness(cfg->brightTop, cfg->brightBottom); /* (this game's own, if it has them) */
@@ -5599,9 +5599,9 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	want.freq = 48000;
 	want.format = AUDIO_S16SYS;
 	want.channels = 2;
-	/* SNESDS_AUDIO_SAMPLES: testing only (SDL's dummy driver keeps exact time
+	/* RETRODS_AUDIO_SAMPLES: testing only (SDL's dummy driver keeps exact time
 	 * only when the buffer is a whole number of milliseconds, e.g. 480) */
-	want.samples = getenv("SNESDS_AUDIO_SAMPLES") ? atoi(getenv("SNESDS_AUDIO_SAMPLES")) : 512;
+	want.samples = getenv("RETRODS_AUDIO_SAMPLES") ? atoi(getenv("RETRODS_AUDIO_SAMPLES")) : 512;
 	SDL_AudioDeviceID audio = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
 #if !defined(__ANDROID__)
 	if (!audio && getenv("AUDIODEV")) {
@@ -5645,8 +5645,8 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	uint64_t audioQuietUntil = 0; /* no dry-queue counting before this frame: the sound was being started again */
 	uint64_t dryWindowStart = 0;
 	int dryQueueBefore = 1, dryEvents = 0;
-	/* testing only: SNESDS_TEST_STARVE=1 throws away the sound of 20 frames in every 100 (after frame 200) */
-	const bool testStarve = getenv("SNESDS_TEST_STARVE") && atoi(getenv("SNESDS_TEST_STARVE"));
+	/* testing only: RETRODS_TEST_STARVE=1 throws away the sound of 20 frames in every 100 (after frame 200) */
+	const bool testStarve = getenv("RETRODS_TEST_STARVE") && atoi(getenv("RETRODS_TEST_STARVE"));
 
 	static int16_t samples[4096 * 2];
 	uint32_t lastRoomKey = 0;
@@ -5669,7 +5669,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	int comboPulse[2] = { 0, 0 };        /* SELECT, START handed to the game late */
 	int modPulse = 0; /* the hotkey button (SELECT or START), tapped alone: handed to the game */
 	unsigned ffPhase = 0;
-	bool noPace = getenv("SNESDS_NOPACE") != NULL;
+	bool noPace = getenv("RETRODS_NOPACE") != NULL;
 	enum GameExit exitTo = GAME_QUIT_APP;
 	bool done = false;
 	bool wasMenu = false;
@@ -6677,14 +6677,14 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			if (gameTexAll || i == screens[game_screen()].view) ui_update_texture(gameTex[i], shownFb, shownW * 4);
 		}
 		gameTexAll = false;
-		/* (tests, SNESDS_DRAW_SHOTS_ONLY: only the frames a screenshot or a
+		/* (tests, RETRODS_DRAW_SHOTS_ONLY: only the frames a screenshot or a
 		 * touch needs are drawn) */
 		if (!ui_script_quiet()) {
 			ui_sync_view(pacedHz > 0 ? pacedView : cfg->vsync ? screens[game_screen()].view : -1, pacedHz > 0 ? pacedEvery : 1); /* Match Display Rate; vsync: testing (docs/ANDROID.md) */
 			{
 				/* the other screen's redraw waits a frame if this one is past 70% of its time */
 				static double budget = -1;
-				if (budget < 0) budget = getenv("SNESDS_DRAW_BUDGET") ? atof(getenv("SNESDS_DRAW_BUDGET")) : frameSec * 1000.0 * 0.7;
+				if (budget < 0) budget = getenv("RETRODS_DRAW_BUDGET") ? atof(getenv("RETRODS_DRAW_BUDGET")) : frameSec * 1000.0 * 0.7;
 				ui_present_budget(ff ? -1 : screens[game_screen()].view, workT0, budget);
 			}
 			ui_clear();

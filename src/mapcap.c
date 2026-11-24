@@ -35,7 +35,7 @@ struct MapCapture {
 
 	/* async machinery */
 	pthread_t thread;
-	bool noThread; /* no worker thread (SNESDS_SYNC, or it couldn't start): captures run in mapcap_request */
+	bool noThread; /* no worker thread (RETRODS_SYNC, or it couldn't start): captures run in mapcap_request */
 	pthread_mutex_t lock;
 	pthread_cond_t cond;
 	bool running;
@@ -527,11 +527,11 @@ static const char* apply_view(MapCapture* mc, Emu* s) {
 }
 
 static const char* do_capture_(MapCapture* mc, const void* state);
-/* A capture, timed for SNESDS_DEBUG: how long, how many of the shadow
+/* A capture, timed for RETRODS_DEBUG: how long, how many of the shadow
  * core's frames */
 static const char* do_capture(MapCapture* mc, const void* state) {
 	static int dbg = -1;
-	if (dbg < 0) dbg = getenv("SNESDS_DEBUG") != NULL;
+	if (dbg < 0) dbg = getenv("RETRODS_DEBUG") != NULL;
 	struct timespec t0, t1;
 	clock_gettime(CLOCK_MONOTONIC, &t0);
 	unsigned long f0 = mc->shadow.frames;
@@ -760,12 +760,12 @@ MapCapture* mapcap_create(const char* romPath, const char* gameCode, bool tight)
 	return mc;
 }
 
-/* SNESDS_SYNC=1 (regression tests): captures run in mapcap_request, the
+/* RETRODS_SYNC=1 (regression tests): captures run in mapcap_request, the
  * game waiting for them, so every run gives the same
  * pictures at the same frames. */
 static void start_thread(MapCapture* mc) {
 	static int sync = -1;
-	if (sync < 0) sync = getenv("SNESDS_SYNC") && atoi(getenv("SNESDS_SYNC"));
+	if (sync < 0) sync = getenv("RETRODS_SYNC") && atoi(getenv("RETRODS_SYNC"));
 	if (sync) mc->noThread = true;
 	if (!mc->running && !mc->noThread) {
 		mc->running = true;

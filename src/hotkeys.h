@@ -2,8 +2,8 @@
  * action's button does the action in a game (game.c). Set in snes-ds.cfg
  * (hotkey, hotkey_quit ...) or with Settings > Hotkeys (hotkeys_run), which
  * keeps its choices in <state_dir>/hotkeys.cfg, read after snes-ds.cfg. */
-#ifndef SNESDS_HOTKEYS_H
-#define SNESDS_HOTKEYS_H
+#ifndef RETRODS_HOTKEYS_H
+#define RETRODS_HOTKEYS_H
 
 #include "config.h"
 

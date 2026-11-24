@@ -13,10 +13,10 @@ Settings (Folders, Hotkeys, Updates), the second display drawn with the GPU
 Run it like the desktop app, with these on top:
 
     SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy SDL_RENDER_DRIVER=opengles2 \
-    SNESDS_WINDOW=1024x768 STUB_SECOND=1280x960 SNESDS_HOME=DIR SHOTDIR=DIR \
+    RETRODS_WINDOW=1024x768 STUB_SECOND=1280x960 RETRODS_HOME=DIR SHOTDIR=DIR \
     build/host/snes-ds-android --state-dir=DIR/st --rom-dir=ROMS --input-script=SCRIPT
 
-- `SNESDS_WINDOW` is the activity's window (screen 1, the touch screen);
+- `RETRODS_WINDOW` is the activity's window (screen 1, the touch screen);
   `STUB_SECOND=WxH` the second display (default 1024x768).
   `STUB_SECOND=none`: one display only (a phone, a Surface Duo); with
   `STUB_HINGE=84 STUB_HINGE_LONG=2784`, a hinge of 84 pixels across the
@@ -31,7 +31,7 @@ Run it like the desktop app, with these on top:
   127.0.0.1). The "installer" copies the APK to `$STUB_INSTALLED` and
   answers after 1.5 s with `$STUB_INSTALL`: 1 asking to confirm (default),
   -2 cancelled, -3 another signing key, -4 no room, -5 an older build.
-- `SNESDS_APP_FILES=DIR`: where data-folder.cfg is looked for (issue #34);
+- `RETRODS_APP_FILES=DIR`: where data-folder.cfg is looked for (issue #34);
   the move itself (android_data_setup) isn't run here.
 
 What it can't show: Java (the Presentation, the activity's life cycle,

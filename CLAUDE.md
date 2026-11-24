@@ -144,7 +144,7 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   `snes` is its default branch. `upstream` is GBA DS (kyannon/gba-ds):
   fetch from it to pick up fixes to shared code, never push there.
 - **Names:** the app is SNES DS everywhere: binary `snes-ds`, `snes-ds.cfg`,
-  `SNESDS_*` variables and macros, Android package and application ID
+  `RETRODS_*` variables and macros, Android package and application ID
   `io.github.iosue_iulianus.snesds` (JNI names write its `_` as `_1`:
   `Java_io_github_iosue_1iulianus_snesds_...`), classes `SnesDsActivity` and
   `SnesDsHereActivity`, the "SNES DS" folder on Android. Still to do: the
@@ -179,12 +179,12 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   app, the harness, and `build/host/bsnes_libretro.so` linked to the core),
   then `make` (`build/host/snes-ds`) and `make tools`
   (`build/host/snes-harness`). Host builds run with the SDL in `deps/`
-  (rpath). The app finds its core in `SNESDS_CORE`, else
+  (rpath). The app finds its core in `RETRODS_CORE`, else
   `bsnes_libretro.so` beside the program, and copies it into
   `<state_dir>/cache/core-{a,b,c}.so`.
 - Android: `scripts/build-android.sh` (SDL2, the core with the NDK, packed
   three times as `libsnes_{a,b,c}.so` with their own sonames by patchelf,
-  extracted to `nativeLibraryDir`, passed as `SNESDS_CORE_DIR`). It needs
+  extracted to `nativeLibraryDir`, passed as `RETRODS_CORE_DIR`). It needs
   the SDK and NDK, so it runs on GitHub Actions
   (`.github/workflows/android.yml`: pushes to `snes`, pull requests into
   it, "Run workflow"); release-signed with the repo's secrets (the key is
@@ -237,7 +237,7 @@ Device details:
 - Test taps without the owner: `adb.exe shell input -d 0 tap X Y` (top
   display coordinates); the log's `touch down on screen ...` lines show
   where SNES DS put it. Only tap where it can't upset the game.
-- Debug logging (`SNESDS_DEBUG`) can't be switched on at runtime on
+- Debug logging (`RETRODS_DEBUG`) can't be switched on at runtime on
   Android; the log has the 5-second frame lines and touch lines.
 
 ## Testing without the device
@@ -246,7 +246,7 @@ Device details:
   at the top of `tools/snes-harness.c`) runs two copies of the core frame
   by frame: `load/save`, `wait`, `hold`, `tap`, `shot`, `peek`, `poke`,
   `dumpram`, `copy`, `mapcap` (a capture on copy B, timed), `bench`. SNES
-  addresses are written as the CPU sees them (`7E0998`). `SNESDS_SAVE`
+  addresses are written as the CPU sees them (`7E0998`). `RETRODS_SAVE`
   gives copy A a battery save (copied into OUTDIR first).
 - Test states and saves live outside the repo, in
   `/home/joshua/projects/snes-ds/test-data/<game>/` (Super Metroid:
@@ -254,7 +254,7 @@ Device details:
   `crateria-pause-map.state`; A Link to the Past: `harness-*`, made in the
   harness). Never delete them; copy new ones from the
   Duo there. The app loads one from a script line `TICK LOAD:path`, and
-  `SNESDS_SCREENS=1920x1080,1280x960` (with `SNESDS_WINDOW=1920x2040`)
+  `RETRODS_SCREENS=1920x1080,1280x960` (with `RETRODS_WINDOW=1920x2040`)
   stands in for the Duo's two screens.
 - **The second screens' regression check:** `scripts/check-games.sh
   --alttp ROM --sm ROM` (`tools/check_games.py`, about 15 s on the host)
@@ -267,7 +267,7 @@ Device details:
   for one check, `--out DIR` to keep the pictures.
 - `tools/ramdiff.py` (RAM dumps with a screen open vs closed) carries over.
 - The app runs headless: `SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy
-  SDL_RENDER_DRIVER=software SNESDS_WINDOW=1024x1536 build/host/snes-ds
+  SDL_RENDER_DRIVER=software RETRODS_WINDOW=1024x1536 build/host/snes-ds
   --rom-dir=DIR --state-dir=DIR --save_dir=DIR --quick_bar_hint=0
   --input-script=SCRIPT [ROM]` (script lines `TICK BUTTONS`, buttons `A B X
   Y START SELECT HOME L R L2 R2 L3`, `HOME+R` save state, `HOME+L` load,

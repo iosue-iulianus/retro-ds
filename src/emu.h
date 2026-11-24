@@ -7,8 +7,8 @@
  * several sonames (libsnes_a.so, ...), on the desktop the same .so copied
  * to several paths. An Emu runs on one thread at a time; two Emus can run
  * on two threads at once. */
-#ifndef SNESDS_EMU_H
-#define SNESDS_EMU_H
+#ifndef RETRODS_EMU_H
+#define RETRODS_EMU_H
 
 #include <stdbool.h>
 #include <stddef.h>

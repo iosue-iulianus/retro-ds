@@ -26,9 +26,9 @@ static struct {
 } changed[GOV_MAX];
 static int nChanged;
 
-/* (testing: SNESDS_SYSFS, a folder standing in for /sys) */
+/* (testing: RETRODS_SYSFS, a folder standing in for /sys) */
 static const char* sysfs(void) {
-	const char* r = getenv("SNESDS_SYSFS");
+	const char* r = getenv("RETRODS_SYSFS");
 	return r && r[0] ? r : "/sys";
 }
 static const char* short_name(const char* path) {

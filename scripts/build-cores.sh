@@ -23,7 +23,7 @@ SNES9X_URL=https://github.com/libretro/snes9x.git
 SNES9X_REV=204ea1c0b851f960cbf223075eb1c25641cb483c
 
 HERE=$(cd "$(dirname "$0")/.." && pwd)
-CORES=${SNESDS_CORES:-$HERE/../cores}
+CORES=${RETRODS_CORES:-$HERE/../cores}
 JOBS=$(nproc 2>/dev/null || echo 4)
 mkdir -p "$CORES"
 

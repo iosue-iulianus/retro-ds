@@ -302,9 +302,9 @@ static bool is_esde(const char* dir) {
 }
 
 /* ES-DE's folder: ES-DE on the internal storage by default; the player may
- * have put it on an SD card. SNESDS_ESDE_DIR overrides (tests). */
+ * have put it on an SD card. RETRODS_ESDE_DIR overrides (tests). */
 static const char* esde_dir(void) {
-	const char* env = getenv("SNESDS_ESDE_DIR");
+	const char* env = getenv("RETRODS_ESDE_DIR");
 	if (env && env[0]) return is_esde(env) ? env : NULL;
 	if (esdeDir[0] && is_esde(esdeDir)) return esdeDir;
 	esdeDir[0] = 0;

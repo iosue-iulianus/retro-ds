@@ -8,7 +8,7 @@
 #
 # Run the app without a screen (saves in a folder of their own: by default
 # they go beside the ROM):
-#   SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy SNESDS_WINDOW=1024x1536 \
+#   SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy RETRODS_WINDOW=1024x1536 \
 #     build/host/snes-ds --state-dir=/tmp/st --save_dir=/tmp/sav --input-script=script.txt GAME.sfc
 # (script lines are "TICK BUTTONS" with buttons like A, B+UP or - for none,
 #  "TICK SHOT:file.bmp", "TICK TAP:x,y" with x,y as fractions of the whole
@@ -28,7 +28,7 @@ if [ ! -f "$DEPS/sdl-host/lib/libSDL2.so" ]; then
 fi
 
 scripts/build-cores.sh
-CORES=${SNESDS_CORES:-$ROOT/../cores}
+CORES=${RETRODS_CORES:-$ROOT/../cores}
 
 make -j"$(nproc)"
 make tools

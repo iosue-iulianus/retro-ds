@@ -1,7 +1,7 @@
 /* The Performance setting (Linux): the CPU, memory and GPU clock governors
  * held at "performance" while SNES DS runs, or left to the system. */
-#ifndef SNESDS_CLOCKS_H
-#define SNESDS_CLOCKS_H
+#ifndef RETRODS_CLOCKS_H
+#define RETRODS_CLOCKS_H
 #include <stdbool.h>
 
 #if defined(__linux__) && !defined(__ANDROID__)

@@ -418,7 +418,7 @@ void mapper_run(const Config* cfg) {
 				time_t t = time(NULL);
 				char date[16];
 				strftime(date, sizeof(date), "%Y-%m-%d", localtime(&t));
-				snprintf(comment, sizeof(comment), "%s on %s; SNES DS %s button mapper, %s", name, device, SNESDS_VERSION, date);
+				snprintf(comment, sizeof(comment), "%s on %s; SNES DS %s button mapper, %s", name, device, RETRODS_VERSION, date);
 				ui_mapping_file(path, sizeof(path));
 				if (SDL_GameControllerAddMapping(line) < 0) fprintf(stderr, "button mapper: SDL refused the mapping: %s\n", SDL_GetError());
 				ui_mapped_by_user(guid);

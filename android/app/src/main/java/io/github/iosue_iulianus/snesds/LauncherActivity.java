@@ -38,7 +38,7 @@ import java.io.OutputStream;
  *   or Daijisho: -a android.intent.action.VIEW -d {file.uri}
  */
 public class LauncherActivity extends Activity {
-    private static final String TAG = "SNESDS";
+    private static final String TAG = "RETRODS";
     private boolean askedForFiles;
     private boolean starting; /* the game is being started (onResume can come twice) */
     private static boolean crashLogInstalled;

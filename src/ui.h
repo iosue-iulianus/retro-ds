@@ -1,6 +1,6 @@
 /* Windows, physical screens, input and drawing shared by the library and the game. */
-#ifndef SNESDS_UI_H
-#define SNESDS_UI_H
+#ifndef RETRODS_UI_H
+#define RETRODS_UI_H
 
 #include "config.h"
 #include "textfont.h"

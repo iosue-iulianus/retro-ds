@@ -3,8 +3,8 @@
  * The ROM is booted in a silent emulator core and run to its title screen;
  * the part of the picture the profile names is cached as a PNG, so this
  * only happens once per game. */
-#ifndef SNESDS_LOGO_H
-#define SNESDS_LOGO_H
+#ifndef RETRODS_LOGO_H
+#define RETRODS_LOGO_H
 
 #include <stdbool.h>
 #include <stddef.h>

@@ -13,15 +13,15 @@
 # globals, so the game, the map's hidden copy and the logo's each load their
 # own copy (src/emu.h).
 #
-# Release signing: set SNESDS_KEYSTORE (path), SNESDS_KEYSTORE_PASSWORD,
-# SNESDS_KEY_ALIAS, SNESDS_KEY_PASSWORD; without them the APK is debug-signed.
+# Release signing: set RETRODS_KEYSTORE (path), RETRODS_KEYSTORE_PASSWORD,
+# RETRODS_KEY_ALIAS, RETRODS_KEY_PASSWORD; without them the APK is debug-signed.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 ROOT="$PWD"
 DEPS="$ROOT/deps"
 mkdir -p "$DEPS"
 SDL_BRANCH=${SDL_BRANCH:-release-2.30.x}
-CORES=${SNESDS_CORES:-$ROOT/../cores}
+CORES=${RETRODS_CORES:-$ROOT/../cores}
 
 NDK="${ANDROID_NDK_HOME:-${ANDROID_NDK_LATEST_HOME:-}}"
 if [ -z "$NDK" ] || [ ! -f "$NDK/build/cmake/android.toolchain.cmake" ]; then
@@ -39,7 +39,7 @@ if [ ! -d "$DEPS/SDL2" ]; then
 fi
 
 # --- the core, three times ----------------------------------------------------
-SNESDS_CORES="$CORES" scripts/build-cores.sh android
+RETRODS_CORES="$CORES" scripts/build-cores.sh android
 if ! command -v patchelf > /dev/null; then
 	python3 -m pip install --quiet --user patchelf
 	export PATH="$HOME/.local/bin:$PATH"

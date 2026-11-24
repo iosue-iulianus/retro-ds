@@ -1,6 +1,6 @@
 /* Cheats from RetroArch .cht files (libretro-database layout). */
-#ifndef SNESDS_CHEATS_H
-#define SNESDS_CHEATS_H
+#ifndef RETRODS_CHEATS_H
+#define RETRODS_CHEATS_H
 
 #include "config.h"
 #include "emu.h"

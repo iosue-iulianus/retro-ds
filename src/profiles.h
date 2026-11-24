@@ -1,6 +1,6 @@
 /* Per-game knowledge: how to open the map and how to recognise it. */
-#ifndef SNESDS_PROFILES_H
-#define SNESDS_PROFILES_H
+#ifndef RETRODS_PROFILES_H
+#define RETRODS_PROFILES_H
 
 #include "emu.h"
 

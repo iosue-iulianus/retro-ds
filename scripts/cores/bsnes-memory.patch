@@ -58,11 +58,11 @@ index 8010816..0e601fe 100644
 +// cross the game's controller read. A state for another instance or a file
 +// (the normal context) synchronizes, since an unsynchronized one holds this
 +// instance's thread stacks.
-+#define SNESDS_GET_SAVESTATE_CONTEXT (72 | RETRO_ENVIRONMENT_EXPERIMENTAL)
++#define RETRODS_GET_SAVESTATE_CONTEXT (72 | RETRO_ENVIRONMENT_EXPERIMENTAL)
 +static bool serialize_synchronized()
 +{
 +	int context = 0; // RETRO_SAVESTATE_CONTEXT_NORMAL
-+	if (environ_cb && environ_cb(SNESDS_GET_SAVESTATE_CONTEXT, &context))
++	if (environ_cb && environ_cb(RETRODS_GET_SAVESTATE_CONTEXT, &context))
 +		return context == 0 || context == 3; // normal, rollback netplay: synchronize
 +	return true;
 +}

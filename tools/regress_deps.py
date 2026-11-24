@@ -41,7 +41,7 @@ DOC_NAME = "DEPENDENCIES.md"
 
 
 def fixtures_dir(arg=None):
-    return arg or os.environ.get("SNESDS_TESTS") or os.path.join(os.path.dirname(ROOT), "gba-ds-tests")
+    return arg or os.environ.get("RETRODS_TESTS") or os.path.join(os.path.dirname(ROOT), "gba-ds-tests")
 
 
 def all_games():

@@ -8,9 +8,9 @@
  * their results are handed to rc_client on the main thread. Unlocks and the
  * game's progress show as popups on the second screen.
  *
- * Built where SNESDS_RA is defined; elsewhere these are no-ops. */
-#ifndef SNESDS_RA_H
-#define SNESDS_RA_H
+ * Built where RETRODS_RA is defined; elsewhere these are no-ops. */
+#ifndef RETRODS_RA_H
+#define RETRODS_RA_H
 
 #include "config.h"
 #include "emu.h"
@@ -22,7 +22,7 @@
 /* ra_account's answer */
 enum { RA_ACCOUNT_NONE, RA_ACCOUNT_BUSY, RA_ACCOUNT_OK, RA_ACCOUNT_FAILED, RA_ACCOUNT_OFF };
 
-#ifdef SNESDS_RA
+#ifdef RETRODS_RA
 /* At start-up: reads the account and starts signing in. */
 void ra_init(const Config* cfg);
 void ra_shutdown(void);

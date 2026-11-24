@@ -22,15 +22,15 @@ SIDE       ?=
 SIDE_CODES ?=
 ifneq ($(SIDE),)
 VERSION    := $(VERSION)+$(SIDE)
-SIDE_DEF   := -DSNESDS_SIDE='"$(SIDE)"'
+SIDE_DEF   := -DRETRODS_SIDE='"$(SIDE)"'
 ifneq ($(SIDE_CODES),)
-SIDE_DEF   += -DSNESDS_SIDE_CODES='"$(SIDE_CODES)"'
+SIDE_DEF   += -DRETRODS_SIDE_CODES='"$(SIDE_CODES)"'
 endif
 endif
 OPTFLAGS   ?= -O2 -g
 
 override CFLAGS := $(OPTFLAGS) -std=gnu11 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers \
-              -DSNESDS_VERSION='"$(VERSION)"' $(SIDE_DEF) -I$(SDL_PREFIX)/include/SDL2 -D_REENTRANT
+              -DRETRODS_VERSION='"$(VERSION)"' $(SIDE_DEF) -I$(SDL_PREFIX)/include/SDL2 -D_REENTRANT
 LDFLAGS    += -L$(SDL_PREFIX)/lib -Wl,-rpath-link,$(SDL_PREFIX)/lib
 # desktop builds: run with the SDL built into deps/, not an older system one
 # (which may lack the offscreen driver the headless runs use)
@@ -55,7 +55,7 @@ all: $(OUT)/snes-ds
 
 $(OUT)/snes-ds: $(APP_SRC) src/*.h VERSION $(RC_OBJ) $(WEBP_OBJ)
 	@mkdir -p $(OUT)
-	$(CC) $(CFLAGS) -DSNESDS_RA -I$(RC_DIR)/include -I$(RC_DIR)/src -I$(WEBP_DIR) -o $@ $(APP_SRC) $(RC_OBJ) $(WEBP_OBJ) $(LDFLAGS) $(LIBS)
+	$(CC) $(CFLAGS) -DRETRODS_RA -I$(RC_DIR)/include -I$(RC_DIR)/src -I$(WEBP_DIR) -o $@ $(APP_SRC) $(RC_OBJ) $(WEBP_OBJ) $(LDFLAGS) $(LIBS)
 
 $(OUT)/rcheevos/%.o: $(RC_DIR)/src/%.c $(wildcard $(RC_DIR)/include/*.h)
 	@mkdir -p $(dir $@)

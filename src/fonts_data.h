@@ -1,6 +1,6 @@
 /* The UI fonts, embedded (tools/embed_fonts.py). */
-#ifndef SNESDS_FONTS_DATA_H
-#define SNESDS_FONTS_DATA_H
+#ifndef RETRODS_FONTS_DATA_H
+#define RETRODS_FONTS_DATA_H
 
 #include <stddef.h>
 

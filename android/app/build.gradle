@@ -2,7 +2,7 @@
 // core into src/main/jniLibs (libsnes_a.so ...) and passes SDL's path:
 //   -PsdlDir=...
 // Release signing (optional; debug-signed otherwise) from the environment:
-//   SNESDS_KEYSTORE, SNESDS_KEYSTORE_PASSWORD, SNESDS_KEY_ALIAS, SNESDS_KEY_PASSWORD
+//   RETRODS_KEYSTORE, RETRODS_KEYSTORE_PASSWORD, RETRODS_KEY_ALIAS, RETRODS_KEY_PASSWORD
 plugins {
     id "com.android.application"
 }
@@ -15,7 +15,7 @@ def sdlDir = need("sdlDir")
 def cpuFlags = project.hasProperty("cpuFlags") ? project.property("cpuFlags") : ""
 def appVersion = rootProject.file("../VERSION").text.trim()
 def runNumber = (System.getenv("GITHUB_RUN_NUMBER") ?: "1") as int
-def keystore = System.getenv("SNESDS_KEYSTORE")
+def keystore = System.getenv("RETRODS_KEYSTORE")
 
 android {
     namespace "io.github.iosue_iulianus.snesds"
@@ -42,8 +42,8 @@ android {
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_STL=c++_static",
-                        "-DSNESDS_SDL_SRC=${sdlDir}",
-                        "-DSNESDS_VERSION=${appVersion}"
+                        "-DRETRODS_SDL_SRC=${sdlDir}",
+                        "-DRETRODS_VERSION=${appVersion}"
             }
         }
     }
@@ -52,9 +52,9 @@ android {
         if (keystore) {
             release {
                 storeFile file(keystore)
-                storePassword System.getenv("SNESDS_KEYSTORE_PASSWORD")
-                keyAlias System.getenv("SNESDS_KEY_ALIAS")
-                keyPassword System.getenv("SNESDS_KEY_PASSWORD")
+                storePassword System.getenv("RETRODS_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("RETRODS_KEY_ALIAS")
+                keyPassword System.getenv("RETRODS_KEY_PASSWORD")
             }
         }
     }
@@ -78,7 +78,7 @@ android {
 
     // The native libraries as files in the app's folder (nativeLibraryDir),
     // not only inside the APK: SNES DS loads its core copies by path
-    // (src/emu.c, SNESDS_CORE_DIR).
+    // (src/emu.c, RETRODS_CORE_DIR).
     packaging {
         jniLibs {
             useLegacyPackaging true

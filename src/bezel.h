@@ -1,5 +1,5 @@
-#ifndef SNESDS_BEZEL_H
-#define SNESDS_BEZEL_H
+#ifndef RETRODS_BEZEL_H
+#define RETRODS_BEZEL_H
 
 #include <stdbool.h>
 #include <stdint.h>

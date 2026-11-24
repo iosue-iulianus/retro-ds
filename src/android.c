@@ -31,7 +31,7 @@
 #include <strings.h>
 #include <unistd.h>
 
-#define TAG "SNESDS"
+#define TAG "RETRODS"
 
 /* ------------------------------------------------------------- log */
 
@@ -74,12 +74,12 @@ void android_init_log(void) {
 }
 
 const char* android_home(void) {
-	const char* h = getenv("SNESDS_HOME");
+	const char* h = getenv("RETRODS_HOME");
 	return h && *h ? h : NULL;
 }
 
 bool android_data_record(char* out, size_t size) {
-	const char* files = getenv("SNESDS_APP_FILES");
+	const char* files = getenv("RETRODS_APP_FILES");
 	if (!files || !*files) return false;
 	snprintf(out, size, "%s/data-folder.cfg", files);
 	return true;
@@ -95,7 +95,7 @@ void android_data_setup(void) {
 	char was[1024];
 	if (!kv_get(record, "data_dir_now", was, sizeof(was))) snprintf(was, sizeof(was), "%s", def);
 	data_dir_setup(def, record, want, true, out, sizeof(out));
-	setenv("SNESDS_HOME", out, 1);
+	setenv("RETRODS_HOME", out, 1);
 	/* a ROM or save folder chosen inside the old folder (Settings > Folders,
 	 * library.cfg) moved with it */
 	size_t wn = strlen(was);
@@ -116,7 +116,7 @@ void android_data_setup(void) {
 void android_config_defaults(Config* c) {
 	/* shared storage ignores case: this is also a folder called SNES */
 	snprintf(c->romDir, sizeof(c->romDir), "/storage/emulated/0/ROMs/snes");
-	/* SNESDS_HOME is "SNES DS" on the internal storage (or, without All files
+	/* RETRODS_HOME is "SNES DS" on the internal storage (or, without All files
 	 * access, the app's folder), laid out like the ROCKNIX install folder:
 	 * states/ (the default state_dir), logos/ and overlays/ (asset_dir),
 	 * cheats/, screenshots/, snes-ds.log */
@@ -494,7 +494,7 @@ static bool call_activity(const char* name, const char* arg) {
  * storage, "auto" | "portrait" | "landscape" on one line; SnesDsActivity
  * reads it before the window exists and applyRotation changes it live. */
 static bool rotation_file(char* out, size_t size) {
-	const char* files = getenv("SNESDS_APP_FILES");
+	const char* files = getenv("RETRODS_APP_FILES");
 	if (!files || !*files) return false;
 	snprintf(out, size, "%s/rotation.cfg", files);
 	return true;
@@ -921,14 +921,14 @@ void android_touch_pos(const SDL_Event* ev, float* x, float* y) {
  * window id as the second view. */
 JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SecondScreen_nativeTouch(JNIEnv* env, jclass cls, jint kind, jfloat x,
                                                                             jfloat y) {
-	push_touch(SNESDS_SECOND_WINDOW_ID, kind, x, y);
+	push_touch(RETRODS_SECOND_WINDOW_ID, kind, x, y);
 }
 
 /* The same for the activity's own display (SnesDsActivity.onTouch: SDL's
  * positions there weren't reliable on the Duo) */
 JNIEXPORT void JNICALL Java_io_github_iosue_1iulianus_snesds_SnesDsActivity_nativeMainTouch(JNIEnv* env, jclass cls, jint kind, jfloat x,
                                                                                 jfloat y) {
-	push_touch(SNESDS_MAIN_WINDOW_ID, kind, x, y);
+	push_touch(RETRODS_MAIN_WINDOW_ID, kind, x, y);
 }
 
 #endif

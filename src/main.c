@@ -68,7 +68,7 @@ static void on_crash(int sig) {
 int main(int argc, char** argv) {
 	for (int i = 1; i < argc; ++i) {
 		if (!strcmp(argv[i], "--version")) {
-			printf("SNES DS %s\n", SNESDS_VERSION);
+			printf("SNES DS %s\n", RETRODS_VERSION);
 			return 0;
 		}
 		/* --supported ROM: exit 0 if SNES DS has second-screen support for the
@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
 	android_data_setup();
 	android_init_log();
 #endif
-	fprintf(stderr, "SNES DS %s\n", SNESDS_VERSION);
+	fprintf(stderr, "SNES DS %s\n", RETRODS_VERSION);
 	Config cfg;
 	config_defaults(&cfg);
 #ifdef __ANDROID__
@@ -101,11 +101,11 @@ int main(int argc, char** argv) {
 		exe[n] = 0;
 		snprintf(exeDir, sizeof(exeDir), "%s", dirname(exe));
 	}
-	char binDir[1024]; /* (where the program is, whatever SNESDS_HOME says) */
+	char binDir[1024]; /* (where the program is, whatever RETRODS_HOME says) */
 	snprintf(binDir, sizeof(binDir), "%s", exeDir);
-	/* SNESDS_HOME: the app's folder when the executable runs from a copy
+	/* RETRODS_HOME: the app's folder when the executable runs from a copy
 	 * elsewhere (launch.sh, where the card won't run programs) */
-	if (getenv("SNESDS_HOME") && getenv("SNESDS_HOME")[0]) snprintf(exeDir, sizeof(exeDir), "%s", getenv("SNESDS_HOME"));
+	if (getenv("RETRODS_HOME") && getenv("RETRODS_HOME")[0]) snprintf(exeDir, sizeof(exeDir), "%s", getenv("RETRODS_HOME"));
 #ifdef __ANDROID__
 	/* the executable is Android's app_process: use the app's own folder */
 	if (android_home()) snprintf(exeDir, sizeof(exeDir), "%s", android_home());
@@ -114,8 +114,8 @@ int main(int argc, char** argv) {
 	/* defaults < snes-ds.cfg < states/prefs.cfg (choices made in the menu),
 	 * library.cfg and hotkeys.cfg (the game list's Settings) < command line */
 	char path[1100];
-	if (getenv("SNESDS_CONFIG")) {
-		config_load_file(&cfg, getenv("SNESDS_CONFIG"));
+	if (getenv("RETRODS_CONFIG")) {
+		config_load_file(&cfg, getenv("RETRODS_CONFIG"));
 	} else {
 		snprintf(path, sizeof(path), "%s/snes-ds.cfg", exeDir);
 		config_load_file(&cfg, path);
@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
 	snprintf(dataDir, sizeof(dataDir), "%s", exeDir);
 #if !defined(__ANDROID__)
 	snprintf(path, sizeof(path), "%s/data-folder.cfg", exeDir);
-	data_dir_setup(exeDir, getenv("SNESDS_CONFIG") ? NULL : path, cfg.dataDir, false, dataDir, sizeof(dataDir));
+	data_dir_setup(exeDir, getenv("RETRODS_CONFIG") ? NULL : path, cfg.dataDir, false, dataDir, sizeof(dataDir));
 #endif
 	if (strcmp(dataDir, exeDir) || data_dir_note()[0])
 		fprintf(stderr, "data folder: %s%s%s\n", dataDir, data_dir_note()[0] ? " - " : "", data_dir_note());
@@ -151,13 +151,13 @@ int main(int argc, char** argv) {
 	{
 		/* The emulator's core copies (emu.h), and a cache for them and the
 		 * ROMs as played. Android: the core built under several sonames into
-		 * the app's native libraries (SNESDS_CORE_DIR, from the Java side).
-		 * The desktop: SNESDS_CORE, else bsnes_libretro.so beside the
+		 * the app's native libraries (RETRODS_CORE_DIR, from the Java side).
+		 * The desktop: RETRODS_CORE, else bsnes_libretro.so beside the
 		 * program, copied into the cache once for each copy. */
 		char cache[1100];
 		snprintf(cache, sizeof(cache), "%s/cache", cfg.stateDir);
 #ifdef __ANDROID__
-		const char* dir = getenv("SNESDS_CORE_DIR");
+		const char* dir = getenv("RETRODS_CORE_DIR");
 		char paths[EMU_CORES][1100];
 		const char* list[EMU_CORES];
 		for (int i = 0; i < EMU_CORES; ++i) {
@@ -167,9 +167,9 @@ int main(int argc, char** argv) {
 		emu_set_cores(list, EMU_CORES, cache);
 #else
 		char core[1100];
-		if (getenv("SNESDS_CORE") && getenv("SNESDS_CORE")[0]) snprintf(core, sizeof(core), "%s", getenv("SNESDS_CORE"));
+		if (getenv("RETRODS_CORE") && getenv("RETRODS_CORE")[0]) snprintf(core, sizeof(core), "%s", getenv("RETRODS_CORE"));
 		else snprintf(core, sizeof(core), "%s/bsnes_libretro.so", binDir);
-		if (!emu_set_core_copies(core, cache)) fprintf(stderr, "no emulator core: games won't start (SNESDS_CORE, or %s/bsnes_libretro.so)\n", binDir);
+		if (!emu_set_core_copies(core, cache)) fprintf(stderr, "no emulator core: games won't start (RETRODS_CORE, or %s/bsnes_libretro.so)\n", binDir);
 #endif
 	}
 	snprintf(path, sizeof(path), "%s/prefs.cfg", cfg.stateDir);

@@ -14,8 +14,8 @@
  * switched to one of them (ES-DE: the game's metadata > Alternative emulator).
  * Turning it off takes out only what SNES DS put in, and deletes a file it
  * made once nothing else is left in it. ES-DE reads the files when it starts. */
-#ifndef SNESDS_ESDE_H
-#define SNESDS_ESDE_H
+#ifndef RETRODS_ESDE_H
+#define RETRODS_ESDE_H
 
 #include <stdbool.h>
 #include <stddef.h>

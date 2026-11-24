@@ -13,8 +13,8 @@
  *
  * Formats may reorder their arguments (%2$s ... %1$s) as long as they use all
  * of English's, with the same types: tools/i18n.py check says if not. */
-#ifndef SNESDS_I18N_H
-#define SNESDS_I18N_H
+#ifndef RETRODS_I18N_H
+#define RETRODS_I18N_H
 
 #include <stdbool.h>
 

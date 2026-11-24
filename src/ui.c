@@ -147,7 +147,7 @@ void ui_load_script(const char* path) {
 	script_virtual_pad();
 }
 
-/* SNESDS_DRAW_SHOTS_ONLY (tools/regress.py): nothing needs drawing this
+/* RETRODS_DRAW_SHOTS_ONLY (tools/regress.py): nothing needs drawing this
  * frame, as an input script runs with no screenshot due and no touch,
  * swipe, load or joystick line within 30 ticks (the quick bar's layout and
  * hit areas are worked out as it's drawn). The game, map and HUD
@@ -157,7 +157,7 @@ bool ui_scripted(void) { return scriptLen > 0; }
 
 bool ui_script_quiet(void) {
 	static int on = -1;
-	if (on < 0) on = getenv("SNESDS_DRAW_SHOTS_ONLY") != NULL;
+	if (on < 0) on = getenv("RETRODS_DRAW_SHOTS_ONLY") != NULL;
 	if (!on || !scriptLen || pendingShot[0] || swipeStep >= 0 || scriptTapUp >= 0) return false;
 	for (int i = 0; i < scriptLen; ++i) {
 		if (!script[i].action[0] || !strncmp(script[i].action, "SHOT:", 5) || !strcmp(script[i].action, "QUIT")) continue;
@@ -254,7 +254,7 @@ static void run_script(void) {
 static bool create_view(View* v, int display, const char* title, bool fullscreen, int ww, int wh) {
 	Uint32 flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
 	if (fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-	if (getenv("SNESDS_WINDOW")) sscanf(getenv("SNESDS_WINDOW"), "%dx%d", &ww, &wh);
+	if (getenv("RETRODS_WINDOW")) sscanf(getenv("RETRODS_WINDOW"), "%dx%d", &ww, &wh);
 	v->win = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED_DISPLAY(display), SDL_WINDOWPOS_CENTERED_DISPLAY(display),
 	                          ww, wh, flags);
 	if (!v->win) {
@@ -413,7 +413,7 @@ static void open_pads(void) {
 
 bool ui_init(Config* c, bool wantDual) {
 	cfg = c;
-	debug = getenv("SNESDS_DEBUG") != NULL;
+	debug = getenv("RETRODS_DEBUG") != NULL;
 	SDL_SetHint(SDL_HINT_APP_NAME, "SNES DS");
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, cfg->smooth ? "linear" : "nearest");
 #ifdef __ANDROID__
@@ -449,16 +449,16 @@ bool ui_init(Config* c, bool wantDual) {
 	 * Presentation window in Java (android.c). It's view 1, drawn at
 	 * ui_present: with the GPU (the game screen's renderer, made to draw into
 	 * the other window), or failing that with a software renderer. */
-	/* (SNESDS_WINDOW: tools/androidtest, a window of that size, as SDL's
+	/* (RETRODS_WINDOW: tools/androidtest, a window of that size, as SDL's
 	 * offscreen driver makes a full-screen one 1024x768) */
-	if (!create_view(&views[0], 0, "SNES DS", !getenv("SNESDS_WINDOW"), 1024, 768)) return false;
+	if (!create_view(&views[0], 0, "SNES DS", !getenv("RETRODS_WINDOW"), 1024, 768)) return false;
 	nViews = 1;
 	int sw, sh, w0, h0;
 	SDL_RendererInfo ri;
 	SDL_GetRendererOutputSize(views[0].ren, &w0, &h0);
 	bool gles = SDL_GetRendererInfo(views[0].ren, &ri) == 0 && !strncmp(ri.name, "opengles", 8);
 	fprintf(stderr, "game screen renderer: %s, %dx%d\n", gles ? ri.name : "not OpenGL ES", w0, h0);
-	if (strcmp(cfg->layout, "single") && android_second_size(&sw, &sh) && gles && !getenv("SNESDS_SOFT_SECOND") &&
+	if (strcmp(cfg->layout, "single") && android_second_size(&sw, &sh) && gles && !getenv("RETRODS_SOFT_SECOND") &&
 	    android_second_gpu_init(w0, h0)) {
 		views[1].ren = views[0].ren;
 		views[1].offwin = views[1].retained = true;
@@ -488,7 +488,7 @@ bool ui_init(Config* c, bool wantDual) {
 	bool dual = !strcmp(cfg->layout, "dual") ||
 	            (wantDual && !strcmp(cfg->layout, "auto") && displays >= 2 && !underSway);
 	bool fullscreen = strcmp(driver, "offscreen") && strcmp(driver, "dummy") && strcmp(driver, "x11") &&
-	                  strcmp(driver, "windows") && strcmp(driver, "cocoa") && !getenv("SNESDS_WINDOWED");
+	                  strcmp(driver, "windows") && strcmp(driver, "cocoa") && !getenv("RETRODS_WINDOWED");
 	fprintf(stderr, "video driver %s, %d display(s)%s -> %s\n", driver, displays, underSway ? ", sway" : "",
 	        dual && displays >= 2 ? "two windows" : "one window");
 	for (int i = 0; i < displays && i < 4; ++i) {
@@ -734,10 +734,10 @@ static void layout_screens_inner(void) {
 	int w, h;
 	SDL_GetRendererOutputSize(views[0].ren, &w, &h);
 	/* tests: two screens of other sizes stacked in the window (the top one
-	 * first), as on devices whose screens differ: SNESDS_SCREENS=1920x1080,1240x1080
-	 * (with SNESDS_WINDOW the larger width x the heights together) */
+	 * first), as on devices whose screens differ: RETRODS_SCREENS=1920x1080,1240x1080
+	 * (with RETRODS_WINDOW the larger width x the heights together) */
 	int tw0, th0, tw1, th1;
-	if (getenv("SNESDS_SCREENS") && sscanf(getenv("SNESDS_SCREENS"), "%dx%d,%dx%d", &tw0, &th0, &tw1, &th1) == 4) {
+	if (getenv("RETRODS_SCREENS") && sscanf(getenv("RETRODS_SCREENS"), "%dx%d,%dx%d", &tw0, &th0, &tw1, &th1) == 4) {
 		nScreens = 2;
 		screens[0] = (Screen) { 0, { (w - tw0) / 2, 0, tw0, th0 } };
 		screens[1] = (Screen) { 0, { (w - tw1) / 2, th0, tw1, th1 } };
@@ -810,8 +810,8 @@ int ui_other_screen(void) {
 
 static int view_of_window(Uint32 id) {
 #ifdef __ANDROID__
-	if (id == SNESDS_SECOND_WINDOW_ID) return nViews == 2 ? 1 : -1;
-	if (id == SNESDS_MAIN_WINDOW_ID) return 0;
+	if (id == RETRODS_SECOND_WINDOW_ID) return nViews == 2 ? 1 : -1;
+	if (id == RETRODS_MAIN_WINDOW_ID) return 0;
 #endif
 	for (int i = 0; i < nViews; ++i) {
 		if (SDL_GetWindowID(views[i].win) == id) return i;
@@ -976,14 +976,14 @@ static void evdev_touch_poll(void) {
 }
 
 /* SNES DS's own volume, where the system leaves the volume keys to the
- * program running (launch.sh sets SNESDS_VOLUME to the file that keeps it:
+ * program running (launch.sh sets RETRODS_VOLUME to the file that keeps it:
  * the RG DS Plus's Stock Linux OS, whose ports play straight to the sound card).
  * The keys come as key events, from their input device, or as raw joystick
- * buttons (SNESDS_VOLUME_BUTTONS=up,down). */
+ * buttons (RETRODS_VOLUME_BUTTONS=up,down). */
 static int softVolume = -1; /* 0-100; -1: not read yet */
 
 static const char* volume_file(void) {
-	return getenv("SNESDS_VOLUME");
+	return getenv("RETRODS_VOLUME");
 }
 
 int ui_volume(void) {
@@ -1016,7 +1016,7 @@ static void volume_button(int button) {
 	static int vb[2] = { -2, -2 };
 	if (vb[0] == -2) {
 		vb[0] = vb[1] = -1;
-		const char* e = getenv("SNESDS_VOLUME_BUTTONS");
+		const char* e = getenv("RETRODS_VOLUME_BUTTONS");
 		if (e) sscanf(e, "%d,%d", &vb[0], &vb[1]);
 	}
 	if (button >= 0 && button == vb[0]) volume_key(true);
@@ -1694,7 +1694,7 @@ void ui_sync_view(int view, int every) {
 double ui_display_hz(int view) {
 	static double cached = -1;
 	if (view < 0 || view >= nViews || !views[view].win) return 0;
-	if (getenv("SNESDS_DISPLAY_HZ")) return atof(getenv("SNESDS_DISPLAY_HZ")); /* testing */
+	if (getenv("RETRODS_DISPLAY_HZ")) return atof(getenv("RETRODS_DISPLAY_HZ")); /* testing */
 	double hz = 0;
 #ifndef __ANDROID__
 	if (cached >= 0) return cached;
@@ -1742,11 +1742,11 @@ void ui_brightness(int top, int bottom) {
 
 void ui_present(void) {
 	{
-		/* testing (issue #50): SNESDS_TEST_PRESENT_STALL=MS,EVERY holds every
+		/* testing (issue #50): RETRODS_TEST_PRESENT_STALL=MS,EVERY holds every
 		 * EVERY-th present up for MS ms, as one player's system did */
 		static int stallMs = -1, stallEvery, presents;
 		if (stallMs < 0) {
-			const char* e = getenv("SNESDS_TEST_PRESENT_STALL");
+			const char* e = getenv("RETRODS_TEST_PRESENT_STALL");
 			stallMs = 0;
 			if (e && sscanf(e, "%d,%d", &stallMs, &stallEvery) != 2) stallMs = 0;
 		}

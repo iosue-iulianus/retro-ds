@@ -378,7 +378,7 @@ bool config_parse_args(Config* c, int argc, char** argv) {
 
 void config_usage(const char* argv0) {
 	fprintf(stderr,
-	        "SNES DS " SNESDS_VERSION "\n"
+	        "SNES DS " RETRODS_VERSION "\n"
 	        "usage: %s [options] [game.gba]\n"
 	        "\n"
 	        "Without a game, opens the game library (games found in --rom-dir).\n"
@@ -409,7 +409,7 @@ void config_usage(const char* argv0) {
 	        "                         each shortcut's button (a, b, x, y, l, r, l2, r2, select,\n"
 	        "                         start, l3, up, down, left, right) or none\n"
 	        "  --menu-combo=select+start|none   buttons that open the menu together (none)\n"
-	        "  --home-button=N        raw joystick button that acts as HOME (see SNESDS_DEBUG=1 log)\n"
+	        "  --home-button=N        raw joystick button that acts as HOME (see RETRODS_DEBUG=1 log)\n"
 	        "  --no-auto-resume       don't save on exit / resume on launch\n"
 	        "  --no-save-on-quit      don't save a resume point on quitting (--no-auto-load: don't load it)\n"
 	        "  --show-fps\n"

@@ -9,7 +9,7 @@ void glReadPixels(int, int, int, int, unsigned, unsigned, void*);
 #include <stdio.h>
 #include <stdlib.h>
 void android_init_log(void) {}
-const char* android_home(void) { return getenv("SNESDS_HOME"); }
+const char* android_home(void) { return getenv("RETRODS_HOME"); }
 void android_config_defaults(Config* c) { (void) c; }
 static int pickAsked;
 bool android_pick_folder(void) { pickAsked = 1; return true; }

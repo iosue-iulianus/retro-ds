@@ -1,6 +1,6 @@
 /* SHA-256 (FIPS 180-4), for checking downloaded updates. */
-#ifndef SNESDS_SHA256_H
-#define SNESDS_SHA256_H
+#ifndef RETRODS_SHA256_H
+#define RETRODS_SHA256_H
 
 #include <stddef.h>
 #include <stdint.h>

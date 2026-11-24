@@ -6,8 +6,8 @@
  * <state_dir>/controllers.txt (with a comment naming the device and the
  * system), and written to the log so it can be built into
  * dist/gamecontrollerdb.txt for everyone with that device. */
-#ifndef SNESDS_MAPPER_H
-#define SNESDS_MAPPER_H
+#ifndef RETRODS_MAPPER_H
+#define RETRODS_MAPPER_H
 
 #include "config.h"
 

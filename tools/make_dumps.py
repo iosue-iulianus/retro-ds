@@ -135,7 +135,7 @@ def row(codes, by, tested):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--dat", required=True)
-    ap.add_argument("--fixtures", default=os.environ.get("SNESDS_TESTS", os.path.join(ROOT, "..", "gba-ds-tests")))
+    ap.add_argument("--fixtures", default=os.environ.get("RETRODS_TESTS", os.path.join(ROOT, "..", "gba-ds-tests")))
     ap.add_argument("--check", action="store_true")
     a = ap.parse_args()
     by = read_dat(a.dat)

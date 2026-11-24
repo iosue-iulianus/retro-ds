@@ -18,7 +18,7 @@ import java.net.URL;
  * certificates.
  */
 final class Http {
-    private static final String TAG = "SNESDS";
+    private static final String TAG = "RETRODS";
 
     /** Set from the native side (android_http_cancel): stops a download to a file. */
     static volatile boolean cancelDownloads;

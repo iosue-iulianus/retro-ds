@@ -1,6 +1,6 @@
 #include "update.h"
 
-#ifdef SNESDS_UPDATES
+#ifdef RETRODS_UPDATES
 
 #include "http.h"
 #include "paths.h"
@@ -235,7 +235,7 @@ static void set_error(const char* fmt, const char* detail) {
 static int check_thread(void* ud) {
 	bool automatic = ud != NULL;
 	char ua[64], err[200];
-	snprintf(ua, sizeof(ua), "SNES-DS/%s", SNESDS_VERSION);
+	snprintf(ua, sizeof(ua), "SNES-DS/%s", RETRODS_VERSION);
 	char* body = NULL;
 	size_t len = 0;
 	int code = http_get(U.url, ua, 20, NULL, &body, &len, err, sizeof(err), NULL);
@@ -286,7 +286,7 @@ static int check_thread(void* ud) {
 	U.info.lastCheck = (long) time(NULL);
 	U.checkedThisRun = true;
 	const char* ver = tag[0] == 'v' ? tag + 1 : tag;
-	bool newer = compare_versions(ver, SNESDS_VERSION) > 0 && asset[0] && !(draft && *draft == 't') && !(pre && *pre == 't');
+	bool newer = compare_versions(ver, RETRODS_VERSION) > 0 && asset[0] && !(draft && *draft == 't') && !(pre && *pre == 't');
 	if (newer) {
 		U.info.state = UPD_AVAILABLE;
 		snprintf(U.info.version, sizeof(U.info.version), "%s", ver);
@@ -304,7 +304,7 @@ static int check_thread(void* ud) {
 	U.busy = false;
 	save_state_file();
 	SDL_UnlockMutex(U.lock);
-	fprintf(stderr, "update: latest release %s (this is %s)%s\n", tag, SNESDS_VERSION, newer ? ": newer" : "");
+	fprintf(stderr, "update: latest release %s (this is %s)%s\n", tag, RETRODS_VERSION, newer ? ": newer" : "");
 	free(notes);
 	return 0;
 }
@@ -343,7 +343,7 @@ static bool install_zip(const char* zip, char* err, size_t errSize) {
 static int install_thread(void* ud) {
 	(void) ud;
 	char zip[1200], err[200] = "", ua[64];
-	snprintf(ua, sizeof(ua), "SNES-DS/%s", SNESDS_VERSION);
+	snprintf(ua, sizeof(ua), "SNES-DS/%s", RETRODS_VERSION);
 	mkdirs(U.workDir);
 	snprintf(zip, sizeof(zip), "%s/%s", U.workDir, U.assetName);
 	int code = http_get(U.assetUrl, ua, 600, zip, NULL, NULL, err, sizeof(err), &U.cancel);
@@ -571,7 +571,7 @@ int update_restart_if_installed(void) {
 	 * first run, not the next start (issue #50: v1.5.3's clock and log
 	 * changes were in launch.sh, and a player updating in the app kept
 	 * playing under v1.5.2's) */
-	const char* rs = getenv("SNESDS_RELAUNCH_STATUS");
+	const char* rs = getenv("RETRODS_RELAUNCH_STATUS");
 	int status = rs ? atoi(rs) : 0;
 	if (status > 0 && status < 256) {
 		fprintf(stderr, "update: back to launch.sh to start the new version (exit %d)\n", status);

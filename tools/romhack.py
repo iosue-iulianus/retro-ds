@@ -28,7 +28,7 @@ It reports:
 Output (default build/romhack/<name>/): report.md, the patched ROM as
 <name>.gba, regress.json and the regress report (regress/index.html).
 Needs the host build (make && make tools) and the fixtures (../gba-ds-tests
-or $SNESDS_TESTS).
+or $RETRODS_TESTS).
 """
 import argparse, glob, json, os, re, shutil, subprocess, sys, tempfile, zipfile, zlib
 
@@ -318,7 +318,7 @@ def main():
     ap.add_argument("--base", help="the release's code (its fixture) or a ROM file")
     ap.add_argument("--name", help="a short name for the mod (default: the patch's file name)")
     ap.add_argument("--out", help="where to write (default build/romhack/<name>)")
-    ap.add_argument("--fixtures", default=os.environ.get("SNESDS_TESTS", os.path.join(os.path.dirname(ROOT), "gba-ds-tests")))
+    ap.add_argument("--fixtures", default=os.environ.get("RETRODS_TESTS", os.path.join(os.path.dirname(ROOT), "gba-ds-tests")))
     ap.add_argument("--no-tests", action="store_true", help="only apply the patch and describe it")
     a = ap.parse_args()
     a.fixtures = os.path.abspath(a.fixtures)

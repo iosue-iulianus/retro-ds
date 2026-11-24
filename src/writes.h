@@ -2,8 +2,8 @@
  * (the second screen's taps: SM-10, ALTTP-10), applied only by emu_apply:
  * each address checked against the game's list of what it may write, all
  * of a batch or none of it, each one logged. */
-#ifndef SNESDS_WRITES_H
-#define SNESDS_WRITES_H
+#ifndef RETRODS_WRITES_H
+#define RETRODS_WRITES_H
 
 #include <stdint.h>
 

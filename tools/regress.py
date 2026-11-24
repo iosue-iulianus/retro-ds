@@ -16,7 +16,7 @@ and reports which of the games' rules (docs/games/*.md) still hold.
                                        the releases tested only on their logo
     tools/regress.py --prune           delete goldens no case uses any more
 
-Options: --fixtures DIR (default $SNESDS_TESTS, else ../gba-ds-tests),
+Options: --fixtures DIR (default $RETRODS_TESTS, else ../gba-ds-tests),
 --bin build/host/snes-ds, --harness build/host/harness, --report DIR
 (default build/regress: index.html with each failure's pictures), -j N
 (default: the CPU count + 1), --shard I/N (the Ith of N even shares of
@@ -26,7 +26,7 @@ ROMs), --paced (at 60 frames a second, drawing
 every frame, as players run it; by default the app runs as fast as it
 can and draws only the frames a screenshot or a touch needs).
 
-Every run is deterministic: SNESDS_SYNC=1 makes map captures and logo
+Every run is deterministic: RETRODS_SYNC=1 makes map captures and logo
 extraction run inline, at the same frames each time, so goldens are
 compared exactly (a case can allow a tolerance). See docs/TESTING.md.
 """
@@ -39,7 +39,7 @@ except ImportError:
     sys.exit("regress.py needs Pillow (pip install --break-system-packages pillow)")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SCREEN_W, SCREEN_H = 1024, 768  # each screen in the test window (SNESDS_WINDOW=1024x1536)
+SCREEN_W, SCREEN_H = 1024, 768  # each screen in the test window (RETRODS_WINDOW=1024x1536)
 SCREENS = {"game": 0, "second": 1}  # default layout: the game on top
 
 
@@ -303,8 +303,8 @@ def run_app(case, args, workdir):
     # its shadow, a dimmed map) came out a shade apart from one CPU or Mesa to
     # another, so goldens made on a session's container failed on GitHub's runners
     env = dict(os.environ, SDL_VIDEODRIVER="offscreen", SDL_AUDIODRIVER="dummy", SDL_RENDER_DRIVER="software",
-               SNESDS_WINDOW="%dx%d" % (SCREEN_W, SCREEN_H * 2), SNESDS_SYNC="1", SNESDS_DEBUG="1",
-               SNESDS_RTC_FIXED="1794934800",
+               RETRODS_WINDOW="%dx%d" % (SCREEN_W, SCREEN_H * 2), RETRODS_SYNC="1", RETRODS_DEBUG="1",
+               RETRODS_RTC_FIXED="1794934800",
                # the cartridge clock above is 17:00 UTC; mGBA shows it in the machine's
                # time zone, so a game that draws its clock (Boktai's, BT-8) read 12:00 on
                # a session's container (New York) and 17:00 on GitHub's UTC runners: the
@@ -313,7 +313,7 @@ def run_app(case, args, workdir):
     if not args.paced:
         # (as fast as it goes, drawing only the frames a screenshot or a
         # touch needs: the same pictures, in under half the time)
-        env.update(SNESDS_NOPACE="1", SNESDS_DRAW_SHOTS_ONLY="1")
+        env.update(RETRODS_NOPACE="1", RETRODS_DRAW_SHOTS_ONLY="1")
     try:
         p = subprocess.run(cmd, env=env, capture_output=True, text=True, errors="replace", timeout=args.timeout)
         r.log = p.stdout + p.stderr
@@ -528,7 +528,7 @@ figure{display:inline-block;margin:4px}small{font-weight:normal;color:#666}</sty
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("only", nargs="*", help="game slugs, case ids or globs")
-    ap.add_argument("--fixtures", default=os.environ.get("SNESDS_TESTS", os.path.join(os.path.dirname(ROOT), "gba-ds-tests")))
+    ap.add_argument("--fixtures", default=os.environ.get("RETRODS_TESTS", os.path.join(os.path.dirname(ROOT), "gba-ds-tests")))
     ap.add_argument("--bin", default=os.path.join(ROOT, "build", "host", "snes-ds"))
     ap.add_argument("--harness", default=os.path.join(ROOT, "build", "host", "harness"))
     ap.add_argument("--report", default=os.path.join(ROOT, "build", "regress"))
@@ -663,7 +663,7 @@ def main():
         if not os.path.exists(need[0]):
             sys.exit("%s not found: run %s" % need)
     if not os.path.isdir(os.path.join(args.fixtures, "roms")):
-        sys.exit("fixtures not found at %s (clone kyannon/gba-ds-tests there, or pass --fixtures / set SNESDS_TESTS)" % args.fixtures)
+        sys.exit("fixtures not found at %s (clone kyannon/gba-ds-tests there, or pass --fixtures / set RETRODS_TESTS)" % args.fixtures)
     args.work = tempfile.mkdtemp(prefix="snesds-regress-")
     with ThreadPoolExecutor(max_workers=args.j) as pool:
         results = list(pool.map(lambda c: evaluate(c, args), cases))

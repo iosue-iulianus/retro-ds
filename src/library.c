@@ -371,9 +371,9 @@ static void scan_dir(Config* cfg, const char* d, int depth) {
 		snprintf(g.path, sizeof(g.path), "%s", full);
 		if (!game_code(g.path, &st, g.code)) continue;
 		g.supported = profile_find(g.code) != NULL;
-#ifdef SNESDS_SIDE_CODES
+#ifdef RETRODS_SIDE_CODES
 		/* a side build lists only its game's releases (the Makefile's SIDE_CODES) */
-		if (!strstr(SNESDS_SIDE_CODES, g.code)) continue;
+		if (!strstr(RETRODS_SIDE_CODES, g.code)) continue;
 #endif
 		if (!g.supported && !cfg->showAll) continue; /* (before its patches are looked for: issue #49) */
 		entry_patches(cfg, &g, de->d_name, (long long) st.st_size, (long long) st.st_mtime);
@@ -400,7 +400,7 @@ static void scan_dir(Config* cfg, const char* d, int depth) {
 /* Is the selected game's ROM the game as released, a romhack SNES DS knows,
  * or modified? Its CRC32 against the known dumps and mods (profile_dump).
  * Reading a whole ROM takes a moment, so it's done once per file, for the
- * selected game only, on a worker thread (inline with SNESDS_SYNC=1), and
+ * selected game only, on a worker thread (inline with RETRODS_SYNC=1), and
  * remembered in
  * <state_dir>/roms.cache, lines "size mtime crc32 patch path" (crc32 0:
  * unreadable; the ROM as played: patched when a patch file beside it fits,
@@ -523,14 +523,14 @@ static bool game_crc(const GameEntry* g, uint32_t* crc, int* patch) {
 		crcWant.mtime = g->mtime;
 		snprintf(crcWant.path, sizeof(crcWant.path), "%s", g->path);
 		crcWantN = crcCfg ? patch_plan(crcCfg, g->path, g->code, &g->patchOn, crcWantFiles, PATCH_ON_MAX + 1) : 0;
-		if (!crcThread && !(getenv("SNESDS_SYNC") && atoi(getenv("SNESDS_SYNC")))) {
+		if (!crcThread && !(getenv("RETRODS_SYNC") && atoi(getenv("RETRODS_SYNC")))) {
 			pthread_t t;
 			crcThread = pthread_create(&t, NULL, rom_crc_worker, NULL) == 0;
 			if (crcThread) pthread_detach(t);
 		}
 		if (crcThread) {
 			pthread_cond_signal(&crcWake);
-		} else { /* (no threads, or SNESDS_SYNC: now) */
+		} else { /* (no threads, or RETRODS_SYNC: now) */
 			RomCrc w = crcWant;
 			crcWant.path[0] = 0;
 			pthread_mutex_unlock(&crcLock);
@@ -554,7 +554,7 @@ static unsigned rom_crc_generation(void) {
 }
 
 static void scan_progress(void) {
-	if (getenv("SNESDS_SYNC") && atoi(getenv("SNESDS_SYNC"))) return; /* (tests: exact frames) */
+	if (getenv("RETRODS_SYNC") && atoi(getenv("RETRODS_SYNC"))) return; /* (tests: exact frames) */
 	Uint32 now = SDL_GetTicks();
 	if (now - scanStart < 300 || now - scanDrawn < 100) return;
 	scanDrawn = now;
@@ -709,7 +709,7 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 
 	{
 		int vpx = SDL_max(1, px / 2);
-		const char* v = "V" SNESDS_VERSION;
+		const char* v = "V" RETRODS_VERSION;
 		ui_text(scr, r.w - m - ui_text_width(v, vpx), cy - vpx * 7 / 2, vpx, v, C_DIM);
 	}
 	if (nGames == 0 || sel < 0) {
@@ -1146,7 +1146,7 @@ static void settings_rows(const Config* cfg) {
 #else
 	nRows = 0;
 	rowKind[nRows++] = ROW_LANGUAGE;
-#ifdef SNESDS_UPDATES
+#ifdef RETRODS_UPDATES
 	rowKind[nRows++] = ROW_UPDATES;
 #endif
 	rowKind[nRows++] = ROW_STATES; /* (save states shared with RetroArch: issue #39) */
@@ -1169,7 +1169,7 @@ static SDL_Rect set_row_gaps(int scr, int n, int i, int gaps);
 /* the Updates row's text: this version, and what the row does */
 static const char* update_blurb(void) {
 	static char blurb[160];
-	snprintf(blurb, sizeof(blurb), tr("This is v%s. Look for a new version, and download and install it."), SNESDS_VERSION);
+	snprintf(blurb, sizeof(blurb), tr("This is v%s. Look for a new version, and download and install it."), RETRODS_VERSION);
 	return blurb;
 }
 
@@ -2154,7 +2154,7 @@ static bool settings_poll(Config* cfg) {
 }
 #endif
 
-#ifdef SNESDS_UPDATES
+#ifdef RETRODS_UPDATES
 /* ------------------------------------------------------------ updates */
 
 enum { UB_CHECK, UB_AUTO, UB_BACK, UB_UPDATE, UB_LATER, UB_SKIP, UB_CANCEL };
@@ -2237,10 +2237,10 @@ static void draw_updates(int scr, int sel) {
 #ifdef __ANDROID__
 		snprintf(line, sizeof(line), tr("SNES DS v%s is out (this is v%s). Update now to download it (%.1f MB) and install "
 		         "it: Android asks you to confirm. Your games, saves, states and settings are kept."), u.version,
-		         SNESDS_VERSION, u.size / 1048576.0);
+		         RETRODS_VERSION, u.size / 1048576.0);
 #else
 		snprintf(line, sizeof(line), tr("SNES DS v%s is out (this is v%s). Update now to download it (%.1f MB) and restart "
-		         "into it; your games, saves, states and settings are kept."), u.version, SNESDS_VERSION, u.size / 1048576.0);
+		         "into it; your games, saves, states and settings are kept."), u.version, RETRODS_VERSION, u.size / 1048576.0);
 #endif
 		y = draw_wrapped(scr, tx, y, tw, px, line, C_TEXT) + px * 2;
 		/* the release notes: a heading or a bullet point a line */
@@ -2282,7 +2282,7 @@ static void draw_updates(int scr, int sel) {
 		break;
 	}
 	default: {
-		snprintf(line, sizeof(line), tr("This is SNES DS v%s."), SNESDS_VERSION);
+		snprintf(line, sizeof(line), tr("This is SNES DS v%s."), RETRODS_VERSION);
 		if (u.state == UPD_CHECKING) snprintf(line + strlen(line), sizeof(line) - strlen(line), tr(" Checking for a new version..."));
 		else if (u.state == UPD_LATEST) snprintf(line + strlen(line), sizeof(line) - strlen(line), tr(" It's the newest version."));
 		y = draw_wrapped(scr, tx, y, tw, px, line, C_TEXT);
@@ -2441,7 +2441,7 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 	settingsMsg[0] = 0;
 	updatesOpen = false;
 	update_auto_check(); /* once a day, in the background */
-#ifdef SNESDS_UPDATES
+#ifdef RETRODS_UPDATES
 	int restartIn = -1; /* frames until the restart into an installed update */
 #endif
 
@@ -2497,7 +2497,7 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 			continue;
 		}
 
-#ifdef SNESDS_UPDATES
+#ifdef RETRODS_UPDATES
 		/* an automatic check found a new version: ask (on the game list) */
 		if (!updatesOpen && !settingsOpen && update_notice_pending()) {
 			update_notice_seen();

@@ -1,8 +1,8 @@
 /* Android glue (android.c, Android builds only): the second screen, which
  * Android gives to a Presentation window in Java instead of to SDL, the log,
  * and the start-up defaults. */
-#ifndef SNESDS_ANDROID_H
-#define SNESDS_ANDROID_H
+#ifndef RETRODS_ANDROID_H
+#define RETRODS_ANDROID_H
 #ifdef __ANDROID__
 
 #include "config.h"
@@ -11,9 +11,9 @@
 #include <stdbool.h>
 
 /* windowID on the finger events forwarded from the second screen */
-#define SNESDS_SECOND_WINDOW_ID 0x6BD50002u
+#define RETRODS_SECOND_WINDOW_ID 0x6BD50002u
 /* touches on the activity's display, from its view (SnesDsActivity.onTouch) */
-#define SNESDS_MAIN_WINDOW_ID 0x6BD50001u
+#define RETRODS_MAIN_WINDOW_ID 0x6BD50001u
 
 /* The event type touches from Java come as (SDL_RegisterEvents'), not
  * SDL's finger events: SDL's renderer rewrites every finger event by its
@@ -26,15 +26,15 @@
 Uint32 android_touch_event(void);
 void android_touch_pos(const SDL_Event* ev, float* x, float* y);
 
-/* stderr (where all of SNES DS's logging goes) to logcat (tag SNESDS) and to
- * <SNESDS_HOME>/snes-ds.log. Call first thing in main. */
+/* stderr (where all of SNES DS's logging goes) to logcat (tag RETRODS) and to
+ * <RETRODS_HOME>/snes-ds.log. Call first thing in main. */
 void android_init_log(void);
-/* The folder Java gave us for config, states, logos (SNESDS_HOME), or NULL. */
+/* The folder Java gave us for config, states, logos (RETRODS_HOME), or NULL. */
 const char* android_home(void);
 /* SNES DS's folder (issue #34): "SNES DS" on the internal storage, or the one
  * the player chose (Settings > Folders: data_dir in data-folder.cfg in the
- * app's own storage, SNESDS_APP_FILES, which updates keep), moved there
- * first if that's new; SNESDS_HOME is set to it. Before android_init_log. */
+ * app's own storage, RETRODS_APP_FILES, which updates keep), moved there
+ * first if that's new; RETRODS_HOME is set to it. Before android_init_log. */
 void android_data_setup(void);
 /* data-folder.cfg (in the app's own storage), or false if there's none */
 bool android_data_record(char* out, size_t size);
