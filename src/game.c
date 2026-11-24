@@ -4954,6 +4954,34 @@ static void make_logo_canvas(void) {
 	}
 }
 
+/* The game's logo on the second screen (or its name, without one), dy
+ * pixels down from its place (A Link to the Past's slide: ALTTP-7, 12) */
+void draw_logo_at(int s, int dy) {
+	if ((logoCanvasTex[0] || logoCanvasTex[1]) && logoSub > 1) {
+		/* a scraped logo at full resolution (GEN-11): its picture made at
+		 * LOGO_SUB pixels per GBA pixel, onto where the GBA picture goes */
+		SDL_Rect area = ui_image_rect(s, SNES_W, SNES_H, cfg->mapScale);
+		area.y += dy;
+		ui_image(s, logoCanvasTex, SNES_W * logoSub, SNES_H * logoSub, "stretch", &area);
+	} else if (logoCanvasTex[0] || logoCanvasTex[1]) {
+		/* no map yet (title screen, intro...): the game's logo, as if the
+		 * game drew it on a second GBA screen */
+		ui_image_pixels_at(s, logoCanvasTex, SNES_W, SNES_H, cfg->mapScale, SHADER_ON, dy);
+	} else if (logoTex[0] || logoTex[1]) {
+		/* a user's high-resolution logo: fitted to where the picture goes */
+		SDL_Rect area = ui_image_rect(s, SNES_W, SNES_H, cfg->mapScale);
+		area.y += dy;
+		ui_image(s, logoTex, logoW, logoH, logoPixel ? "integer" : "fit", &area);
+	} else if (logoOnly) {
+		/* no logo to show (none extracted for this game yet): its name */
+		const MapProfile* tp = profile_find(emu.gameCode);
+		SDL_Rect area = ui_image_rect(s, SNES_W, SNES_H, cfg->mapScale);
+		int in = area.w / 10;
+		area = (SDL_Rect) { area.x + in, area.y + in + dy, area.w - in * 2, area.h - in * 2 };
+		if (tp) ui_title_block(s, area, tp->title, (int) (ui_px(s) * 14), (SDL_Color) { 236, 236, 244, 255 });
+	}
+}
+
 static void draw_game(void) {
 	bool mapOn = mc || nat || alt || logoOnly; /* logo-only games: the logo stands in for the map */
 	if (nat && natShown) native_step();
@@ -4991,34 +5019,16 @@ static void draw_game(void) {
 		} else if (alt && alttp_title(alt) && nScreens == 2) {
 			alt_sword_load();
 			draw_alt_title(s);
-		} else if (alt && altShown && !(altPage == 1 && alt_no_map() && alt_items_away())) {
-			/* (ALTTP-7, ALTTP-12: where there's no map, the logo once the items are away) */
+		} else if (alt && altShown) {
+			/* (ALTTP-7, ALTTP-12: where there's no map, draw_alt shows the logo) */
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			draw_alt(s);
 		} else if (mapShownIdx >= 0 && !logoForced) {
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			ui_image_pixels(s, mapTex, mapW, mapH, cfg->mapScale, SHADER_ON);
 			draw_drag_preview(s);
-		} else if ((logoCanvasTex[0] || logoCanvasTex[1]) && logoSub > 1) {
-			/* a scraped logo at full resolution (GEN-11): its picture made at
-			 * LOGO_SUB pixels per GBA pixel, onto where the GBA picture goes */
-			SDL_Rect area = ui_image_rect(s, SNES_W, SNES_H, cfg->mapScale);
-			ui_image(s, logoCanvasTex, SNES_W * logoSub, SNES_H * logoSub, "stretch", &area);
-		} else if (logoCanvasTex[0] || logoCanvasTex[1]) {
-			/* no map yet (title screen, intro...): the game's logo, as if the
-			 * game drew it on a second GBA screen */
-			ui_image_pixels(s, logoCanvasTex, SNES_W, SNES_H, cfg->mapScale, SHADER_ON);
-		} else if (logoTex[0] || logoTex[1]) {
-			/* a user's high-resolution logo: fitted to where the picture goes */
-			SDL_Rect area = ui_image_rect(s, SNES_W, SNES_H, cfg->mapScale);
-			ui_image(s, logoTex, logoW, logoH, logoPixel ? "integer" : "fit", &area);
-		} else if (logoOnly) {
-			/* no logo to show (none extracted for this game yet): its name */
-			const MapProfile* tp = profile_find(emu.gameCode);
-			SDL_Rect area = ui_image_rect(s, SNES_W, SNES_H, cfg->mapScale);
-			int in = area.w / 10;
-			area = (SDL_Rect) { area.x + in, area.y + in, area.w - in * 2, area.h - in * 2 };
-			if (tp) ui_title_block(s, area, tp->title, (int) (ui_px(s) * 14), (SDL_Color) { 236, 236, 244, 255 });
+		} else {
+			draw_logo_at(s, 0);
 		}
 		/* whatever this screen shows: map, logo or nothing */
 		if (overlay_on(s)) draw_overlay(s, 1);

@@ -61,7 +61,7 @@ extern Alttp* alt;
 extern bool altShown; /* the second screen shows it (else the logo, ALTTP-9) */
 extern int altPage;   /* 0 the items screen, 1 the map (ALTTP-1) */
 bool alt_no_map(void);     /* no map here: houses, caves, special areas (the logo) */
-bool alt_items_away(void); /* the items have slid away */
+void draw_logo_at(int s, int dy); /* the game's logo on the second screen, dy down (game.c) */
 void alt_open(const char* rom);
 void alt_free(void);
 void alt_textures(void);

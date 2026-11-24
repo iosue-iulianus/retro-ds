@@ -106,9 +106,9 @@ static Uint64 altSlideT;
 bool alt_no_map(void) {
 	return alt && (alttp_in_special(alt) || alttp_in_house_or_cave(alt));
 }
-bool alt_items_away(void) {
-	return altItemsUp <= 0;
-}
+/* where what's above the items is drawn, pixels down from its place
+ * (draw_alt: the markers' pane, the dungeon map, the logo move with them) */
+static int altAboveDy;
 
 
 /* The map's pieces on the GPU (alttp_piece): made when first shown, made
@@ -1015,10 +1015,13 @@ static void draw_alt_map(int s) {
 		int mx = ox + (int) lroundf(lx / z) - 16 * m, my = oy + (int) lroundf(ly / z) - 16 * m;
 		ui_image_part(s, altMarkerTex, (SDL_Rect) { 0, 0, 32, 32 }, (SDL_Rect) { mx, my, 32 * m, 32 * m });
 	}
-	/* ALTTP-15: the pane, while the items are away; then the marker being dragged */
-	if (altPage == 1) {
+	/* ALTTP-15: the pane, above the items and moving with them (pushed up
+	 * off the screen as they come up: the owner, Nov 25, 2026); then the
+	 * marker being dragged */
+	if (altItemsUp < 1) {
 		int pk;
 		SDL_Rect pane = alt_mark_pane(s, &pk);
+		pane.y += altAboveDy;
 		ui_image_part(s, altMarkPaneTex, (SDL_Rect) { 0, 0, ALT_MARK_PANE_W, ALT_MARK_PANE_H }, pane);
 	}
 	if (altMarkDrag >= 0) {
@@ -1039,12 +1042,15 @@ void draw_alt(int s) {
 	float to = altPage == 0 ? 1.f : 0.f, step = (float) (SDL_min(dt, 0.1) * 8 * slideK * 60.0988 / dist);
 	altItemsUp = to > altItemsUp ? SDL_min(to, altItemsUp + step) : SDL_max(to, altItemsUp - step);
 	int itemsDy = (int) ((1 - altItemsUp) * dist + 0.5f);
-	/* under the items: outdoors the world map; in a dungeon its map, above
-	 * the items and moving with them, pushed up off the screen as they come
-	 * up and back down after them (the owner, Nov 25, 2026); where there's
-	 * no map, black (the logo once they're away: game.c) */
+	altAboveDy = itemsDy - (int) (dist + 0.5f);
+	/* under the items: outdoors the world map; in a dungeon its map, and
+	 * where there's no map the logo, above the items and moving with them,
+	 * pushed up off the screen as they come up and back down after them
+	 * (the owner, Nov 25, 2026) */
 	bool dungeon = alttp_in_dungeon(alt), nomap = alt_no_map();
-	if (nomap || (dungeon && altItemsUp >= 1)) {
+	if (nomap) {
+		if (altItemsUp < 1) draw_logo_at(s, altAboveDy);
+	} else if (dungeon && altItemsUp >= 1) {
 		/* (black: the screen's fill) */
 	} else if (dungeon) {
 		/* the picture's own scale, the canvas as many of its pixels as the screen holds */
@@ -1103,7 +1109,7 @@ void draw_alt(int s) {
 			++mapWork.dungeon;
 		}
 	shown:
-		ui_image_pixels_at(s, altDunFlip ? altDunWideTexB : altDunWideTex, W, H, cfg->mapScale, SHADER_ON, itemsDy - (int) (dist + 0.5f));
+		ui_image_pixels_at(s, altDunFlip ? altDunWideTexB : altDunWideTex, W, H, cfg->mapScale, SHADER_ON, altAboveDy);
 	}
 	else draw_alt_map(s);
 	if (altItemsUp > 0) ui_image_pixels_at(s, altItemsTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON, itemsDy);
