@@ -137,6 +137,18 @@ bool alttp_take_new_file(Alttp* a);
 void alttp_clear_seen(Alttp* a);
 bool alttp_load_seen(Alttp* a, const char* path);
 bool alttp_save_seen(Alttp* a, const char* path);
+/* The same in three steps, the slow part on another thread (ALTTP-2: no
+ * stall while playing): alttp_save_begin copies the record (the game's
+ * thread; NULL if there's no memory for it) and counts it saved;
+ * alttp_save_write compresses what needs it and writes the file (any
+ * thread, the copy alone); alttp_save_end (the game's thread) frees the
+ * copy, keeps the pieces it compressed, and counts the record unsaved
+ * again if the write failed. Nothing may load or clear the record between
+ * begin and end. */
+typedef struct AltSaveJob AltSaveJob;
+AltSaveJob* alttp_save_begin(Alttp* a);
+bool alttp_save_write(AltSaveJob* j, const char* path);
+void alttp_save_end(Alttp* a, AltSaveJob* j, bool ok);
 bool alttp_dirty(const Alttp* a);
 /* The record packed for a save state (malloc'd, the file's format), and a
  * state's record merged into the file's: what it had seen added, nothing

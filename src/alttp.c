@@ -1633,45 +1633,112 @@ void alttp_put_compressed(Alttp* a, int world, int piece, uint32_t ver, uint8_t*
  * "SDSALTP2"; each world's seen squares (a bit each, 8 KB); then for each
  * world the pieces present (64 bits) and each one as a 32-bit length and
  * its 512 x 512 SNES colours (little-endian words) compressed with zlib.
- * NULL if it can't be made. */
+ * Made in three steps so the slow part (compressing the pieces changed
+ * since their last compressed copy, writing the file) can run on another
+ * thread: job_take copies the record (on the game's thread: memory copies
+ * only), job_pack packs the copy (any thread), job_give_back hands the
+ * pieces it compressed back to the record (the game's thread). */
 #define SEEN_BYTES (CELLS * CELLS / 8)
-static uint8_t* pack(Alttp* a, size_t* n) {
+struct AltSaveJob {
+	uint8_t seen[2][SEEN_BYTES];
+	bool has[2][CHUNKS * CHUNKS];
+	uint8_t* z[2][CHUNKS * CHUNKS]; /* the compressed piece (a copy, or made by job_pack) */
+	uint32_t zl[2][CHUNKS * CHUNKS];
+	uint16_t* raw[2][CHUNKS * CHUNKS]; /* a piece to compress, a copy */
+	uint32_t ver[2][CHUNKS * CHUNKS];
+	bool made[2][CHUNKS * CHUNKS]; /* compressed by job_pack */
+};
+
+static void job_free(AltSaveJob* j) {
+	if (!j) return;
+	for (int w = 0; w < 2; ++w) {
+		for (int i = 0; i < CHUNKS * CHUNKS; ++i) free(j->z[w][i]), free(j->raw[w][i]);
+	}
+	free(j);
+}
+
+static AltSaveJob* job_take(const Alttp* a) {
+	AltSaveJob* j = calloc(1, sizeof *j);
+	if (!j) return NULL;
+	memcpy(j->seen, a->seen, sizeof j->seen);
+	for (int w = 0; w < 2; ++w) {
+		for (int i = 0; i < CHUNKS * CHUNKS; ++i) {
+			if (!a->chunk[w][i]) continue;
+			j->has[w][i] = true;
+			if (a->zstale[w][i] || !a->zchunk[w][i]) {
+				if (!(j->raw[w][i] = malloc(CHUNK * CHUNK * 2))) goto fail;
+				memcpy(j->raw[w][i], a->chunk[w][i], CHUNK * CHUNK * 2);
+				j->ver[w][i] = a->pver[w][i];
+			} else {
+				if (!(j->z[w][i] = malloc(a->zlen[w][i]))) goto fail;
+				memcpy(j->z[w][i], a->zchunk[w][i], a->zlen[w][i]);
+				j->zl[w][i] = a->zlen[w][i];
+			}
+		}
+	}
+	return j;
+fail:
+	job_free(j);
+	return NULL;
+}
+
+static uint8_t* job_pack(AltSaveJob* j, size_t* n) {
 	size_t size = 8 + 2 * SEEN_BYTES;
 	for (int w = 0; w < 2; ++w) {
 		size += 8;
 		for (int i = 0; i < CHUNKS * CHUNKS; ++i) {
-			if (!a->chunk[w][i]) continue;
-			if (a->zstale[w][i] || !a->zchunk[w][i]) {
+			if (!j->has[w][i]) continue;
+			if (j->raw[w][i]) {
 				/* (pieces are in memory as host words: little-endian on every target) */
 				uLongf zn = compressBound(CHUNK * CHUNK * 2);
 				uint8_t* z = malloc(zn);
-				if (!z || compress2(z, &zn, (const Bytef*) a->chunk[w][i], CHUNK * CHUNK * 2, 6) != Z_OK) {
+				if (!z || compress2(z, &zn, (const Bytef*) j->raw[w][i], CHUNK * CHUNK * 2, 6) != Z_OK) {
 					free(z);
 					return NULL;
 				}
-				free(a->zchunk[w][i]);
-				a->zchunk[w][i] = z, a->zlen[w][i] = (uint32_t) zn, a->zstale[w][i] = false;
+				free(j->raw[w][i]), j->raw[w][i] = NULL;
+				j->z[w][i] = z, j->zl[w][i] = (uint32_t) zn, j->made[w][i] = true;
 			}
-			size += 4 + a->zlen[w][i];
+			size += 4 + j->zl[w][i];
 		}
 	}
 	uint8_t* out = malloc(size);
 	if (!out) return NULL;
 	size_t at = 0;
 	memcpy(out, "SDSALTP2", 8), at = 8;
-	for (int w = 0; w < 2; ++w) memcpy(out + at, a->seen[w], SEEN_BYTES), at += SEEN_BYTES;
+	for (int w = 0; w < 2; ++w) memcpy(out + at, j->seen[w], SEEN_BYTES), at += SEEN_BYTES;
 	for (int w = 0; w < 2; ++w) {
 		uint64_t mask = 0;
-		for (int i = 0; i < CHUNKS * CHUNKS; ++i) mask |= (uint64_t) (a->chunk[w][i] != NULL) << i;
+		for (int i = 0; i < CHUNKS * CHUNKS; ++i) mask |= (uint64_t) j->has[w][i] << i;
 		for (int k = 0; k < 8; ++k) out[at++] = (uint8_t) (mask >> (k * 8));
 		for (int i = 0; i < CHUNKS * CHUNKS; ++i) {
-			if (!a->chunk[w][i]) continue;
-			uint32_t zl = a->zlen[w][i];
+			if (!j->has[w][i]) continue;
+			uint32_t zl = j->zl[w][i];
 			for (int k = 0; k < 4; ++k) out[at++] = (uint8_t) (zl >> (k * 8));
-			memcpy(out + at, a->zchunk[w][i], zl), at += zl;
+			memcpy(out + at, j->z[w][i], zl), at += zl;
 		}
 	}
 	*n = at;
+	return out;
+}
+
+static void job_give_back(Alttp* a, AltSaveJob* j) {
+	if (!j) return;
+	for (int w = 0; w < 2; ++w) {
+		for (int i = 0; i < CHUNKS * CHUNKS; ++i) {
+			if (!j->made[w][i]) continue;
+			/* (kept if the piece hasn't changed since: alttp_put_compressed checks) */
+			alttp_put_compressed(a, w, i, j->ver[w][i], j->z[w][i], j->zl[w][i]);
+			j->z[w][i] = NULL;
+		}
+	}
+	job_free(j);
+}
+
+static uint8_t* pack(Alttp* a, size_t* n) {
+	AltSaveJob* j = job_take(a);
+	uint8_t* out = j ? job_pack(j, n) : NULL;
+	job_give_back(a, j);
 	return out;
 }
 
@@ -1702,9 +1769,15 @@ static bool unpack(const uint8_t* z, size_t n, uint8_t seen[2][SEEN_BYTES], uint
 	return true;
 }
 
-bool alttp_save_seen(Alttp* a, const char* path) {
+AltSaveJob* alttp_save_begin(Alttp* a) {
+	AltSaveJob* j = job_take(a);
+	if (j) a->dirty = false;
+	return j;
+}
+
+bool alttp_save_write(AltSaveJob* j, const char* path) {
 	size_t n = 0;
-	uint8_t* z = pack(a, &n);
+	uint8_t* z = j ? job_pack(j, &n) : NULL;
 	bool ok = false;
 	if (z) {
 		char tmp[1100];
@@ -1715,7 +1788,18 @@ bool alttp_save_seen(Alttp* a, const char* path) {
 		ok = ok && rename(tmp, path) == 0;
 	}
 	free(z);
-	if (ok) a->dirty = false;
+	return ok;
+}
+
+void alttp_save_end(Alttp* a, AltSaveJob* j, bool ok) {
+	if (!ok) a->dirty = true;
+	job_give_back(a, j);
+}
+
+bool alttp_save_seen(Alttp* a, const char* path) {
+	AltSaveJob* j = alttp_save_begin(a);
+	bool ok = j && alttp_save_write(j, path);
+	alttp_save_end(a, j, ok);
 	return ok;
 }
 

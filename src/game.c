@@ -5001,7 +5001,61 @@ static void alt_compress_stop(void) {
 	free(altPack.ground), altPack.ground = NULL;
 }
 
+/* The seen record saved while playing (every minute): copied on the
+ * game's thread, compressed and written on another (ALTTP-2; it took 20
+ * to 60 ms on the Duo on the game's thread, a dropped frame a minute) */
+static struct {
+	SDL_Thread* thread;
+	SDL_atomic_t done;
+	AltSaveJob* job;
+	char path[1100];
+	bool ok;
+	int file;
+	double copyMs;
+	Uint64 t0;
+} altSave;
+
+static int alt_save_run(void* unused) {
+	(void) unused;
+	altSave.ok = alttp_save_write(altSave.job, altSave.path);
+	SDL_AtomicSet(&altSave.done, 1);
+	return 0;
+}
+
+/* A save started: handed back once written (wait: until it is) */
+static void alt_save_finish(bool wait) {
+	if (!altSave.thread || (!wait && !SDL_AtomicGet(&altSave.done))) return;
+	SDL_WaitThread(altSave.thread, NULL);
+	altSave.thread = NULL;
+	if (alt) alttp_save_end(alt, altSave.job, altSave.ok);
+	altSave.job = NULL;
+	fprintf(stderr, "map seen (file %d): %s %s (%.1f ms on the game's thread, %.0f ms in all)\n", altSave.file,
+	        altSave.ok ? "saved to" : "can't save", altSave.path, altSave.copyMs,
+	        (double) (SDL_GetPerformanceCounter() - altSave.t0) * 1000.0 / SDL_GetPerformanceFrequency());
+}
+
+static void alt_save_seen(void);
+
+static void alt_save_start(void) {
+	if (altSave.thread || !alt || !altFile || !alttp_dirty(alt) || !gp.sav[0]) return;
+	alt_seen_path(altFile, altSave.path, sizeof altSave.path);
+	altSave.file = altFile;
+	altSave.t0 = SDL_GetPerformanceCounter();
+	altSave.job = alttp_save_begin(alt);
+	if (!altSave.job) return;
+	altSave.copyMs = (double) (SDL_GetPerformanceCounter() - altSave.t0) * 1000.0 / SDL_GetPerformanceFrequency();
+	SDL_AtomicSet(&altSave.done, 0);
+	altSave.thread = SDL_CreateThread(alt_save_run, "map save", NULL);
+	if (!altSave.thread) {
+		/* (no thread: written here, as before) */
+		alttp_save_end(alt, altSave.job, false);
+		altSave.job = NULL;
+		alt_save_seen();
+	}
+}
+
 static void alt_save_seen(void) {
+	alt_save_finish(true); /* (one started before: written first) */
 	if (!alt || !altFile || !alttp_dirty(alt) || !gp.sav[0]) return;
 	char path[1100];
 	alt_seen_path(altFile, path, sizeof path);
@@ -5214,6 +5268,7 @@ static bool alt_copy_file(const char* from, const char* to) {
 static void alt_file_events(void) {
 	AltSlotEvent ev[8];
 	int n = alttp_take_file_events(alt, ev, 8);
+	if (n > 0) alt_save_finish(true); /* (a save being written: done before files move) */
 	for (int i = 0; i < n && gp.sav[0]; ++i) {
 		char path[1100], from[1100];
 		alt_seen_path(ev[i].file, path, sizeof path);
@@ -5260,6 +5315,7 @@ static void alt_tick(void) {
 	}
 	alt_merge_pending();
 	alt_compress_tick();
+	alt_save_finish(false);
 	if (ch & ALTTP_FILES) alt_file_events();
 	if (ch & ALTTP_ITEMS) altItemsDirty = true, altZoomAt = -1;
 	for (int i = 0; i < nViews && (ch & ALTTP_MARKER); ++i) {
@@ -5276,7 +5332,7 @@ static void alt_tick(void) {
 	/* the seen record, now and then while playing */
 	Uint64 now = SDL_GetPerformanceCounter();
 	if (!altSavedT) altSavedT = now;
-	if ((double) (now - altSavedT) / SDL_GetPerformanceFrequency() > 60) altSavedT = now, alt_save_seen();
+	if ((double) (now - altSavedT) / SDL_GetPerformanceFrequency() > 60) altSavedT = now, alt_save_start();
 	/* ALTTP-5: the dungeon map, while it's shown (it blinks as the game's) */
 	if (altPage == 1 && alttp_in_dungeon(alt) && alttp_playing(alt)) {
 		/* (drawn while Link is played: elsewhere, game over and the like,

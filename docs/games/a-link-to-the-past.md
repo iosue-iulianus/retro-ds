@@ -216,4 +216,4 @@ Made in the harness (the owner had none), in `test-data/a-link-to-the-past/`, re
 - The Duo: nothing has run there yet.
 - Europe and Japan releases.
 - Special areas (`$80` and up), the mirror and the flute's flight, the ending and the credits: only what the rules say, not checked.
-- The seen record's size and saving time with both worlds well explored (the host only saw a few areas).
+- The seen record's size and saving time with both worlds well explored (the host only saw a few areas). Measured on the Duo, Nov 24, 2026 (the owner's file, 722 KB, Light World mostly): the minute's save took 19 to 58 ms on the game's thread, a dropped frame a minute and now and then the sound (the piece Link is in changes every frame, so its compressed copy was always made then). Since then the record is copied on the game's thread (memory copies, well under a millisecond) and compressed and written on another; host: 0.0 ms on the game's thread, 17 ms in all.

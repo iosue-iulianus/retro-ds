@@ -303,7 +303,8 @@ Device details:
   the map as 512 x 512 pieces on the GPU (two textures each, written by
   turns: a texture the GPU is drawing from is never written, which made
   drivers wait), made on a thread of their own, the seen record's pieces
-  compressed on another ahead of its saves.
+  compressed on another ahead of its saves, the minute's
+  save copied on the game's thread and written on another.
 - `writes.h`, `emu_apply` (`emu.c`): the only way the second screen writes
   to a game (SM-10, ALTTP-10): full SNES addresses, each checked against
   the game's list (`smmap_write_ranges`, `alttp_write_ranges`), all of a
