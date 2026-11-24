@@ -138,20 +138,16 @@ def slot_place(rom, i):
     return (a // 2) % 32, (a // 2) // 32
 
 
-def have_any(ram):
-    return any(ram.b(0xF340 + i) for i in range(20))
-
-
 def build(rom, ram, layout=GAME, ring=None):
     out = {}
     cur = ram.b(0x202)
     if ring is None:
         ring = bool(ram.b(0x207) & 0x10)
 
-    # the Y items (DrawYItems, $0D:E3D9)
+    # the Y items (DrawYItems, $0D:E3D9; its frame always in palette 7:
+    # every caller gives GetPaletteMask 1, Link's items or not)
     p = Pane(out, "items", layout)
-    pal = 7 if have_any(ram) else 0
-    p.box(1, 5, 19, 19, pal)
+    p.box(1, 5, 19, 19, 7)
     p.put(2, 6, 0x3CF0)
     p.put(2, 7, 0x3CF1)
     p.put(3, 5, 0x246E)

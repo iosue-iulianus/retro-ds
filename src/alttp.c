@@ -558,20 +558,14 @@ static void ring(Pane* p, int c, int r) {
 	put(p, c + 2, r + 2, q | 0xE060), put(p, c - 1, r + 2, q | 0xA060);
 }
 
-static bool have_any(const Alttp* a) {
-	for (int i = 0; i < 20; ++i) {
-		if (r8(a, R_ITEMS + i)) return true;
-	}
-	return false;
-}
-
 static void build_menu(Alttp* a, bool ringOn) {
 	for (int i = 0; i < 32 * 32; ++i) a->menu[i] = BLANK;
 	int cur = r8(a, R_CUR_ITEM);
 
-	/* the Y items (DrawYItems, $0D:E3D9) */
+	/* the Y items (DrawYItems, $0D:E3D9; its frame always in palette 7:
+	 * every caller gives GetPaletteMask 1, Link's items or not) */
 	Pane p = pane(a, P_ITEMS);
-	box(&p, 1, 5, 19, 19, have_any(a) ? 7 : 0);
+	box(&p, 1, 5, 19, 19, 7);
 	put(&p, 2, 6, 0x3CF0), put(&p, 2, 7, 0x3CF1);
 	put(&p, 3, 5, 0x246E), put(&p, 4, 5, 0x246F);
 	for (int i = 0; i < 20; ++i) {
