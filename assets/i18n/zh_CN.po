@@ -2124,3 +2124,18 @@ msgstr "物品界面（点击选择）、已探索部分的世界地图，以及
 
 msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
 msgstr "其他超级任天堂游戏在一个屏幕上运行，另一个屏幕显示标题标志。"
+
+msgid "Tap the screen to open the menu"
+msgstr "点击屏幕打开菜单"
+
+msgid "Menu hint"
+msgstr "菜单提示"
+
+msgid "\"Tap the screen to open the menu\" at a game's start."
+msgstr "游戏开始时显示“点击屏幕打开菜单”。"
+
+msgid "Open the menu"
+msgstr "打开菜单"
+
+msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
+msgstr "单独按下 Select 或 Start 仍会传给游戏，L3 仍会打开菜单"

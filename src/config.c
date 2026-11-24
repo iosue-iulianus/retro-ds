@@ -474,7 +474,7 @@ static const Setting settingsTable[] = {
 	{ "save_on_quit", "Save on quit", SF_BOOL, OFFB(autoSave), ARR(chOnOff), 0, 0, 0, NULL, "Closing a game saves where you are." },
 	{ "auto_load", "Auto-load", SF_BOOL, OFFB(autoLoad), ARR(chOnOff), 0, 0, 0, NULL, "Starting a game picks up where you closed it." },
 	{ "custom_logos", "Custom logos", SF_INT, OFFB(customLogos), ARR(chLogos), 0, 0, 0, NULL, "Your own and scraped logos on the second screen." },
-	{ "quick_bar_hint", "Quick bar hint", SF_BOOL, OFFB(barHint), ARR(chOnOff), 0, 0, 0, NULL, "\"Swipe up for quick menu\" at a game's start." },
+	{ "quick_bar_hint", "Menu hint", SF_BOOL, OFFB(barHint), ARR(chOnOff), 0, 0, 0, NULL, "\"Tap the screen to open the menu\" at a game's start." },
 
 	{ "scale", "Game screen scale", SF_STR, OFFB(scale), ARR(chScale), 0, 0, 0, NULL, "How the game's picture fills its screen." },
 	{ "map_scale", "Second screen scale", SF_STR, OFFB(mapScale), ARR(chScale), 0, 0, 0, NULL, "How the map or logo fills its screen." },

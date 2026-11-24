@@ -23,6 +23,10 @@ changelog up to then is `git show 3b452dc:CHANGELOG.md` (and on
 - The game list's header is taller, with bigger buttons, and the list
   shows every game; Supported Games (where Supported / All was) lists the
   games with a second screen and what's on it.
+- The quick bar (a swipe up from the bottom edge) is gone: a tap opens the
+  pause menu, and the hint at a game's start says so. The pause menu's Game
+  page fills the screen, with big Save, Load and Close buttons; Patches and
+  Submit a Bug Report are off it.
 
 Nothing playable yet: SNES DS still runs GBA games until the emulator is
 swapped. What has changed from GBA DS v1.5.6 so far:

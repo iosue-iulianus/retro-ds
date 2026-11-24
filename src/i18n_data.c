@@ -6,7 +6,7 @@ static const char* const lang_de_f1[] = { " Suche nach einer neuen Version..." }
 static const char* const lang_de_f2[] = { " Das ist die neueste Version." };
 static const char* const lang_de_f3[] = { " ms" };
 static const char* const lang_de_f4[] = { " s" };
-static const char* const lang_de_f5[] = { "\342\200\236Nach oben wischen f\303\274r das Schnellmen\303\274\342\200\234 beim Start eines Spiels." };
+static const char* const lang_de_f5[] = { "\342\200\236Tippe auf den Bildschirm, um das Men\303\274 zu \303\266ffnen\342\200\234 beim Spielstart." };
 static const char* const lang_de_f6[] = { "%ca%d" };
 static const char* const lang_de_f7[] = { "%d RetroArch-Spielstand hier", "%d RetroArch-Spielst\303\244nde hier" };
 static const char* const lang_de_f8[] = { "%d Datei gepr\303\274ft", "%d Dateien gepr\303\274ft" };
@@ -284,85 +284,85 @@ static const char* const lang_de_f279[] = { "Gr\303\266\303\237en und Formen ang
 static const char* const lang_de_f280[] = { "Max.: volle Geschwindigkeit, ein w\303\244rmeres Ger\303\244t und k\303\274rzere Akkulaufzeit." };
 static const char* const lang_de_f281[] = { "Mai" };
 static const char* const lang_de_f282[] = { "Mittel (15 pro Sekunde)" };
-static const char* const lang_de_f283[] = { "Modifizierte ROM: Der zweite Bildschirm funktioniert eventuell nicht" };
-static const char* const lang_de_f284[] = { "Verschieben" };
-static const char* const lang_de_f285[] = { "Verschieben: Hoch / Runter oder dorthin tippen, dann A (oder erneut tippen). Der weiter unten in der Liste wird sp\303\244ter angewendet" };
-static const char* const lang_de_f286[] = { "Neu" };
-static const char* const lang_de_f287[] = { "Keine RetroArch-Spielst\303\244nde hier" };
-static const char* const lang_de_f288[] = { "Keine Erfolge f\303\274r diese ROM (MD5 %s)" };
-static const char* const lang_de_f289[] = { "Keine Cheats gefunden (siehe Cheats im Wiki)" };
-static const char* const lang_de_f290[] = { "Kein Controller gefunden" };
-static const char* const lang_de_f291[] = { "Kein Ordner gew\303\244hlt." };
-static const char* const lang_de_f292[] = { "Keine Ordner hierin" };
-static const char* const lang_de_f293[] = { "Kein Spiel hat eigene Einstellungen." };
-static const char* const lang_de_f294[] = { "Keine Spiele gefunden" };
-static const char* const lang_de_f295[] = { "Noch keine Patches hier" };
-static const char* const lang_de_f296[] = { "Noch kein Schnellstand gespeichert." };
-static const char* const lang_de_f297[] = { "Keine" };
-static const char* const lang_de_f298[] = { "Nicht mehr im Ordner: Er bleibt au\303\237en vor" };
-static const char* const lang_de_f299[] = { "Nicht fortgesetzt: Der automatische Spielstand von RetroArch stammt von einem anderen seiner SNES-Cores. Um Spielst\303\244nde zu teilen, stelle den SNES-Core von RetroArch auf bsnes." };
-static const char* const lang_de_f300[] = { "Nicht verwendet" };
-static const char* const lang_de_f301[] = { "Nichts" };
-static const char* const lang_de_f302[] = { "Nichts zugewiesen" };
-static const char* const lang_de_f303[] = { "In Platz %d ist noch nichts gespeichert" };
-static const char* const lang_de_f304[] = { "Noch nichts zu melden." };
-static const char* const lang_de_f305[] = { "Nov" };
-static const char* const lang_de_f306[] = { "Jetzt" };
-static const char* const lang_de_f307[] = { "OK" };
-static const char* const lang_de_f308[] = { "Okt" };
-static const char* const lang_de_f309[] = { "Aus" };
-static const char* const lang_de_f310[] = { "Aus, solange ein Patch aktiv ist" };
-static const char* const lang_de_f311[] = { "Aus: Alle Spiele laufen wie normale SNES-Spiele." };
-static const char* const lang_de_f312[] = { "Aus: Der linke Stick tut in Spielen nichts." };
-static const char* const lang_de_f313[] = { "Offline" };
-static const char* const lang_de_f314[] = { "An" };
-static const char* const lang_de_f315[] = { "Nur ein Bildschirm: nichts zu verschieben" };
-static const char* const lang_de_f316[] = { "Nur aktive Patches haben eine Reihenfolge, und dies ist der einzige" };
-static const char* const lang_de_f317[] = { "Nur wenn sich deine beiden Bildschirme in der Form unterscheiden. Experimentell." };
-static const char* const lang_de_f318[] = { "Schnellmen\303\274 \303\266ffnen" };
-static const char* const lang_de_f319[] = { "\303\226ffnet die eigene Seite des Rahmens, f\303\274r den, den das Spiel oder alle Spiele haben" };
-static const char* const lang_de_f320[] = { "Orange" };
-static const char* const lang_de_f321[] = { "Andere Super-Nintendo-Spiele laufen auf einem Bildschirm, mit ihrem Titellogo auf dem anderen." };
-static const char* const lang_de_f322[] = { "Farbe des \303\244u\303\237eren Rahmens" };
-static const char* const lang_de_f323[] = { "Overlay-Farben und Logo" };
-static const char* const lang_de_f324[] = { "Overlays" };
-static const char* const lang_de_f325[] = { "Overlays an" };
-static const char* const lang_de_f326[] = { "Overlays: Benutzerdefiniert" };
-static const char* const lang_de_f327[] = { "Overlays: Benutzerdefiniert (in /overlays)" };
-static const char* const lang_de_f328[] = { "Overlays: Generiert" };
-static const char* const lang_de_f329[] = { "Overlays: Aus" };
-static const char* const lang_de_f330[] = { "PM" };
-static const char* const lang_de_f331[] = { "Patch nicht angewendet: %s ist nicht lesbar" };
-static const char* const lang_de_f332[] = { "Patch nicht angewendet: %s ist f\303\274r eine andere ROM" };
-static const char* const lang_de_f333[] = { "Gepatcht, aber ein Patch wurde ausgelassen: siehe Patches im Spielmen\303\274" };
-static const char* const lang_de_f334[] = { "Gepatcht: Der zweite Bildschirm funktioniert eventuell nicht" };
-static const char* const lang_de_f335[] = { "Patches" };
-static const char* const lang_de_f336[] = { "Patches ge\303\244ndert" };
-static const char* const lang_de_f337[] = { "Patches seit dem Spielstart ge\303\244ndert" };
-static const char* const lang_de_f338[] = { "Patches ge\303\244ndert: Es geht dort weiter, wo du warst" };
-static const char* const lang_de_f339[] = { "Musterst\303\244rke" };
-static const char* const lang_de_f340[] = { "Pausiert" };
-static const char* const lang_de_f341[] = { "Leistung" };
-static const char* const lang_de_f342[] = { "Leistung: Das System entscheiden lassen" };
-static const char* const lang_de_f343[] = { "Leistung: Maximum" };
-static const char* const lang_de_f344[] = { "Bilder in der Mitte ihrer Bildschirme oder dicht beieinander." };
-static const char* const lang_de_f345[] = { "Rosa" };
-static const char* const lang_de_f346[] = { "Angeheftet: Die Leiste bleibt oben." };
-static const char* const lang_de_f347[] = { "Pixelgenau" };
-static const char* const lang_de_f348[] = { "Verpixelt" };
-static const char* const lang_de_f349[] = { "Platzierung, Overlays" };
-static const char* const lang_de_f350[] = { "Schlicht" };
-static const char* const lang_de_f351[] = { "Spielen" };
-static const char* const lang_de_f352[] = { "Dieses Mal ohne Erfolge spielen" };
-static const char* const lang_de_f353[] = { "Spiel wird vorbereitet..." };
-static const char* const lang_de_f354[] = { "Dr\303\274cke %s" };
-static const char* const lang_de_f355[] = { "Dr\303\274cke A oder tippe zum Schlie\303\237en" };
-static const char* const lang_de_f356[] = { "Dr\303\274cke A zum Schlie\303\237en" };
-static const char* const lang_de_f357[] = { "Dr\303\274cke eine Taste" };
-static const char* const lang_de_f358[] = { "Lila" };
-static const char* const lang_de_f359[] = { "Bewege den Stick: Tasten z\303\244hlen hier nicht." };
-static const char* const lang_de_f360[] = { "Lege .ips-, .ups-, .bps- oder .xdelta-Dateien in %s ab" };
-static const char* const lang_de_f361[] = { "Hinweis zur Schnellleiste" };
+static const char* const lang_de_f283[] = { "Men\303\274-Hinweis" };
+static const char* const lang_de_f284[] = { "Modifizierte ROM: Der zweite Bildschirm funktioniert eventuell nicht" };
+static const char* const lang_de_f285[] = { "Verschieben" };
+static const char* const lang_de_f286[] = { "Verschieben: Hoch / Runter oder dorthin tippen, dann A (oder erneut tippen). Der weiter unten in der Liste wird sp\303\244ter angewendet" };
+static const char* const lang_de_f287[] = { "Neu" };
+static const char* const lang_de_f288[] = { "Keine RetroArch-Spielst\303\244nde hier" };
+static const char* const lang_de_f289[] = { "Keine Erfolge f\303\274r diese ROM (MD5 %s)" };
+static const char* const lang_de_f290[] = { "Keine Cheats gefunden (siehe Cheats im Wiki)" };
+static const char* const lang_de_f291[] = { "Kein Controller gefunden" };
+static const char* const lang_de_f292[] = { "Kein Ordner gew\303\244hlt." };
+static const char* const lang_de_f293[] = { "Keine Ordner hierin" };
+static const char* const lang_de_f294[] = { "Kein Spiel hat eigene Einstellungen." };
+static const char* const lang_de_f295[] = { "Keine Spiele gefunden" };
+static const char* const lang_de_f296[] = { "Noch keine Patches hier" };
+static const char* const lang_de_f297[] = { "Noch kein Schnellstand gespeichert." };
+static const char* const lang_de_f298[] = { "Keine" };
+static const char* const lang_de_f299[] = { "Nicht mehr im Ordner: Er bleibt au\303\237en vor" };
+static const char* const lang_de_f300[] = { "Nicht fortgesetzt: Der automatische Spielstand von RetroArch stammt von einem anderen seiner SNES-Cores. Um Spielst\303\244nde zu teilen, stelle den SNES-Core von RetroArch auf bsnes." };
+static const char* const lang_de_f301[] = { "Nicht verwendet" };
+static const char* const lang_de_f302[] = { "Nichts" };
+static const char* const lang_de_f303[] = { "Nichts zugewiesen" };
+static const char* const lang_de_f304[] = { "In Platz %d ist noch nichts gespeichert" };
+static const char* const lang_de_f305[] = { "Noch nichts zu melden." };
+static const char* const lang_de_f306[] = { "Nov" };
+static const char* const lang_de_f307[] = { "Jetzt" };
+static const char* const lang_de_f308[] = { "OK" };
+static const char* const lang_de_f309[] = { "Okt" };
+static const char* const lang_de_f310[] = { "Aus" };
+static const char* const lang_de_f311[] = { "Aus, solange ein Patch aktiv ist" };
+static const char* const lang_de_f312[] = { "Aus: Alle Spiele laufen wie normale SNES-Spiele." };
+static const char* const lang_de_f313[] = { "Aus: Der linke Stick tut in Spielen nichts." };
+static const char* const lang_de_f314[] = { "Offline" };
+static const char* const lang_de_f315[] = { "An" };
+static const char* const lang_de_f316[] = { "Nur ein Bildschirm: nichts zu verschieben" };
+static const char* const lang_de_f317[] = { "Nur aktive Patches haben eine Reihenfolge, und dies ist der einzige" };
+static const char* const lang_de_f318[] = { "Nur wenn sich deine beiden Bildschirme in der Form unterscheiden. Experimentell." };
+static const char* const lang_de_f319[] = { "Men\303\274 \303\266ffnen" };
+static const char* const lang_de_f320[] = { "\303\226ffnet die eigene Seite des Rahmens, f\303\274r den, den das Spiel oder alle Spiele haben" };
+static const char* const lang_de_f321[] = { "Orange" };
+static const char* const lang_de_f322[] = { "Andere Super-Nintendo-Spiele laufen auf einem Bildschirm, mit ihrem Titellogo auf dem anderen." };
+static const char* const lang_de_f323[] = { "Farbe des \303\244u\303\237eren Rahmens" };
+static const char* const lang_de_f324[] = { "Overlay-Farben und Logo" };
+static const char* const lang_de_f325[] = { "Overlays" };
+static const char* const lang_de_f326[] = { "Overlays an" };
+static const char* const lang_de_f327[] = { "Overlays: Benutzerdefiniert" };
+static const char* const lang_de_f328[] = { "Overlays: Benutzerdefiniert (in /overlays)" };
+static const char* const lang_de_f329[] = { "Overlays: Generiert" };
+static const char* const lang_de_f330[] = { "Overlays: Aus" };
+static const char* const lang_de_f331[] = { "PM" };
+static const char* const lang_de_f332[] = { "Patch nicht angewendet: %s ist nicht lesbar" };
+static const char* const lang_de_f333[] = { "Patch nicht angewendet: %s ist f\303\274r eine andere ROM" };
+static const char* const lang_de_f334[] = { "Gepatcht, aber ein Patch wurde ausgelassen: siehe Patches im Spielmen\303\274" };
+static const char* const lang_de_f335[] = { "Gepatcht: Der zweite Bildschirm funktioniert eventuell nicht" };
+static const char* const lang_de_f336[] = { "Patches" };
+static const char* const lang_de_f337[] = { "Patches ge\303\244ndert" };
+static const char* const lang_de_f338[] = { "Patches seit dem Spielstart ge\303\244ndert" };
+static const char* const lang_de_f339[] = { "Patches ge\303\244ndert: Es geht dort weiter, wo du warst" };
+static const char* const lang_de_f340[] = { "Musterst\303\244rke" };
+static const char* const lang_de_f341[] = { "Pausiert" };
+static const char* const lang_de_f342[] = { "Leistung" };
+static const char* const lang_de_f343[] = { "Leistung: Das System entscheiden lassen" };
+static const char* const lang_de_f344[] = { "Leistung: Maximum" };
+static const char* const lang_de_f345[] = { "Bilder in der Mitte ihrer Bildschirme oder dicht beieinander." };
+static const char* const lang_de_f346[] = { "Rosa" };
+static const char* const lang_de_f347[] = { "Angeheftet: Die Leiste bleibt oben." };
+static const char* const lang_de_f348[] = { "Pixelgenau" };
+static const char* const lang_de_f349[] = { "Verpixelt" };
+static const char* const lang_de_f350[] = { "Platzierung, Overlays" };
+static const char* const lang_de_f351[] = { "Schlicht" };
+static const char* const lang_de_f352[] = { "Spielen" };
+static const char* const lang_de_f353[] = { "Dieses Mal ohne Erfolge spielen" };
+static const char* const lang_de_f354[] = { "Spiel wird vorbereitet..." };
+static const char* const lang_de_f355[] = { "Dr\303\274cke %s" };
+static const char* const lang_de_f356[] = { "Dr\303\274cke A oder tippe zum Schlie\303\237en" };
+static const char* const lang_de_f357[] = { "Dr\303\274cke A zum Schlie\303\237en" };
+static const char* const lang_de_f358[] = { "Dr\303\274cke eine Taste" };
+static const char* const lang_de_f359[] = { "Lila" };
+static const char* const lang_de_f360[] = { "Bewege den Stick: Tasten z\303\244hlen hier nicht." };
+static const char* const lang_de_f361[] = { "Lege .ips-, .ups-, .bps- oder .xdelta-Dateien in %s ab" };
 static const char* const lang_de_f362[] = { "Schnell laden" };
 static const char* const lang_de_f363[] = { "Schnell speichern" };
 static const char* const lang_de_f364[] = { "Beenden" };
@@ -466,7 +466,7 @@ static const char* const lang_de_f461[] = { "Screenshot gespeichert" };
 static const char* const lang_de_f462[] = { "Zweiter Bildschirm" };
 static const char* const lang_de_f463[] = { "Skalierung des zweiten Bildschirms" };
 static const char* const lang_de_f464[] = { "Select" };
-static const char* const lang_de_f465[] = { "Select oder Start erreichen das Spiel weiterhin, wenn sie einzeln getippt werden, und L3 \303\266ffnet weiterhin das Schnellmen\303\274" };
+static const char* const lang_de_f465[] = { "Select oder Start erreichen das Spiel weiterhin, wenn sie allein gedr\303\274ckt werden, L3 \303\266ffnet weiterhin das Men\303\274" };
 static const char* const lang_de_f466[] = { "Sep" };
 static const char* const lang_de_f467[] = { "Eigener Batteriespeicher" };
 static const char* const lang_de_f468[] = { "Eigene Spielst\303\244nde" };
@@ -536,13 +536,13 @@ static const char* const lang_de_f531[] = { "Sicher?" };
 static const char* const lang_de_f532[] = { "Bildschirme tauschen" };
 static const char* const lang_de_f533[] = { "Bildschirme tauschen" };
 static const char* const lang_de_f534[] = { "Getauscht" };
-static const char* const lang_de_f535[] = { "Nach oben wischen f\303\274r das Schnellmen\303\274" };
-static const char* const lang_de_f536[] = { "In retrods.cfg ausgeschaltet (retroachievements = 0)." };
-static const char* const lang_de_f537[] = { "System" };
-static const char* const lang_de_f538[] = { "Tags im Dateinamen einer ROM, wie (USA) oder (En,Fr,De)." };
-static const char* const lang_de_f539[] = { "Screenshot aufnehmen" };
-static const char* const lang_de_f540[] = { "Tippe erneut, um RetroDS zu beenden." };
-static const char* const lang_de_f541[] = { "Tippe auf den Bildschirm oder dr\303\274cke HOME f\303\274r das Men\303\274" };
+static const char* const lang_de_f535[] = { "In retrods.cfg ausgeschaltet (retroachievements = 0)." };
+static const char* const lang_de_f536[] = { "System" };
+static const char* const lang_de_f537[] = { "Tags im Dateinamen einer ROM, wie (USA) oder (En,Fr,De)." };
+static const char* const lang_de_f538[] = { "Screenshot aufnehmen" };
+static const char* const lang_de_f539[] = { "Tippe erneut, um RetroDS zu beenden." };
+static const char* const lang_de_f540[] = { "Tippe auf den Bildschirm oder dr\303\274cke HOME f\303\274r das Men\303\274" };
+static const char* const lang_de_f541[] = { "Tippe auf den Bildschirm, um das Men\303\274 zu \303\266ffnen" };
 static const char* const lang_de_f542[] = { "Tippe auf den Touchscreen, um eine Taste zu \303\274berspringen, die dieses Ger\303\244t nicht hat" };
 static const char* const lang_de_f543[] = { "Tippen, um keine zuzuweisen" };
 static const char* const lang_de_f544[] = { "Tippen, um eine Taste zu \303\274berspringen, die dieses Ger\303\244t nicht hat" };
@@ -669,7 +669,7 @@ static const I18nEntry lang_de_entries[] = {
 	{ " It's the newest version.", lang_de_f2, 1 },
 	{ " ms", lang_de_f3, 1 },
 	{ " s", lang_de_f4, 1 },
-	{ "\"Swipe up for quick menu\" at a game's start.", lang_de_f5, 1 },
+	{ "\"Tap the screen to open the menu\" at a game's start.", lang_de_f5, 1 },
 	{ "%ca%d", lang_de_f6, 1 },
 	{ "%d RetroArch state here", lang_de_f7, 2 },
 	{ "%d file checked", lang_de_f8, 2 },
@@ -947,85 +947,85 @@ static const I18nEntry lang_de_entries[] = {
 	{ "Max: full speed, a warmer device and a shorter battery.", lang_de_f280, 1 },
 	{ "May", lang_de_f281, 1 },
 	{ "Medium (15 a second)", lang_de_f282, 1 },
-	{ "Modified ROM: the second screen may not work", lang_de_f283, 1 },
-	{ "Move", lang_de_f284, 1 },
-	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_de_f285, 1 },
-	{ "New", lang_de_f286, 1 },
-	{ "No RetroArch states here", lang_de_f287, 1 },
-	{ "No achievements for this ROM (MD5 %s)", lang_de_f288, 1 },
-	{ "No cheats found (see Cheats in the wiki)", lang_de_f289, 1 },
-	{ "No controller found", lang_de_f290, 1 },
-	{ "No folder chosen.", lang_de_f291, 1 },
-	{ "No folders in this one", lang_de_f292, 1 },
-	{ "No game has settings of its own.", lang_de_f293, 1 },
-	{ "No games found", lang_de_f294, 1 },
-	{ "No patches here yet", lang_de_f295, 1 },
-	{ "No quick state saved yet.", lang_de_f296, 1 },
-	{ "None", lang_de_f297, 1 },
-	{ "Not in the folder any more: it's left out", lang_de_f298, 1 },
-	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_de_f299, 1 },
-	{ "Not used", lang_de_f300, 1 },
-	{ "Nothing", lang_de_f301, 1 },
-	{ "Nothing mapped", lang_de_f302, 1 },
-	{ "Nothing saved in slot %d yet", lang_de_f303, 1 },
-	{ "Nothing to report yet.", lang_de_f304, 1 },
-	{ "Nov", lang_de_f305, 1 },
-	{ "Now", lang_de_f306, 1 },
-	{ "OK", lang_de_f307, 1 },
-	{ "Oct", lang_de_f308, 1 },
-	{ "Off", lang_de_f309, 1 },
-	{ "Off while a patch is on", lang_de_f310, 1 },
-	{ "Off: every game plays like an ordinary SNES game.", lang_de_f311, 1 },
-	{ "Off: the left stick does nothing in games.", lang_de_f312, 1 },
-	{ "Offline", lang_de_f313, 1 },
-	{ "On", lang_de_f314, 1 },
-	{ "Only one screen: nothing to move", lang_de_f315, 1 },
-	{ "Only patches that are on have an order, and this is the only one", lang_de_f316, 1 },
-	{ "Only when your two screens differ in shape. Experimental.", lang_de_f317, 1 },
-	{ "Open quick menu", lang_de_f318, 1 },
-	{ "Opens the bezel's own page, for whichever the game or all games have", lang_de_f319, 1 },
-	{ "Orange", lang_de_f320, 1 },
-	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_de_f321, 1 },
-	{ "Outer Bezel Color", lang_de_f322, 1 },
-	{ "Overlay colors and logo", lang_de_f323, 1 },
-	{ "Overlays", lang_de_f324, 1 },
-	{ "Overlays on", lang_de_f325, 1 },
-	{ "Overlays: Custom", lang_de_f326, 1 },
-	{ "Overlays: Custom (in /overlays)", lang_de_f327, 1 },
-	{ "Overlays: Generated", lang_de_f328, 1 },
-	{ "Overlays: Off", lang_de_f329, 1 },
-	{ "PM", lang_de_f330, 1 },
-	{ "Patch not applied: %s can't be read", lang_de_f331, 1 },
-	{ "Patch not applied: %s is for another ROM", lang_de_f332, 1 },
-	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_de_f333, 1 },
-	{ "Patched: the second screen may not work", lang_de_f334, 1 },
-	{ "Patches", lang_de_f335, 1 },
-	{ "Patches changed", lang_de_f336, 1 },
-	{ "Patches changed since the game started", lang_de_f337, 1 },
-	{ "Patches changed: carrying on from where you were", lang_de_f338, 1 },
-	{ "Pattern strength", lang_de_f339, 1 },
-	{ "Paused", lang_de_f340, 1 },
-	{ "Performance", lang_de_f341, 1 },
-	{ "Performance: Let the System Decide", lang_de_f342, 1 },
-	{ "Performance: Set to Max", lang_de_f343, 1 },
-	{ "Pictures in the middle of their screens, or close together.", lang_de_f344, 1 },
-	{ "Pink", lang_de_f345, 1 },
-	{ "Pinned: the bar stays up.", lang_de_f346, 1 },
-	{ "Pixel Perfect", lang_de_f347, 1 },
-	{ "Pixelated", lang_de_f348, 1 },
-	{ "Placement, overlays", lang_de_f349, 1 },
-	{ "Plain", lang_de_f350, 1 },
-	{ "Play", lang_de_f351, 1 },
-	{ "Playing without achievements this time", lang_de_f352, 1 },
-	{ "Preparing the game...", lang_de_f353, 1 },
-	{ "Press %s", lang_de_f354, 1 },
-	{ "Press A or tap to close", lang_de_f355, 1 },
-	{ "Press A to close", lang_de_f356, 1 },
-	{ "Press a button", lang_de_f357, 1 },
-	{ "Purple", lang_de_f358, 1 },
-	{ "Push the stick: buttons don't count for this one.", lang_de_f359, 1 },
-	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_de_f360, 1 },
-	{ "Quick bar hint", lang_de_f361, 1 },
+	{ "Menu hint", lang_de_f283, 1 },
+	{ "Modified ROM: the second screen may not work", lang_de_f284, 1 },
+	{ "Move", lang_de_f285, 1 },
+	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_de_f286, 1 },
+	{ "New", lang_de_f287, 1 },
+	{ "No RetroArch states here", lang_de_f288, 1 },
+	{ "No achievements for this ROM (MD5 %s)", lang_de_f289, 1 },
+	{ "No cheats found (see Cheats in the wiki)", lang_de_f290, 1 },
+	{ "No controller found", lang_de_f291, 1 },
+	{ "No folder chosen.", lang_de_f292, 1 },
+	{ "No folders in this one", lang_de_f293, 1 },
+	{ "No game has settings of its own.", lang_de_f294, 1 },
+	{ "No games found", lang_de_f295, 1 },
+	{ "No patches here yet", lang_de_f296, 1 },
+	{ "No quick state saved yet.", lang_de_f297, 1 },
+	{ "None", lang_de_f298, 1 },
+	{ "Not in the folder any more: it's left out", lang_de_f299, 1 },
+	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_de_f300, 1 },
+	{ "Not used", lang_de_f301, 1 },
+	{ "Nothing", lang_de_f302, 1 },
+	{ "Nothing mapped", lang_de_f303, 1 },
+	{ "Nothing saved in slot %d yet", lang_de_f304, 1 },
+	{ "Nothing to report yet.", lang_de_f305, 1 },
+	{ "Nov", lang_de_f306, 1 },
+	{ "Now", lang_de_f307, 1 },
+	{ "OK", lang_de_f308, 1 },
+	{ "Oct", lang_de_f309, 1 },
+	{ "Off", lang_de_f310, 1 },
+	{ "Off while a patch is on", lang_de_f311, 1 },
+	{ "Off: every game plays like an ordinary SNES game.", lang_de_f312, 1 },
+	{ "Off: the left stick does nothing in games.", lang_de_f313, 1 },
+	{ "Offline", lang_de_f314, 1 },
+	{ "On", lang_de_f315, 1 },
+	{ "Only one screen: nothing to move", lang_de_f316, 1 },
+	{ "Only patches that are on have an order, and this is the only one", lang_de_f317, 1 },
+	{ "Only when your two screens differ in shape. Experimental.", lang_de_f318, 1 },
+	{ "Open the menu", lang_de_f319, 1 },
+	{ "Opens the bezel's own page, for whichever the game or all games have", lang_de_f320, 1 },
+	{ "Orange", lang_de_f321, 1 },
+	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_de_f322, 1 },
+	{ "Outer Bezel Color", lang_de_f323, 1 },
+	{ "Overlay colors and logo", lang_de_f324, 1 },
+	{ "Overlays", lang_de_f325, 1 },
+	{ "Overlays on", lang_de_f326, 1 },
+	{ "Overlays: Custom", lang_de_f327, 1 },
+	{ "Overlays: Custom (in /overlays)", lang_de_f328, 1 },
+	{ "Overlays: Generated", lang_de_f329, 1 },
+	{ "Overlays: Off", lang_de_f330, 1 },
+	{ "PM", lang_de_f331, 1 },
+	{ "Patch not applied: %s can't be read", lang_de_f332, 1 },
+	{ "Patch not applied: %s is for another ROM", lang_de_f333, 1 },
+	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_de_f334, 1 },
+	{ "Patched: the second screen may not work", lang_de_f335, 1 },
+	{ "Patches", lang_de_f336, 1 },
+	{ "Patches changed", lang_de_f337, 1 },
+	{ "Patches changed since the game started", lang_de_f338, 1 },
+	{ "Patches changed: carrying on from where you were", lang_de_f339, 1 },
+	{ "Pattern strength", lang_de_f340, 1 },
+	{ "Paused", lang_de_f341, 1 },
+	{ "Performance", lang_de_f342, 1 },
+	{ "Performance: Let the System Decide", lang_de_f343, 1 },
+	{ "Performance: Set to Max", lang_de_f344, 1 },
+	{ "Pictures in the middle of their screens, or close together.", lang_de_f345, 1 },
+	{ "Pink", lang_de_f346, 1 },
+	{ "Pinned: the bar stays up.", lang_de_f347, 1 },
+	{ "Pixel Perfect", lang_de_f348, 1 },
+	{ "Pixelated", lang_de_f349, 1 },
+	{ "Placement, overlays", lang_de_f350, 1 },
+	{ "Plain", lang_de_f351, 1 },
+	{ "Play", lang_de_f352, 1 },
+	{ "Playing without achievements this time", lang_de_f353, 1 },
+	{ "Preparing the game...", lang_de_f354, 1 },
+	{ "Press %s", lang_de_f355, 1 },
+	{ "Press A or tap to close", lang_de_f356, 1 },
+	{ "Press A to close", lang_de_f357, 1 },
+	{ "Press a button", lang_de_f358, 1 },
+	{ "Purple", lang_de_f359, 1 },
+	{ "Push the stick: buttons don't count for this one.", lang_de_f360, 1 },
+	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_de_f361, 1 },
 	{ "Quick load state", lang_de_f362, 1 },
 	{ "Quick save state", lang_de_f363, 1 },
 	{ "Quit", lang_de_f364, 1 },
@@ -1129,7 +1129,7 @@ static const I18nEntry lang_de_entries[] = {
 	{ "Second screen", lang_de_f462, 1 },
 	{ "Second screen scale", lang_de_f463, 1 },
 	{ "Select", lang_de_f464, 1 },
-	{ "Select or Start still reach the game when tapped on their own, L3 still opens the quick menu", lang_de_f465, 1 },
+	{ "Select or Start still reach the game when tapped on their own, L3 still opens the menu", lang_de_f465, 1 },
 	{ "Sep", lang_de_f466, 1 },
 	{ "Separate battery save", lang_de_f467, 1 },
 	{ "Separate save states", lang_de_f468, 1 },
@@ -1199,13 +1199,13 @@ static const I18nEntry lang_de_entries[] = {
 	{ "Swap Screens", lang_de_f532, 1 },
 	{ "Swap screens", lang_de_f533, 1 },
 	{ "Swapped", lang_de_f534, 1 },
-	{ "Swipe up for quick menu", lang_de_f535, 1 },
-	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_de_f536, 1 },
-	{ "System", lang_de_f537, 1 },
-	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_de_f538, 1 },
-	{ "Take Screenshot", lang_de_f539, 1 },
-	{ "Tap again to close RetroDS.", lang_de_f540, 1 },
-	{ "Tap the screen or press HOME for the menu", lang_de_f541, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_de_f535, 1 },
+	{ "System", lang_de_f536, 1 },
+	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_de_f537, 1 },
+	{ "Take Screenshot", lang_de_f538, 1 },
+	{ "Tap again to close RetroDS.", lang_de_f539, 1 },
+	{ "Tap the screen or press HOME for the menu", lang_de_f540, 1 },
+	{ "Tap the screen to open the menu", lang_de_f541, 1 },
 	{ "Tap the touchscreen to skip a button this device doesn't have", lang_de_f542, 1 },
 	{ "Tap to set none", lang_de_f543, 1 },
 	{ "Tap to skip a button this device doesn't have", lang_de_f544, 1 },
@@ -1333,7 +1333,7 @@ static const char* const lang_es_f1[] = { " Buscando una versi\303\263n nueva...
 static const char* const lang_es_f2[] = { " Es la versi\303\263n m\303\241s reciente." };
 static const char* const lang_es_f3[] = { " ms" };
 static const char* const lang_es_f4[] = { " s" };
-static const char* const lang_es_f5[] = { "\302\253Desliza hacia arriba para el men\303\272 r\303\241pido\302\273 al empezar un juego." };
+static const char* const lang_es_f5[] = { "\302\253Toca la pantalla para abrir el men\303\272\302\273 al empezar un juego." };
 static const char* const lang_es_f6[] = { "%ca%d" };
 static const char* const lang_es_f7[] = { "%d estado de RetroArch aqu\303\255", "%d estados de RetroArch aqu\303\255" };
 static const char* const lang_es_f8[] = { "%d archivo revisado", "%d archivos revisados" };
@@ -1611,85 +1611,85 @@ static const char* const lang_es_f279[] = { "Igualar tama\303\261os y formas" };
 static const char* const lang_es_f280[] = { "M\303\241x.: velocidad total, un dispositivo m\303\241s caliente y menos bater\303\255a." };
 static const char* const lang_es_f281[] = { "May" };
 static const char* const lang_es_f282[] = { "Media (15 por segundo)" };
-static const char* const lang_es_f283[] = { "ROM modificada: puede que la segunda pantalla no funcione" };
-static const char* const lang_es_f284[] = { "Mover" };
-static const char* const lang_es_f285[] = { "Movi\303\251ndolo: Arriba / Abajo o toca donde va, y luego A (o t\303\263calo de nuevo). El que est\303\241 m\303\241s abajo en la lista se aplica despu\303\251s" };
-static const char* const lang_es_f286[] = { "Nuevo" };
-static const char* const lang_es_f287[] = { "No hay estados de RetroArch aqu\303\255" };
-static const char* const lang_es_f288[] = { "No hay logros para esta ROM (MD5 %s)" };
-static const char* const lang_es_f289[] = { "No se encontraron trucos (consulta Trucos en la wiki)" };
-static const char* const lang_es_f290[] = { "No se encontr\303\263 ning\303\272n mando" };
-static const char* const lang_es_f291[] = { "No se eligi\303\263 ninguna carpeta." };
-static const char* const lang_es_f292[] = { "No hay carpetas en esta" };
-static const char* const lang_es_f293[] = { "Ning\303\272n juego tiene ajustes propios." };
-static const char* const lang_es_f294[] = { "No se encontraron juegos" };
-static const char* const lang_es_f295[] = { "A\303\272n no hay parches aqu\303\255" };
-static const char* const lang_es_f296[] = { "A\303\272n no hay un estado r\303\241pido guardado." };
-static const char* const lang_es_f297[] = { "Ninguno" };
-static const char* const lang_es_f298[] = { "Ya no est\303\241 en la carpeta: se deja fuera" };
-static const char* const lang_es_f299[] = { "No se reanud\303\263: el estado autom\303\241tico de RetroArch es de otro de sus n\303\272cleos SNES. Para compartir estados, pon el n\303\272cleo SNES de RetroArch en bsnes." };
-static const char* const lang_es_f300[] = { "Sin usar" };
-static const char* const lang_es_f301[] = { "Nada" };
-static const char* const lang_es_f302[] = { "Nada asignado" };
-static const char* const lang_es_f303[] = { "A\303\272n no hay nada guardado en la ranura %d" };
-static const char* const lang_es_f304[] = { "A\303\272n no hay nada que informar." };
-static const char* const lang_es_f305[] = { "Nov" };
-static const char* const lang_es_f306[] = { "Ahora" };
-static const char* const lang_es_f307[] = { "Aceptar" };
-static const char* const lang_es_f308[] = { "Oct" };
-static const char* const lang_es_f309[] = { "No" };
-static const char* const lang_es_f310[] = { "Desactivado mientras hay un parche activado" };
-static const char* const lang_es_f311[] = { "No: todos los juegos se juegan como un juego de SNES normal." };
-static const char* const lang_es_f312[] = { "No: el stick izquierdo no hace nada en los juegos." };
-static const char* const lang_es_f313[] = { "Sin conexi\303\263n" };
-static const char* const lang_es_f314[] = { "S\303\255" };
-static const char* const lang_es_f315[] = { "Solo una pantalla: nada que mover" };
-static const char* const lang_es_f316[] = { "Solo los parches activados tienen orden, y este es el \303\272nico" };
-static const char* const lang_es_f317[] = { "Solo cuando tus dos pantallas difieren en forma. Experimental." };
-static const char* const lang_es_f318[] = { "Abrir men\303\272 r\303\241pido" };
-static const char* const lang_es_f319[] = { "Abre la p\303\241gina propia del marco, para el que tenga el juego o todos los juegos" };
-static const char* const lang_es_f320[] = { "Naranja" };
-static const char* const lang_es_f321[] = { "Los dem\303\241s juegos de Super Nintendo se juegan en una pantalla, con su logotipo en la otra." };
-static const char* const lang_es_f322[] = { "Color del marco exterior" };
-static const char* const lang_es_f323[] = { "Colores y logo de la superposici\303\263n" };
-static const char* const lang_es_f324[] = { "Superposiciones" };
-static const char* const lang_es_f325[] = { "Superposiciones activadas" };
-static const char* const lang_es_f326[] = { "Superposiciones: personalizadas" };
-static const char* const lang_es_f327[] = { "Superposiciones: personalizadas (en /overlays)" };
-static const char* const lang_es_f328[] = { "Superposiciones: generadas" };
-static const char* const lang_es_f329[] = { "Superposiciones: No" };
-static const char* const lang_es_f330[] = { "PM" };
-static const char* const lang_es_f331[] = { "Parche no aplicado: no se puede leer %s" };
-static const char* const lang_es_f332[] = { "Parche no aplicado: %s es para otra ROM" };
-static const char* const lang_es_f333[] = { "Parcheado, pero se dej\303\263 fuera un parche: consulta Parches en el men\303\272 del juego" };
-static const char* const lang_es_f334[] = { "Parcheado: puede que la segunda pantalla no funcione" };
-static const char* const lang_es_f335[] = { "Parches" };
-static const char* const lang_es_f336[] = { "Parches cambiados" };
-static const char* const lang_es_f337[] = { "Parches cambiados desde que se inici\303\263 el juego" };
-static const char* const lang_es_f338[] = { "Parches cambiados: se contin\303\272a donde estabas" };
-static const char* const lang_es_f339[] = { "Intensidad del patr\303\263n" };
-static const char* const lang_es_f340[] = { "En pausa" };
-static const char* const lang_es_f341[] = { "Rendimiento" };
-static const char* const lang_es_f342[] = { "Rendimiento: que decida el sistema" };
-static const char* const lang_es_f343[] = { "Rendimiento: m\303\241ximo" };
-static const char* const lang_es_f344[] = { "Im\303\241genes en el centro de sus pantallas, o juntas." };
-static const char* const lang_es_f345[] = { "Rosa" };
-static const char* const lang_es_f346[] = { "Fijada: la barra se queda arriba." };
-static const char* const lang_es_f347[] = { "P\303\255xel perfecto" };
-static const char* const lang_es_f348[] = { "Pixelado" };
-static const char* const lang_es_f349[] = { "Colocaci\303\263n, superposiciones" };
-static const char* const lang_es_f350[] = { "Liso" };
-static const char* const lang_es_f351[] = { "Jugar" };
-static const char* const lang_es_f352[] = { "Se juega sin logros esta vez" };
-static const char* const lang_es_f353[] = { "Preparando el juego..." };
-static const char* const lang_es_f354[] = { "Pulsa %s" };
-static const char* const lang_es_f355[] = { "Pulsa A o toca para cerrar" };
-static const char* const lang_es_f356[] = { "Pulsa A para cerrar" };
-static const char* const lang_es_f357[] = { "Pulsa un bot\303\263n" };
-static const char* const lang_es_f358[] = { "Morado" };
-static const char* const lang_es_f359[] = { "Mueve el stick: los botones no cuentan para este." };
-static const char* const lang_es_f360[] = { "Pon archivos .ips, .ups, .bps o .xdelta en %s" };
-static const char* const lang_es_f361[] = { "Aviso de la barra r\303\241pida" };
+static const char* const lang_es_f283[] = { "Aviso del men\303\272" };
+static const char* const lang_es_f284[] = { "ROM modificada: puede que la segunda pantalla no funcione" };
+static const char* const lang_es_f285[] = { "Mover" };
+static const char* const lang_es_f286[] = { "Movi\303\251ndolo: Arriba / Abajo o toca donde va, y luego A (o t\303\263calo de nuevo). El que est\303\241 m\303\241s abajo en la lista se aplica despu\303\251s" };
+static const char* const lang_es_f287[] = { "Nuevo" };
+static const char* const lang_es_f288[] = { "No hay estados de RetroArch aqu\303\255" };
+static const char* const lang_es_f289[] = { "No hay logros para esta ROM (MD5 %s)" };
+static const char* const lang_es_f290[] = { "No se encontraron trucos (consulta Trucos en la wiki)" };
+static const char* const lang_es_f291[] = { "No se encontr\303\263 ning\303\272n mando" };
+static const char* const lang_es_f292[] = { "No se eligi\303\263 ninguna carpeta." };
+static const char* const lang_es_f293[] = { "No hay carpetas en esta" };
+static const char* const lang_es_f294[] = { "Ning\303\272n juego tiene ajustes propios." };
+static const char* const lang_es_f295[] = { "No se encontraron juegos" };
+static const char* const lang_es_f296[] = { "A\303\272n no hay parches aqu\303\255" };
+static const char* const lang_es_f297[] = { "A\303\272n no hay un estado r\303\241pido guardado." };
+static const char* const lang_es_f298[] = { "Ninguno" };
+static const char* const lang_es_f299[] = { "Ya no est\303\241 en la carpeta: se deja fuera" };
+static const char* const lang_es_f300[] = { "No se reanud\303\263: el estado autom\303\241tico de RetroArch es de otro de sus n\303\272cleos SNES. Para compartir estados, pon el n\303\272cleo SNES de RetroArch en bsnes." };
+static const char* const lang_es_f301[] = { "Sin usar" };
+static const char* const lang_es_f302[] = { "Nada" };
+static const char* const lang_es_f303[] = { "Nada asignado" };
+static const char* const lang_es_f304[] = { "A\303\272n no hay nada guardado en la ranura %d" };
+static const char* const lang_es_f305[] = { "A\303\272n no hay nada que informar." };
+static const char* const lang_es_f306[] = { "Nov" };
+static const char* const lang_es_f307[] = { "Ahora" };
+static const char* const lang_es_f308[] = { "Aceptar" };
+static const char* const lang_es_f309[] = { "Oct" };
+static const char* const lang_es_f310[] = { "No" };
+static const char* const lang_es_f311[] = { "Desactivado mientras hay un parche activado" };
+static const char* const lang_es_f312[] = { "No: todos los juegos se juegan como un juego de SNES normal." };
+static const char* const lang_es_f313[] = { "No: el stick izquierdo no hace nada en los juegos." };
+static const char* const lang_es_f314[] = { "Sin conexi\303\263n" };
+static const char* const lang_es_f315[] = { "S\303\255" };
+static const char* const lang_es_f316[] = { "Solo una pantalla: nada que mover" };
+static const char* const lang_es_f317[] = { "Solo los parches activados tienen orden, y este es el \303\272nico" };
+static const char* const lang_es_f318[] = { "Solo cuando tus dos pantallas difieren en forma. Experimental." };
+static const char* const lang_es_f319[] = { "Abrir el men\303\272" };
+static const char* const lang_es_f320[] = { "Abre la p\303\241gina propia del marco, para el que tenga el juego o todos los juegos" };
+static const char* const lang_es_f321[] = { "Naranja" };
+static const char* const lang_es_f322[] = { "Los dem\303\241s juegos de Super Nintendo se juegan en una pantalla, con su logotipo en la otra." };
+static const char* const lang_es_f323[] = { "Color del marco exterior" };
+static const char* const lang_es_f324[] = { "Colores y logo de la superposici\303\263n" };
+static const char* const lang_es_f325[] = { "Superposiciones" };
+static const char* const lang_es_f326[] = { "Superposiciones activadas" };
+static const char* const lang_es_f327[] = { "Superposiciones: personalizadas" };
+static const char* const lang_es_f328[] = { "Superposiciones: personalizadas (en /overlays)" };
+static const char* const lang_es_f329[] = { "Superposiciones: generadas" };
+static const char* const lang_es_f330[] = { "Superposiciones: No" };
+static const char* const lang_es_f331[] = { "PM" };
+static const char* const lang_es_f332[] = { "Parche no aplicado: no se puede leer %s" };
+static const char* const lang_es_f333[] = { "Parche no aplicado: %s es para otra ROM" };
+static const char* const lang_es_f334[] = { "Parcheado, pero se dej\303\263 fuera un parche: consulta Parches en el men\303\272 del juego" };
+static const char* const lang_es_f335[] = { "Parcheado: puede que la segunda pantalla no funcione" };
+static const char* const lang_es_f336[] = { "Parches" };
+static const char* const lang_es_f337[] = { "Parches cambiados" };
+static const char* const lang_es_f338[] = { "Parches cambiados desde que se inici\303\263 el juego" };
+static const char* const lang_es_f339[] = { "Parches cambiados: se contin\303\272a donde estabas" };
+static const char* const lang_es_f340[] = { "Intensidad del patr\303\263n" };
+static const char* const lang_es_f341[] = { "En pausa" };
+static const char* const lang_es_f342[] = { "Rendimiento" };
+static const char* const lang_es_f343[] = { "Rendimiento: que decida el sistema" };
+static const char* const lang_es_f344[] = { "Rendimiento: m\303\241ximo" };
+static const char* const lang_es_f345[] = { "Im\303\241genes en el centro de sus pantallas, o juntas." };
+static const char* const lang_es_f346[] = { "Rosa" };
+static const char* const lang_es_f347[] = { "Fijada: la barra se queda arriba." };
+static const char* const lang_es_f348[] = { "P\303\255xel perfecto" };
+static const char* const lang_es_f349[] = { "Pixelado" };
+static const char* const lang_es_f350[] = { "Colocaci\303\263n, superposiciones" };
+static const char* const lang_es_f351[] = { "Liso" };
+static const char* const lang_es_f352[] = { "Jugar" };
+static const char* const lang_es_f353[] = { "Se juega sin logros esta vez" };
+static const char* const lang_es_f354[] = { "Preparando el juego..." };
+static const char* const lang_es_f355[] = { "Pulsa %s" };
+static const char* const lang_es_f356[] = { "Pulsa A o toca para cerrar" };
+static const char* const lang_es_f357[] = { "Pulsa A para cerrar" };
+static const char* const lang_es_f358[] = { "Pulsa un bot\303\263n" };
+static const char* const lang_es_f359[] = { "Morado" };
+static const char* const lang_es_f360[] = { "Mueve el stick: los botones no cuentan para este." };
+static const char* const lang_es_f361[] = { "Pon archivos .ips, .ups, .bps o .xdelta en %s" };
 static const char* const lang_es_f362[] = { "Carga r\303\241pida de estado" };
 static const char* const lang_es_f363[] = { "Guardado r\303\241pido de estado" };
 static const char* const lang_es_f364[] = { "Salir" };
@@ -1793,7 +1793,7 @@ static const char* const lang_es_f461[] = { "Captura guardada" };
 static const char* const lang_es_f462[] = { "Segunda pantalla" };
 static const char* const lang_es_f463[] = { "Escala de la segunda pantalla" };
 static const char* const lang_es_f464[] = { "Select" };
-static const char* const lang_es_f465[] = { "Select o Start siguen llegando al juego cuando se tocan solos, y L3 sigue abriendo el men\303\272 r\303\241pido" };
+static const char* const lang_es_f465[] = { "Select o Start siguen llegando al juego si se pulsan solos; L3 sigue abriendo el men\303\272" };
 static const char* const lang_es_f466[] = { "Sep" };
 static const char* const lang_es_f467[] = { "Partida guardada aparte" };
 static const char* const lang_es_f468[] = { "Estados guardados aparte" };
@@ -1863,13 +1863,13 @@ static const char* const lang_es_f531[] = { "\302\277Seguro?" };
 static const char* const lang_es_f532[] = { "Intercambiar pantallas" };
 static const char* const lang_es_f533[] = { "Intercambiar pantallas" };
 static const char* const lang_es_f534[] = { "Intercambiadas" };
-static const char* const lang_es_f535[] = { "Desliza hacia arriba para el men\303\272 r\303\241pido" };
-static const char* const lang_es_f536[] = { "Desactivado en retrods.cfg (retroachievements = 0)." };
-static const char* const lang_es_f537[] = { "Sistema" };
-static const char* const lang_es_f538[] = { "Etiquetas en el nombre del archivo de una ROM, como (USA) o (En,Fr,De)." };
-static const char* const lang_es_f539[] = { "Hacer captura" };
-static const char* const lang_es_f540[] = { "Toca de nuevo para cerrar RetroDS." };
-static const char* const lang_es_f541[] = { "Toca la pantalla o pulsa HOME para el men\303\272" };
+static const char* const lang_es_f535[] = { "Desactivado en retrods.cfg (retroachievements = 0)." };
+static const char* const lang_es_f536[] = { "Sistema" };
+static const char* const lang_es_f537[] = { "Etiquetas en el nombre del archivo de una ROM, como (USA) o (En,Fr,De)." };
+static const char* const lang_es_f538[] = { "Hacer captura" };
+static const char* const lang_es_f539[] = { "Toca de nuevo para cerrar RetroDS." };
+static const char* const lang_es_f540[] = { "Toca la pantalla o pulsa HOME para el men\303\272" };
+static const char* const lang_es_f541[] = { "Toca la pantalla para abrir el men\303\272" };
 static const char* const lang_es_f542[] = { "Toca la pantalla t\303\241ctil para omitir un bot\303\263n que este dispositivo no tiene" };
 static const char* const lang_es_f543[] = { "Toca para no asignar ninguno" };
 static const char* const lang_es_f544[] = { "Toca para omitir un bot\303\263n que este dispositivo no tiene" };
@@ -1996,7 +1996,7 @@ static const I18nEntry lang_es_entries[] = {
 	{ " It's the newest version.", lang_es_f2, 1 },
 	{ " ms", lang_es_f3, 1 },
 	{ " s", lang_es_f4, 1 },
-	{ "\"Swipe up for quick menu\" at a game's start.", lang_es_f5, 1 },
+	{ "\"Tap the screen to open the menu\" at a game's start.", lang_es_f5, 1 },
 	{ "%ca%d", lang_es_f6, 1 },
 	{ "%d RetroArch state here", lang_es_f7, 2 },
 	{ "%d file checked", lang_es_f8, 2 },
@@ -2274,85 +2274,85 @@ static const I18nEntry lang_es_entries[] = {
 	{ "Max: full speed, a warmer device and a shorter battery.", lang_es_f280, 1 },
 	{ "May", lang_es_f281, 1 },
 	{ "Medium (15 a second)", lang_es_f282, 1 },
-	{ "Modified ROM: the second screen may not work", lang_es_f283, 1 },
-	{ "Move", lang_es_f284, 1 },
-	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_es_f285, 1 },
-	{ "New", lang_es_f286, 1 },
-	{ "No RetroArch states here", lang_es_f287, 1 },
-	{ "No achievements for this ROM (MD5 %s)", lang_es_f288, 1 },
-	{ "No cheats found (see Cheats in the wiki)", lang_es_f289, 1 },
-	{ "No controller found", lang_es_f290, 1 },
-	{ "No folder chosen.", lang_es_f291, 1 },
-	{ "No folders in this one", lang_es_f292, 1 },
-	{ "No game has settings of its own.", lang_es_f293, 1 },
-	{ "No games found", lang_es_f294, 1 },
-	{ "No patches here yet", lang_es_f295, 1 },
-	{ "No quick state saved yet.", lang_es_f296, 1 },
-	{ "None", lang_es_f297, 1 },
-	{ "Not in the folder any more: it's left out", lang_es_f298, 1 },
-	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_es_f299, 1 },
-	{ "Not used", lang_es_f300, 1 },
-	{ "Nothing", lang_es_f301, 1 },
-	{ "Nothing mapped", lang_es_f302, 1 },
-	{ "Nothing saved in slot %d yet", lang_es_f303, 1 },
-	{ "Nothing to report yet.", lang_es_f304, 1 },
-	{ "Nov", lang_es_f305, 1 },
-	{ "Now", lang_es_f306, 1 },
-	{ "OK", lang_es_f307, 1 },
-	{ "Oct", lang_es_f308, 1 },
-	{ "Off", lang_es_f309, 1 },
-	{ "Off while a patch is on", lang_es_f310, 1 },
-	{ "Off: every game plays like an ordinary SNES game.", lang_es_f311, 1 },
-	{ "Off: the left stick does nothing in games.", lang_es_f312, 1 },
-	{ "Offline", lang_es_f313, 1 },
-	{ "On", lang_es_f314, 1 },
-	{ "Only one screen: nothing to move", lang_es_f315, 1 },
-	{ "Only patches that are on have an order, and this is the only one", lang_es_f316, 1 },
-	{ "Only when your two screens differ in shape. Experimental.", lang_es_f317, 1 },
-	{ "Open quick menu", lang_es_f318, 1 },
-	{ "Opens the bezel's own page, for whichever the game or all games have", lang_es_f319, 1 },
-	{ "Orange", lang_es_f320, 1 },
-	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_es_f321, 1 },
-	{ "Outer Bezel Color", lang_es_f322, 1 },
-	{ "Overlay colors and logo", lang_es_f323, 1 },
-	{ "Overlays", lang_es_f324, 1 },
-	{ "Overlays on", lang_es_f325, 1 },
-	{ "Overlays: Custom", lang_es_f326, 1 },
-	{ "Overlays: Custom (in /overlays)", lang_es_f327, 1 },
-	{ "Overlays: Generated", lang_es_f328, 1 },
-	{ "Overlays: Off", lang_es_f329, 1 },
-	{ "PM", lang_es_f330, 1 },
-	{ "Patch not applied: %s can't be read", lang_es_f331, 1 },
-	{ "Patch not applied: %s is for another ROM", lang_es_f332, 1 },
-	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_es_f333, 1 },
-	{ "Patched: the second screen may not work", lang_es_f334, 1 },
-	{ "Patches", lang_es_f335, 1 },
-	{ "Patches changed", lang_es_f336, 1 },
-	{ "Patches changed since the game started", lang_es_f337, 1 },
-	{ "Patches changed: carrying on from where you were", lang_es_f338, 1 },
-	{ "Pattern strength", lang_es_f339, 1 },
-	{ "Paused", lang_es_f340, 1 },
-	{ "Performance", lang_es_f341, 1 },
-	{ "Performance: Let the System Decide", lang_es_f342, 1 },
-	{ "Performance: Set to Max", lang_es_f343, 1 },
-	{ "Pictures in the middle of their screens, or close together.", lang_es_f344, 1 },
-	{ "Pink", lang_es_f345, 1 },
-	{ "Pinned: the bar stays up.", lang_es_f346, 1 },
-	{ "Pixel Perfect", lang_es_f347, 1 },
-	{ "Pixelated", lang_es_f348, 1 },
-	{ "Placement, overlays", lang_es_f349, 1 },
-	{ "Plain", lang_es_f350, 1 },
-	{ "Play", lang_es_f351, 1 },
-	{ "Playing without achievements this time", lang_es_f352, 1 },
-	{ "Preparing the game...", lang_es_f353, 1 },
-	{ "Press %s", lang_es_f354, 1 },
-	{ "Press A or tap to close", lang_es_f355, 1 },
-	{ "Press A to close", lang_es_f356, 1 },
-	{ "Press a button", lang_es_f357, 1 },
-	{ "Purple", lang_es_f358, 1 },
-	{ "Push the stick: buttons don't count for this one.", lang_es_f359, 1 },
-	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_es_f360, 1 },
-	{ "Quick bar hint", lang_es_f361, 1 },
+	{ "Menu hint", lang_es_f283, 1 },
+	{ "Modified ROM: the second screen may not work", lang_es_f284, 1 },
+	{ "Move", lang_es_f285, 1 },
+	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_es_f286, 1 },
+	{ "New", lang_es_f287, 1 },
+	{ "No RetroArch states here", lang_es_f288, 1 },
+	{ "No achievements for this ROM (MD5 %s)", lang_es_f289, 1 },
+	{ "No cheats found (see Cheats in the wiki)", lang_es_f290, 1 },
+	{ "No controller found", lang_es_f291, 1 },
+	{ "No folder chosen.", lang_es_f292, 1 },
+	{ "No folders in this one", lang_es_f293, 1 },
+	{ "No game has settings of its own.", lang_es_f294, 1 },
+	{ "No games found", lang_es_f295, 1 },
+	{ "No patches here yet", lang_es_f296, 1 },
+	{ "No quick state saved yet.", lang_es_f297, 1 },
+	{ "None", lang_es_f298, 1 },
+	{ "Not in the folder any more: it's left out", lang_es_f299, 1 },
+	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_es_f300, 1 },
+	{ "Not used", lang_es_f301, 1 },
+	{ "Nothing", lang_es_f302, 1 },
+	{ "Nothing mapped", lang_es_f303, 1 },
+	{ "Nothing saved in slot %d yet", lang_es_f304, 1 },
+	{ "Nothing to report yet.", lang_es_f305, 1 },
+	{ "Nov", lang_es_f306, 1 },
+	{ "Now", lang_es_f307, 1 },
+	{ "OK", lang_es_f308, 1 },
+	{ "Oct", lang_es_f309, 1 },
+	{ "Off", lang_es_f310, 1 },
+	{ "Off while a patch is on", lang_es_f311, 1 },
+	{ "Off: every game plays like an ordinary SNES game.", lang_es_f312, 1 },
+	{ "Off: the left stick does nothing in games.", lang_es_f313, 1 },
+	{ "Offline", lang_es_f314, 1 },
+	{ "On", lang_es_f315, 1 },
+	{ "Only one screen: nothing to move", lang_es_f316, 1 },
+	{ "Only patches that are on have an order, and this is the only one", lang_es_f317, 1 },
+	{ "Only when your two screens differ in shape. Experimental.", lang_es_f318, 1 },
+	{ "Open the menu", lang_es_f319, 1 },
+	{ "Opens the bezel's own page, for whichever the game or all games have", lang_es_f320, 1 },
+	{ "Orange", lang_es_f321, 1 },
+	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_es_f322, 1 },
+	{ "Outer Bezel Color", lang_es_f323, 1 },
+	{ "Overlay colors and logo", lang_es_f324, 1 },
+	{ "Overlays", lang_es_f325, 1 },
+	{ "Overlays on", lang_es_f326, 1 },
+	{ "Overlays: Custom", lang_es_f327, 1 },
+	{ "Overlays: Custom (in /overlays)", lang_es_f328, 1 },
+	{ "Overlays: Generated", lang_es_f329, 1 },
+	{ "Overlays: Off", lang_es_f330, 1 },
+	{ "PM", lang_es_f331, 1 },
+	{ "Patch not applied: %s can't be read", lang_es_f332, 1 },
+	{ "Patch not applied: %s is for another ROM", lang_es_f333, 1 },
+	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_es_f334, 1 },
+	{ "Patched: the second screen may not work", lang_es_f335, 1 },
+	{ "Patches", lang_es_f336, 1 },
+	{ "Patches changed", lang_es_f337, 1 },
+	{ "Patches changed since the game started", lang_es_f338, 1 },
+	{ "Patches changed: carrying on from where you were", lang_es_f339, 1 },
+	{ "Pattern strength", lang_es_f340, 1 },
+	{ "Paused", lang_es_f341, 1 },
+	{ "Performance", lang_es_f342, 1 },
+	{ "Performance: Let the System Decide", lang_es_f343, 1 },
+	{ "Performance: Set to Max", lang_es_f344, 1 },
+	{ "Pictures in the middle of their screens, or close together.", lang_es_f345, 1 },
+	{ "Pink", lang_es_f346, 1 },
+	{ "Pinned: the bar stays up.", lang_es_f347, 1 },
+	{ "Pixel Perfect", lang_es_f348, 1 },
+	{ "Pixelated", lang_es_f349, 1 },
+	{ "Placement, overlays", lang_es_f350, 1 },
+	{ "Plain", lang_es_f351, 1 },
+	{ "Play", lang_es_f352, 1 },
+	{ "Playing without achievements this time", lang_es_f353, 1 },
+	{ "Preparing the game...", lang_es_f354, 1 },
+	{ "Press %s", lang_es_f355, 1 },
+	{ "Press A or tap to close", lang_es_f356, 1 },
+	{ "Press A to close", lang_es_f357, 1 },
+	{ "Press a button", lang_es_f358, 1 },
+	{ "Purple", lang_es_f359, 1 },
+	{ "Push the stick: buttons don't count for this one.", lang_es_f360, 1 },
+	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_es_f361, 1 },
 	{ "Quick load state", lang_es_f362, 1 },
 	{ "Quick save state", lang_es_f363, 1 },
 	{ "Quit", lang_es_f364, 1 },
@@ -2456,7 +2456,7 @@ static const I18nEntry lang_es_entries[] = {
 	{ "Second screen", lang_es_f462, 1 },
 	{ "Second screen scale", lang_es_f463, 1 },
 	{ "Select", lang_es_f464, 1 },
-	{ "Select or Start still reach the game when tapped on their own, L3 still opens the quick menu", lang_es_f465, 1 },
+	{ "Select or Start still reach the game when tapped on their own, L3 still opens the menu", lang_es_f465, 1 },
 	{ "Sep", lang_es_f466, 1 },
 	{ "Separate battery save", lang_es_f467, 1 },
 	{ "Separate save states", lang_es_f468, 1 },
@@ -2526,13 +2526,13 @@ static const I18nEntry lang_es_entries[] = {
 	{ "Swap Screens", lang_es_f532, 1 },
 	{ "Swap screens", lang_es_f533, 1 },
 	{ "Swapped", lang_es_f534, 1 },
-	{ "Swipe up for quick menu", lang_es_f535, 1 },
-	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_es_f536, 1 },
-	{ "System", lang_es_f537, 1 },
-	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_es_f538, 1 },
-	{ "Take Screenshot", lang_es_f539, 1 },
-	{ "Tap again to close RetroDS.", lang_es_f540, 1 },
-	{ "Tap the screen or press HOME for the menu", lang_es_f541, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_es_f535, 1 },
+	{ "System", lang_es_f536, 1 },
+	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_es_f537, 1 },
+	{ "Take Screenshot", lang_es_f538, 1 },
+	{ "Tap again to close RetroDS.", lang_es_f539, 1 },
+	{ "Tap the screen or press HOME for the menu", lang_es_f540, 1 },
+	{ "Tap the screen to open the menu", lang_es_f541, 1 },
 	{ "Tap the touchscreen to skip a button this device doesn't have", lang_es_f542, 1 },
 	{ "Tap to set none", lang_es_f543, 1 },
 	{ "Tap to skip a button this device doesn't have", lang_es_f544, 1 },
@@ -2660,7 +2660,7 @@ static const char* const lang_fr_f1[] = { " Recherche d'une nouvelle version..."
 static const char* const lang_fr_f2[] = { " C'est la version la plus r\303\251cente." };
 static const char* const lang_fr_f3[] = { " ms" };
 static const char* const lang_fr_f4[] = { " s" };
-static const char* const lang_fr_f5[] = { "\302\253 Balayez vers le haut pour le menu rapide \302\273 au lancement d'un jeu." };
+static const char* const lang_fr_f5[] = { "\302\253 Touchez l\342\200\231\303\251cran pour ouvrir le menu \302\273 au d\303\251but d\342\200\231une partie." };
 static const char* const lang_fr_f6[] = { "%ca%d" };
 static const char* const lang_fr_f7[] = { "%d \303\251tat RetroArch ici", "%d \303\251tats RetroArch ici" };
 static const char* const lang_fr_f8[] = { "%d fichier v\303\251rifi\303\251", "%d fichiers v\303\251rifi\303\251s" };
@@ -2938,85 +2938,85 @@ static const char* const lang_fr_f279[] = { "Faire correspondre tailles et forme
 static const char* const lang_fr_f280[] = { "Max : pleine vitesse, un appareil plus chaud et une batterie plus courte." };
 static const char* const lang_fr_f281[] = { "mai" };
 static const char* const lang_fr_f282[] = { "Moyenne (15 par seconde)" };
-static const char* const lang_fr_f283[] = { "ROM modifi\303\251e : le deuxi\303\250me \303\251cran peut ne pas fonctionner" };
-static const char* const lang_fr_f284[] = { "D\303\251placer" };
-static const char* const lang_fr_f285[] = { "D\303\251placement : Haut / Bas ou touchez l'endroit voulu, puis A (ou touchez-le \303\240 nouveau). Celui qui est plus bas dans la liste est appliqu\303\251 apr\303\250s" };
-static const char* const lang_fr_f286[] = { "Nouveau" };
-static const char* const lang_fr_f287[] = { "Aucun \303\251tat RetroArch ici" };
-static const char* const lang_fr_f288[] = { "Aucun succ\303\250s pour cette ROM (MD5 %s)" };
-static const char* const lang_fr_f289[] = { "Aucun code de triche trouv\303\251 (voir Cheats dans le wiki)" };
-static const char* const lang_fr_f290[] = { "Aucune manette trouv\303\251e" };
-static const char* const lang_fr_f291[] = { "Aucun dossier choisi." };
-static const char* const lang_fr_f292[] = { "Aucun dossier dans celui-ci" };
-static const char* const lang_fr_f293[] = { "Aucun jeu n'a de r\303\251glages propres." };
-static const char* const lang_fr_f294[] = { "Aucun jeu trouv\303\251" };
-static const char* const lang_fr_f295[] = { "Pas encore de patchs ici" };
-static const char* const lang_fr_f296[] = { "Aucun \303\251tat rapide enregistr\303\251 pour l'instant." };
-static const char* const lang_fr_f297[] = { "Aucun" };
-static const char* const lang_fr_f298[] = { "Plus dans le dossier : il est laiss\303\251 de c\303\264t\303\251" };
-static const char* const lang_fr_f299[] = { "Non repris : l'\303\251tat automatique de RetroArch provient d'un autre de ses c\305\223urs SNES. Pour partager les \303\251tats, r\303\251glez le c\305\223ur SNES de RetroArch sur bsnes." };
-static const char* const lang_fr_f300[] = { "Non utilis\303\251" };
-static const char* const lang_fr_f301[] = { "Rien" };
-static const char* const lang_fr_f302[] = { "Rien d'assign\303\251" };
-static const char* const lang_fr_f303[] = { "Rien de sauvegard\303\251 dans l'emplacement %d pour l'instant" };
-static const char* const lang_fr_f304[] = { "Rien \303\240 signaler pour l'instant." };
-static const char* const lang_fr_f305[] = { "nov." };
-static const char* const lang_fr_f306[] = { "Maintenant" };
-static const char* const lang_fr_f307[] = { "OK" };
-static const char* const lang_fr_f308[] = { "oct." };
-static const char* const lang_fr_f309[] = { "Non" };
-static const char* const lang_fr_f310[] = { "D\303\251sactiv\303\251 tant qu'un patch est activ\303\251" };
-static const char* const lang_fr_f311[] = { "Non : tous les jeux se jouent comme un jeu SNES ordinaire." };
-static const char* const lang_fr_f312[] = { "Non : le stick gauche ne fait rien dans les jeux." };
-static const char* const lang_fr_f313[] = { "Hors ligne" };
-static const char* const lang_fr_f314[] = { "Oui" };
-static const char* const lang_fr_f315[] = { "Un seul \303\251cran : rien \303\240 d\303\251placer" };
-static const char* const lang_fr_f316[] = { "Seuls les patchs activ\303\251s ont un ordre, et celui-ci est le seul" };
-static const char* const lang_fr_f317[] = { "Seulement quand vos deux \303\251crans diff\303\250rent de forme. Exp\303\251rimental." };
-static const char* const lang_fr_f318[] = { "Ouvrir le menu rapide" };
-static const char* const lang_fr_f319[] = { "Ouvre la page propre au cadre, pour celui qu'ont le jeu ou tous les jeux" };
-static const char* const lang_fr_f320[] = { "Orange" };
-static const char* const lang_fr_f321[] = { "Les autres jeux Super Nintendo se jouent sur un \303\251cran, avec leur logo sur l\342\200\231autre." };
-static const char* const lang_fr_f322[] = { "Couleur du cadre ext\303\251rieur" };
-static const char* const lang_fr_f323[] = { "Couleurs et logo des surcouches" };
-static const char* const lang_fr_f324[] = { "Surcouches" };
-static const char* const lang_fr_f325[] = { "Surcouches activ\303\251es" };
-static const char* const lang_fr_f326[] = { "Surcouches : personnalis\303\251es" };
-static const char* const lang_fr_f327[] = { "Surcouches : personnalis\303\251es (dans /overlays)" };
-static const char* const lang_fr_f328[] = { "Surcouches : g\303\251n\303\251r\303\251es" };
-static const char* const lang_fr_f329[] = { "Surcouches : Non" };
-static const char* const lang_fr_f330[] = { "PM" };
-static const char* const lang_fr_f331[] = { "Patch non appliqu\303\251 : %s est illisible" };
-static const char* const lang_fr_f332[] = { "Patch non appliqu\303\251 : %s est pour une autre ROM" };
-static const char* const lang_fr_f333[] = { "Patch\303\251, mais un patch a \303\251t\303\251 laiss\303\251 de c\303\264t\303\251 : voir Patchs dans le menu du jeu" };
-static const char* const lang_fr_f334[] = { "Patch\303\251 : le deuxi\303\250me \303\251cran peut ne pas fonctionner" };
-static const char* const lang_fr_f335[] = { "Patchs" };
-static const char* const lang_fr_f336[] = { "Patchs modifi\303\251s" };
-static const char* const lang_fr_f337[] = { "Patchs modifi\303\251s depuis le lancement du jeu" };
-static const char* const lang_fr_f338[] = { "Patchs modifi\303\251s : reprise l\303\240 o\303\271 vous \303\251tiez" };
-static const char* const lang_fr_f339[] = { "Intensit\303\251 de la trame" };
-static const char* const lang_fr_f340[] = { "En pause" };
-static const char* const lang_fr_f341[] = { "Performances" };
-static const char* const lang_fr_f342[] = { "Performances : laisser le syst\303\250me d\303\251cider" };
-static const char* const lang_fr_f343[] = { "Performances : Max" };
-static const char* const lang_fr_f344[] = { "Images au milieu de leurs \303\251crans, ou rapproch\303\251es." };
-static const char* const lang_fr_f345[] = { "Rose" };
-static const char* const lang_fr_f346[] = { "\303\211pingl\303\251e : la barre reste affich\303\251e." };
-static const char* const lang_fr_f347[] = { "Pixel parfait" };
-static const char* const lang_fr_f348[] = { "Pix\303\251lis\303\251" };
-static const char* const lang_fr_f349[] = { "Placement, surcouches" };
-static const char* const lang_fr_f350[] = { "Simple" };
-static const char* const lang_fr_f351[] = { "Jouer" };
-static const char* const lang_fr_f352[] = { "Cette fois, on joue sans succ\303\250s" };
-static const char* const lang_fr_f353[] = { "Pr\303\251paration du jeu..." };
-static const char* const lang_fr_f354[] = { "Appuyez sur %s" };
-static const char* const lang_fr_f355[] = { "Appuyez sur A ou touchez pour fermer" };
-static const char* const lang_fr_f356[] = { "Appuyez sur A pour fermer" };
-static const char* const lang_fr_f357[] = { "Appuyez sur un bouton" };
-static const char* const lang_fr_f358[] = { "Violet" };
-static const char* const lang_fr_f359[] = { "Poussez le stick : les boutons ne comptent pas pour celui-ci." };
-static const char* const lang_fr_f360[] = { "Placez des fichiers .ips, .ups, .bps ou .xdelta dans %s" };
-static const char* const lang_fr_f361[] = { "Astuce de la barre rapide" };
+static const char* const lang_fr_f283[] = { "Aide du menu" };
+static const char* const lang_fr_f284[] = { "ROM modifi\303\251e : le deuxi\303\250me \303\251cran peut ne pas fonctionner" };
+static const char* const lang_fr_f285[] = { "D\303\251placer" };
+static const char* const lang_fr_f286[] = { "D\303\251placement : Haut / Bas ou touchez l'endroit voulu, puis A (ou touchez-le \303\240 nouveau). Celui qui est plus bas dans la liste est appliqu\303\251 apr\303\250s" };
+static const char* const lang_fr_f287[] = { "Nouveau" };
+static const char* const lang_fr_f288[] = { "Aucun \303\251tat RetroArch ici" };
+static const char* const lang_fr_f289[] = { "Aucun succ\303\250s pour cette ROM (MD5 %s)" };
+static const char* const lang_fr_f290[] = { "Aucun code de triche trouv\303\251 (voir Cheats dans le wiki)" };
+static const char* const lang_fr_f291[] = { "Aucune manette trouv\303\251e" };
+static const char* const lang_fr_f292[] = { "Aucun dossier choisi." };
+static const char* const lang_fr_f293[] = { "Aucun dossier dans celui-ci" };
+static const char* const lang_fr_f294[] = { "Aucun jeu n'a de r\303\251glages propres." };
+static const char* const lang_fr_f295[] = { "Aucun jeu trouv\303\251" };
+static const char* const lang_fr_f296[] = { "Pas encore de patchs ici" };
+static const char* const lang_fr_f297[] = { "Aucun \303\251tat rapide enregistr\303\251 pour l'instant." };
+static const char* const lang_fr_f298[] = { "Aucun" };
+static const char* const lang_fr_f299[] = { "Plus dans le dossier : il est laiss\303\251 de c\303\264t\303\251" };
+static const char* const lang_fr_f300[] = { "Non repris : l'\303\251tat automatique de RetroArch provient d'un autre de ses c\305\223urs SNES. Pour partager les \303\251tats, r\303\251glez le c\305\223ur SNES de RetroArch sur bsnes." };
+static const char* const lang_fr_f301[] = { "Non utilis\303\251" };
+static const char* const lang_fr_f302[] = { "Rien" };
+static const char* const lang_fr_f303[] = { "Rien d'assign\303\251" };
+static const char* const lang_fr_f304[] = { "Rien de sauvegard\303\251 dans l'emplacement %d pour l'instant" };
+static const char* const lang_fr_f305[] = { "Rien \303\240 signaler pour l'instant." };
+static const char* const lang_fr_f306[] = { "nov." };
+static const char* const lang_fr_f307[] = { "Maintenant" };
+static const char* const lang_fr_f308[] = { "OK" };
+static const char* const lang_fr_f309[] = { "oct." };
+static const char* const lang_fr_f310[] = { "Non" };
+static const char* const lang_fr_f311[] = { "D\303\251sactiv\303\251 tant qu'un patch est activ\303\251" };
+static const char* const lang_fr_f312[] = { "Non : tous les jeux se jouent comme un jeu SNES ordinaire." };
+static const char* const lang_fr_f313[] = { "Non : le stick gauche ne fait rien dans les jeux." };
+static const char* const lang_fr_f314[] = { "Hors ligne" };
+static const char* const lang_fr_f315[] = { "Oui" };
+static const char* const lang_fr_f316[] = { "Un seul \303\251cran : rien \303\240 d\303\251placer" };
+static const char* const lang_fr_f317[] = { "Seuls les patchs activ\303\251s ont un ordre, et celui-ci est le seul" };
+static const char* const lang_fr_f318[] = { "Seulement quand vos deux \303\251crans diff\303\250rent de forme. Exp\303\251rimental." };
+static const char* const lang_fr_f319[] = { "Ouvrir le menu" };
+static const char* const lang_fr_f320[] = { "Ouvre la page propre au cadre, pour celui qu'ont le jeu ou tous les jeux" };
+static const char* const lang_fr_f321[] = { "Orange" };
+static const char* const lang_fr_f322[] = { "Les autres jeux Super Nintendo se jouent sur un \303\251cran, avec leur logo sur l\342\200\231autre." };
+static const char* const lang_fr_f323[] = { "Couleur du cadre ext\303\251rieur" };
+static const char* const lang_fr_f324[] = { "Couleurs et logo des surcouches" };
+static const char* const lang_fr_f325[] = { "Surcouches" };
+static const char* const lang_fr_f326[] = { "Surcouches activ\303\251es" };
+static const char* const lang_fr_f327[] = { "Surcouches : personnalis\303\251es" };
+static const char* const lang_fr_f328[] = { "Surcouches : personnalis\303\251es (dans /overlays)" };
+static const char* const lang_fr_f329[] = { "Surcouches : g\303\251n\303\251r\303\251es" };
+static const char* const lang_fr_f330[] = { "Surcouches : Non" };
+static const char* const lang_fr_f331[] = { "PM" };
+static const char* const lang_fr_f332[] = { "Patch non appliqu\303\251 : %s est illisible" };
+static const char* const lang_fr_f333[] = { "Patch non appliqu\303\251 : %s est pour une autre ROM" };
+static const char* const lang_fr_f334[] = { "Patch\303\251, mais un patch a \303\251t\303\251 laiss\303\251 de c\303\264t\303\251 : voir Patchs dans le menu du jeu" };
+static const char* const lang_fr_f335[] = { "Patch\303\251 : le deuxi\303\250me \303\251cran peut ne pas fonctionner" };
+static const char* const lang_fr_f336[] = { "Patchs" };
+static const char* const lang_fr_f337[] = { "Patchs modifi\303\251s" };
+static const char* const lang_fr_f338[] = { "Patchs modifi\303\251s depuis le lancement du jeu" };
+static const char* const lang_fr_f339[] = { "Patchs modifi\303\251s : reprise l\303\240 o\303\271 vous \303\251tiez" };
+static const char* const lang_fr_f340[] = { "Intensit\303\251 de la trame" };
+static const char* const lang_fr_f341[] = { "En pause" };
+static const char* const lang_fr_f342[] = { "Performances" };
+static const char* const lang_fr_f343[] = { "Performances : laisser le syst\303\250me d\303\251cider" };
+static const char* const lang_fr_f344[] = { "Performances : Max" };
+static const char* const lang_fr_f345[] = { "Images au milieu de leurs \303\251crans, ou rapproch\303\251es." };
+static const char* const lang_fr_f346[] = { "Rose" };
+static const char* const lang_fr_f347[] = { "\303\211pingl\303\251e : la barre reste affich\303\251e." };
+static const char* const lang_fr_f348[] = { "Pixel parfait" };
+static const char* const lang_fr_f349[] = { "Pix\303\251lis\303\251" };
+static const char* const lang_fr_f350[] = { "Placement, surcouches" };
+static const char* const lang_fr_f351[] = { "Simple" };
+static const char* const lang_fr_f352[] = { "Jouer" };
+static const char* const lang_fr_f353[] = { "Cette fois, on joue sans succ\303\250s" };
+static const char* const lang_fr_f354[] = { "Pr\303\251paration du jeu..." };
+static const char* const lang_fr_f355[] = { "Appuyez sur %s" };
+static const char* const lang_fr_f356[] = { "Appuyez sur A ou touchez pour fermer" };
+static const char* const lang_fr_f357[] = { "Appuyez sur A pour fermer" };
+static const char* const lang_fr_f358[] = { "Appuyez sur un bouton" };
+static const char* const lang_fr_f359[] = { "Violet" };
+static const char* const lang_fr_f360[] = { "Poussez le stick : les boutons ne comptent pas pour celui-ci." };
+static const char* const lang_fr_f361[] = { "Placez des fichiers .ips, .ups, .bps ou .xdelta dans %s" };
 static const char* const lang_fr_f362[] = { "Chargement rapide d'\303\251tat" };
 static const char* const lang_fr_f363[] = { "Sauvegarde rapide d'\303\251tat" };
 static const char* const lang_fr_f364[] = { "Quitter" };
@@ -3120,7 +3120,7 @@ static const char* const lang_fr_f461[] = { "Capture d'\303\251cran enregistr\30
 static const char* const lang_fr_f462[] = { "Deuxi\303\250me \303\251cran" };
 static const char* const lang_fr_f463[] = { "\303\211chelle du deuxi\303\250me \303\251cran" };
 static const char* const lang_fr_f464[] = { "Select" };
-static const char* const lang_fr_f465[] = { "Select ou Start atteignent toujours le jeu quand on les touche seuls, et L3 ouvre toujours le menu rapide" };
+static const char* const lang_fr_f465[] = { "Select ou Start arrivent toujours au jeu s\342\200\231ils sont press\303\251s seuls, L3 ouvre toujours le menu" };
 static const char* const lang_fr_f466[] = { "sept." };
 static const char* const lang_fr_f467[] = { "Sauvegarde de batterie s\303\251par\303\251e" };
 static const char* const lang_fr_f468[] = { "\303\211tats s\303\251par\303\251s" };
@@ -3190,13 +3190,13 @@ static const char* const lang_fr_f531[] = { "S\303\273r ?" };
 static const char* const lang_fr_f532[] = { "\303\211changer les \303\251crans" };
 static const char* const lang_fr_f533[] = { "\303\211changer les \303\251crans" };
 static const char* const lang_fr_f534[] = { "\303\211chang\303\251s" };
-static const char* const lang_fr_f535[] = { "Balayez vers le haut pour le menu rapide" };
-static const char* const lang_fr_f536[] = { "D\303\251sactiv\303\251 dans retrods.cfg (retroachievements = 0)." };
-static const char* const lang_fr_f537[] = { "Syst\303\250me" };
-static const char* const lang_fr_f538[] = { "Les \303\251tiquettes dans le nom de fichier d'une ROM, comme (USA) ou (En,Fr,De)." };
-static const char* const lang_fr_f539[] = { "Faire une capture d'\303\251cran" };
-static const char* const lang_fr_f540[] = { "Touchez \303\240 nouveau pour fermer RetroDS." };
-static const char* const lang_fr_f541[] = { "Touchez l'\303\251cran ou appuyez sur HOME pour le menu" };
+static const char* const lang_fr_f535[] = { "D\303\251sactiv\303\251 dans retrods.cfg (retroachievements = 0)." };
+static const char* const lang_fr_f536[] = { "Syst\303\250me" };
+static const char* const lang_fr_f537[] = { "Les \303\251tiquettes dans le nom de fichier d'une ROM, comme (USA) ou (En,Fr,De)." };
+static const char* const lang_fr_f538[] = { "Faire une capture d'\303\251cran" };
+static const char* const lang_fr_f539[] = { "Touchez \303\240 nouveau pour fermer RetroDS." };
+static const char* const lang_fr_f540[] = { "Touchez l'\303\251cran ou appuyez sur HOME pour le menu" };
+static const char* const lang_fr_f541[] = { "Touchez l\342\200\231\303\251cran pour ouvrir le menu" };
 static const char* const lang_fr_f542[] = { "Touchez l'\303\251cran tactile pour ignorer un bouton que cet appareil n'a pas" };
 static const char* const lang_fr_f543[] = { "Touchez pour n'en assigner aucun" };
 static const char* const lang_fr_f544[] = { "Touchez pour ignorer un bouton que cet appareil n'a pas" };
@@ -3323,7 +3323,7 @@ static const I18nEntry lang_fr_entries[] = {
 	{ " It's the newest version.", lang_fr_f2, 1 },
 	{ " ms", lang_fr_f3, 1 },
 	{ " s", lang_fr_f4, 1 },
-	{ "\"Swipe up for quick menu\" at a game's start.", lang_fr_f5, 1 },
+	{ "\"Tap the screen to open the menu\" at a game's start.", lang_fr_f5, 1 },
 	{ "%ca%d", lang_fr_f6, 1 },
 	{ "%d RetroArch state here", lang_fr_f7, 2 },
 	{ "%d file checked", lang_fr_f8, 2 },
@@ -3601,85 +3601,85 @@ static const I18nEntry lang_fr_entries[] = {
 	{ "Max: full speed, a warmer device and a shorter battery.", lang_fr_f280, 1 },
 	{ "May", lang_fr_f281, 1 },
 	{ "Medium (15 a second)", lang_fr_f282, 1 },
-	{ "Modified ROM: the second screen may not work", lang_fr_f283, 1 },
-	{ "Move", lang_fr_f284, 1 },
-	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_fr_f285, 1 },
-	{ "New", lang_fr_f286, 1 },
-	{ "No RetroArch states here", lang_fr_f287, 1 },
-	{ "No achievements for this ROM (MD5 %s)", lang_fr_f288, 1 },
-	{ "No cheats found (see Cheats in the wiki)", lang_fr_f289, 1 },
-	{ "No controller found", lang_fr_f290, 1 },
-	{ "No folder chosen.", lang_fr_f291, 1 },
-	{ "No folders in this one", lang_fr_f292, 1 },
-	{ "No game has settings of its own.", lang_fr_f293, 1 },
-	{ "No games found", lang_fr_f294, 1 },
-	{ "No patches here yet", lang_fr_f295, 1 },
-	{ "No quick state saved yet.", lang_fr_f296, 1 },
-	{ "None", lang_fr_f297, 1 },
-	{ "Not in the folder any more: it's left out", lang_fr_f298, 1 },
-	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_fr_f299, 1 },
-	{ "Not used", lang_fr_f300, 1 },
-	{ "Nothing", lang_fr_f301, 1 },
-	{ "Nothing mapped", lang_fr_f302, 1 },
-	{ "Nothing saved in slot %d yet", lang_fr_f303, 1 },
-	{ "Nothing to report yet.", lang_fr_f304, 1 },
-	{ "Nov", lang_fr_f305, 1 },
-	{ "Now", lang_fr_f306, 1 },
-	{ "OK", lang_fr_f307, 1 },
-	{ "Oct", lang_fr_f308, 1 },
-	{ "Off", lang_fr_f309, 1 },
-	{ "Off while a patch is on", lang_fr_f310, 1 },
-	{ "Off: every game plays like an ordinary SNES game.", lang_fr_f311, 1 },
-	{ "Off: the left stick does nothing in games.", lang_fr_f312, 1 },
-	{ "Offline", lang_fr_f313, 1 },
-	{ "On", lang_fr_f314, 1 },
-	{ "Only one screen: nothing to move", lang_fr_f315, 1 },
-	{ "Only patches that are on have an order, and this is the only one", lang_fr_f316, 1 },
-	{ "Only when your two screens differ in shape. Experimental.", lang_fr_f317, 1 },
-	{ "Open quick menu", lang_fr_f318, 1 },
-	{ "Opens the bezel's own page, for whichever the game or all games have", lang_fr_f319, 1 },
-	{ "Orange", lang_fr_f320, 1 },
-	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_fr_f321, 1 },
-	{ "Outer Bezel Color", lang_fr_f322, 1 },
-	{ "Overlay colors and logo", lang_fr_f323, 1 },
-	{ "Overlays", lang_fr_f324, 1 },
-	{ "Overlays on", lang_fr_f325, 1 },
-	{ "Overlays: Custom", lang_fr_f326, 1 },
-	{ "Overlays: Custom (in /overlays)", lang_fr_f327, 1 },
-	{ "Overlays: Generated", lang_fr_f328, 1 },
-	{ "Overlays: Off", lang_fr_f329, 1 },
-	{ "PM", lang_fr_f330, 1 },
-	{ "Patch not applied: %s can't be read", lang_fr_f331, 1 },
-	{ "Patch not applied: %s is for another ROM", lang_fr_f332, 1 },
-	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_fr_f333, 1 },
-	{ "Patched: the second screen may not work", lang_fr_f334, 1 },
-	{ "Patches", lang_fr_f335, 1 },
-	{ "Patches changed", lang_fr_f336, 1 },
-	{ "Patches changed since the game started", lang_fr_f337, 1 },
-	{ "Patches changed: carrying on from where you were", lang_fr_f338, 1 },
-	{ "Pattern strength", lang_fr_f339, 1 },
-	{ "Paused", lang_fr_f340, 1 },
-	{ "Performance", lang_fr_f341, 1 },
-	{ "Performance: Let the System Decide", lang_fr_f342, 1 },
-	{ "Performance: Set to Max", lang_fr_f343, 1 },
-	{ "Pictures in the middle of their screens, or close together.", lang_fr_f344, 1 },
-	{ "Pink", lang_fr_f345, 1 },
-	{ "Pinned: the bar stays up.", lang_fr_f346, 1 },
-	{ "Pixel Perfect", lang_fr_f347, 1 },
-	{ "Pixelated", lang_fr_f348, 1 },
-	{ "Placement, overlays", lang_fr_f349, 1 },
-	{ "Plain", lang_fr_f350, 1 },
-	{ "Play", lang_fr_f351, 1 },
-	{ "Playing without achievements this time", lang_fr_f352, 1 },
-	{ "Preparing the game...", lang_fr_f353, 1 },
-	{ "Press %s", lang_fr_f354, 1 },
-	{ "Press A or tap to close", lang_fr_f355, 1 },
-	{ "Press A to close", lang_fr_f356, 1 },
-	{ "Press a button", lang_fr_f357, 1 },
-	{ "Purple", lang_fr_f358, 1 },
-	{ "Push the stick: buttons don't count for this one.", lang_fr_f359, 1 },
-	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_fr_f360, 1 },
-	{ "Quick bar hint", lang_fr_f361, 1 },
+	{ "Menu hint", lang_fr_f283, 1 },
+	{ "Modified ROM: the second screen may not work", lang_fr_f284, 1 },
+	{ "Move", lang_fr_f285, 1 },
+	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_fr_f286, 1 },
+	{ "New", lang_fr_f287, 1 },
+	{ "No RetroArch states here", lang_fr_f288, 1 },
+	{ "No achievements for this ROM (MD5 %s)", lang_fr_f289, 1 },
+	{ "No cheats found (see Cheats in the wiki)", lang_fr_f290, 1 },
+	{ "No controller found", lang_fr_f291, 1 },
+	{ "No folder chosen.", lang_fr_f292, 1 },
+	{ "No folders in this one", lang_fr_f293, 1 },
+	{ "No game has settings of its own.", lang_fr_f294, 1 },
+	{ "No games found", lang_fr_f295, 1 },
+	{ "No patches here yet", lang_fr_f296, 1 },
+	{ "No quick state saved yet.", lang_fr_f297, 1 },
+	{ "None", lang_fr_f298, 1 },
+	{ "Not in the folder any more: it's left out", lang_fr_f299, 1 },
+	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_fr_f300, 1 },
+	{ "Not used", lang_fr_f301, 1 },
+	{ "Nothing", lang_fr_f302, 1 },
+	{ "Nothing mapped", lang_fr_f303, 1 },
+	{ "Nothing saved in slot %d yet", lang_fr_f304, 1 },
+	{ "Nothing to report yet.", lang_fr_f305, 1 },
+	{ "Nov", lang_fr_f306, 1 },
+	{ "Now", lang_fr_f307, 1 },
+	{ "OK", lang_fr_f308, 1 },
+	{ "Oct", lang_fr_f309, 1 },
+	{ "Off", lang_fr_f310, 1 },
+	{ "Off while a patch is on", lang_fr_f311, 1 },
+	{ "Off: every game plays like an ordinary SNES game.", lang_fr_f312, 1 },
+	{ "Off: the left stick does nothing in games.", lang_fr_f313, 1 },
+	{ "Offline", lang_fr_f314, 1 },
+	{ "On", lang_fr_f315, 1 },
+	{ "Only one screen: nothing to move", lang_fr_f316, 1 },
+	{ "Only patches that are on have an order, and this is the only one", lang_fr_f317, 1 },
+	{ "Only when your two screens differ in shape. Experimental.", lang_fr_f318, 1 },
+	{ "Open the menu", lang_fr_f319, 1 },
+	{ "Opens the bezel's own page, for whichever the game or all games have", lang_fr_f320, 1 },
+	{ "Orange", lang_fr_f321, 1 },
+	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_fr_f322, 1 },
+	{ "Outer Bezel Color", lang_fr_f323, 1 },
+	{ "Overlay colors and logo", lang_fr_f324, 1 },
+	{ "Overlays", lang_fr_f325, 1 },
+	{ "Overlays on", lang_fr_f326, 1 },
+	{ "Overlays: Custom", lang_fr_f327, 1 },
+	{ "Overlays: Custom (in /overlays)", lang_fr_f328, 1 },
+	{ "Overlays: Generated", lang_fr_f329, 1 },
+	{ "Overlays: Off", lang_fr_f330, 1 },
+	{ "PM", lang_fr_f331, 1 },
+	{ "Patch not applied: %s can't be read", lang_fr_f332, 1 },
+	{ "Patch not applied: %s is for another ROM", lang_fr_f333, 1 },
+	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_fr_f334, 1 },
+	{ "Patched: the second screen may not work", lang_fr_f335, 1 },
+	{ "Patches", lang_fr_f336, 1 },
+	{ "Patches changed", lang_fr_f337, 1 },
+	{ "Patches changed since the game started", lang_fr_f338, 1 },
+	{ "Patches changed: carrying on from where you were", lang_fr_f339, 1 },
+	{ "Pattern strength", lang_fr_f340, 1 },
+	{ "Paused", lang_fr_f341, 1 },
+	{ "Performance", lang_fr_f342, 1 },
+	{ "Performance: Let the System Decide", lang_fr_f343, 1 },
+	{ "Performance: Set to Max", lang_fr_f344, 1 },
+	{ "Pictures in the middle of their screens, or close together.", lang_fr_f345, 1 },
+	{ "Pink", lang_fr_f346, 1 },
+	{ "Pinned: the bar stays up.", lang_fr_f347, 1 },
+	{ "Pixel Perfect", lang_fr_f348, 1 },
+	{ "Pixelated", lang_fr_f349, 1 },
+	{ "Placement, overlays", lang_fr_f350, 1 },
+	{ "Plain", lang_fr_f351, 1 },
+	{ "Play", lang_fr_f352, 1 },
+	{ "Playing without achievements this time", lang_fr_f353, 1 },
+	{ "Preparing the game...", lang_fr_f354, 1 },
+	{ "Press %s", lang_fr_f355, 1 },
+	{ "Press A or tap to close", lang_fr_f356, 1 },
+	{ "Press A to close", lang_fr_f357, 1 },
+	{ "Press a button", lang_fr_f358, 1 },
+	{ "Purple", lang_fr_f359, 1 },
+	{ "Push the stick: buttons don't count for this one.", lang_fr_f360, 1 },
+	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_fr_f361, 1 },
 	{ "Quick load state", lang_fr_f362, 1 },
 	{ "Quick save state", lang_fr_f363, 1 },
 	{ "Quit", lang_fr_f364, 1 },
@@ -3783,7 +3783,7 @@ static const I18nEntry lang_fr_entries[] = {
 	{ "Second screen", lang_fr_f462, 1 },
 	{ "Second screen scale", lang_fr_f463, 1 },
 	{ "Select", lang_fr_f464, 1 },
-	{ "Select or Start still reach the game when tapped on their own, L3 still opens the quick menu", lang_fr_f465, 1 },
+	{ "Select or Start still reach the game when tapped on their own, L3 still opens the menu", lang_fr_f465, 1 },
 	{ "Sep", lang_fr_f466, 1 },
 	{ "Separate battery save", lang_fr_f467, 1 },
 	{ "Separate save states", lang_fr_f468, 1 },
@@ -3853,13 +3853,13 @@ static const I18nEntry lang_fr_entries[] = {
 	{ "Swap Screens", lang_fr_f532, 1 },
 	{ "Swap screens", lang_fr_f533, 1 },
 	{ "Swapped", lang_fr_f534, 1 },
-	{ "Swipe up for quick menu", lang_fr_f535, 1 },
-	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_fr_f536, 1 },
-	{ "System", lang_fr_f537, 1 },
-	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_fr_f538, 1 },
-	{ "Take Screenshot", lang_fr_f539, 1 },
-	{ "Tap again to close RetroDS.", lang_fr_f540, 1 },
-	{ "Tap the screen or press HOME for the menu", lang_fr_f541, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_fr_f535, 1 },
+	{ "System", lang_fr_f536, 1 },
+	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_fr_f537, 1 },
+	{ "Take Screenshot", lang_fr_f538, 1 },
+	{ "Tap again to close RetroDS.", lang_fr_f539, 1 },
+	{ "Tap the screen or press HOME for the menu", lang_fr_f540, 1 },
+	{ "Tap the screen to open the menu", lang_fr_f541, 1 },
 	{ "Tap the touchscreen to skip a button this device doesn't have", lang_fr_f542, 1 },
 	{ "Tap to set none", lang_fr_f543, 1 },
 	{ "Tap to skip a button this device doesn't have", lang_fr_f544, 1 },
@@ -3987,7 +3987,7 @@ static const char* const lang_it_f1[] = { " Controllo di una nuova versione..." 
 static const char* const lang_it_f2[] = { " \303\210 la versione pi\303\271 recente." };
 static const char* const lang_it_f3[] = { " ms" };
 static const char* const lang_it_f4[] = { " s" };
-static const char* const lang_it_f5[] = { "\302\253Scorri verso l'alto per il menu rapido\302\273 all'avvio di un gioco." };
+static const char* const lang_it_f5[] = { "\302\253Tocca lo schermo per aprire il menu\302\273 all'avvio di un gioco." };
 static const char* const lang_it_f6[] = { "%ca%d" };
 static const char* const lang_it_f7[] = { "%d stato RetroArch qui", "%d stati RetroArch qui" };
 static const char* const lang_it_f8[] = { "%d file controllato", "%d file controllati" };
@@ -4265,85 +4265,85 @@ static const char* const lang_it_f279[] = { "Abbina dimensioni e forme" };
 static const char* const lang_it_f280[] = { "Max: piena velocit\303\240, un dispositivo pi\303\271 caldo e una batteria pi\303\271 corta." };
 static const char* const lang_it_f281[] = { "mag" };
 static const char* const lang_it_f282[] = { "Media (15 al secondo)" };
-static const char* const lang_it_f283[] = { "ROM modificata: il secondo schermo potrebbe non funzionare" };
-static const char* const lang_it_f284[] = { "Sposta" };
-static const char* const lang_it_f285[] = { "Spostamento: Su / Gi\303\271 oppure tocca dove va, poi A (o toccalo di nuovo). Quello pi\303\271 in basso nell'elenco viene applicato dopo" };
-static const char* const lang_it_f286[] = { "Nuovo" };
-static const char* const lang_it_f287[] = { "Nessuno stato RetroArch qui" };
-static const char* const lang_it_f288[] = { "Nessun obiettivo per questa ROM (MD5 %s)" };
-static const char* const lang_it_f289[] = { "Nessun trucco trovato (vedi Cheats nel wiki)" };
-static const char* const lang_it_f290[] = { "Nessun controller trovato" };
-static const char* const lang_it_f291[] = { "Nessuna cartella scelta." };
-static const char* const lang_it_f292[] = { "Nessuna cartella in questa" };
-static const char* const lang_it_f293[] = { "Nessun gioco ha impostazioni proprie." };
-static const char* const lang_it_f294[] = { "Nessun gioco trovato" };
-static const char* const lang_it_f295[] = { "Ancora nessuna patch qui" };
-static const char* const lang_it_f296[] = { "Nessuno stato rapido salvato finora." };
-static const char* const lang_it_f297[] = { "Nessuna" };
-static const char* const lang_it_f298[] = { "Non pi\303\271 nella cartella: viene lasciata fuori" };
-static const char* const lang_it_f299[] = { "Non ripreso: lo stato automatico di RetroArch viene da un altro dei suoi core SNES. Per condividere gli stati, imposta il core SNES di RetroArch su bsnes." };
-static const char* const lang_it_f300[] = { "Non usata" };
-static const char* const lang_it_f301[] = { "Niente" };
-static const char* const lang_it_f302[] = { "Niente assegnato" };
-static const char* const lang_it_f303[] = { "Ancora niente salvato nello slot %d" };
-static const char* const lang_it_f304[] = { "Ancora niente da segnalare." };
-static const char* const lang_it_f305[] = { "nov" };
-static const char* const lang_it_f306[] = { "Adesso" };
-static const char* const lang_it_f307[] = { "OK" };
-static const char* const lang_it_f308[] = { "ott" };
-static const char* const lang_it_f309[] = { "No" };
-static const char* const lang_it_f310[] = { "Disattivato finch\303\251 una patch \303\250 attiva" };
-static const char* const lang_it_f311[] = { "No: ogni gioco si gioca come un normale gioco SNES." };
-static const char* const lang_it_f312[] = { "No: lo stick sinistro non fa nulla nei giochi." };
-static const char* const lang_it_f313[] = { "Offline" };
-static const char* const lang_it_f314[] = { "S\303\254" };
-static const char* const lang_it_f315[] = { "Un solo schermo: niente da spostare" };
-static const char* const lang_it_f316[] = { "Solo le patch attive hanno un ordine, e questa \303\250 l'unica" };
-static const char* const lang_it_f317[] = { "Solo quando i tuoi due schermi hanno forme diverse. Sperimentale." };
-static const char* const lang_it_f318[] = { "Apri il menu rapido" };
-static const char* const lang_it_f319[] = { "Apre la pagina della cornice, per quella che hanno il gioco o tutti i giochi" };
-static const char* const lang_it_f320[] = { "Arancione" };
-static const char* const lang_it_f321[] = { "Gli altri giochi Super Nintendo si giocano su uno schermo, con il loro logo sull'altro." };
-static const char* const lang_it_f322[] = { "Colore della cornice esterna" };
-static const char* const lang_it_f323[] = { "Colori e logo degli overlay" };
-static const char* const lang_it_f324[] = { "Overlay" };
-static const char* const lang_it_f325[] = { "Overlay attivi" };
-static const char* const lang_it_f326[] = { "Overlay: personalizzati" };
-static const char* const lang_it_f327[] = { "Overlay: personalizzati (in /overlays)" };
-static const char* const lang_it_f328[] = { "Overlay: generati" };
-static const char* const lang_it_f329[] = { "Overlay: No" };
-static const char* const lang_it_f330[] = { "PM" };
-static const char* const lang_it_f331[] = { "Patch non applicata: %s non \303\250 leggibile" };
-static const char* const lang_it_f332[] = { "Patch non applicata: %s \303\250 per un'altra ROM" };
-static const char* const lang_it_f333[] = { "Patchato, ma una patch \303\250 stata lasciata fuori: vedi Patch nel menu del gioco" };
-static const char* const lang_it_f334[] = { "Patchato: il secondo schermo potrebbe non funzionare" };
-static const char* const lang_it_f335[] = { "Patch" };
-static const char* const lang_it_f336[] = { "Patch modificate" };
-static const char* const lang_it_f337[] = { "Patch modificate dall'avvio del gioco" };
-static const char* const lang_it_f338[] = { "Patch modificate: si prosegue da dove eri" };
-static const char* const lang_it_f339[] = { "Intensit\303\240 della trama" };
-static const char* const lang_it_f340[] = { "In pausa" };
-static const char* const lang_it_f341[] = { "Prestazioni" };
-static const char* const lang_it_f342[] = { "Prestazioni: decide il sistema" };
-static const char* const lang_it_f343[] = { "Prestazioni: Max" };
-static const char* const lang_it_f344[] = { "Immagini al centro dei loro schermi, o vicine tra loro." };
-static const char* const lang_it_f345[] = { "Rosa" };
-static const char* const lang_it_f346[] = { "Fissata: la barra resta in alto." };
-static const char* const lang_it_f347[] = { "Pixel perfetto" };
-static const char* const lang_it_f348[] = { "Pixelato" };
-static const char* const lang_it_f349[] = { "Posizionamento, overlay" };
-static const char* const lang_it_f350[] = { "Semplice" };
-static const char* const lang_it_f351[] = { "Gioca" };
-static const char* const lang_it_f352[] = { "Questa volta si gioca senza obiettivi" };
-static const char* const lang_it_f353[] = { "Preparazione del gioco..." };
-static const char* const lang_it_f354[] = { "Premi %s" };
-static const char* const lang_it_f355[] = { "Premi A o tocca per chiudere" };
-static const char* const lang_it_f356[] = { "Premi A per chiudere" };
-static const char* const lang_it_f357[] = { "Premi un pulsante" };
-static const char* const lang_it_f358[] = { "Viola" };
-static const char* const lang_it_f359[] = { "Spingi lo stick: i pulsanti non contano per questo." };
-static const char* const lang_it_f360[] = { "Metti file .ips, .ups, .bps o .xdelta in %s" };
-static const char* const lang_it_f361[] = { "Suggerimento della barra rapida" };
+static const char* const lang_it_f283[] = { "Suggerimento menu" };
+static const char* const lang_it_f284[] = { "ROM modificata: il secondo schermo potrebbe non funzionare" };
+static const char* const lang_it_f285[] = { "Sposta" };
+static const char* const lang_it_f286[] = { "Spostamento: Su / Gi\303\271 oppure tocca dove va, poi A (o toccalo di nuovo). Quello pi\303\271 in basso nell'elenco viene applicato dopo" };
+static const char* const lang_it_f287[] = { "Nuovo" };
+static const char* const lang_it_f288[] = { "Nessuno stato RetroArch qui" };
+static const char* const lang_it_f289[] = { "Nessun obiettivo per questa ROM (MD5 %s)" };
+static const char* const lang_it_f290[] = { "Nessun trucco trovato (vedi Cheats nel wiki)" };
+static const char* const lang_it_f291[] = { "Nessun controller trovato" };
+static const char* const lang_it_f292[] = { "Nessuna cartella scelta." };
+static const char* const lang_it_f293[] = { "Nessuna cartella in questa" };
+static const char* const lang_it_f294[] = { "Nessun gioco ha impostazioni proprie." };
+static const char* const lang_it_f295[] = { "Nessun gioco trovato" };
+static const char* const lang_it_f296[] = { "Ancora nessuna patch qui" };
+static const char* const lang_it_f297[] = { "Nessuno stato rapido salvato finora." };
+static const char* const lang_it_f298[] = { "Nessuna" };
+static const char* const lang_it_f299[] = { "Non pi\303\271 nella cartella: viene lasciata fuori" };
+static const char* const lang_it_f300[] = { "Non ripreso: lo stato automatico di RetroArch viene da un altro dei suoi core SNES. Per condividere gli stati, imposta il core SNES di RetroArch su bsnes." };
+static const char* const lang_it_f301[] = { "Non usata" };
+static const char* const lang_it_f302[] = { "Niente" };
+static const char* const lang_it_f303[] = { "Niente assegnato" };
+static const char* const lang_it_f304[] = { "Ancora niente salvato nello slot %d" };
+static const char* const lang_it_f305[] = { "Ancora niente da segnalare." };
+static const char* const lang_it_f306[] = { "nov" };
+static const char* const lang_it_f307[] = { "Adesso" };
+static const char* const lang_it_f308[] = { "OK" };
+static const char* const lang_it_f309[] = { "ott" };
+static const char* const lang_it_f310[] = { "No" };
+static const char* const lang_it_f311[] = { "Disattivato finch\303\251 una patch \303\250 attiva" };
+static const char* const lang_it_f312[] = { "No: ogni gioco si gioca come un normale gioco SNES." };
+static const char* const lang_it_f313[] = { "No: lo stick sinistro non fa nulla nei giochi." };
+static const char* const lang_it_f314[] = { "Offline" };
+static const char* const lang_it_f315[] = { "S\303\254" };
+static const char* const lang_it_f316[] = { "Un solo schermo: niente da spostare" };
+static const char* const lang_it_f317[] = { "Solo le patch attive hanno un ordine, e questa \303\250 l'unica" };
+static const char* const lang_it_f318[] = { "Solo quando i tuoi due schermi hanno forme diverse. Sperimentale." };
+static const char* const lang_it_f319[] = { "Apri il menu" };
+static const char* const lang_it_f320[] = { "Apre la pagina della cornice, per quella che hanno il gioco o tutti i giochi" };
+static const char* const lang_it_f321[] = { "Arancione" };
+static const char* const lang_it_f322[] = { "Gli altri giochi Super Nintendo si giocano su uno schermo, con il loro logo sull'altro." };
+static const char* const lang_it_f323[] = { "Colore della cornice esterna" };
+static const char* const lang_it_f324[] = { "Colori e logo degli overlay" };
+static const char* const lang_it_f325[] = { "Overlay" };
+static const char* const lang_it_f326[] = { "Overlay attivi" };
+static const char* const lang_it_f327[] = { "Overlay: personalizzati" };
+static const char* const lang_it_f328[] = { "Overlay: personalizzati (in /overlays)" };
+static const char* const lang_it_f329[] = { "Overlay: generati" };
+static const char* const lang_it_f330[] = { "Overlay: No" };
+static const char* const lang_it_f331[] = { "PM" };
+static const char* const lang_it_f332[] = { "Patch non applicata: %s non \303\250 leggibile" };
+static const char* const lang_it_f333[] = { "Patch non applicata: %s \303\250 per un'altra ROM" };
+static const char* const lang_it_f334[] = { "Patchato, ma una patch \303\250 stata lasciata fuori: vedi Patch nel menu del gioco" };
+static const char* const lang_it_f335[] = { "Patchato: il secondo schermo potrebbe non funzionare" };
+static const char* const lang_it_f336[] = { "Patch" };
+static const char* const lang_it_f337[] = { "Patch modificate" };
+static const char* const lang_it_f338[] = { "Patch modificate dall'avvio del gioco" };
+static const char* const lang_it_f339[] = { "Patch modificate: si prosegue da dove eri" };
+static const char* const lang_it_f340[] = { "Intensit\303\240 della trama" };
+static const char* const lang_it_f341[] = { "In pausa" };
+static const char* const lang_it_f342[] = { "Prestazioni" };
+static const char* const lang_it_f343[] = { "Prestazioni: decide il sistema" };
+static const char* const lang_it_f344[] = { "Prestazioni: Max" };
+static const char* const lang_it_f345[] = { "Immagini al centro dei loro schermi, o vicine tra loro." };
+static const char* const lang_it_f346[] = { "Rosa" };
+static const char* const lang_it_f347[] = { "Fissata: la barra resta in alto." };
+static const char* const lang_it_f348[] = { "Pixel perfetto" };
+static const char* const lang_it_f349[] = { "Pixelato" };
+static const char* const lang_it_f350[] = { "Posizionamento, overlay" };
+static const char* const lang_it_f351[] = { "Semplice" };
+static const char* const lang_it_f352[] = { "Gioca" };
+static const char* const lang_it_f353[] = { "Questa volta si gioca senza obiettivi" };
+static const char* const lang_it_f354[] = { "Preparazione del gioco..." };
+static const char* const lang_it_f355[] = { "Premi %s" };
+static const char* const lang_it_f356[] = { "Premi A o tocca per chiudere" };
+static const char* const lang_it_f357[] = { "Premi A per chiudere" };
+static const char* const lang_it_f358[] = { "Premi un pulsante" };
+static const char* const lang_it_f359[] = { "Viola" };
+static const char* const lang_it_f360[] = { "Spingi lo stick: i pulsanti non contano per questo." };
+static const char* const lang_it_f361[] = { "Metti file .ips, .ups, .bps o .xdelta in %s" };
 static const char* const lang_it_f362[] = { "Caricamento rapido dello stato" };
 static const char* const lang_it_f363[] = { "Salvataggio rapido dello stato" };
 static const char* const lang_it_f364[] = { "Esci" };
@@ -4447,7 +4447,7 @@ static const char* const lang_it_f461[] = { "Screenshot salvato" };
 static const char* const lang_it_f462[] = { "Secondo schermo" };
 static const char* const lang_it_f463[] = { "Scala del secondo schermo" };
 static const char* const lang_it_f464[] = { "Select" };
-static const char* const lang_it_f465[] = { "Select o Start raggiungono ancora il gioco se toccati da soli, e L3 apre ancora il menu rapido" };
+static const char* const lang_it_f465[] = { "Select o Start arrivano ancora al gioco se premuti da soli, L3 apre ancora il menu" };
 static const char* const lang_it_f466[] = { "set" };
 static const char* const lang_it_f467[] = { "Salvataggio batteria separato" };
 static const char* const lang_it_f468[] = { "Stati separati" };
@@ -4517,13 +4517,13 @@ static const char* const lang_it_f531[] = { "Sicuro?" };
 static const char* const lang_it_f532[] = { "Scambia gli schermi" };
 static const char* const lang_it_f533[] = { "Scambia gli schermi" };
 static const char* const lang_it_f534[] = { "Scambiati" };
-static const char* const lang_it_f535[] = { "Scorri verso l'alto per il menu rapido" };
-static const char* const lang_it_f536[] = { "Disattivato in retrods.cfg (retroachievements = 0)." };
-static const char* const lang_it_f537[] = { "Sistema" };
-static const char* const lang_it_f538[] = { "I tag nel nome file di una ROM, come (USA) o (En,Fr,De)." };
-static const char* const lang_it_f539[] = { "Fai uno screenshot" };
-static const char* const lang_it_f540[] = { "Tocca di nuovo per chiudere RetroDS." };
-static const char* const lang_it_f541[] = { "Tocca lo schermo o premi HOME per il menu" };
+static const char* const lang_it_f535[] = { "Disattivato in retrods.cfg (retroachievements = 0)." };
+static const char* const lang_it_f536[] = { "Sistema" };
+static const char* const lang_it_f537[] = { "I tag nel nome file di una ROM, come (USA) o (En,Fr,De)." };
+static const char* const lang_it_f538[] = { "Fai uno screenshot" };
+static const char* const lang_it_f539[] = { "Tocca di nuovo per chiudere RetroDS." };
+static const char* const lang_it_f540[] = { "Tocca lo schermo o premi HOME per il menu" };
+static const char* const lang_it_f541[] = { "Tocca lo schermo per aprire il menu" };
 static const char* const lang_it_f542[] = { "Tocca il touchscreen per saltare un pulsante che questo dispositivo non ha" };
 static const char* const lang_it_f543[] = { "Tocca per non assegnarne nessuno" };
 static const char* const lang_it_f544[] = { "Tocca per saltare un pulsante che questo dispositivo non ha" };
@@ -4650,7 +4650,7 @@ static const I18nEntry lang_it_entries[] = {
 	{ " It's the newest version.", lang_it_f2, 1 },
 	{ " ms", lang_it_f3, 1 },
 	{ " s", lang_it_f4, 1 },
-	{ "\"Swipe up for quick menu\" at a game's start.", lang_it_f5, 1 },
+	{ "\"Tap the screen to open the menu\" at a game's start.", lang_it_f5, 1 },
 	{ "%ca%d", lang_it_f6, 1 },
 	{ "%d RetroArch state here", lang_it_f7, 2 },
 	{ "%d file checked", lang_it_f8, 2 },
@@ -4928,85 +4928,85 @@ static const I18nEntry lang_it_entries[] = {
 	{ "Max: full speed, a warmer device and a shorter battery.", lang_it_f280, 1 },
 	{ "May", lang_it_f281, 1 },
 	{ "Medium (15 a second)", lang_it_f282, 1 },
-	{ "Modified ROM: the second screen may not work", lang_it_f283, 1 },
-	{ "Move", lang_it_f284, 1 },
-	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_it_f285, 1 },
-	{ "New", lang_it_f286, 1 },
-	{ "No RetroArch states here", lang_it_f287, 1 },
-	{ "No achievements for this ROM (MD5 %s)", lang_it_f288, 1 },
-	{ "No cheats found (see Cheats in the wiki)", lang_it_f289, 1 },
-	{ "No controller found", lang_it_f290, 1 },
-	{ "No folder chosen.", lang_it_f291, 1 },
-	{ "No folders in this one", lang_it_f292, 1 },
-	{ "No game has settings of its own.", lang_it_f293, 1 },
-	{ "No games found", lang_it_f294, 1 },
-	{ "No patches here yet", lang_it_f295, 1 },
-	{ "No quick state saved yet.", lang_it_f296, 1 },
-	{ "None", lang_it_f297, 1 },
-	{ "Not in the folder any more: it's left out", lang_it_f298, 1 },
-	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_it_f299, 1 },
-	{ "Not used", lang_it_f300, 1 },
-	{ "Nothing", lang_it_f301, 1 },
-	{ "Nothing mapped", lang_it_f302, 1 },
-	{ "Nothing saved in slot %d yet", lang_it_f303, 1 },
-	{ "Nothing to report yet.", lang_it_f304, 1 },
-	{ "Nov", lang_it_f305, 1 },
-	{ "Now", lang_it_f306, 1 },
-	{ "OK", lang_it_f307, 1 },
-	{ "Oct", lang_it_f308, 1 },
-	{ "Off", lang_it_f309, 1 },
-	{ "Off while a patch is on", lang_it_f310, 1 },
-	{ "Off: every game plays like an ordinary SNES game.", lang_it_f311, 1 },
-	{ "Off: the left stick does nothing in games.", lang_it_f312, 1 },
-	{ "Offline", lang_it_f313, 1 },
-	{ "On", lang_it_f314, 1 },
-	{ "Only one screen: nothing to move", lang_it_f315, 1 },
-	{ "Only patches that are on have an order, and this is the only one", lang_it_f316, 1 },
-	{ "Only when your two screens differ in shape. Experimental.", lang_it_f317, 1 },
-	{ "Open quick menu", lang_it_f318, 1 },
-	{ "Opens the bezel's own page, for whichever the game or all games have", lang_it_f319, 1 },
-	{ "Orange", lang_it_f320, 1 },
-	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_it_f321, 1 },
-	{ "Outer Bezel Color", lang_it_f322, 1 },
-	{ "Overlay colors and logo", lang_it_f323, 1 },
-	{ "Overlays", lang_it_f324, 1 },
-	{ "Overlays on", lang_it_f325, 1 },
-	{ "Overlays: Custom", lang_it_f326, 1 },
-	{ "Overlays: Custom (in /overlays)", lang_it_f327, 1 },
-	{ "Overlays: Generated", lang_it_f328, 1 },
-	{ "Overlays: Off", lang_it_f329, 1 },
-	{ "PM", lang_it_f330, 1 },
-	{ "Patch not applied: %s can't be read", lang_it_f331, 1 },
-	{ "Patch not applied: %s is for another ROM", lang_it_f332, 1 },
-	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_it_f333, 1 },
-	{ "Patched: the second screen may not work", lang_it_f334, 1 },
-	{ "Patches", lang_it_f335, 1 },
-	{ "Patches changed", lang_it_f336, 1 },
-	{ "Patches changed since the game started", lang_it_f337, 1 },
-	{ "Patches changed: carrying on from where you were", lang_it_f338, 1 },
-	{ "Pattern strength", lang_it_f339, 1 },
-	{ "Paused", lang_it_f340, 1 },
-	{ "Performance", lang_it_f341, 1 },
-	{ "Performance: Let the System Decide", lang_it_f342, 1 },
-	{ "Performance: Set to Max", lang_it_f343, 1 },
-	{ "Pictures in the middle of their screens, or close together.", lang_it_f344, 1 },
-	{ "Pink", lang_it_f345, 1 },
-	{ "Pinned: the bar stays up.", lang_it_f346, 1 },
-	{ "Pixel Perfect", lang_it_f347, 1 },
-	{ "Pixelated", lang_it_f348, 1 },
-	{ "Placement, overlays", lang_it_f349, 1 },
-	{ "Plain", lang_it_f350, 1 },
-	{ "Play", lang_it_f351, 1 },
-	{ "Playing without achievements this time", lang_it_f352, 1 },
-	{ "Preparing the game...", lang_it_f353, 1 },
-	{ "Press %s", lang_it_f354, 1 },
-	{ "Press A or tap to close", lang_it_f355, 1 },
-	{ "Press A to close", lang_it_f356, 1 },
-	{ "Press a button", lang_it_f357, 1 },
-	{ "Purple", lang_it_f358, 1 },
-	{ "Push the stick: buttons don't count for this one.", lang_it_f359, 1 },
-	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_it_f360, 1 },
-	{ "Quick bar hint", lang_it_f361, 1 },
+	{ "Menu hint", lang_it_f283, 1 },
+	{ "Modified ROM: the second screen may not work", lang_it_f284, 1 },
+	{ "Move", lang_it_f285, 1 },
+	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_it_f286, 1 },
+	{ "New", lang_it_f287, 1 },
+	{ "No RetroArch states here", lang_it_f288, 1 },
+	{ "No achievements for this ROM (MD5 %s)", lang_it_f289, 1 },
+	{ "No cheats found (see Cheats in the wiki)", lang_it_f290, 1 },
+	{ "No controller found", lang_it_f291, 1 },
+	{ "No folder chosen.", lang_it_f292, 1 },
+	{ "No folders in this one", lang_it_f293, 1 },
+	{ "No game has settings of its own.", lang_it_f294, 1 },
+	{ "No games found", lang_it_f295, 1 },
+	{ "No patches here yet", lang_it_f296, 1 },
+	{ "No quick state saved yet.", lang_it_f297, 1 },
+	{ "None", lang_it_f298, 1 },
+	{ "Not in the folder any more: it's left out", lang_it_f299, 1 },
+	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_it_f300, 1 },
+	{ "Not used", lang_it_f301, 1 },
+	{ "Nothing", lang_it_f302, 1 },
+	{ "Nothing mapped", lang_it_f303, 1 },
+	{ "Nothing saved in slot %d yet", lang_it_f304, 1 },
+	{ "Nothing to report yet.", lang_it_f305, 1 },
+	{ "Nov", lang_it_f306, 1 },
+	{ "Now", lang_it_f307, 1 },
+	{ "OK", lang_it_f308, 1 },
+	{ "Oct", lang_it_f309, 1 },
+	{ "Off", lang_it_f310, 1 },
+	{ "Off while a patch is on", lang_it_f311, 1 },
+	{ "Off: every game plays like an ordinary SNES game.", lang_it_f312, 1 },
+	{ "Off: the left stick does nothing in games.", lang_it_f313, 1 },
+	{ "Offline", lang_it_f314, 1 },
+	{ "On", lang_it_f315, 1 },
+	{ "Only one screen: nothing to move", lang_it_f316, 1 },
+	{ "Only patches that are on have an order, and this is the only one", lang_it_f317, 1 },
+	{ "Only when your two screens differ in shape. Experimental.", lang_it_f318, 1 },
+	{ "Open the menu", lang_it_f319, 1 },
+	{ "Opens the bezel's own page, for whichever the game or all games have", lang_it_f320, 1 },
+	{ "Orange", lang_it_f321, 1 },
+	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_it_f322, 1 },
+	{ "Outer Bezel Color", lang_it_f323, 1 },
+	{ "Overlay colors and logo", lang_it_f324, 1 },
+	{ "Overlays", lang_it_f325, 1 },
+	{ "Overlays on", lang_it_f326, 1 },
+	{ "Overlays: Custom", lang_it_f327, 1 },
+	{ "Overlays: Custom (in /overlays)", lang_it_f328, 1 },
+	{ "Overlays: Generated", lang_it_f329, 1 },
+	{ "Overlays: Off", lang_it_f330, 1 },
+	{ "PM", lang_it_f331, 1 },
+	{ "Patch not applied: %s can't be read", lang_it_f332, 1 },
+	{ "Patch not applied: %s is for another ROM", lang_it_f333, 1 },
+	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_it_f334, 1 },
+	{ "Patched: the second screen may not work", lang_it_f335, 1 },
+	{ "Patches", lang_it_f336, 1 },
+	{ "Patches changed", lang_it_f337, 1 },
+	{ "Patches changed since the game started", lang_it_f338, 1 },
+	{ "Patches changed: carrying on from where you were", lang_it_f339, 1 },
+	{ "Pattern strength", lang_it_f340, 1 },
+	{ "Paused", lang_it_f341, 1 },
+	{ "Performance", lang_it_f342, 1 },
+	{ "Performance: Let the System Decide", lang_it_f343, 1 },
+	{ "Performance: Set to Max", lang_it_f344, 1 },
+	{ "Pictures in the middle of their screens, or close together.", lang_it_f345, 1 },
+	{ "Pink", lang_it_f346, 1 },
+	{ "Pinned: the bar stays up.", lang_it_f347, 1 },
+	{ "Pixel Perfect", lang_it_f348, 1 },
+	{ "Pixelated", lang_it_f349, 1 },
+	{ "Placement, overlays", lang_it_f350, 1 },
+	{ "Plain", lang_it_f351, 1 },
+	{ "Play", lang_it_f352, 1 },
+	{ "Playing without achievements this time", lang_it_f353, 1 },
+	{ "Preparing the game...", lang_it_f354, 1 },
+	{ "Press %s", lang_it_f355, 1 },
+	{ "Press A or tap to close", lang_it_f356, 1 },
+	{ "Press A to close", lang_it_f357, 1 },
+	{ "Press a button", lang_it_f358, 1 },
+	{ "Purple", lang_it_f359, 1 },
+	{ "Push the stick: buttons don't count for this one.", lang_it_f360, 1 },
+	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_it_f361, 1 },
 	{ "Quick load state", lang_it_f362, 1 },
 	{ "Quick save state", lang_it_f363, 1 },
 	{ "Quit", lang_it_f364, 1 },
@@ -5110,7 +5110,7 @@ static const I18nEntry lang_it_entries[] = {
 	{ "Second screen", lang_it_f462, 1 },
 	{ "Second screen scale", lang_it_f463, 1 },
 	{ "Select", lang_it_f464, 1 },
-	{ "Select or Start still reach the game when tapped on their own, L3 still opens the quick menu", lang_it_f465, 1 },
+	{ "Select or Start still reach the game when tapped on their own, L3 still opens the menu", lang_it_f465, 1 },
 	{ "Sep", lang_it_f466, 1 },
 	{ "Separate battery save", lang_it_f467, 1 },
 	{ "Separate save states", lang_it_f468, 1 },
@@ -5180,13 +5180,13 @@ static const I18nEntry lang_it_entries[] = {
 	{ "Swap Screens", lang_it_f532, 1 },
 	{ "Swap screens", lang_it_f533, 1 },
 	{ "Swapped", lang_it_f534, 1 },
-	{ "Swipe up for quick menu", lang_it_f535, 1 },
-	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_it_f536, 1 },
-	{ "System", lang_it_f537, 1 },
-	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_it_f538, 1 },
-	{ "Take Screenshot", lang_it_f539, 1 },
-	{ "Tap again to close RetroDS.", lang_it_f540, 1 },
-	{ "Tap the screen or press HOME for the menu", lang_it_f541, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_it_f535, 1 },
+	{ "System", lang_it_f536, 1 },
+	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_it_f537, 1 },
+	{ "Take Screenshot", lang_it_f538, 1 },
+	{ "Tap again to close RetroDS.", lang_it_f539, 1 },
+	{ "Tap the screen or press HOME for the menu", lang_it_f540, 1 },
+	{ "Tap the screen to open the menu", lang_it_f541, 1 },
 	{ "Tap the touchscreen to skip a button this device doesn't have", lang_it_f542, 1 },
 	{ "Tap to set none", lang_it_f543, 1 },
 	{ "Tap to skip a button this device doesn't have", lang_it_f544, 1 },
@@ -5314,7 +5314,7 @@ static const char* const lang_ja_f1[] = { " \346\226\260\343\201\227\343\201\204
 static const char* const lang_ja_f2[] = { " \346\234\200\346\226\260\343\203\220\343\203\274\343\202\270\343\203\247\343\203\263\343\201\247\343\201\231\343\200\202" };
 static const char* const lang_ja_f3[] = { " ms" };
 static const char* const lang_ja_f4[] = { " s" };
-static const char* const lang_ja_f5[] = { "\343\202\262\343\203\274\343\203\240\351\226\213\345\247\213\346\231\202\343\201\256\343\200\214\344\270\212\343\201\253\343\202\271\343\203\257\343\202\244\343\203\227\343\201\247\343\202\257\343\202\244\343\203\203\343\202\257\343\203\241\343\203\213\343\203\245\343\203\274\343\200\215\343\200\202" };
+static const char* const lang_ja_f5[] = { "\343\202\262\343\203\274\343\203\240\351\226\213\345\247\213\346\231\202\343\201\253\343\200\214\347\224\273\351\235\242\343\202\222\343\202\277\343\203\203\343\203\227\343\201\227\343\201\246\343\203\241\343\203\213\343\203\245\343\203\274\343\202\222\351\226\213\343\201\217\343\200\215\343\202\222\350\241\250\347\244\272\343\201\227\343\201\276\343\201\231\343\200\202" };
 static const char* const lang_ja_f6[] = { "%ca%d" };
 static const char* const lang_ja_f7[] = { "\343\201\223\343\201\223\343\201\253 RetroArch \343\201\256\343\202\271\343\203\206\343\203\274\343\203\210\343\201\214 %d \345\200\213" };
 static const char* const lang_ja_f8[] = { "%d \345\200\213\343\201\256\343\203\225\343\202\241\343\202\244\343\203\253\343\202\222\347\242\272\350\252\215" };
@@ -5592,85 +5592,85 @@ static const char* const lang_ja_f279[] = { "\343\202\265\343\202\244\343\202\27
 static const char* const lang_ja_f280[] = { "\346\234\200\345\244\247: \343\203\225\343\203\253\343\202\271\343\203\224\343\203\274\343\203\211\343\200\202\347\253\257\346\234\253\343\201\257\347\206\261\343\201\217\343\201\252\343\202\212\343\200\201\343\203\220\343\203\203\343\203\206\343\203\252\343\203\274\343\201\256\346\214\201\343\201\241\343\201\257\347\237\255\343\201\217\343\201\252\343\202\212\343\201\276\343\201\231\343\200\202" };
 static const char* const lang_ja_f281[] = { "5\346\234\210" };
 static const char* const lang_ja_f282[] = { "\346\231\256\351\200\232 (\346\257\216\347\247\222 15 \345\233\236)" };
-static const char* const lang_ja_f283[] = { "\346\224\271\351\200\240 ROM: 2 \347\224\273\351\235\242\347\233\256\343\201\214\345\213\225\343\201\213\343\201\252\343\201\204\345\240\264\345\220\210\343\201\214\343\201\202\343\202\212\343\201\276\343\201\231" };
-static const char* const lang_ja_f284[] = { "\347\247\273\345\213\225" };
-static const char* const lang_ja_f285[] = { "\347\247\273\345\213\225\344\270\255: \344\270\212 / \344\270\213 \343\201\276\343\201\237\343\201\257\347\247\273\345\213\225\345\205\210\343\202\222\343\202\277\343\203\203\343\203\227\343\201\227\343\200\201A (\343\202\202\343\201\206\344\270\200\345\272\246\343\202\277\343\203\203\343\203\227\343\201\247\343\202\202\345\217\257)\343\200\202\343\203\252\343\202\271\343\203\210\343\201\247\344\270\213\343\201\253\343\201\202\343\202\213\343\202\202\343\201\256\343\201\214\345\276\214\343\201\213\343\202\211\351\201\251\347\224\250\343\201\225\343\202\214\343\201\276\343\201\231" };
-static const char* const lang_ja_f286[] = { "\346\226\260\350\246\217" };
-static const char* const lang_ja_f287[] = { "\343\201\223\343\201\223\343\201\253 RetroArch \343\201\256\343\202\271\343\203\206\343\203\274\343\203\210\343\201\257\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223" };
-static const char* const lang_ja_f288[] = { "\343\201\223\343\201\256 ROM \343\201\253\343\201\257\345\256\237\347\270\276\343\201\214\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223 (MD5 %s)" };
-static const char* const lang_ja_f289[] = { "\343\203\201\343\203\274\343\203\210\343\201\214\350\246\213\343\201\244\343\201\213\343\202\212\343\201\276\343\201\233\343\202\223 (Wiki \343\201\256\343\200\214\343\203\201\343\203\274\343\203\210\343\200\215\343\202\222\345\217\202\347\205\247)" };
-static const char* const lang_ja_f290[] = { "\343\202\263\343\203\263\343\203\210\343\203\255\343\203\274\343\203\251\343\203\274\343\201\214\350\246\213\343\201\244\343\201\213\343\202\212\343\201\276\343\201\233\343\202\223" };
-static const char* const lang_ja_f291[] = { "\343\203\225\343\202\251\343\203\253\343\203\200\343\201\214\351\201\270\346\212\236\343\201\225\343\202\214\343\201\246\343\201\204\343\201\276\343\201\233\343\202\223\343\200\202" };
-static const char* const lang_ja_f292[] = { "\343\201\223\343\201\256\344\270\255\343\201\253\343\203\225\343\202\251\343\203\253\343\203\200\343\201\257\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223" };
-static const char* const lang_ja_f293[] = { "\347\213\254\350\207\252\343\201\256\350\250\255\345\256\232\343\202\222\346\214\201\343\201\244\343\202\262\343\203\274\343\203\240\343\201\257\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223\343\200\202" };
-static const char* const lang_ja_f294[] = { "\343\202\262\343\203\274\343\203\240\343\201\214\350\246\213\343\201\244\343\201\213\343\202\212\343\201\276\343\201\233\343\202\223" };
-static const char* const lang_ja_f295[] = { "\343\203\221\343\203\203\343\203\201\343\201\257\343\201\276\343\201\240\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223" };
-static const char* const lang_ja_f296[] = { "\343\202\257\343\202\244\343\203\203\343\202\257\343\202\271\343\203\206\343\203\274\343\203\210\343\201\257\343\201\276\343\201\240\343\202\273\343\203\274\343\203\226\343\201\225\343\202\214\343\201\246\343\201\204\343\201\276\343\201\233\343\202\223\343\200\202" };
-static const char* const lang_ja_f297[] = { "\343\201\252\343\201\227" };
-static const char* const lang_ja_f298[] = { "\343\203\225\343\202\251\343\203\253\343\203\200\345\206\205\343\201\253\343\202\202\343\201\206\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223\343\200\202\345\244\226\343\201\227\343\201\246\343\201\204\343\201\276\343\201\231" };
-static const char* const lang_ja_f299[] = { "\345\206\215\351\226\213\343\201\227\343\201\276\343\201\233\343\202\223\343\201\247\343\201\227\343\201\237\343\200\202RetroArch \343\201\256\343\202\252\343\203\274\343\203\210\343\202\271\343\203\206\343\203\274\343\203\210\343\201\257\345\210\245\343\201\256 SNES \343\202\263\343\202\242\343\201\256\343\202\202\343\201\256\343\201\247\343\201\231\343\200\202\343\202\271\343\203\206\343\203\274\343\203\210\343\202\222\345\205\261\346\234\211\343\201\231\343\202\213\343\201\253\343\201\257\343\200\201RetroArch \343\201\256 SNES \343\202\263\343\202\242\343\202\222 bsnes \343\201\253\343\201\227\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204\343\200\202" };
-static const char* const lang_ja_f300[] = { "\346\234\252\344\275\277\347\224\250" };
-static const char* const lang_ja_f301[] = { "\343\201\252\343\201\227" };
-static const char* const lang_ja_f302[] = { "\346\234\252\345\211\262\343\202\212\345\275\223\343\201\246" };
-static const char* const lang_ja_f303[] = { "\343\202\271\343\203\255\343\203\203\343\203\210 %d \343\201\253\343\201\257\343\201\276\343\201\240\344\275\225\343\202\202\343\202\273\343\203\274\343\203\226\343\201\225\343\202\214\343\201\246\343\201\204\343\201\276\343\201\233\343\202\223" };
-static const char* const lang_ja_f304[] = { "\343\201\276\343\201\240\345\240\261\345\221\212\343\201\231\343\202\213\343\201\223\343\201\250\343\201\257\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223\343\200\202" };
-static const char* const lang_ja_f305[] = { "11\346\234\210" };
-static const char* const lang_ja_f306[] = { "\344\273\212\343\201\231\343\201\220" };
-static const char* const lang_ja_f307[] = { "OK" };
-static const char* const lang_ja_f308[] = { "10\346\234\210" };
-static const char* const lang_ja_f309[] = { "\343\202\252\343\203\225" };
-static const char* const lang_ja_f310[] = { "\343\203\221\343\203\203\343\203\201\343\201\214\343\202\252\343\203\263\343\201\256\351\226\223\343\201\257\343\202\252\343\203\225" };
-static const char* const lang_ja_f311[] = { "\343\202\252\343\203\225: \343\201\231\343\201\271\343\201\246\343\201\256\343\202\262\343\203\274\343\203\240\343\201\214\351\200\232\345\270\270\343\201\256 SNES \343\202\262\343\203\274\343\203\240\343\201\250\343\201\227\343\201\246\345\213\225\344\275\234\343\201\227\343\201\276\343\201\231\343\200\202" };
-static const char* const lang_ja_f312[] = { "\343\202\252\343\203\225: \343\202\262\343\203\274\343\203\240\344\270\255\343\200\201\345\267\246\343\202\271\343\203\206\343\202\243\343\203\203\343\202\257\343\201\257\344\275\225\343\202\202\343\201\227\343\201\276\343\201\233\343\202\223\343\200\202" };
-static const char* const lang_ja_f313[] = { "\343\202\252\343\203\225\343\203\251\343\202\244\343\203\263" };
-static const char* const lang_ja_f314[] = { "\343\202\252\343\203\263" };
-static const char* const lang_ja_f315[] = { "\347\224\273\351\235\242\343\201\214 1 \343\201\244\343\201\240\343\201\221\343\201\252\343\201\256\343\201\247\347\247\273\345\213\225\343\201\231\343\202\213\343\202\202\343\201\256\343\201\257\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223" };
-static const char* const lang_ja_f316[] = { "\343\202\252\343\203\263\343\201\256\343\203\221\343\203\203\343\203\201\343\201\240\343\201\221\343\201\214\351\240\206\345\272\217\343\202\222\346\214\201\343\201\241\343\201\276\343\201\231\343\200\202\343\201\223\343\202\214\343\201\214\345\224\257\344\270\200\343\201\256\343\203\221\343\203\203\343\203\201\343\201\247\343\201\231" };
-static const char* const lang_ja_f317[] = { "2 \343\201\244\343\201\256\347\224\273\351\235\242\343\201\256\345\275\242\343\201\214\347\225\260\343\201\252\343\202\213\345\240\264\345\220\210\343\201\256\343\201\277\343\200\202\345\256\237\351\250\223\347\232\204\346\251\237\350\203\275\343\200\202" };
-static const char* const lang_ja_f318[] = { "\343\202\257\343\202\244\343\203\203\343\202\257\343\203\241\343\203\213\343\203\245\343\203\274\343\202\222\351\226\213\343\201\217" };
-static const char* const lang_ja_f319[] = { "\343\202\262\343\203\274\343\203\240\343\201\276\343\201\237\343\201\257\343\201\231\343\201\271\343\201\246\343\201\256\343\202\262\343\203\274\343\203\240\343\201\214\344\275\277\343\201\206\343\203\231\343\202\274\343\203\253\350\207\252\350\272\253\343\201\256\343\203\232\343\203\274\343\202\270\343\202\222\351\226\213\343\201\215\343\201\276\343\201\231" };
-static const char* const lang_ja_f320[] = { "\343\202\252\343\203\254\343\203\263\343\202\270" };
-static const char* const lang_ja_f321[] = { "\343\201\235\343\201\256\344\273\226\343\201\256\343\202\271\343\203\274\343\203\221\343\203\274\343\203\225\343\202\241\343\203\237\343\202\263\343\203\263\343\201\256\343\202\262\343\203\274\343\203\240\343\201\257\347\211\207\346\226\271\343\201\256\347\224\273\351\235\242\343\201\247\351\201\212\343\201\271\343\200\201\343\202\202\343\201\206\347\211\207\346\226\271\343\201\253\343\201\257\343\202\277\343\202\244\343\203\210\343\203\253\343\203\255\343\202\264\343\201\214\350\241\250\347\244\272\343\201\225\343\202\214\343\201\276\343\201\231\343\200\202" };
-static const char* const lang_ja_f322[] = { "\343\203\231\343\202\274\343\203\253\345\244\226\345\201\264\343\201\256\350\211\262" };
-static const char* const lang_ja_f323[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244\343\201\256\350\211\262\343\201\250\343\203\255\343\202\264" };
-static const char* const lang_ja_f324[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244" };
-static const char* const lang_ja_f325[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244: \343\202\252\343\203\263" };
-static const char* const lang_ja_f326[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244: \343\202\253\343\202\271\343\202\277\343\203\240" };
-static const char* const lang_ja_f327[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244: \343\202\253\343\202\271\343\202\277\343\203\240 (/overlays \345\206\205)" };
-static const char* const lang_ja_f328[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244: \350\207\252\345\213\225\347\224\237\346\210\220" };
-static const char* const lang_ja_f329[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244: \343\202\252\343\203\225" };
-static const char* const lang_ja_f330[] = { "\345\215\210\345\276\214" };
-static const char* const lang_ja_f331[] = { "\343\203\221\343\203\203\343\203\201\343\202\222\351\201\251\347\224\250\343\201\227\343\201\276\343\201\233\343\202\223\343\201\247\343\201\227\343\201\237: %s \343\202\222\350\252\255\343\201\277\350\276\274\343\202\201\343\201\276\343\201\233\343\202\223" };
-static const char* const lang_ja_f332[] = { "\343\203\221\343\203\203\343\203\201\343\202\222\351\201\251\347\224\250\343\201\227\343\201\276\343\201\233\343\202\223\343\201\247\343\201\227\343\201\237: %s \343\201\257\345\210\245\343\201\256 ROM \347\224\250\343\201\247\343\201\231" };
-static const char* const lang_ja_f333[] = { "\343\203\221\343\203\203\343\203\201\343\202\222\351\201\251\347\224\250\343\201\227\343\201\276\343\201\227\343\201\237\343\201\214\343\200\201\344\270\200\351\203\250\343\201\256\343\203\221\343\203\203\343\203\201\343\201\257\345\244\226\343\201\225\343\202\214\343\201\246\343\201\204\343\201\276\343\201\231\343\200\202\343\202\262\343\203\274\343\203\240\343\203\241\343\203\213\343\203\245\343\203\274\343\201\256\343\200\214\343\203\221\343\203\203\343\203\201\343\200\215\343\202\222\345\217\202\347\205\247" };
-static const char* const lang_ja_f334[] = { "\343\203\221\343\203\203\343\203\201\351\201\251\347\224\250\346\270\210\343\201\277: 2 \347\224\273\351\235\242\347\233\256\343\201\214\345\213\225\343\201\213\343\201\252\343\201\204\345\240\264\345\220\210\343\201\214\343\201\202\343\202\212\343\201\276\343\201\231" };
-static const char* const lang_ja_f335[] = { "\343\203\221\343\203\203\343\203\201" };
-static const char* const lang_ja_f336[] = { "\343\203\221\343\203\203\343\203\201\343\201\214\345\244\211\346\233\264\343\201\225\343\202\214\343\201\276\343\201\227\343\201\237" };
-static const char* const lang_ja_f337[] = { "\343\202\262\343\203\274\343\203\240\351\226\213\345\247\213\345\276\214\343\201\253\343\203\221\343\203\203\343\203\201\343\201\214\345\244\211\346\233\264\343\201\225\343\202\214\343\201\276\343\201\227\343\201\237" };
-static const char* const lang_ja_f338[] = { "\343\203\221\343\203\203\343\203\201\343\201\214\345\244\211\346\233\264\343\201\225\343\202\214\343\201\276\343\201\227\343\201\237: \347\217\276\345\234\250\344\275\215\347\275\256\343\201\213\343\202\211\347\266\232\343\201\221\343\201\276\343\201\231" };
-static const char* const lang_ja_f339[] = { "\343\203\221\343\202\277\343\203\274\343\203\263\343\201\256\345\274\267\343\201\225" };
-static const char* const lang_ja_f340[] = { "\344\270\200\346\231\202\345\201\234\346\255\242\344\270\255" };
-static const char* const lang_ja_f341[] = { "\343\203\221\343\203\225\343\202\251\343\203\274\343\203\236\343\203\263\343\202\271" };
-static const char* const lang_ja_f342[] = { "\343\203\221\343\203\225\343\202\251\343\203\274\343\203\236\343\203\263\343\202\271: \343\202\267\343\202\271\343\203\206\343\203\240\343\201\253\344\273\273\343\201\233\343\202\213" };
-static const char* const lang_ja_f343[] = { "\343\203\221\343\203\225\343\202\251\343\203\274\343\203\236\343\203\263\343\202\271: \346\234\200\345\244\247" };
-static const char* const lang_ja_f344[] = { "\347\224\273\351\235\242\343\201\256\344\270\255\345\244\256\343\201\253\343\200\201\343\201\276\343\201\237\343\201\257\345\257\204\343\201\233\343\201\246\350\241\250\347\244\272\343\201\227\343\201\276\343\201\231\343\200\202" };
-static const char* const lang_ja_f345[] = { "\343\203\224\343\203\263\343\202\257" };
-static const char* const lang_ja_f346[] = { "\345\233\272\345\256\232: \343\203\220\343\203\274\343\202\222\350\241\250\347\244\272\343\201\227\343\201\237\343\201\276\343\201\276\343\201\253\343\201\227\343\201\276\343\201\231\343\200\202" };
-static const char* const lang_ja_f347[] = { "\343\203\224\343\202\257\343\202\273\343\203\253\347\255\211\345\200\215" };
-static const char* const lang_ja_f348[] = { "\343\203\211\343\203\203\343\203\210" };
-static const char* const lang_ja_f349[] = { "\351\205\215\347\275\256\343\200\201\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244" };
-static const char* const lang_ja_f350[] = { "\343\202\267\343\203\263\343\203\227\343\203\253" };
-static const char* const lang_ja_f351[] = { "\343\203\227\343\203\254\343\202\244" };
-static const char* const lang_ja_f352[] = { "\344\273\212\345\233\236\343\201\257\345\256\237\347\270\276\343\201\252\343\201\227\343\201\247\343\203\227\343\203\254\343\202\244\343\201\227\343\201\276\343\201\231" };
-static const char* const lang_ja_f353[] = { "\343\202\262\343\203\274\343\203\240\343\202\222\346\272\226\345\202\231\344\270\255..." };
-static const char* const lang_ja_f354[] = { "%s \343\202\222\346\212\274\343\201\227\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204" };
-static const char* const lang_ja_f355[] = { "A \343\202\222\346\212\274\343\201\231\343\201\213\343\202\277\343\203\203\343\203\227\343\201\227\343\201\246\351\226\211\343\201\230\343\202\213" };
-static const char* const lang_ja_f356[] = { "A \343\201\247\351\226\211\343\201\230\343\202\213" };
-static const char* const lang_ja_f357[] = { "\343\203\234\343\202\277\343\203\263\343\202\222\346\212\274\343\201\227\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204" };
-static const char* const lang_ja_f358[] = { "\343\203\221\343\203\274\343\203\227\343\203\253" };
-static const char* const lang_ja_f359[] = { "\343\202\271\343\203\206\343\202\243\343\203\203\343\202\257\343\202\222\345\200\222\343\201\227\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204: \343\201\223\343\201\256\351\240\205\347\233\256\343\201\247\343\201\257\343\203\234\343\202\277\343\203\263\343\201\257\344\275\277\343\201\210\343\201\276\343\201\233\343\202\223\343\200\202" };
-static const char* const lang_ja_f360[] = { ".ips\343\200\201.ups\343\200\201.bps\343\200\201.xdelta \343\203\225\343\202\241\343\202\244\343\203\253\343\202\222 %s \343\201\253\347\275\256\343\201\204\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204" };
-static const char* const lang_ja_f361[] = { "\343\202\257\343\202\244\343\203\203\343\202\257\343\203\220\343\203\274\343\201\256\343\203\222\343\203\263\343\203\210" };
+static const char* const lang_ja_f283[] = { "\343\203\241\343\203\213\343\203\245\343\203\274\343\201\256\343\203\222\343\203\263\343\203\210" };
+static const char* const lang_ja_f284[] = { "\346\224\271\351\200\240 ROM: 2 \347\224\273\351\235\242\347\233\256\343\201\214\345\213\225\343\201\213\343\201\252\343\201\204\345\240\264\345\220\210\343\201\214\343\201\202\343\202\212\343\201\276\343\201\231" };
+static const char* const lang_ja_f285[] = { "\347\247\273\345\213\225" };
+static const char* const lang_ja_f286[] = { "\347\247\273\345\213\225\344\270\255: \344\270\212 / \344\270\213 \343\201\276\343\201\237\343\201\257\347\247\273\345\213\225\345\205\210\343\202\222\343\202\277\343\203\203\343\203\227\343\201\227\343\200\201A (\343\202\202\343\201\206\344\270\200\345\272\246\343\202\277\343\203\203\343\203\227\343\201\247\343\202\202\345\217\257)\343\200\202\343\203\252\343\202\271\343\203\210\343\201\247\344\270\213\343\201\253\343\201\202\343\202\213\343\202\202\343\201\256\343\201\214\345\276\214\343\201\213\343\202\211\351\201\251\347\224\250\343\201\225\343\202\214\343\201\276\343\201\231" };
+static const char* const lang_ja_f287[] = { "\346\226\260\350\246\217" };
+static const char* const lang_ja_f288[] = { "\343\201\223\343\201\223\343\201\253 RetroArch \343\201\256\343\202\271\343\203\206\343\203\274\343\203\210\343\201\257\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223" };
+static const char* const lang_ja_f289[] = { "\343\201\223\343\201\256 ROM \343\201\253\343\201\257\345\256\237\347\270\276\343\201\214\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223 (MD5 %s)" };
+static const char* const lang_ja_f290[] = { "\343\203\201\343\203\274\343\203\210\343\201\214\350\246\213\343\201\244\343\201\213\343\202\212\343\201\276\343\201\233\343\202\223 (Wiki \343\201\256\343\200\214\343\203\201\343\203\274\343\203\210\343\200\215\343\202\222\345\217\202\347\205\247)" };
+static const char* const lang_ja_f291[] = { "\343\202\263\343\203\263\343\203\210\343\203\255\343\203\274\343\203\251\343\203\274\343\201\214\350\246\213\343\201\244\343\201\213\343\202\212\343\201\276\343\201\233\343\202\223" };
+static const char* const lang_ja_f292[] = { "\343\203\225\343\202\251\343\203\253\343\203\200\343\201\214\351\201\270\346\212\236\343\201\225\343\202\214\343\201\246\343\201\204\343\201\276\343\201\233\343\202\223\343\200\202" };
+static const char* const lang_ja_f293[] = { "\343\201\223\343\201\256\344\270\255\343\201\253\343\203\225\343\202\251\343\203\253\343\203\200\343\201\257\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223" };
+static const char* const lang_ja_f294[] = { "\347\213\254\350\207\252\343\201\256\350\250\255\345\256\232\343\202\222\346\214\201\343\201\244\343\202\262\343\203\274\343\203\240\343\201\257\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223\343\200\202" };
+static const char* const lang_ja_f295[] = { "\343\202\262\343\203\274\343\203\240\343\201\214\350\246\213\343\201\244\343\201\213\343\202\212\343\201\276\343\201\233\343\202\223" };
+static const char* const lang_ja_f296[] = { "\343\203\221\343\203\203\343\203\201\343\201\257\343\201\276\343\201\240\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223" };
+static const char* const lang_ja_f297[] = { "\343\202\257\343\202\244\343\203\203\343\202\257\343\202\271\343\203\206\343\203\274\343\203\210\343\201\257\343\201\276\343\201\240\343\202\273\343\203\274\343\203\226\343\201\225\343\202\214\343\201\246\343\201\204\343\201\276\343\201\233\343\202\223\343\200\202" };
+static const char* const lang_ja_f298[] = { "\343\201\252\343\201\227" };
+static const char* const lang_ja_f299[] = { "\343\203\225\343\202\251\343\203\253\343\203\200\345\206\205\343\201\253\343\202\202\343\201\206\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223\343\200\202\345\244\226\343\201\227\343\201\246\343\201\204\343\201\276\343\201\231" };
+static const char* const lang_ja_f300[] = { "\345\206\215\351\226\213\343\201\227\343\201\276\343\201\233\343\202\223\343\201\247\343\201\227\343\201\237\343\200\202RetroArch \343\201\256\343\202\252\343\203\274\343\203\210\343\202\271\343\203\206\343\203\274\343\203\210\343\201\257\345\210\245\343\201\256 SNES \343\202\263\343\202\242\343\201\256\343\202\202\343\201\256\343\201\247\343\201\231\343\200\202\343\202\271\343\203\206\343\203\274\343\203\210\343\202\222\345\205\261\346\234\211\343\201\231\343\202\213\343\201\253\343\201\257\343\200\201RetroArch \343\201\256 SNES \343\202\263\343\202\242\343\202\222 bsnes \343\201\253\343\201\227\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204\343\200\202" };
+static const char* const lang_ja_f301[] = { "\346\234\252\344\275\277\347\224\250" };
+static const char* const lang_ja_f302[] = { "\343\201\252\343\201\227" };
+static const char* const lang_ja_f303[] = { "\346\234\252\345\211\262\343\202\212\345\275\223\343\201\246" };
+static const char* const lang_ja_f304[] = { "\343\202\271\343\203\255\343\203\203\343\203\210 %d \343\201\253\343\201\257\343\201\276\343\201\240\344\275\225\343\202\202\343\202\273\343\203\274\343\203\226\343\201\225\343\202\214\343\201\246\343\201\204\343\201\276\343\201\233\343\202\223" };
+static const char* const lang_ja_f305[] = { "\343\201\276\343\201\240\345\240\261\345\221\212\343\201\231\343\202\213\343\201\223\343\201\250\343\201\257\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223\343\200\202" };
+static const char* const lang_ja_f306[] = { "11\346\234\210" };
+static const char* const lang_ja_f307[] = { "\344\273\212\343\201\231\343\201\220" };
+static const char* const lang_ja_f308[] = { "OK" };
+static const char* const lang_ja_f309[] = { "10\346\234\210" };
+static const char* const lang_ja_f310[] = { "\343\202\252\343\203\225" };
+static const char* const lang_ja_f311[] = { "\343\203\221\343\203\203\343\203\201\343\201\214\343\202\252\343\203\263\343\201\256\351\226\223\343\201\257\343\202\252\343\203\225" };
+static const char* const lang_ja_f312[] = { "\343\202\252\343\203\225: \343\201\231\343\201\271\343\201\246\343\201\256\343\202\262\343\203\274\343\203\240\343\201\214\351\200\232\345\270\270\343\201\256 SNES \343\202\262\343\203\274\343\203\240\343\201\250\343\201\227\343\201\246\345\213\225\344\275\234\343\201\227\343\201\276\343\201\231\343\200\202" };
+static const char* const lang_ja_f313[] = { "\343\202\252\343\203\225: \343\202\262\343\203\274\343\203\240\344\270\255\343\200\201\345\267\246\343\202\271\343\203\206\343\202\243\343\203\203\343\202\257\343\201\257\344\275\225\343\202\202\343\201\227\343\201\276\343\201\233\343\202\223\343\200\202" };
+static const char* const lang_ja_f314[] = { "\343\202\252\343\203\225\343\203\251\343\202\244\343\203\263" };
+static const char* const lang_ja_f315[] = { "\343\202\252\343\203\263" };
+static const char* const lang_ja_f316[] = { "\347\224\273\351\235\242\343\201\214 1 \343\201\244\343\201\240\343\201\221\343\201\252\343\201\256\343\201\247\347\247\273\345\213\225\343\201\231\343\202\213\343\202\202\343\201\256\343\201\257\343\201\202\343\202\212\343\201\276\343\201\233\343\202\223" };
+static const char* const lang_ja_f317[] = { "\343\202\252\343\203\263\343\201\256\343\203\221\343\203\203\343\203\201\343\201\240\343\201\221\343\201\214\351\240\206\345\272\217\343\202\222\346\214\201\343\201\241\343\201\276\343\201\231\343\200\202\343\201\223\343\202\214\343\201\214\345\224\257\344\270\200\343\201\256\343\203\221\343\203\203\343\203\201\343\201\247\343\201\231" };
+static const char* const lang_ja_f318[] = { "2 \343\201\244\343\201\256\347\224\273\351\235\242\343\201\256\345\275\242\343\201\214\347\225\260\343\201\252\343\202\213\345\240\264\345\220\210\343\201\256\343\201\277\343\200\202\345\256\237\351\250\223\347\232\204\346\251\237\350\203\275\343\200\202" };
+static const char* const lang_ja_f319[] = { "\343\203\241\343\203\213\343\203\245\343\203\274\343\202\222\351\226\213\343\201\217" };
+static const char* const lang_ja_f320[] = { "\343\202\262\343\203\274\343\203\240\343\201\276\343\201\237\343\201\257\343\201\231\343\201\271\343\201\246\343\201\256\343\202\262\343\203\274\343\203\240\343\201\214\344\275\277\343\201\206\343\203\231\343\202\274\343\203\253\350\207\252\350\272\253\343\201\256\343\203\232\343\203\274\343\202\270\343\202\222\351\226\213\343\201\215\343\201\276\343\201\231" };
+static const char* const lang_ja_f321[] = { "\343\202\252\343\203\254\343\203\263\343\202\270" };
+static const char* const lang_ja_f322[] = { "\343\201\235\343\201\256\344\273\226\343\201\256\343\202\271\343\203\274\343\203\221\343\203\274\343\203\225\343\202\241\343\203\237\343\202\263\343\203\263\343\201\256\343\202\262\343\203\274\343\203\240\343\201\257\347\211\207\346\226\271\343\201\256\347\224\273\351\235\242\343\201\247\351\201\212\343\201\271\343\200\201\343\202\202\343\201\206\347\211\207\346\226\271\343\201\253\343\201\257\343\202\277\343\202\244\343\203\210\343\203\253\343\203\255\343\202\264\343\201\214\350\241\250\347\244\272\343\201\225\343\202\214\343\201\276\343\201\231\343\200\202" };
+static const char* const lang_ja_f323[] = { "\343\203\231\343\202\274\343\203\253\345\244\226\345\201\264\343\201\256\350\211\262" };
+static const char* const lang_ja_f324[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244\343\201\256\350\211\262\343\201\250\343\203\255\343\202\264" };
+static const char* const lang_ja_f325[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244" };
+static const char* const lang_ja_f326[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244: \343\202\252\343\203\263" };
+static const char* const lang_ja_f327[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244: \343\202\253\343\202\271\343\202\277\343\203\240" };
+static const char* const lang_ja_f328[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244: \343\202\253\343\202\271\343\202\277\343\203\240 (/overlays \345\206\205)" };
+static const char* const lang_ja_f329[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244: \350\207\252\345\213\225\347\224\237\346\210\220" };
+static const char* const lang_ja_f330[] = { "\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244: \343\202\252\343\203\225" };
+static const char* const lang_ja_f331[] = { "\345\215\210\345\276\214" };
+static const char* const lang_ja_f332[] = { "\343\203\221\343\203\203\343\203\201\343\202\222\351\201\251\347\224\250\343\201\227\343\201\276\343\201\233\343\202\223\343\201\247\343\201\227\343\201\237: %s \343\202\222\350\252\255\343\201\277\350\276\274\343\202\201\343\201\276\343\201\233\343\202\223" };
+static const char* const lang_ja_f333[] = { "\343\203\221\343\203\203\343\203\201\343\202\222\351\201\251\347\224\250\343\201\227\343\201\276\343\201\233\343\202\223\343\201\247\343\201\227\343\201\237: %s \343\201\257\345\210\245\343\201\256 ROM \347\224\250\343\201\247\343\201\231" };
+static const char* const lang_ja_f334[] = { "\343\203\221\343\203\203\343\203\201\343\202\222\351\201\251\347\224\250\343\201\227\343\201\276\343\201\227\343\201\237\343\201\214\343\200\201\344\270\200\351\203\250\343\201\256\343\203\221\343\203\203\343\203\201\343\201\257\345\244\226\343\201\225\343\202\214\343\201\246\343\201\204\343\201\276\343\201\231\343\200\202\343\202\262\343\203\274\343\203\240\343\203\241\343\203\213\343\203\245\343\203\274\343\201\256\343\200\214\343\203\221\343\203\203\343\203\201\343\200\215\343\202\222\345\217\202\347\205\247" };
+static const char* const lang_ja_f335[] = { "\343\203\221\343\203\203\343\203\201\351\201\251\347\224\250\346\270\210\343\201\277: 2 \347\224\273\351\235\242\347\233\256\343\201\214\345\213\225\343\201\213\343\201\252\343\201\204\345\240\264\345\220\210\343\201\214\343\201\202\343\202\212\343\201\276\343\201\231" };
+static const char* const lang_ja_f336[] = { "\343\203\221\343\203\203\343\203\201" };
+static const char* const lang_ja_f337[] = { "\343\203\221\343\203\203\343\203\201\343\201\214\345\244\211\346\233\264\343\201\225\343\202\214\343\201\276\343\201\227\343\201\237" };
+static const char* const lang_ja_f338[] = { "\343\202\262\343\203\274\343\203\240\351\226\213\345\247\213\345\276\214\343\201\253\343\203\221\343\203\203\343\203\201\343\201\214\345\244\211\346\233\264\343\201\225\343\202\214\343\201\276\343\201\227\343\201\237" };
+static const char* const lang_ja_f339[] = { "\343\203\221\343\203\203\343\203\201\343\201\214\345\244\211\346\233\264\343\201\225\343\202\214\343\201\276\343\201\227\343\201\237: \347\217\276\345\234\250\344\275\215\347\275\256\343\201\213\343\202\211\347\266\232\343\201\221\343\201\276\343\201\231" };
+static const char* const lang_ja_f340[] = { "\343\203\221\343\202\277\343\203\274\343\203\263\343\201\256\345\274\267\343\201\225" };
+static const char* const lang_ja_f341[] = { "\344\270\200\346\231\202\345\201\234\346\255\242\344\270\255" };
+static const char* const lang_ja_f342[] = { "\343\203\221\343\203\225\343\202\251\343\203\274\343\203\236\343\203\263\343\202\271" };
+static const char* const lang_ja_f343[] = { "\343\203\221\343\203\225\343\202\251\343\203\274\343\203\236\343\203\263\343\202\271: \343\202\267\343\202\271\343\203\206\343\203\240\343\201\253\344\273\273\343\201\233\343\202\213" };
+static const char* const lang_ja_f344[] = { "\343\203\221\343\203\225\343\202\251\343\203\274\343\203\236\343\203\263\343\202\271: \346\234\200\345\244\247" };
+static const char* const lang_ja_f345[] = { "\347\224\273\351\235\242\343\201\256\344\270\255\345\244\256\343\201\253\343\200\201\343\201\276\343\201\237\343\201\257\345\257\204\343\201\233\343\201\246\350\241\250\347\244\272\343\201\227\343\201\276\343\201\231\343\200\202" };
+static const char* const lang_ja_f346[] = { "\343\203\224\343\203\263\343\202\257" };
+static const char* const lang_ja_f347[] = { "\345\233\272\345\256\232: \343\203\220\343\203\274\343\202\222\350\241\250\347\244\272\343\201\227\343\201\237\343\201\276\343\201\276\343\201\253\343\201\227\343\201\276\343\201\231\343\200\202" };
+static const char* const lang_ja_f348[] = { "\343\203\224\343\202\257\343\202\273\343\203\253\347\255\211\345\200\215" };
+static const char* const lang_ja_f349[] = { "\343\203\211\343\203\203\343\203\210" };
+static const char* const lang_ja_f350[] = { "\351\205\215\347\275\256\343\200\201\343\202\252\343\203\274\343\203\220\343\203\274\343\203\254\343\202\244" };
+static const char* const lang_ja_f351[] = { "\343\202\267\343\203\263\343\203\227\343\203\253" };
+static const char* const lang_ja_f352[] = { "\343\203\227\343\203\254\343\202\244" };
+static const char* const lang_ja_f353[] = { "\344\273\212\345\233\236\343\201\257\345\256\237\347\270\276\343\201\252\343\201\227\343\201\247\343\203\227\343\203\254\343\202\244\343\201\227\343\201\276\343\201\231" };
+static const char* const lang_ja_f354[] = { "\343\202\262\343\203\274\343\203\240\343\202\222\346\272\226\345\202\231\344\270\255..." };
+static const char* const lang_ja_f355[] = { "%s \343\202\222\346\212\274\343\201\227\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204" };
+static const char* const lang_ja_f356[] = { "A \343\202\222\346\212\274\343\201\231\343\201\213\343\202\277\343\203\203\343\203\227\343\201\227\343\201\246\351\226\211\343\201\230\343\202\213" };
+static const char* const lang_ja_f357[] = { "A \343\201\247\351\226\211\343\201\230\343\202\213" };
+static const char* const lang_ja_f358[] = { "\343\203\234\343\202\277\343\203\263\343\202\222\346\212\274\343\201\227\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204" };
+static const char* const lang_ja_f359[] = { "\343\203\221\343\203\274\343\203\227\343\203\253" };
+static const char* const lang_ja_f360[] = { "\343\202\271\343\203\206\343\202\243\343\203\203\343\202\257\343\202\222\345\200\222\343\201\227\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204: \343\201\223\343\201\256\351\240\205\347\233\256\343\201\247\343\201\257\343\203\234\343\202\277\343\203\263\343\201\257\344\275\277\343\201\210\343\201\276\343\201\233\343\202\223\343\200\202" };
+static const char* const lang_ja_f361[] = { ".ips\343\200\201.ups\343\200\201.bps\343\200\201.xdelta \343\203\225\343\202\241\343\202\244\343\203\253\343\202\222 %s \343\201\253\347\275\256\343\201\204\343\201\246\343\201\217\343\201\240\343\201\225\343\201\204" };
 static const char* const lang_ja_f362[] = { "\343\202\257\343\202\244\343\203\203\343\202\257\343\203\255\343\203\274\343\203\211" };
 static const char* const lang_ja_f363[] = { "\343\202\257\343\202\244\343\203\203\343\202\257\343\202\273\343\203\274\343\203\226" };
 static const char* const lang_ja_f364[] = { "\347\265\202\344\272\206" };
@@ -5774,7 +5774,7 @@ static const char* const lang_ja_f461[] = { "\343\202\271\343\202\257\343\203\25
 static const char* const lang_ja_f462[] = { "2 \347\224\273\351\235\242\347\233\256" };
 static const char* const lang_ja_f463[] = { "2 \347\224\273\351\235\242\347\233\256\343\201\256\346\213\241\345\244\247\347\216\207" };
 static const char* const lang_ja_f464[] = { "Select" };
-static const char* const lang_ja_f465[] = { "Select \343\202\204 Start \343\201\257\345\215\230\347\213\254\343\201\247\343\202\277\343\203\203\343\203\227\343\201\231\343\202\213\343\201\250\343\202\262\343\203\274\343\203\240\343\201\253\345\261\212\343\201\215\343\200\201L3 \343\201\257\343\202\257\343\202\244\343\203\203\343\202\257\343\203\241\343\203\213\343\203\245\343\203\274\343\202\222\351\226\213\343\201\215\343\201\276\343\201\231" };
+static const char* const lang_ja_f465[] = { "Select \343\202\204 Start \343\201\257\345\215\230\347\213\254\343\201\247\346\212\274\343\201\233\343\201\260\343\202\262\343\203\274\343\203\240\343\201\253\345\261\212\343\201\215\343\201\276\343\201\231\343\200\202L3 \343\201\257\345\274\225\343\201\215\347\266\232\343\201\215\343\203\241\343\203\213\343\203\245\343\203\274\343\202\222\351\226\213\343\201\215\343\201\276\343\201\231" };
 static const char* const lang_ja_f466[] = { "9\346\234\210" };
 static const char* const lang_ja_f467[] = { "\343\202\273\343\203\274\343\203\226\343\203\207\343\203\274\343\202\277\343\202\222\345\210\245\343\201\253\343\201\231\343\202\213" };
 static const char* const lang_ja_f468[] = { "\343\202\271\343\203\206\343\203\274\343\203\210\343\202\222\345\210\245\343\201\253\343\201\231\343\202\213" };
@@ -5844,13 +5844,13 @@ static const char* const lang_ja_f531[] = { "\343\202\210\343\202\215\343\201\22
 static const char* const lang_ja_f532[] = { "\347\224\273\351\235\242\343\202\222\345\205\245\343\202\214\346\233\277\343\201\210" };
 static const char* const lang_ja_f533[] = { "\347\224\273\351\235\242\343\202\222\345\205\245\343\202\214\346\233\277\343\201\210" };
 static const char* const lang_ja_f534[] = { "\345\205\245\343\202\214\346\233\277\343\201\210\343\201\276\343\201\227\343\201\237" };
-static const char* const lang_ja_f535[] = { "\344\270\212\343\201\253\343\202\271\343\203\257\343\202\244\343\203\227\343\201\247\343\202\257\343\202\244\343\203\203\343\202\257\343\203\241\343\203\213\343\203\245\343\203\274" };
-static const char* const lang_ja_f536[] = { "retrods.cfg \343\201\247\343\202\252\343\203\225\343\201\253\343\201\252\343\201\243\343\201\246\343\201\204\343\201\276\343\201\231 (retroachievements = 0)\343\200\202" };
-static const char* const lang_ja_f537[] = { "\343\202\267\343\202\271\343\203\206\343\203\240" };
-static const char* const lang_ja_f538[] = { "ROM \343\201\256\343\203\225\343\202\241\343\202\244\343\203\253\345\220\215\343\201\253\343\201\202\343\202\213\343\202\277\343\202\260\343\200\202(USA) \343\202\204 (En,Fr,De) \343\201\252\343\201\251\343\200\202" };
-static const char* const lang_ja_f539[] = { "\343\202\271\343\202\257\343\203\252\343\203\274\343\203\263\343\202\267\343\203\247\343\203\203\343\203\210\343\202\222\346\222\256\343\202\213" };
-static const char* const lang_ja_f540[] = { "\343\202\202\343\201\206\344\270\200\345\272\246\343\202\277\343\203\203\343\203\227\343\201\231\343\202\213\343\201\250 RetroDS \343\202\222\347\265\202\344\272\206\343\201\227\343\201\276\343\201\231\343\200\202" };
-static const char* const lang_ja_f541[] = { "\347\224\273\351\235\242\343\202\222\343\202\277\343\203\203\343\203\227\343\201\231\343\202\213\343\201\213 HOME \343\201\247\343\203\241\343\203\213\343\203\245\343\203\274" };
+static const char* const lang_ja_f535[] = { "retrods.cfg \343\201\247\343\202\252\343\203\225\343\201\253\343\201\252\343\201\243\343\201\246\343\201\204\343\201\276\343\201\231 (retroachievements = 0)\343\200\202" };
+static const char* const lang_ja_f536[] = { "\343\202\267\343\202\271\343\203\206\343\203\240" };
+static const char* const lang_ja_f537[] = { "ROM \343\201\256\343\203\225\343\202\241\343\202\244\343\203\253\345\220\215\343\201\253\343\201\202\343\202\213\343\202\277\343\202\260\343\200\202(USA) \343\202\204 (En,Fr,De) \343\201\252\343\201\251\343\200\202" };
+static const char* const lang_ja_f538[] = { "\343\202\271\343\202\257\343\203\252\343\203\274\343\203\263\343\202\267\343\203\247\343\203\203\343\203\210\343\202\222\346\222\256\343\202\213" };
+static const char* const lang_ja_f539[] = { "\343\202\202\343\201\206\344\270\200\345\272\246\343\202\277\343\203\203\343\203\227\343\201\231\343\202\213\343\201\250 RetroDS \343\202\222\347\265\202\344\272\206\343\201\227\343\201\276\343\201\231\343\200\202" };
+static const char* const lang_ja_f540[] = { "\347\224\273\351\235\242\343\202\222\343\202\277\343\203\203\343\203\227\343\201\231\343\202\213\343\201\213 HOME \343\201\247\343\203\241\343\203\213\343\203\245\343\203\274" };
+static const char* const lang_ja_f541[] = { "\347\224\273\351\235\242\343\202\222\343\202\277\343\203\203\343\203\227\343\201\227\343\201\246\343\203\241\343\203\213\343\203\245\343\203\274\343\202\222\351\226\213\343\201\217" };
 static const char* const lang_ja_f542[] = { "\343\202\277\343\203\203\343\203\201\343\202\271\343\202\257\343\203\252\343\203\274\343\203\263\343\202\222\343\202\277\343\203\203\343\203\227\343\201\231\343\202\213\343\201\250\343\200\201\343\201\223\343\201\256\347\253\257\346\234\253\343\201\253\343\201\252\343\201\204\343\203\234\343\202\277\343\203\263\343\202\222\343\202\271\343\202\255\343\203\203\343\203\227\343\201\227\343\201\276\343\201\231" };
 static const char* const lang_ja_f543[] = { "\343\202\277\343\203\203\343\203\227\343\201\227\343\201\246\345\211\262\343\202\212\345\275\223\343\201\246\343\201\252\343\201\227" };
 static const char* const lang_ja_f544[] = { "\343\202\277\343\203\203\343\203\227\343\201\227\343\201\246\343\200\201\343\201\223\343\201\256\347\253\257\346\234\253\343\201\253\343\201\252\343\201\204\343\203\234\343\202\277\343\203\263\343\202\222\343\202\271\343\202\255\343\203\203\343\203\227" };
@@ -5977,7 +5977,7 @@ static const I18nEntry lang_ja_entries[] = {
 	{ " It's the newest version.", lang_ja_f2, 1 },
 	{ " ms", lang_ja_f3, 1 },
 	{ " s", lang_ja_f4, 1 },
-	{ "\"Swipe up for quick menu\" at a game's start.", lang_ja_f5, 1 },
+	{ "\"Tap the screen to open the menu\" at a game's start.", lang_ja_f5, 1 },
 	{ "%ca%d", lang_ja_f6, 1 },
 	{ "%d RetroArch state here", lang_ja_f7, 1 },
 	{ "%d file checked", lang_ja_f8, 1 },
@@ -6255,85 +6255,85 @@ static const I18nEntry lang_ja_entries[] = {
 	{ "Max: full speed, a warmer device and a shorter battery.", lang_ja_f280, 1 },
 	{ "May", lang_ja_f281, 1 },
 	{ "Medium (15 a second)", lang_ja_f282, 1 },
-	{ "Modified ROM: the second screen may not work", lang_ja_f283, 1 },
-	{ "Move", lang_ja_f284, 1 },
-	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_ja_f285, 1 },
-	{ "New", lang_ja_f286, 1 },
-	{ "No RetroArch states here", lang_ja_f287, 1 },
-	{ "No achievements for this ROM (MD5 %s)", lang_ja_f288, 1 },
-	{ "No cheats found (see Cheats in the wiki)", lang_ja_f289, 1 },
-	{ "No controller found", lang_ja_f290, 1 },
-	{ "No folder chosen.", lang_ja_f291, 1 },
-	{ "No folders in this one", lang_ja_f292, 1 },
-	{ "No game has settings of its own.", lang_ja_f293, 1 },
-	{ "No games found", lang_ja_f294, 1 },
-	{ "No patches here yet", lang_ja_f295, 1 },
-	{ "No quick state saved yet.", lang_ja_f296, 1 },
-	{ "None", lang_ja_f297, 1 },
-	{ "Not in the folder any more: it's left out", lang_ja_f298, 1 },
-	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_ja_f299, 1 },
-	{ "Not used", lang_ja_f300, 1 },
-	{ "Nothing", lang_ja_f301, 1 },
-	{ "Nothing mapped", lang_ja_f302, 1 },
-	{ "Nothing saved in slot %d yet", lang_ja_f303, 1 },
-	{ "Nothing to report yet.", lang_ja_f304, 1 },
-	{ "Nov", lang_ja_f305, 1 },
-	{ "Now", lang_ja_f306, 1 },
-	{ "OK", lang_ja_f307, 1 },
-	{ "Oct", lang_ja_f308, 1 },
-	{ "Off", lang_ja_f309, 1 },
-	{ "Off while a patch is on", lang_ja_f310, 1 },
-	{ "Off: every game plays like an ordinary SNES game.", lang_ja_f311, 1 },
-	{ "Off: the left stick does nothing in games.", lang_ja_f312, 1 },
-	{ "Offline", lang_ja_f313, 1 },
-	{ "On", lang_ja_f314, 1 },
-	{ "Only one screen: nothing to move", lang_ja_f315, 1 },
-	{ "Only patches that are on have an order, and this is the only one", lang_ja_f316, 1 },
-	{ "Only when your two screens differ in shape. Experimental.", lang_ja_f317, 1 },
-	{ "Open quick menu", lang_ja_f318, 1 },
-	{ "Opens the bezel's own page, for whichever the game or all games have", lang_ja_f319, 1 },
-	{ "Orange", lang_ja_f320, 1 },
-	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_ja_f321, 1 },
-	{ "Outer Bezel Color", lang_ja_f322, 1 },
-	{ "Overlay colors and logo", lang_ja_f323, 1 },
-	{ "Overlays", lang_ja_f324, 1 },
-	{ "Overlays on", lang_ja_f325, 1 },
-	{ "Overlays: Custom", lang_ja_f326, 1 },
-	{ "Overlays: Custom (in /overlays)", lang_ja_f327, 1 },
-	{ "Overlays: Generated", lang_ja_f328, 1 },
-	{ "Overlays: Off", lang_ja_f329, 1 },
-	{ "PM", lang_ja_f330, 1 },
-	{ "Patch not applied: %s can't be read", lang_ja_f331, 1 },
-	{ "Patch not applied: %s is for another ROM", lang_ja_f332, 1 },
-	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_ja_f333, 1 },
-	{ "Patched: the second screen may not work", lang_ja_f334, 1 },
-	{ "Patches", lang_ja_f335, 1 },
-	{ "Patches changed", lang_ja_f336, 1 },
-	{ "Patches changed since the game started", lang_ja_f337, 1 },
-	{ "Patches changed: carrying on from where you were", lang_ja_f338, 1 },
-	{ "Pattern strength", lang_ja_f339, 1 },
-	{ "Paused", lang_ja_f340, 1 },
-	{ "Performance", lang_ja_f341, 1 },
-	{ "Performance: Let the System Decide", lang_ja_f342, 1 },
-	{ "Performance: Set to Max", lang_ja_f343, 1 },
-	{ "Pictures in the middle of their screens, or close together.", lang_ja_f344, 1 },
-	{ "Pink", lang_ja_f345, 1 },
-	{ "Pinned: the bar stays up.", lang_ja_f346, 1 },
-	{ "Pixel Perfect", lang_ja_f347, 1 },
-	{ "Pixelated", lang_ja_f348, 1 },
-	{ "Placement, overlays", lang_ja_f349, 1 },
-	{ "Plain", lang_ja_f350, 1 },
-	{ "Play", lang_ja_f351, 1 },
-	{ "Playing without achievements this time", lang_ja_f352, 1 },
-	{ "Preparing the game...", lang_ja_f353, 1 },
-	{ "Press %s", lang_ja_f354, 1 },
-	{ "Press A or tap to close", lang_ja_f355, 1 },
-	{ "Press A to close", lang_ja_f356, 1 },
-	{ "Press a button", lang_ja_f357, 1 },
-	{ "Purple", lang_ja_f358, 1 },
-	{ "Push the stick: buttons don't count for this one.", lang_ja_f359, 1 },
-	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_ja_f360, 1 },
-	{ "Quick bar hint", lang_ja_f361, 1 },
+	{ "Menu hint", lang_ja_f283, 1 },
+	{ "Modified ROM: the second screen may not work", lang_ja_f284, 1 },
+	{ "Move", lang_ja_f285, 1 },
+	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_ja_f286, 1 },
+	{ "New", lang_ja_f287, 1 },
+	{ "No RetroArch states here", lang_ja_f288, 1 },
+	{ "No achievements for this ROM (MD5 %s)", lang_ja_f289, 1 },
+	{ "No cheats found (see Cheats in the wiki)", lang_ja_f290, 1 },
+	{ "No controller found", lang_ja_f291, 1 },
+	{ "No folder chosen.", lang_ja_f292, 1 },
+	{ "No folders in this one", lang_ja_f293, 1 },
+	{ "No game has settings of its own.", lang_ja_f294, 1 },
+	{ "No games found", lang_ja_f295, 1 },
+	{ "No patches here yet", lang_ja_f296, 1 },
+	{ "No quick state saved yet.", lang_ja_f297, 1 },
+	{ "None", lang_ja_f298, 1 },
+	{ "Not in the folder any more: it's left out", lang_ja_f299, 1 },
+	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_ja_f300, 1 },
+	{ "Not used", lang_ja_f301, 1 },
+	{ "Nothing", lang_ja_f302, 1 },
+	{ "Nothing mapped", lang_ja_f303, 1 },
+	{ "Nothing saved in slot %d yet", lang_ja_f304, 1 },
+	{ "Nothing to report yet.", lang_ja_f305, 1 },
+	{ "Nov", lang_ja_f306, 1 },
+	{ "Now", lang_ja_f307, 1 },
+	{ "OK", lang_ja_f308, 1 },
+	{ "Oct", lang_ja_f309, 1 },
+	{ "Off", lang_ja_f310, 1 },
+	{ "Off while a patch is on", lang_ja_f311, 1 },
+	{ "Off: every game plays like an ordinary SNES game.", lang_ja_f312, 1 },
+	{ "Off: the left stick does nothing in games.", lang_ja_f313, 1 },
+	{ "Offline", lang_ja_f314, 1 },
+	{ "On", lang_ja_f315, 1 },
+	{ "Only one screen: nothing to move", lang_ja_f316, 1 },
+	{ "Only patches that are on have an order, and this is the only one", lang_ja_f317, 1 },
+	{ "Only when your two screens differ in shape. Experimental.", lang_ja_f318, 1 },
+	{ "Open the menu", lang_ja_f319, 1 },
+	{ "Opens the bezel's own page, for whichever the game or all games have", lang_ja_f320, 1 },
+	{ "Orange", lang_ja_f321, 1 },
+	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_ja_f322, 1 },
+	{ "Outer Bezel Color", lang_ja_f323, 1 },
+	{ "Overlay colors and logo", lang_ja_f324, 1 },
+	{ "Overlays", lang_ja_f325, 1 },
+	{ "Overlays on", lang_ja_f326, 1 },
+	{ "Overlays: Custom", lang_ja_f327, 1 },
+	{ "Overlays: Custom (in /overlays)", lang_ja_f328, 1 },
+	{ "Overlays: Generated", lang_ja_f329, 1 },
+	{ "Overlays: Off", lang_ja_f330, 1 },
+	{ "PM", lang_ja_f331, 1 },
+	{ "Patch not applied: %s can't be read", lang_ja_f332, 1 },
+	{ "Patch not applied: %s is for another ROM", lang_ja_f333, 1 },
+	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_ja_f334, 1 },
+	{ "Patched: the second screen may not work", lang_ja_f335, 1 },
+	{ "Patches", lang_ja_f336, 1 },
+	{ "Patches changed", lang_ja_f337, 1 },
+	{ "Patches changed since the game started", lang_ja_f338, 1 },
+	{ "Patches changed: carrying on from where you were", lang_ja_f339, 1 },
+	{ "Pattern strength", lang_ja_f340, 1 },
+	{ "Paused", lang_ja_f341, 1 },
+	{ "Performance", lang_ja_f342, 1 },
+	{ "Performance: Let the System Decide", lang_ja_f343, 1 },
+	{ "Performance: Set to Max", lang_ja_f344, 1 },
+	{ "Pictures in the middle of their screens, or close together.", lang_ja_f345, 1 },
+	{ "Pink", lang_ja_f346, 1 },
+	{ "Pinned: the bar stays up.", lang_ja_f347, 1 },
+	{ "Pixel Perfect", lang_ja_f348, 1 },
+	{ "Pixelated", lang_ja_f349, 1 },
+	{ "Placement, overlays", lang_ja_f350, 1 },
+	{ "Plain", lang_ja_f351, 1 },
+	{ "Play", lang_ja_f352, 1 },
+	{ "Playing without achievements this time", lang_ja_f353, 1 },
+	{ "Preparing the game...", lang_ja_f354, 1 },
+	{ "Press %s", lang_ja_f355, 1 },
+	{ "Press A or tap to close", lang_ja_f356, 1 },
+	{ "Press A to close", lang_ja_f357, 1 },
+	{ "Press a button", lang_ja_f358, 1 },
+	{ "Purple", lang_ja_f359, 1 },
+	{ "Push the stick: buttons don't count for this one.", lang_ja_f360, 1 },
+	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_ja_f361, 1 },
 	{ "Quick load state", lang_ja_f362, 1 },
 	{ "Quick save state", lang_ja_f363, 1 },
 	{ "Quit", lang_ja_f364, 1 },
@@ -6437,7 +6437,7 @@ static const I18nEntry lang_ja_entries[] = {
 	{ "Second screen", lang_ja_f462, 1 },
 	{ "Second screen scale", lang_ja_f463, 1 },
 	{ "Select", lang_ja_f464, 1 },
-	{ "Select or Start still reach the game when tapped on their own, L3 still opens the quick menu", lang_ja_f465, 1 },
+	{ "Select or Start still reach the game when tapped on their own, L3 still opens the menu", lang_ja_f465, 1 },
 	{ "Sep", lang_ja_f466, 1 },
 	{ "Separate battery save", lang_ja_f467, 1 },
 	{ "Separate save states", lang_ja_f468, 1 },
@@ -6507,13 +6507,13 @@ static const I18nEntry lang_ja_entries[] = {
 	{ "Swap Screens", lang_ja_f532, 1 },
 	{ "Swap screens", lang_ja_f533, 1 },
 	{ "Swapped", lang_ja_f534, 1 },
-	{ "Swipe up for quick menu", lang_ja_f535, 1 },
-	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_ja_f536, 1 },
-	{ "System", lang_ja_f537, 1 },
-	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_ja_f538, 1 },
-	{ "Take Screenshot", lang_ja_f539, 1 },
-	{ "Tap again to close RetroDS.", lang_ja_f540, 1 },
-	{ "Tap the screen or press HOME for the menu", lang_ja_f541, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_ja_f535, 1 },
+	{ "System", lang_ja_f536, 1 },
+	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_ja_f537, 1 },
+	{ "Take Screenshot", lang_ja_f538, 1 },
+	{ "Tap again to close RetroDS.", lang_ja_f539, 1 },
+	{ "Tap the screen or press HOME for the menu", lang_ja_f540, 1 },
+	{ "Tap the screen to open the menu", lang_ja_f541, 1 },
 	{ "Tap the touchscreen to skip a button this device doesn't have", lang_ja_f542, 1 },
 	{ "Tap to set none", lang_ja_f543, 1 },
 	{ "Tap to skip a button this device doesn't have", lang_ja_f544, 1 },
@@ -6641,7 +6641,7 @@ static const char* const lang_ko_f1[] = { " \354\203\210 \353\262\204\354\240\20
 static const char* const lang_ko_f2[] = { " \354\265\234\354\213\240 \353\262\204\354\240\204\354\236\205\353\213\210\353\213\244." };
 static const char* const lang_ko_f3[] = { " ms" };
 static const char* const lang_ko_f4[] = { " s" };
-static const char* const lang_ko_f5[] = { "\352\262\214\354\236\204\354\235\204 \354\213\234\354\236\221\355\225\240 \353\225\214 \"\354\234\204\353\241\234 \354\212\244\354\231\200\354\235\264\355\224\204\355\225\230\354\227\254 \353\271\240\353\245\270 \353\251\224\353\211\264\"." };
+static const char* const lang_ko_f5[] = { "\352\262\214\354\236\204 \354\213\234\354\236\221 \354\213\234 \"\355\231\224\353\251\264\354\235\204 \355\203\255\355\225\230\354\227\254 \353\251\224\353\211\264 \354\227\264\352\270\260\"\353\245\274 \355\221\234\354\213\234\355\225\251\353\213\210\353\213\244." };
 static const char* const lang_ko_f6[] = { "%ca%d" };
 static const char* const lang_ko_f7[] = { "\354\227\254\352\270\260\354\227\220 RetroArch \354\203\201\355\203\234 %d\352\260\234" };
 static const char* const lang_ko_f8[] = { "\355\214\214\354\235\274 %d\352\260\234 \355\231\225\354\235\270" };
@@ -6919,85 +6919,85 @@ static const char* const lang_ko_f279[] = { "\355\201\254\352\270\260\354\231\20
 static const char* const lang_ko_f280[] = { "\354\265\234\353\214\200: \354\265\234\352\263\240 \354\206\215\353\217\204, \352\270\260\352\270\260\352\260\200 \353\215\224 \353\234\250\352\261\260\354\233\214\354\247\200\352\263\240 \353\260\260\355\204\260\353\246\254\352\260\200 \353\215\224 \353\271\250\353\246\254 \353\213\263\354\212\265\353\213\210\353\213\244." };
 static const char* const lang_ko_f281[] = { "5\354\233\224" };
 static const char* const lang_ko_f282[] = { "\353\263\264\355\206\265 (\354\264\210\353\213\271 15\355\232\214)" };
-static const char* const lang_ko_f283[] = { "\354\210\230\354\240\225\353\220\234 ROM: \353\221\220 \353\262\210\354\247\270 \355\231\224\353\251\264\354\235\264 \354\236\221\353\217\231\355\225\230\354\247\200 \354\225\212\354\235\204 \354\210\230 \354\236\210\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f284[] = { "\354\235\264\353\217\231" };
-static const char* const lang_ko_f285[] = { "\354\235\264\353\217\231 \354\244\221: \354\234\204 / \354\225\204\353\236\230 \353\230\220\353\212\224 \352\260\210 \354\234\204\354\271\230\353\245\274 \353\210\204\353\245\270 \353\222\244 A (\353\230\220\353\212\224 \353\213\244\354\213\234 \353\210\204\353\245\264\352\270\260). \353\252\251\353\241\235\354\227\220\354\204\234 \354\225\204\353\236\230\354\227\220 \354\236\210\353\212\224 \352\262\203\354\235\264 \353\202\230\354\244\221\354\227\220 \354\240\201\354\232\251\353\220\251\353\213\210\353\213\244" };
-static const char* const lang_ko_f286[] = { "\354\203\210\353\241\234 \353\247\214\353\223\244\352\270\260" };
-static const char* const lang_ko_f287[] = { "\354\227\254\352\270\260\354\227\220 RetroArch \354\203\201\355\203\234\352\260\200 \354\227\206\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f288[] = { "\354\235\264 ROM\354\227\220\353\212\224 \354\227\205\354\240\201\354\235\264 \354\227\206\354\212\265\353\213\210\353\213\244 (MD5 %s)" };
-static const char* const lang_ko_f289[] = { "\354\271\230\355\212\270\353\245\274 \354\260\276\354\235\204 \354\210\230 \354\227\206\354\212\265\353\213\210\353\213\244 (\354\234\204\355\202\244\354\235\230 Cheats \354\260\270\354\241\260)" };
-static const char* const lang_ko_f290[] = { "\354\273\250\355\212\270\353\241\244\353\237\254\353\245\274 \354\260\276\354\235\204 \354\210\230 \354\227\206\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f291[] = { "\354\204\240\355\203\235\355\225\234 \355\217\264\353\215\224\352\260\200 \354\227\206\354\212\265\353\213\210\353\213\244." };
-static const char* const lang_ko_f292[] = { "\354\235\264 \355\217\264\353\215\224 \354\225\210\354\227\220 \355\217\264\353\215\224\352\260\200 \354\227\206\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f293[] = { "\354\236\220\354\262\264 \354\204\244\354\240\225\354\235\264 \354\236\210\353\212\224 \352\262\214\354\236\204\354\235\264 \354\227\206\354\212\265\353\213\210\353\213\244." };
-static const char* const lang_ko_f294[] = { "\352\262\214\354\236\204\354\235\204 \354\260\276\354\235\204 \354\210\230 \354\227\206\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f295[] = { "\354\225\204\354\247\201 \354\227\254\352\270\260\354\227\220 \355\214\250\354\271\230\352\260\200 \354\227\206\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f296[] = { "\354\225\204\354\247\201 \354\240\200\354\236\245\353\220\234 \353\271\240\353\245\270 \354\203\201\355\203\234\352\260\200 \354\227\206\354\212\265\353\213\210\353\213\244." };
-static const char* const lang_ko_f297[] = { "\354\227\206\354\235\214" };
-static const char* const lang_ko_f298[] = { "\353\215\224 \354\235\264\354\203\201 \355\217\264\353\215\224\354\227\220 \354\227\206\354\235\214: \354\240\234\354\231\270\353\220\251\353\213\210\353\213\244" };
-static const char* const lang_ko_f299[] = { "\354\235\264\354\226\264\355\225\230\354\247\200 \354\225\212\354\235\214: RetroArch\354\235\230 \354\236\220\353\217\231 \354\203\201\355\203\234\353\212\224 RetroArch\354\235\230 \353\213\244\353\245\270 SNES \354\275\224\354\226\264\354\227\220\354\204\234 \354\230\250 \352\262\203\354\236\205\353\213\210\353\213\244. \354\203\201\355\203\234\353\245\274 \352\263\265\354\234\240\355\225\230\353\240\244\353\251\264 RetroArch\354\235\230 SNES \354\275\224\354\226\264\353\245\274 bsnes\353\241\234 \354\204\244\354\240\225\355\225\230\354\204\270\354\232\224." };
-static const char* const lang_ko_f300[] = { "\354\202\254\354\232\251 \354\225\210 \355\225\250" };
-static const char* const lang_ko_f301[] = { "\354\227\206\354\235\214" };
-static const char* const lang_ko_f302[] = { "\355\225\240\353\213\271\353\220\234 \352\262\203 \354\227\206\354\235\214" };
-static const char* const lang_ko_f303[] = { "\354\212\254\353\241\257 %d\354\227\220 \354\225\204\354\247\201 \354\240\200\354\236\245\353\220\234 \352\262\203\354\235\264 \354\227\206\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f304[] = { "\354\225\204\354\247\201 \353\263\264\352\263\240\355\225\240 \352\262\203\354\235\264 \354\227\206\354\212\265\353\213\210\353\213\244." };
-static const char* const lang_ko_f305[] = { "11\354\233\224" };
-static const char* const lang_ko_f306[] = { "\354\247\200\352\270\210" };
-static const char* const lang_ko_f307[] = { "\355\231\225\354\235\270" };
-static const char* const lang_ko_f308[] = { "10\354\233\224" };
-static const char* const lang_ko_f309[] = { "\353\201\224" };
-static const char* const lang_ko_f310[] = { "\355\214\250\354\271\230\352\260\200 \354\274\234\354\240\270 \354\236\210\353\212\224 \353\217\231\354\225\210 \352\272\274\354\247\220" };
-static const char* const lang_ko_f311[] = { "\354\225\204\353\213\210\354\232\224: \353\252\250\353\223\240 \352\262\214\354\236\204\354\235\264 \354\235\274\353\260\230 SNES \352\262\214\354\236\204\354\262\230\353\237\274 \354\213\244\355\226\211\353\220\251\353\213\210\353\213\244." };
-static const char* const lang_ko_f312[] = { "\354\225\204\353\213\210\354\232\224: \354\231\274\354\252\275 \354\212\244\355\213\261\354\235\200 \352\262\214\354\236\204\354\227\220\354\204\234 \354\225\204\353\254\264 \354\235\274\353\217\204 \355\225\230\354\247\200 \354\225\212\354\212\265\353\213\210\353\213\244." };
-static const char* const lang_ko_f313[] = { "\354\230\244\355\224\204\353\235\274\354\235\270" };
-static const char* const lang_ko_f314[] = { "\354\230\210" };
-static const char* const lang_ko_f315[] = { "\355\231\224\353\251\264\354\235\264 \355\225\230\353\202\230\353\277\220\354\236\205\353\213\210\353\213\244: \354\230\256\352\270\270 \352\262\203\354\235\264 \354\227\206\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f316[] = { "\354\274\234\354\247\204 \355\214\250\354\271\230\354\227\220\353\247\214 \354\210\234\354\204\234\352\260\200 \354\236\210\354\234\274\353\251\260, \354\235\264\352\262\203\354\235\264 \354\234\240\354\235\274\355\225\251\353\213\210\353\213\244" };
-static const char* const lang_ko_f317[] = { "\353\221\220 \355\231\224\353\251\264\354\235\230 \353\252\250\354\226\221\354\235\264 \353\213\244\353\245\274 \353\225\214\353\247\214 \354\240\201\354\232\251\353\220\251\353\213\210\353\213\244. \354\213\244\355\227\230\354\240\201 \352\270\260\353\212\245." };
-static const char* const lang_ko_f318[] = { "\353\271\240\353\245\270 \353\251\224\353\211\264 \354\227\264\352\270\260" };
-static const char* const lang_ko_f319[] = { "\352\262\214\354\236\204 \353\230\220\353\212\224 \353\252\250\353\223\240 \352\262\214\354\236\204\354\227\220 \354\236\210\353\212\224 \353\262\240\354\240\244 \354\236\220\354\262\264 \355\216\230\354\235\264\354\247\200\353\245\274 \354\227\275\353\213\210\353\213\244" };
-static const char* const lang_ko_f320[] = { "\354\243\274\355\231\251" };
-static const char* const lang_ko_f321[] = { "\353\213\244\353\245\270 \354\212\210\355\215\274 \355\214\250\353\257\270\354\273\264 \352\262\214\354\236\204\354\235\200 \355\225\234 \355\231\224\353\251\264\354\227\220\354\204\234 \354\213\244\355\226\211\353\220\230\352\263\240, \353\213\244\353\245\270 \355\231\224\353\251\264\354\227\220\353\212\224 \355\203\200\354\235\264\355\213\200 \353\241\234\352\263\240\352\260\200 \355\221\234\354\213\234\353\220\251\353\213\210\353\213\244." };
-static const char* const lang_ko_f322[] = { "\353\260\224\352\271\245\354\252\275 \353\262\240\354\240\244 \354\203\211\354\203\201" };
-static const char* const lang_ko_f323[] = { "\354\230\244\353\262\204\353\240\210\354\235\264 \354\203\211\354\203\201\352\263\274 \353\241\234\352\263\240" };
-static const char* const lang_ko_f324[] = { "\354\230\244\353\262\204\353\240\210\354\235\264" };
-static const char* const lang_ko_f325[] = { "\354\230\244\353\262\204\353\240\210\354\235\264 \354\274\234\354\247\220" };
-static const char* const lang_ko_f326[] = { "\354\230\244\353\262\204\353\240\210\354\235\264: \354\202\254\354\232\251\354\236\220 \354\247\200\354\240\225" };
-static const char* const lang_ko_f327[] = { "\354\230\244\353\262\204\353\240\210\354\235\264: \354\202\254\354\232\251\354\236\220 \354\247\200\354\240\225 (/overlays \354\225\210)" };
-static const char* const lang_ko_f328[] = { "\354\230\244\353\262\204\353\240\210\354\235\264: \354\203\235\354\204\261\353\220\250" };
-static const char* const lang_ko_f329[] = { "\354\230\244\353\262\204\353\240\210\354\235\264: \353\201\224" };
-static const char* const lang_ko_f330[] = { "PM" };
-static const char* const lang_ko_f331[] = { "\355\214\250\354\271\230\352\260\200 \354\240\201\354\232\251\353\220\230\354\247\200 \354\225\212\354\235\214: %s\354\235\204(\353\245\274) \354\235\275\354\235\204 \354\210\230 \354\227\206\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f332[] = { "\355\214\250\354\271\230\352\260\200 \354\240\201\354\232\251\353\220\230\354\247\200 \354\225\212\354\235\214: %s\354\235\200(\353\212\224) \353\213\244\353\245\270 ROM\354\232\251\354\236\205\353\213\210\353\213\244" };
-static const char* const lang_ko_f333[] = { "\355\214\250\354\271\230\353\212\224 \354\240\201\354\232\251\353\220\230\354\227\210\354\247\200\353\247\214 \355\225\230\353\202\230\353\212\224 \354\240\234\354\231\270\353\220\230\354\227\210\354\212\265\353\213\210\353\213\244: \352\262\214\354\236\204 \353\251\224\353\211\264\354\235\230 \355\214\250\354\271\230\353\245\274 \355\231\225\354\235\270\355\225\230\354\204\270\354\232\224" };
-static const char* const lang_ko_f334[] = { "\355\214\250\354\271\230\353\220\250: \353\221\220 \353\262\210\354\247\270 \355\231\224\353\251\264\354\235\264 \354\236\221\353\217\231\355\225\230\354\247\200 \354\225\212\354\235\204 \354\210\230 \354\236\210\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f335[] = { "\355\214\250\354\271\230" };
-static const char* const lang_ko_f336[] = { "\355\214\250\354\271\230 \353\263\200\352\262\275\353\220\250" };
-static const char* const lang_ko_f337[] = { "\352\262\214\354\236\204\354\235\204 \354\213\234\354\236\221\355\225\234 \353\222\244 \355\214\250\354\271\230\352\260\200 \353\263\200\352\262\275\353\220\230\354\227\210\354\212\265\353\213\210\353\213\244" };
-static const char* const lang_ko_f338[] = { "\355\214\250\354\271\230 \353\263\200\352\262\275\353\220\250: \354\236\210\353\215\230 \352\263\263\354\227\220\354\204\234 \352\263\204\354\206\215\355\225\251\353\213\210\353\213\244" };
-static const char* const lang_ko_f339[] = { "\355\214\250\355\204\264 \352\260\225\353\217\204" };
-static const char* const lang_ko_f340[] = { "\354\235\274\354\213\234\354\240\225\354\247\200\353\220\250" };
-static const char* const lang_ko_f341[] = { "\354\204\261\353\212\245" };
-static const char* const lang_ko_f342[] = { "\354\204\261\353\212\245: \354\213\234\354\212\244\355\205\234\354\235\264 \352\262\260\354\240\225" };
-static const char* const lang_ko_f343[] = { "\354\204\261\353\212\245: \354\265\234\353\214\200" };
-static const char* const lang_ko_f344[] = { "\355\231\224\353\251\264 \352\260\200\354\232\264\353\215\260 \353\230\220\353\212\224 \355\225\250\352\273\230 \353\206\223\353\212\224 \352\267\270\353\246\274." };
-static const char* const lang_ko_f345[] = { "\353\266\204\355\231\215" };
-static const char* const lang_ko_f346[] = { "\352\263\240\354\240\225\353\220\250: \353\260\224\352\260\200 \352\263\204\354\206\215 \353\263\264\354\236\205\353\213\210\353\213\244." };
-static const char* const lang_ko_f347[] = { "\355\224\275\354\205\200 \355\215\274\355\216\231\355\212\270" };
-static const char* const lang_ko_f348[] = { "\353\217\204\355\212\270" };
-static const char* const lang_ko_f349[] = { "\353\260\260\354\271\230, \354\230\244\353\262\204\353\240\210\354\235\264" };
-static const char* const lang_ko_f350[] = { "\353\213\250\354\210\234" };
-static const char* const lang_ko_f351[] = { "\355\224\214\353\240\210\354\235\264" };
-static const char* const lang_ko_f352[] = { "\354\235\264\353\262\210\354\227\220\353\212\224 \354\227\205\354\240\201 \354\227\206\354\235\264 \355\224\214\353\240\210\354\235\264\355\225\251\353\213\210\353\213\244" };
-static const char* const lang_ko_f353[] = { "\352\262\214\354\236\204\354\235\204 \354\244\200\353\271\204\355\225\230\353\212\224 \354\244\221..." };
-static const char* const lang_ko_f354[] = { "%s\354\235\204(\353\245\274) \353\210\204\353\245\264\354\204\270\354\232\224" };
-static const char* const lang_ko_f355[] = { "A\353\245\274 \353\210\204\353\245\264\352\261\260\353\202\230 \355\203\255\355\225\230\354\227\254 \353\213\253\352\270\260" };
-static const char* const lang_ko_f356[] = { "A\353\245\274 \353\210\214\353\237\254 \353\213\253\352\270\260" };
-static const char* const lang_ko_f357[] = { "\353\262\204\355\212\274\354\235\204 \353\210\204\353\245\264\354\204\270\354\232\224" };
-static const char* const lang_ko_f358[] = { "\353\263\264\353\235\274" };
-static const char* const lang_ko_f359[] = { "\354\212\244\355\213\261\354\235\204 \353\257\270\354\204\270\354\232\224: \354\235\264\352\262\203\354\227\220\353\212\224 \353\262\204\355\212\274\354\235\204 \354\223\270 \354\210\230 \354\227\206\354\212\265\353\213\210\353\213\244." };
-static const char* const lang_ko_f360[] = { ".ips, .ups, .bps \353\230\220\353\212\224 .xdelta \355\214\214\354\235\274\354\235\204 %s\354\227\220 \353\204\243\354\234\274\354\204\270\354\232\224" };
-static const char* const lang_ko_f361[] = { "\353\271\240\353\245\270 \353\260\224 \355\236\214\355\212\270" };
+static const char* const lang_ko_f283[] = { "\353\251\224\353\211\264 \354\225\210\353\202\264" };
+static const char* const lang_ko_f284[] = { "\354\210\230\354\240\225\353\220\234 ROM: \353\221\220 \353\262\210\354\247\270 \355\231\224\353\251\264\354\235\264 \354\236\221\353\217\231\355\225\230\354\247\200 \354\225\212\354\235\204 \354\210\230 \354\236\210\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f285[] = { "\354\235\264\353\217\231" };
+static const char* const lang_ko_f286[] = { "\354\235\264\353\217\231 \354\244\221: \354\234\204 / \354\225\204\353\236\230 \353\230\220\353\212\224 \352\260\210 \354\234\204\354\271\230\353\245\274 \353\210\204\353\245\270 \353\222\244 A (\353\230\220\353\212\224 \353\213\244\354\213\234 \353\210\204\353\245\264\352\270\260). \353\252\251\353\241\235\354\227\220\354\204\234 \354\225\204\353\236\230\354\227\220 \354\236\210\353\212\224 \352\262\203\354\235\264 \353\202\230\354\244\221\354\227\220 \354\240\201\354\232\251\353\220\251\353\213\210\353\213\244" };
+static const char* const lang_ko_f287[] = { "\354\203\210\353\241\234 \353\247\214\353\223\244\352\270\260" };
+static const char* const lang_ko_f288[] = { "\354\227\254\352\270\260\354\227\220 RetroArch \354\203\201\355\203\234\352\260\200 \354\227\206\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f289[] = { "\354\235\264 ROM\354\227\220\353\212\224 \354\227\205\354\240\201\354\235\264 \354\227\206\354\212\265\353\213\210\353\213\244 (MD5 %s)" };
+static const char* const lang_ko_f290[] = { "\354\271\230\355\212\270\353\245\274 \354\260\276\354\235\204 \354\210\230 \354\227\206\354\212\265\353\213\210\353\213\244 (\354\234\204\355\202\244\354\235\230 Cheats \354\260\270\354\241\260)" };
+static const char* const lang_ko_f291[] = { "\354\273\250\355\212\270\353\241\244\353\237\254\353\245\274 \354\260\276\354\235\204 \354\210\230 \354\227\206\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f292[] = { "\354\204\240\355\203\235\355\225\234 \355\217\264\353\215\224\352\260\200 \354\227\206\354\212\265\353\213\210\353\213\244." };
+static const char* const lang_ko_f293[] = { "\354\235\264 \355\217\264\353\215\224 \354\225\210\354\227\220 \355\217\264\353\215\224\352\260\200 \354\227\206\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f294[] = { "\354\236\220\354\262\264 \354\204\244\354\240\225\354\235\264 \354\236\210\353\212\224 \352\262\214\354\236\204\354\235\264 \354\227\206\354\212\265\353\213\210\353\213\244." };
+static const char* const lang_ko_f295[] = { "\352\262\214\354\236\204\354\235\204 \354\260\276\354\235\204 \354\210\230 \354\227\206\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f296[] = { "\354\225\204\354\247\201 \354\227\254\352\270\260\354\227\220 \355\214\250\354\271\230\352\260\200 \354\227\206\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f297[] = { "\354\225\204\354\247\201 \354\240\200\354\236\245\353\220\234 \353\271\240\353\245\270 \354\203\201\355\203\234\352\260\200 \354\227\206\354\212\265\353\213\210\353\213\244." };
+static const char* const lang_ko_f298[] = { "\354\227\206\354\235\214" };
+static const char* const lang_ko_f299[] = { "\353\215\224 \354\235\264\354\203\201 \355\217\264\353\215\224\354\227\220 \354\227\206\354\235\214: \354\240\234\354\231\270\353\220\251\353\213\210\353\213\244" };
+static const char* const lang_ko_f300[] = { "\354\235\264\354\226\264\355\225\230\354\247\200 \354\225\212\354\235\214: RetroArch\354\235\230 \354\236\220\353\217\231 \354\203\201\355\203\234\353\212\224 RetroArch\354\235\230 \353\213\244\353\245\270 SNES \354\275\224\354\226\264\354\227\220\354\204\234 \354\230\250 \352\262\203\354\236\205\353\213\210\353\213\244. \354\203\201\355\203\234\353\245\274 \352\263\265\354\234\240\355\225\230\353\240\244\353\251\264 RetroArch\354\235\230 SNES \354\275\224\354\226\264\353\245\274 bsnes\353\241\234 \354\204\244\354\240\225\355\225\230\354\204\270\354\232\224." };
+static const char* const lang_ko_f301[] = { "\354\202\254\354\232\251 \354\225\210 \355\225\250" };
+static const char* const lang_ko_f302[] = { "\354\227\206\354\235\214" };
+static const char* const lang_ko_f303[] = { "\355\225\240\353\213\271\353\220\234 \352\262\203 \354\227\206\354\235\214" };
+static const char* const lang_ko_f304[] = { "\354\212\254\353\241\257 %d\354\227\220 \354\225\204\354\247\201 \354\240\200\354\236\245\353\220\234 \352\262\203\354\235\264 \354\227\206\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f305[] = { "\354\225\204\354\247\201 \353\263\264\352\263\240\355\225\240 \352\262\203\354\235\264 \354\227\206\354\212\265\353\213\210\353\213\244." };
+static const char* const lang_ko_f306[] = { "11\354\233\224" };
+static const char* const lang_ko_f307[] = { "\354\247\200\352\270\210" };
+static const char* const lang_ko_f308[] = { "\355\231\225\354\235\270" };
+static const char* const lang_ko_f309[] = { "10\354\233\224" };
+static const char* const lang_ko_f310[] = { "\353\201\224" };
+static const char* const lang_ko_f311[] = { "\355\214\250\354\271\230\352\260\200 \354\274\234\354\240\270 \354\236\210\353\212\224 \353\217\231\354\225\210 \352\272\274\354\247\220" };
+static const char* const lang_ko_f312[] = { "\354\225\204\353\213\210\354\232\224: \353\252\250\353\223\240 \352\262\214\354\236\204\354\235\264 \354\235\274\353\260\230 SNES \352\262\214\354\236\204\354\262\230\353\237\274 \354\213\244\355\226\211\353\220\251\353\213\210\353\213\244." };
+static const char* const lang_ko_f313[] = { "\354\225\204\353\213\210\354\232\224: \354\231\274\354\252\275 \354\212\244\355\213\261\354\235\200 \352\262\214\354\236\204\354\227\220\354\204\234 \354\225\204\353\254\264 \354\235\274\353\217\204 \355\225\230\354\247\200 \354\225\212\354\212\265\353\213\210\353\213\244." };
+static const char* const lang_ko_f314[] = { "\354\230\244\355\224\204\353\235\274\354\235\270" };
+static const char* const lang_ko_f315[] = { "\354\230\210" };
+static const char* const lang_ko_f316[] = { "\355\231\224\353\251\264\354\235\264 \355\225\230\353\202\230\353\277\220\354\236\205\353\213\210\353\213\244: \354\230\256\352\270\270 \352\262\203\354\235\264 \354\227\206\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f317[] = { "\354\274\234\354\247\204 \355\214\250\354\271\230\354\227\220\353\247\214 \354\210\234\354\204\234\352\260\200 \354\236\210\354\234\274\353\251\260, \354\235\264\352\262\203\354\235\264 \354\234\240\354\235\274\355\225\251\353\213\210\353\213\244" };
+static const char* const lang_ko_f318[] = { "\353\221\220 \355\231\224\353\251\264\354\235\230 \353\252\250\354\226\221\354\235\264 \353\213\244\353\245\274 \353\225\214\353\247\214 \354\240\201\354\232\251\353\220\251\353\213\210\353\213\244. \354\213\244\355\227\230\354\240\201 \352\270\260\353\212\245." };
+static const char* const lang_ko_f319[] = { "\353\251\224\353\211\264 \354\227\264\352\270\260" };
+static const char* const lang_ko_f320[] = { "\352\262\214\354\236\204 \353\230\220\353\212\224 \353\252\250\353\223\240 \352\262\214\354\236\204\354\227\220 \354\236\210\353\212\224 \353\262\240\354\240\244 \354\236\220\354\262\264 \355\216\230\354\235\264\354\247\200\353\245\274 \354\227\275\353\213\210\353\213\244" };
+static const char* const lang_ko_f321[] = { "\354\243\274\355\231\251" };
+static const char* const lang_ko_f322[] = { "\353\213\244\353\245\270 \354\212\210\355\215\274 \355\214\250\353\257\270\354\273\264 \352\262\214\354\236\204\354\235\200 \355\225\234 \355\231\224\353\251\264\354\227\220\354\204\234 \354\213\244\355\226\211\353\220\230\352\263\240, \353\213\244\353\245\270 \355\231\224\353\251\264\354\227\220\353\212\224 \355\203\200\354\235\264\355\213\200 \353\241\234\352\263\240\352\260\200 \355\221\234\354\213\234\353\220\251\353\213\210\353\213\244." };
+static const char* const lang_ko_f323[] = { "\353\260\224\352\271\245\354\252\275 \353\262\240\354\240\244 \354\203\211\354\203\201" };
+static const char* const lang_ko_f324[] = { "\354\230\244\353\262\204\353\240\210\354\235\264 \354\203\211\354\203\201\352\263\274 \353\241\234\352\263\240" };
+static const char* const lang_ko_f325[] = { "\354\230\244\353\262\204\353\240\210\354\235\264" };
+static const char* const lang_ko_f326[] = { "\354\230\244\353\262\204\353\240\210\354\235\264 \354\274\234\354\247\220" };
+static const char* const lang_ko_f327[] = { "\354\230\244\353\262\204\353\240\210\354\235\264: \354\202\254\354\232\251\354\236\220 \354\247\200\354\240\225" };
+static const char* const lang_ko_f328[] = { "\354\230\244\353\262\204\353\240\210\354\235\264: \354\202\254\354\232\251\354\236\220 \354\247\200\354\240\225 (/overlays \354\225\210)" };
+static const char* const lang_ko_f329[] = { "\354\230\244\353\262\204\353\240\210\354\235\264: \354\203\235\354\204\261\353\220\250" };
+static const char* const lang_ko_f330[] = { "\354\230\244\353\262\204\353\240\210\354\235\264: \353\201\224" };
+static const char* const lang_ko_f331[] = { "PM" };
+static const char* const lang_ko_f332[] = { "\355\214\250\354\271\230\352\260\200 \354\240\201\354\232\251\353\220\230\354\247\200 \354\225\212\354\235\214: %s\354\235\204(\353\245\274) \354\235\275\354\235\204 \354\210\230 \354\227\206\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f333[] = { "\355\214\250\354\271\230\352\260\200 \354\240\201\354\232\251\353\220\230\354\247\200 \354\225\212\354\235\214: %s\354\235\200(\353\212\224) \353\213\244\353\245\270 ROM\354\232\251\354\236\205\353\213\210\353\213\244" };
+static const char* const lang_ko_f334[] = { "\355\214\250\354\271\230\353\212\224 \354\240\201\354\232\251\353\220\230\354\227\210\354\247\200\353\247\214 \355\225\230\353\202\230\353\212\224 \354\240\234\354\231\270\353\220\230\354\227\210\354\212\265\353\213\210\353\213\244: \352\262\214\354\236\204 \353\251\224\353\211\264\354\235\230 \355\214\250\354\271\230\353\245\274 \355\231\225\354\235\270\355\225\230\354\204\270\354\232\224" };
+static const char* const lang_ko_f335[] = { "\355\214\250\354\271\230\353\220\250: \353\221\220 \353\262\210\354\247\270 \355\231\224\353\251\264\354\235\264 \354\236\221\353\217\231\355\225\230\354\247\200 \354\225\212\354\235\204 \354\210\230 \354\236\210\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f336[] = { "\355\214\250\354\271\230" };
+static const char* const lang_ko_f337[] = { "\355\214\250\354\271\230 \353\263\200\352\262\275\353\220\250" };
+static const char* const lang_ko_f338[] = { "\352\262\214\354\236\204\354\235\204 \354\213\234\354\236\221\355\225\234 \353\222\244 \355\214\250\354\271\230\352\260\200 \353\263\200\352\262\275\353\220\230\354\227\210\354\212\265\353\213\210\353\213\244" };
+static const char* const lang_ko_f339[] = { "\355\214\250\354\271\230 \353\263\200\352\262\275\353\220\250: \354\236\210\353\215\230 \352\263\263\354\227\220\354\204\234 \352\263\204\354\206\215\355\225\251\353\213\210\353\213\244" };
+static const char* const lang_ko_f340[] = { "\355\214\250\355\204\264 \352\260\225\353\217\204" };
+static const char* const lang_ko_f341[] = { "\354\235\274\354\213\234\354\240\225\354\247\200\353\220\250" };
+static const char* const lang_ko_f342[] = { "\354\204\261\353\212\245" };
+static const char* const lang_ko_f343[] = { "\354\204\261\353\212\245: \354\213\234\354\212\244\355\205\234\354\235\264 \352\262\260\354\240\225" };
+static const char* const lang_ko_f344[] = { "\354\204\261\353\212\245: \354\265\234\353\214\200" };
+static const char* const lang_ko_f345[] = { "\355\231\224\353\251\264 \352\260\200\354\232\264\353\215\260 \353\230\220\353\212\224 \355\225\250\352\273\230 \353\206\223\353\212\224 \352\267\270\353\246\274." };
+static const char* const lang_ko_f346[] = { "\353\266\204\355\231\215" };
+static const char* const lang_ko_f347[] = { "\352\263\240\354\240\225\353\220\250: \353\260\224\352\260\200 \352\263\204\354\206\215 \353\263\264\354\236\205\353\213\210\353\213\244." };
+static const char* const lang_ko_f348[] = { "\355\224\275\354\205\200 \355\215\274\355\216\231\355\212\270" };
+static const char* const lang_ko_f349[] = { "\353\217\204\355\212\270" };
+static const char* const lang_ko_f350[] = { "\353\260\260\354\271\230, \354\230\244\353\262\204\353\240\210\354\235\264" };
+static const char* const lang_ko_f351[] = { "\353\213\250\354\210\234" };
+static const char* const lang_ko_f352[] = { "\355\224\214\353\240\210\354\235\264" };
+static const char* const lang_ko_f353[] = { "\354\235\264\353\262\210\354\227\220\353\212\224 \354\227\205\354\240\201 \354\227\206\354\235\264 \355\224\214\353\240\210\354\235\264\355\225\251\353\213\210\353\213\244" };
+static const char* const lang_ko_f354[] = { "\352\262\214\354\236\204\354\235\204 \354\244\200\353\271\204\355\225\230\353\212\224 \354\244\221..." };
+static const char* const lang_ko_f355[] = { "%s\354\235\204(\353\245\274) \353\210\204\353\245\264\354\204\270\354\232\224" };
+static const char* const lang_ko_f356[] = { "A\353\245\274 \353\210\204\353\245\264\352\261\260\353\202\230 \355\203\255\355\225\230\354\227\254 \353\213\253\352\270\260" };
+static const char* const lang_ko_f357[] = { "A\353\245\274 \353\210\214\353\237\254 \353\213\253\352\270\260" };
+static const char* const lang_ko_f358[] = { "\353\262\204\355\212\274\354\235\204 \353\210\204\353\245\264\354\204\270\354\232\224" };
+static const char* const lang_ko_f359[] = { "\353\263\264\353\235\274" };
+static const char* const lang_ko_f360[] = { "\354\212\244\355\213\261\354\235\204 \353\257\270\354\204\270\354\232\224: \354\235\264\352\262\203\354\227\220\353\212\224 \353\262\204\355\212\274\354\235\204 \354\223\270 \354\210\230 \354\227\206\354\212\265\353\213\210\353\213\244." };
+static const char* const lang_ko_f361[] = { ".ips, .ups, .bps \353\230\220\353\212\224 .xdelta \355\214\214\354\235\274\354\235\204 %s\354\227\220 \353\204\243\354\234\274\354\204\270\354\232\224" };
 static const char* const lang_ko_f362[] = { "\353\271\240\353\245\270 \354\203\201\355\203\234 \353\266\210\353\237\254\354\230\244\352\270\260" };
 static const char* const lang_ko_f363[] = { "\353\271\240\353\245\270 \354\203\201\355\203\234 \354\240\200\354\236\245" };
 static const char* const lang_ko_f364[] = { "\354\242\205\353\243\214" };
@@ -7101,7 +7101,7 @@ static const char* const lang_ko_f461[] = { "\354\212\244\355\201\254\353\246\26
 static const char* const lang_ko_f462[] = { "\353\221\220 \353\262\210\354\247\270 \355\231\224\353\251\264" };
 static const char* const lang_ko_f463[] = { "\353\221\220 \353\262\210\354\247\270 \355\231\224\353\251\264 \353\260\260\354\234\250" };
 static const char* const lang_ko_f464[] = { "Select" };
-static const char* const lang_ko_f465[] = { "Select\353\202\230 Start\353\245\274 \353\213\250\353\217\205\354\234\274\353\241\234 \353\210\204\353\245\264\353\251\264 \354\227\254\354\240\204\355\236\210 \352\262\214\354\236\204\354\227\220 \354\240\204\353\213\254\353\220\230\352\263\240, L3\353\212\224 \354\227\254\354\240\204\355\236\210 \353\271\240\353\245\270 \353\251\224\353\211\264\353\245\274 \354\227\275\353\213\210\353\213\244" };
+static const char* const lang_ko_f465[] = { "Select\353\202\230 Start\353\212\224 \353\213\250\353\217\205\354\234\274\353\241\234 \353\210\204\353\245\264\353\251\264 \352\262\214\354\236\204\354\227\220 \354\240\204\353\213\254\353\220\230\352\263\240, L3\353\212\224 \352\263\204\354\206\215 \353\251\224\353\211\264\353\245\274 \354\227\275\353\213\210\353\213\244" };
 static const char* const lang_ko_f466[] = { "9\354\233\224" };
 static const char* const lang_ko_f467[] = { "\353\260\260\355\204\260\353\246\254 \354\240\200\354\236\245 \353\215\260\354\235\264\355\204\260 \353\266\204\353\246\254" };
 static const char* const lang_ko_f468[] = { "\354\203\201\355\203\234 \353\266\204\353\246\254" };
@@ -7171,13 +7171,13 @@ static const char* const lang_ko_f531[] = { "\355\231\225\354\213\244\355\225\23
 static const char* const lang_ko_f532[] = { "\355\231\224\353\251\264 \353\260\224\352\276\270\352\270\260" };
 static const char* const lang_ko_f533[] = { "\355\231\224\353\251\264 \353\260\224\352\276\270\352\270\260" };
 static const char* const lang_ko_f534[] = { "\353\260\224\353\200\234" };
-static const char* const lang_ko_f535[] = { "\354\234\204\353\241\234 \354\212\244\354\231\200\354\235\264\355\224\204\355\225\230\354\227\254 \353\271\240\353\245\270 \353\251\224\353\211\264" };
-static const char* const lang_ko_f536[] = { "retrods.cfg\354\227\220\354\204\234 \352\272\274\354\240\270 \354\236\210\354\212\265\353\213\210\353\213\244 (retroachievements = 0)." };
-static const char* const lang_ko_f537[] = { "\354\213\234\354\212\244\355\205\234" };
-static const char* const lang_ko_f538[] = { "ROM \355\214\214\354\235\274 \354\235\264\353\246\204\354\235\230 \355\203\234\352\267\270, \354\230\210: (USA) \353\230\220\353\212\224 (En,Fr,De)." };
-static const char* const lang_ko_f539[] = { "\354\212\244\355\201\254\353\246\260\354\203\267 \354\260\215\352\270\260" };
-static const char* const lang_ko_f540[] = { "RetroDS\353\245\274 \353\213\253\354\234\274\353\240\244\353\251\264 \353\213\244\354\213\234 \355\203\255\355\225\230\354\204\270\354\232\224." };
-static const char* const lang_ko_f541[] = { "\353\251\224\353\211\264\353\212\224 \355\231\224\353\251\264\354\235\204 \355\203\255\355\225\230\352\261\260\353\202\230 HOME\354\235\204 \353\210\204\353\245\264\354\204\270\354\232\224" };
+static const char* const lang_ko_f535[] = { "retrods.cfg\354\227\220\354\204\234 \352\272\274\354\240\270 \354\236\210\354\212\265\353\213\210\353\213\244 (retroachievements = 0)." };
+static const char* const lang_ko_f536[] = { "\354\213\234\354\212\244\355\205\234" };
+static const char* const lang_ko_f537[] = { "ROM \355\214\214\354\235\274 \354\235\264\353\246\204\354\235\230 \355\203\234\352\267\270, \354\230\210: (USA) \353\230\220\353\212\224 (En,Fr,De)." };
+static const char* const lang_ko_f538[] = { "\354\212\244\355\201\254\353\246\260\354\203\267 \354\260\215\352\270\260" };
+static const char* const lang_ko_f539[] = { "RetroDS\353\245\274 \353\213\253\354\234\274\353\240\244\353\251\264 \353\213\244\354\213\234 \355\203\255\355\225\230\354\204\270\354\232\224." };
+static const char* const lang_ko_f540[] = { "\353\251\224\353\211\264\353\212\224 \355\231\224\353\251\264\354\235\204 \355\203\255\355\225\230\352\261\260\353\202\230 HOME\354\235\204 \353\210\204\353\245\264\354\204\270\354\232\224" };
+static const char* const lang_ko_f541[] = { "\355\231\224\353\251\264\354\235\204 \355\203\255\355\225\230\354\227\254 \353\251\224\353\211\264 \354\227\264\352\270\260" };
 static const char* const lang_ko_f542[] = { "\354\235\264 \352\270\260\352\270\260\354\227\220 \354\227\206\353\212\224 \353\262\204\355\212\274\354\235\200 \355\204\260\354\271\230\354\212\244\355\201\254\353\246\260\354\235\204 \355\203\255\355\225\230\354\227\254 \352\261\264\353\204\210\353\233\260\354\204\270\354\232\224" };
 static const char* const lang_ko_f543[] = { "\355\203\255\355\225\230\354\227\254 \354\225\204\353\254\264\352\262\203\353\217\204 \354\247\200\354\240\225\355\225\230\354\247\200 \354\225\212\352\270\260" };
 static const char* const lang_ko_f544[] = { "\354\235\264 \352\270\260\352\270\260\354\227\220 \354\227\206\353\212\224 \353\262\204\355\212\274\354\235\200 \355\203\255\355\225\230\354\227\254 \352\261\264\353\204\210\353\233\260\354\204\270\354\232\224" };
@@ -7304,7 +7304,7 @@ static const I18nEntry lang_ko_entries[] = {
 	{ " It's the newest version.", lang_ko_f2, 1 },
 	{ " ms", lang_ko_f3, 1 },
 	{ " s", lang_ko_f4, 1 },
-	{ "\"Swipe up for quick menu\" at a game's start.", lang_ko_f5, 1 },
+	{ "\"Tap the screen to open the menu\" at a game's start.", lang_ko_f5, 1 },
 	{ "%ca%d", lang_ko_f6, 1 },
 	{ "%d RetroArch state here", lang_ko_f7, 1 },
 	{ "%d file checked", lang_ko_f8, 1 },
@@ -7582,85 +7582,85 @@ static const I18nEntry lang_ko_entries[] = {
 	{ "Max: full speed, a warmer device and a shorter battery.", lang_ko_f280, 1 },
 	{ "May", lang_ko_f281, 1 },
 	{ "Medium (15 a second)", lang_ko_f282, 1 },
-	{ "Modified ROM: the second screen may not work", lang_ko_f283, 1 },
-	{ "Move", lang_ko_f284, 1 },
-	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_ko_f285, 1 },
-	{ "New", lang_ko_f286, 1 },
-	{ "No RetroArch states here", lang_ko_f287, 1 },
-	{ "No achievements for this ROM (MD5 %s)", lang_ko_f288, 1 },
-	{ "No cheats found (see Cheats in the wiki)", lang_ko_f289, 1 },
-	{ "No controller found", lang_ko_f290, 1 },
-	{ "No folder chosen.", lang_ko_f291, 1 },
-	{ "No folders in this one", lang_ko_f292, 1 },
-	{ "No game has settings of its own.", lang_ko_f293, 1 },
-	{ "No games found", lang_ko_f294, 1 },
-	{ "No patches here yet", lang_ko_f295, 1 },
-	{ "No quick state saved yet.", lang_ko_f296, 1 },
-	{ "None", lang_ko_f297, 1 },
-	{ "Not in the folder any more: it's left out", lang_ko_f298, 1 },
-	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_ko_f299, 1 },
-	{ "Not used", lang_ko_f300, 1 },
-	{ "Nothing", lang_ko_f301, 1 },
-	{ "Nothing mapped", lang_ko_f302, 1 },
-	{ "Nothing saved in slot %d yet", lang_ko_f303, 1 },
-	{ "Nothing to report yet.", lang_ko_f304, 1 },
-	{ "Nov", lang_ko_f305, 1 },
-	{ "Now", lang_ko_f306, 1 },
-	{ "OK", lang_ko_f307, 1 },
-	{ "Oct", lang_ko_f308, 1 },
-	{ "Off", lang_ko_f309, 1 },
-	{ "Off while a patch is on", lang_ko_f310, 1 },
-	{ "Off: every game plays like an ordinary SNES game.", lang_ko_f311, 1 },
-	{ "Off: the left stick does nothing in games.", lang_ko_f312, 1 },
-	{ "Offline", lang_ko_f313, 1 },
-	{ "On", lang_ko_f314, 1 },
-	{ "Only one screen: nothing to move", lang_ko_f315, 1 },
-	{ "Only patches that are on have an order, and this is the only one", lang_ko_f316, 1 },
-	{ "Only when your two screens differ in shape. Experimental.", lang_ko_f317, 1 },
-	{ "Open quick menu", lang_ko_f318, 1 },
-	{ "Opens the bezel's own page, for whichever the game or all games have", lang_ko_f319, 1 },
-	{ "Orange", lang_ko_f320, 1 },
-	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_ko_f321, 1 },
-	{ "Outer Bezel Color", lang_ko_f322, 1 },
-	{ "Overlay colors and logo", lang_ko_f323, 1 },
-	{ "Overlays", lang_ko_f324, 1 },
-	{ "Overlays on", lang_ko_f325, 1 },
-	{ "Overlays: Custom", lang_ko_f326, 1 },
-	{ "Overlays: Custom (in /overlays)", lang_ko_f327, 1 },
-	{ "Overlays: Generated", lang_ko_f328, 1 },
-	{ "Overlays: Off", lang_ko_f329, 1 },
-	{ "PM", lang_ko_f330, 1 },
-	{ "Patch not applied: %s can't be read", lang_ko_f331, 1 },
-	{ "Patch not applied: %s is for another ROM", lang_ko_f332, 1 },
-	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_ko_f333, 1 },
-	{ "Patched: the second screen may not work", lang_ko_f334, 1 },
-	{ "Patches", lang_ko_f335, 1 },
-	{ "Patches changed", lang_ko_f336, 1 },
-	{ "Patches changed since the game started", lang_ko_f337, 1 },
-	{ "Patches changed: carrying on from where you were", lang_ko_f338, 1 },
-	{ "Pattern strength", lang_ko_f339, 1 },
-	{ "Paused", lang_ko_f340, 1 },
-	{ "Performance", lang_ko_f341, 1 },
-	{ "Performance: Let the System Decide", lang_ko_f342, 1 },
-	{ "Performance: Set to Max", lang_ko_f343, 1 },
-	{ "Pictures in the middle of their screens, or close together.", lang_ko_f344, 1 },
-	{ "Pink", lang_ko_f345, 1 },
-	{ "Pinned: the bar stays up.", lang_ko_f346, 1 },
-	{ "Pixel Perfect", lang_ko_f347, 1 },
-	{ "Pixelated", lang_ko_f348, 1 },
-	{ "Placement, overlays", lang_ko_f349, 1 },
-	{ "Plain", lang_ko_f350, 1 },
-	{ "Play", lang_ko_f351, 1 },
-	{ "Playing without achievements this time", lang_ko_f352, 1 },
-	{ "Preparing the game...", lang_ko_f353, 1 },
-	{ "Press %s", lang_ko_f354, 1 },
-	{ "Press A or tap to close", lang_ko_f355, 1 },
-	{ "Press A to close", lang_ko_f356, 1 },
-	{ "Press a button", lang_ko_f357, 1 },
-	{ "Purple", lang_ko_f358, 1 },
-	{ "Push the stick: buttons don't count for this one.", lang_ko_f359, 1 },
-	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_ko_f360, 1 },
-	{ "Quick bar hint", lang_ko_f361, 1 },
+	{ "Menu hint", lang_ko_f283, 1 },
+	{ "Modified ROM: the second screen may not work", lang_ko_f284, 1 },
+	{ "Move", lang_ko_f285, 1 },
+	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_ko_f286, 1 },
+	{ "New", lang_ko_f287, 1 },
+	{ "No RetroArch states here", lang_ko_f288, 1 },
+	{ "No achievements for this ROM (MD5 %s)", lang_ko_f289, 1 },
+	{ "No cheats found (see Cheats in the wiki)", lang_ko_f290, 1 },
+	{ "No controller found", lang_ko_f291, 1 },
+	{ "No folder chosen.", lang_ko_f292, 1 },
+	{ "No folders in this one", lang_ko_f293, 1 },
+	{ "No game has settings of its own.", lang_ko_f294, 1 },
+	{ "No games found", lang_ko_f295, 1 },
+	{ "No patches here yet", lang_ko_f296, 1 },
+	{ "No quick state saved yet.", lang_ko_f297, 1 },
+	{ "None", lang_ko_f298, 1 },
+	{ "Not in the folder any more: it's left out", lang_ko_f299, 1 },
+	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_ko_f300, 1 },
+	{ "Not used", lang_ko_f301, 1 },
+	{ "Nothing", lang_ko_f302, 1 },
+	{ "Nothing mapped", lang_ko_f303, 1 },
+	{ "Nothing saved in slot %d yet", lang_ko_f304, 1 },
+	{ "Nothing to report yet.", lang_ko_f305, 1 },
+	{ "Nov", lang_ko_f306, 1 },
+	{ "Now", lang_ko_f307, 1 },
+	{ "OK", lang_ko_f308, 1 },
+	{ "Oct", lang_ko_f309, 1 },
+	{ "Off", lang_ko_f310, 1 },
+	{ "Off while a patch is on", lang_ko_f311, 1 },
+	{ "Off: every game plays like an ordinary SNES game.", lang_ko_f312, 1 },
+	{ "Off: the left stick does nothing in games.", lang_ko_f313, 1 },
+	{ "Offline", lang_ko_f314, 1 },
+	{ "On", lang_ko_f315, 1 },
+	{ "Only one screen: nothing to move", lang_ko_f316, 1 },
+	{ "Only patches that are on have an order, and this is the only one", lang_ko_f317, 1 },
+	{ "Only when your two screens differ in shape. Experimental.", lang_ko_f318, 1 },
+	{ "Open the menu", lang_ko_f319, 1 },
+	{ "Opens the bezel's own page, for whichever the game or all games have", lang_ko_f320, 1 },
+	{ "Orange", lang_ko_f321, 1 },
+	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_ko_f322, 1 },
+	{ "Outer Bezel Color", lang_ko_f323, 1 },
+	{ "Overlay colors and logo", lang_ko_f324, 1 },
+	{ "Overlays", lang_ko_f325, 1 },
+	{ "Overlays on", lang_ko_f326, 1 },
+	{ "Overlays: Custom", lang_ko_f327, 1 },
+	{ "Overlays: Custom (in /overlays)", lang_ko_f328, 1 },
+	{ "Overlays: Generated", lang_ko_f329, 1 },
+	{ "Overlays: Off", lang_ko_f330, 1 },
+	{ "PM", lang_ko_f331, 1 },
+	{ "Patch not applied: %s can't be read", lang_ko_f332, 1 },
+	{ "Patch not applied: %s is for another ROM", lang_ko_f333, 1 },
+	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_ko_f334, 1 },
+	{ "Patched: the second screen may not work", lang_ko_f335, 1 },
+	{ "Patches", lang_ko_f336, 1 },
+	{ "Patches changed", lang_ko_f337, 1 },
+	{ "Patches changed since the game started", lang_ko_f338, 1 },
+	{ "Patches changed: carrying on from where you were", lang_ko_f339, 1 },
+	{ "Pattern strength", lang_ko_f340, 1 },
+	{ "Paused", lang_ko_f341, 1 },
+	{ "Performance", lang_ko_f342, 1 },
+	{ "Performance: Let the System Decide", lang_ko_f343, 1 },
+	{ "Performance: Set to Max", lang_ko_f344, 1 },
+	{ "Pictures in the middle of their screens, or close together.", lang_ko_f345, 1 },
+	{ "Pink", lang_ko_f346, 1 },
+	{ "Pinned: the bar stays up.", lang_ko_f347, 1 },
+	{ "Pixel Perfect", lang_ko_f348, 1 },
+	{ "Pixelated", lang_ko_f349, 1 },
+	{ "Placement, overlays", lang_ko_f350, 1 },
+	{ "Plain", lang_ko_f351, 1 },
+	{ "Play", lang_ko_f352, 1 },
+	{ "Playing without achievements this time", lang_ko_f353, 1 },
+	{ "Preparing the game...", lang_ko_f354, 1 },
+	{ "Press %s", lang_ko_f355, 1 },
+	{ "Press A or tap to close", lang_ko_f356, 1 },
+	{ "Press A to close", lang_ko_f357, 1 },
+	{ "Press a button", lang_ko_f358, 1 },
+	{ "Purple", lang_ko_f359, 1 },
+	{ "Push the stick: buttons don't count for this one.", lang_ko_f360, 1 },
+	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_ko_f361, 1 },
 	{ "Quick load state", lang_ko_f362, 1 },
 	{ "Quick save state", lang_ko_f363, 1 },
 	{ "Quit", lang_ko_f364, 1 },
@@ -7764,7 +7764,7 @@ static const I18nEntry lang_ko_entries[] = {
 	{ "Second screen", lang_ko_f462, 1 },
 	{ "Second screen scale", lang_ko_f463, 1 },
 	{ "Select", lang_ko_f464, 1 },
-	{ "Select or Start still reach the game when tapped on their own, L3 still opens the quick menu", lang_ko_f465, 1 },
+	{ "Select or Start still reach the game when tapped on their own, L3 still opens the menu", lang_ko_f465, 1 },
 	{ "Sep", lang_ko_f466, 1 },
 	{ "Separate battery save", lang_ko_f467, 1 },
 	{ "Separate save states", lang_ko_f468, 1 },
@@ -7834,13 +7834,13 @@ static const I18nEntry lang_ko_entries[] = {
 	{ "Swap Screens", lang_ko_f532, 1 },
 	{ "Swap screens", lang_ko_f533, 1 },
 	{ "Swapped", lang_ko_f534, 1 },
-	{ "Swipe up for quick menu", lang_ko_f535, 1 },
-	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_ko_f536, 1 },
-	{ "System", lang_ko_f537, 1 },
-	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_ko_f538, 1 },
-	{ "Take Screenshot", lang_ko_f539, 1 },
-	{ "Tap again to close RetroDS.", lang_ko_f540, 1 },
-	{ "Tap the screen or press HOME for the menu", lang_ko_f541, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_ko_f535, 1 },
+	{ "System", lang_ko_f536, 1 },
+	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_ko_f537, 1 },
+	{ "Take Screenshot", lang_ko_f538, 1 },
+	{ "Tap again to close RetroDS.", lang_ko_f539, 1 },
+	{ "Tap the screen or press HOME for the menu", lang_ko_f540, 1 },
+	{ "Tap the screen to open the menu", lang_ko_f541, 1 },
 	{ "Tap the touchscreen to skip a button this device doesn't have", lang_ko_f542, 1 },
 	{ "Tap to set none", lang_ko_f543, 1 },
 	{ "Tap to skip a button this device doesn't have", lang_ko_f544, 1 },
@@ -7968,7 +7968,7 @@ static const char* const lang_pt_f1[] = { " Procurando uma nova vers\303\243o...
 static const char* const lang_pt_f2[] = { " Esta \303\251 a vers\303\243o mais recente." };
 static const char* const lang_pt_f3[] = { " ms" };
 static const char* const lang_pt_f4[] = { " s" };
-static const char* const lang_pt_f5[] = { "\"Deslize para cima para o menu r\303\241pido\" ao iniciar um jogo." };
+static const char* const lang_pt_f5[] = { "\"Toque na tela para abrir o menu\" no in\303\255cio de um jogo." };
 static const char* const lang_pt_f6[] = { "%ca%d" };
 static const char* const lang_pt_f7[] = { "%d estado do RetroArch aqui", "%d estados do RetroArch aqui" };
 static const char* const lang_pt_f8[] = { "%d arquivo verificado", "%d arquivos verificados" };
@@ -8246,85 +8246,85 @@ static const char* const lang_pt_f279[] = { "Igualar tamanhos e formatos" };
 static const char* const lang_pt_f280[] = { "M\303\241x.: velocidade total, um dispositivo mais quente e bateria mais curta." };
 static const char* const lang_pt_f281[] = { "mai" };
 static const char* const lang_pt_f282[] = { "M\303\251dia (15 por segundo)" };
-static const char* const lang_pt_f283[] = { "ROM modificada: a segunda tela pode n\303\243o funcionar" };
-static const char* const lang_pt_f284[] = { "Mover" };
-static const char* const lang_pt_f285[] = { "Movendo: Cima / Baixo ou toque onde ele vai, depois A (ou toque nele de novo). O que est\303\241 mais abaixo na lista \303\251 aplicado depois" };
-static const char* const lang_pt_f286[] = { "Novo" };
-static const char* const lang_pt_f287[] = { "Nenhum estado do RetroArch aqui" };
-static const char* const lang_pt_f288[] = { "Nenhuma conquista para esta ROM (MD5 %s)" };
-static const char* const lang_pt_f289[] = { "Nenhum cheat encontrado (veja Cheats na wiki)" };
-static const char* const lang_pt_f290[] = { "Nenhum controle encontrado" };
-static const char* const lang_pt_f291[] = { "Nenhuma pasta escolhida." };
-static const char* const lang_pt_f292[] = { "Nenhuma pasta nesta" };
-static const char* const lang_pt_f293[] = { "Nenhum jogo tem configura\303\247\303\265es pr\303\263prias." };
-static const char* const lang_pt_f294[] = { "Nenhum jogo encontrado" };
-static const char* const lang_pt_f295[] = { "Ainda n\303\243o h\303\241 patches aqui" };
-static const char* const lang_pt_f296[] = { "Nenhum estado r\303\241pido salvo ainda." };
-static const char* const lang_pt_f297[] = { "Nenhum" };
-static const char* const lang_pt_f298[] = { "N\303\243o est\303\241 mais na pasta: fica de fora" };
-static const char* const lang_pt_f299[] = { "N\303\243o retomado: o estado autom\303\241tico do RetroArch \303\251 de outro dos seus n\303\272cleos SNES. Para compartilhar estados, defina o n\303\272cleo SNES do RetroArch como bsnes." };
-static const char* const lang_pt_f300[] = { "N\303\243o usado" };
-static const char* const lang_pt_f301[] = { "Nada" };
-static const char* const lang_pt_f302[] = { "Nada mapeado" };
-static const char* const lang_pt_f303[] = { "Nada salvo no slot %d ainda" };
-static const char* const lang_pt_f304[] = { "Nada a relatar ainda." };
-static const char* const lang_pt_f305[] = { "nov" };
-static const char* const lang_pt_f306[] = { "Agora" };
-static const char* const lang_pt_f307[] = { "OK" };
-static const char* const lang_pt_f308[] = { "out" };
-static const char* const lang_pt_f309[] = { "N\303\243o" };
-static const char* const lang_pt_f310[] = { "Desativado enquanto um patch est\303\241 ativado" };
-static const char* const lang_pt_f311[] = { "N\303\243o: todo jogo roda como um jogo de SNES comum." };
-static const char* const lang_pt_f312[] = { "N\303\243o: o anal\303\263gico esquerdo n\303\243o faz nada nos jogos." };
-static const char* const lang_pt_f313[] = { "Offline" };
-static const char* const lang_pt_f314[] = { "Sim" };
-static const char* const lang_pt_f315[] = { "S\303\263 uma tela: nada para mover" };
-static const char* const lang_pt_f316[] = { "S\303\263 os patches ativados t\303\252m ordem, e este \303\251 o \303\272nico" };
-static const char* const lang_pt_f317[] = { "S\303\263 quando suas duas telas t\303\252m formatos diferentes. Experimental." };
-static const char* const lang_pt_f318[] = { "Abrir o menu r\303\241pido" };
-static const char* const lang_pt_f319[] = { "Abre a p\303\241gina pr\303\263pria da moldura, para a que o jogo ou todos os jogos t\303\252m" };
-static const char* const lang_pt_f320[] = { "Laranja" };
-static const char* const lang_pt_f321[] = { "Os outros jogos de Super Nintendo rodam em uma tela, com o logotipo na outra." };
-static const char* const lang_pt_f322[] = { "Cor da moldura externa" };
-static const char* const lang_pt_f323[] = { "Cores e logo dos overlays" };
-static const char* const lang_pt_f324[] = { "Overlays" };
-static const char* const lang_pt_f325[] = { "Overlays ativados" };
-static const char* const lang_pt_f326[] = { "Overlays: personalizados" };
-static const char* const lang_pt_f327[] = { "Overlays: personalizados (em /overlays)" };
-static const char* const lang_pt_f328[] = { "Overlays: gerados" };
-static const char* const lang_pt_f329[] = { "Overlays: N\303\243o" };
-static const char* const lang_pt_f330[] = { "PM" };
-static const char* const lang_pt_f331[] = { "Patch n\303\243o aplicado: %s n\303\243o pode ser lido" };
-static const char* const lang_pt_f332[] = { "Patch n\303\243o aplicado: %s \303\251 para outra ROM" };
-static const char* const lang_pt_f333[] = { "Patch aplicado, mas um patch ficou de fora: veja Patches no menu do jogo" };
-static const char* const lang_pt_f334[] = { "Com patch: a segunda tela pode n\303\243o funcionar" };
-static const char* const lang_pt_f335[] = { "Patches" };
-static const char* const lang_pt_f336[] = { "Patches alterados" };
-static const char* const lang_pt_f337[] = { "Patches alterados desde que o jogo iniciou" };
-static const char* const lang_pt_f338[] = { "Patches alterados: continuando de onde voc\303\252 estava" };
-static const char* const lang_pt_f339[] = { "Intensidade do padr\303\243o" };
-static const char* const lang_pt_f340[] = { "Pausado" };
-static const char* const lang_pt_f341[] = { "Desempenho" };
-static const char* const lang_pt_f342[] = { "Desempenho: deixar o sistema decidir" };
-static const char* const lang_pt_f343[] = { "Desempenho: M\303\241x." };
-static const char* const lang_pt_f344[] = { "Imagens no meio das telas, ou juntas." };
-static const char* const lang_pt_f345[] = { "Rosa" };
-static const char* const lang_pt_f346[] = { "Fixada: a barra fica vis\303\255vel." };
-static const char* const lang_pt_f347[] = { "Pixel perfeito" };
-static const char* const lang_pt_f348[] = { "Pixelado" };
-static const char* const lang_pt_f349[] = { "Posicionamento, overlays" };
-static const char* const lang_pt_f350[] = { "Simples" };
-static const char* const lang_pt_f351[] = { "Jogar" };
-static const char* const lang_pt_f352[] = { "Jogando sem conquistas desta vez" };
-static const char* const lang_pt_f353[] = { "Preparando o jogo..." };
-static const char* const lang_pt_f354[] = { "Pressione %s" };
-static const char* const lang_pt_f355[] = { "Pressione A ou toque para fechar" };
-static const char* const lang_pt_f356[] = { "Pressione A para fechar" };
-static const char* const lang_pt_f357[] = { "Pressione um bot\303\243o" };
-static const char* const lang_pt_f358[] = { "Roxo" };
-static const char* const lang_pt_f359[] = { "Empurre o anal\303\263gico: bot\303\265es n\303\243o valem para este." };
-static const char* const lang_pt_f360[] = { "Coloque arquivos .ips, .ups, .bps ou .xdelta em %s" };
-static const char* const lang_pt_f361[] = { "Dica da barra r\303\241pida" };
+static const char* const lang_pt_f283[] = { "Dica do menu" };
+static const char* const lang_pt_f284[] = { "ROM modificada: a segunda tela pode n\303\243o funcionar" };
+static const char* const lang_pt_f285[] = { "Mover" };
+static const char* const lang_pt_f286[] = { "Movendo: Cima / Baixo ou toque onde ele vai, depois A (ou toque nele de novo). O que est\303\241 mais abaixo na lista \303\251 aplicado depois" };
+static const char* const lang_pt_f287[] = { "Novo" };
+static const char* const lang_pt_f288[] = { "Nenhum estado do RetroArch aqui" };
+static const char* const lang_pt_f289[] = { "Nenhuma conquista para esta ROM (MD5 %s)" };
+static const char* const lang_pt_f290[] = { "Nenhum cheat encontrado (veja Cheats na wiki)" };
+static const char* const lang_pt_f291[] = { "Nenhum controle encontrado" };
+static const char* const lang_pt_f292[] = { "Nenhuma pasta escolhida." };
+static const char* const lang_pt_f293[] = { "Nenhuma pasta nesta" };
+static const char* const lang_pt_f294[] = { "Nenhum jogo tem configura\303\247\303\265es pr\303\263prias." };
+static const char* const lang_pt_f295[] = { "Nenhum jogo encontrado" };
+static const char* const lang_pt_f296[] = { "Ainda n\303\243o h\303\241 patches aqui" };
+static const char* const lang_pt_f297[] = { "Nenhum estado r\303\241pido salvo ainda." };
+static const char* const lang_pt_f298[] = { "Nenhum" };
+static const char* const lang_pt_f299[] = { "N\303\243o est\303\241 mais na pasta: fica de fora" };
+static const char* const lang_pt_f300[] = { "N\303\243o retomado: o estado autom\303\241tico do RetroArch \303\251 de outro dos seus n\303\272cleos SNES. Para compartilhar estados, defina o n\303\272cleo SNES do RetroArch como bsnes." };
+static const char* const lang_pt_f301[] = { "N\303\243o usado" };
+static const char* const lang_pt_f302[] = { "Nada" };
+static const char* const lang_pt_f303[] = { "Nada mapeado" };
+static const char* const lang_pt_f304[] = { "Nada salvo no slot %d ainda" };
+static const char* const lang_pt_f305[] = { "Nada a relatar ainda." };
+static const char* const lang_pt_f306[] = { "nov" };
+static const char* const lang_pt_f307[] = { "Agora" };
+static const char* const lang_pt_f308[] = { "OK" };
+static const char* const lang_pt_f309[] = { "out" };
+static const char* const lang_pt_f310[] = { "N\303\243o" };
+static const char* const lang_pt_f311[] = { "Desativado enquanto um patch est\303\241 ativado" };
+static const char* const lang_pt_f312[] = { "N\303\243o: todo jogo roda como um jogo de SNES comum." };
+static const char* const lang_pt_f313[] = { "N\303\243o: o anal\303\263gico esquerdo n\303\243o faz nada nos jogos." };
+static const char* const lang_pt_f314[] = { "Offline" };
+static const char* const lang_pt_f315[] = { "Sim" };
+static const char* const lang_pt_f316[] = { "S\303\263 uma tela: nada para mover" };
+static const char* const lang_pt_f317[] = { "S\303\263 os patches ativados t\303\252m ordem, e este \303\251 o \303\272nico" };
+static const char* const lang_pt_f318[] = { "S\303\263 quando suas duas telas t\303\252m formatos diferentes. Experimental." };
+static const char* const lang_pt_f319[] = { "Abrir o menu" };
+static const char* const lang_pt_f320[] = { "Abre a p\303\241gina pr\303\263pria da moldura, para a que o jogo ou todos os jogos t\303\252m" };
+static const char* const lang_pt_f321[] = { "Laranja" };
+static const char* const lang_pt_f322[] = { "Os outros jogos de Super Nintendo rodam em uma tela, com o logotipo na outra." };
+static const char* const lang_pt_f323[] = { "Cor da moldura externa" };
+static const char* const lang_pt_f324[] = { "Cores e logo dos overlays" };
+static const char* const lang_pt_f325[] = { "Overlays" };
+static const char* const lang_pt_f326[] = { "Overlays ativados" };
+static const char* const lang_pt_f327[] = { "Overlays: personalizados" };
+static const char* const lang_pt_f328[] = { "Overlays: personalizados (em /overlays)" };
+static const char* const lang_pt_f329[] = { "Overlays: gerados" };
+static const char* const lang_pt_f330[] = { "Overlays: N\303\243o" };
+static const char* const lang_pt_f331[] = { "PM" };
+static const char* const lang_pt_f332[] = { "Patch n\303\243o aplicado: %s n\303\243o pode ser lido" };
+static const char* const lang_pt_f333[] = { "Patch n\303\243o aplicado: %s \303\251 para outra ROM" };
+static const char* const lang_pt_f334[] = { "Patch aplicado, mas um patch ficou de fora: veja Patches no menu do jogo" };
+static const char* const lang_pt_f335[] = { "Com patch: a segunda tela pode n\303\243o funcionar" };
+static const char* const lang_pt_f336[] = { "Patches" };
+static const char* const lang_pt_f337[] = { "Patches alterados" };
+static const char* const lang_pt_f338[] = { "Patches alterados desde que o jogo iniciou" };
+static const char* const lang_pt_f339[] = { "Patches alterados: continuando de onde voc\303\252 estava" };
+static const char* const lang_pt_f340[] = { "Intensidade do padr\303\243o" };
+static const char* const lang_pt_f341[] = { "Pausado" };
+static const char* const lang_pt_f342[] = { "Desempenho" };
+static const char* const lang_pt_f343[] = { "Desempenho: deixar o sistema decidir" };
+static const char* const lang_pt_f344[] = { "Desempenho: M\303\241x." };
+static const char* const lang_pt_f345[] = { "Imagens no meio das telas, ou juntas." };
+static const char* const lang_pt_f346[] = { "Rosa" };
+static const char* const lang_pt_f347[] = { "Fixada: a barra fica vis\303\255vel." };
+static const char* const lang_pt_f348[] = { "Pixel perfeito" };
+static const char* const lang_pt_f349[] = { "Pixelado" };
+static const char* const lang_pt_f350[] = { "Posicionamento, overlays" };
+static const char* const lang_pt_f351[] = { "Simples" };
+static const char* const lang_pt_f352[] = { "Jogar" };
+static const char* const lang_pt_f353[] = { "Jogando sem conquistas desta vez" };
+static const char* const lang_pt_f354[] = { "Preparando o jogo..." };
+static const char* const lang_pt_f355[] = { "Pressione %s" };
+static const char* const lang_pt_f356[] = { "Pressione A ou toque para fechar" };
+static const char* const lang_pt_f357[] = { "Pressione A para fechar" };
+static const char* const lang_pt_f358[] = { "Pressione um bot\303\243o" };
+static const char* const lang_pt_f359[] = { "Roxo" };
+static const char* const lang_pt_f360[] = { "Empurre o anal\303\263gico: bot\303\265es n\303\243o valem para este." };
+static const char* const lang_pt_f361[] = { "Coloque arquivos .ips, .ups, .bps ou .xdelta em %s" };
 static const char* const lang_pt_f362[] = { "Carregamento r\303\241pido de estado" };
 static const char* const lang_pt_f363[] = { "Salvamento r\303\241pido de estado" };
 static const char* const lang_pt_f364[] = { "Sair" };
@@ -8428,7 +8428,7 @@ static const char* const lang_pt_f461[] = { "Captura de tela salva" };
 static const char* const lang_pt_f462[] = { "Segunda tela" };
 static const char* const lang_pt_f463[] = { "Escala da segunda tela" };
 static const char* const lang_pt_f464[] = { "Select" };
-static const char* const lang_pt_f465[] = { "Select ou Start ainda chegam ao jogo quando tocados sozinhos, e L3 ainda abre o menu r\303\241pido" };
+static const char* const lang_pt_f465[] = { "Select ou Start ainda chegam ao jogo quando tocados sozinhos, L3 ainda abre o menu" };
 static const char* const lang_pt_f466[] = { "set" };
 static const char* const lang_pt_f467[] = { "Save de bateria separado" };
 static const char* const lang_pt_f468[] = { "Estados separados" };
@@ -8498,13 +8498,13 @@ static const char* const lang_pt_f531[] = { "Certeza?" };
 static const char* const lang_pt_f532[] = { "Trocar as telas" };
 static const char* const lang_pt_f533[] = { "Trocar as telas" };
 static const char* const lang_pt_f534[] = { "Trocadas" };
-static const char* const lang_pt_f535[] = { "Deslize para cima para o menu r\303\241pido" };
-static const char* const lang_pt_f536[] = { "Desativado em retrods.cfg (retroachievements = 0)." };
-static const char* const lang_pt_f537[] = { "Sistema" };
-static const char* const lang_pt_f538[] = { "As tags no nome do arquivo de uma ROM, como (USA) ou (En,Fr,De)." };
-static const char* const lang_pt_f539[] = { "Tirar captura de tela" };
-static const char* const lang_pt_f540[] = { "Toque de novo para fechar o RetroDS." };
-static const char* const lang_pt_f541[] = { "Toque na tela ou pressione HOME para o menu" };
+static const char* const lang_pt_f535[] = { "Desativado em retrods.cfg (retroachievements = 0)." };
+static const char* const lang_pt_f536[] = { "Sistema" };
+static const char* const lang_pt_f537[] = { "As tags no nome do arquivo de uma ROM, como (USA) ou (En,Fr,De)." };
+static const char* const lang_pt_f538[] = { "Tirar captura de tela" };
+static const char* const lang_pt_f539[] = { "Toque de novo para fechar o RetroDS." };
+static const char* const lang_pt_f540[] = { "Toque na tela ou pressione HOME para o menu" };
+static const char* const lang_pt_f541[] = { "Toque na tela para abrir o menu" };
 static const char* const lang_pt_f542[] = { "Toque na tela sens\303\255vel ao toque para pular um bot\303\243o que este dispositivo n\303\243o tem" };
 static const char* const lang_pt_f543[] = { "Toque para n\303\243o definir nenhum" };
 static const char* const lang_pt_f544[] = { "Toque para pular um bot\303\243o que este dispositivo n\303\243o tem" };
@@ -8631,7 +8631,7 @@ static const I18nEntry lang_pt_entries[] = {
 	{ " It's the newest version.", lang_pt_f2, 1 },
 	{ " ms", lang_pt_f3, 1 },
 	{ " s", lang_pt_f4, 1 },
-	{ "\"Swipe up for quick menu\" at a game's start.", lang_pt_f5, 1 },
+	{ "\"Tap the screen to open the menu\" at a game's start.", lang_pt_f5, 1 },
 	{ "%ca%d", lang_pt_f6, 1 },
 	{ "%d RetroArch state here", lang_pt_f7, 2 },
 	{ "%d file checked", lang_pt_f8, 2 },
@@ -8909,85 +8909,85 @@ static const I18nEntry lang_pt_entries[] = {
 	{ "Max: full speed, a warmer device and a shorter battery.", lang_pt_f280, 1 },
 	{ "May", lang_pt_f281, 1 },
 	{ "Medium (15 a second)", lang_pt_f282, 1 },
-	{ "Modified ROM: the second screen may not work", lang_pt_f283, 1 },
-	{ "Move", lang_pt_f284, 1 },
-	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_pt_f285, 1 },
-	{ "New", lang_pt_f286, 1 },
-	{ "No RetroArch states here", lang_pt_f287, 1 },
-	{ "No achievements for this ROM (MD5 %s)", lang_pt_f288, 1 },
-	{ "No cheats found (see Cheats in the wiki)", lang_pt_f289, 1 },
-	{ "No controller found", lang_pt_f290, 1 },
-	{ "No folder chosen.", lang_pt_f291, 1 },
-	{ "No folders in this one", lang_pt_f292, 1 },
-	{ "No game has settings of its own.", lang_pt_f293, 1 },
-	{ "No games found", lang_pt_f294, 1 },
-	{ "No patches here yet", lang_pt_f295, 1 },
-	{ "No quick state saved yet.", lang_pt_f296, 1 },
-	{ "None", lang_pt_f297, 1 },
-	{ "Not in the folder any more: it's left out", lang_pt_f298, 1 },
-	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_pt_f299, 1 },
-	{ "Not used", lang_pt_f300, 1 },
-	{ "Nothing", lang_pt_f301, 1 },
-	{ "Nothing mapped", lang_pt_f302, 1 },
-	{ "Nothing saved in slot %d yet", lang_pt_f303, 1 },
-	{ "Nothing to report yet.", lang_pt_f304, 1 },
-	{ "Nov", lang_pt_f305, 1 },
-	{ "Now", lang_pt_f306, 1 },
-	{ "OK", lang_pt_f307, 1 },
-	{ "Oct", lang_pt_f308, 1 },
-	{ "Off", lang_pt_f309, 1 },
-	{ "Off while a patch is on", lang_pt_f310, 1 },
-	{ "Off: every game plays like an ordinary SNES game.", lang_pt_f311, 1 },
-	{ "Off: the left stick does nothing in games.", lang_pt_f312, 1 },
-	{ "Offline", lang_pt_f313, 1 },
-	{ "On", lang_pt_f314, 1 },
-	{ "Only one screen: nothing to move", lang_pt_f315, 1 },
-	{ "Only patches that are on have an order, and this is the only one", lang_pt_f316, 1 },
-	{ "Only when your two screens differ in shape. Experimental.", lang_pt_f317, 1 },
-	{ "Open quick menu", lang_pt_f318, 1 },
-	{ "Opens the bezel's own page, for whichever the game or all games have", lang_pt_f319, 1 },
-	{ "Orange", lang_pt_f320, 1 },
-	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_pt_f321, 1 },
-	{ "Outer Bezel Color", lang_pt_f322, 1 },
-	{ "Overlay colors and logo", lang_pt_f323, 1 },
-	{ "Overlays", lang_pt_f324, 1 },
-	{ "Overlays on", lang_pt_f325, 1 },
-	{ "Overlays: Custom", lang_pt_f326, 1 },
-	{ "Overlays: Custom (in /overlays)", lang_pt_f327, 1 },
-	{ "Overlays: Generated", lang_pt_f328, 1 },
-	{ "Overlays: Off", lang_pt_f329, 1 },
-	{ "PM", lang_pt_f330, 1 },
-	{ "Patch not applied: %s can't be read", lang_pt_f331, 1 },
-	{ "Patch not applied: %s is for another ROM", lang_pt_f332, 1 },
-	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_pt_f333, 1 },
-	{ "Patched: the second screen may not work", lang_pt_f334, 1 },
-	{ "Patches", lang_pt_f335, 1 },
-	{ "Patches changed", lang_pt_f336, 1 },
-	{ "Patches changed since the game started", lang_pt_f337, 1 },
-	{ "Patches changed: carrying on from where you were", lang_pt_f338, 1 },
-	{ "Pattern strength", lang_pt_f339, 1 },
-	{ "Paused", lang_pt_f340, 1 },
-	{ "Performance", lang_pt_f341, 1 },
-	{ "Performance: Let the System Decide", lang_pt_f342, 1 },
-	{ "Performance: Set to Max", lang_pt_f343, 1 },
-	{ "Pictures in the middle of their screens, or close together.", lang_pt_f344, 1 },
-	{ "Pink", lang_pt_f345, 1 },
-	{ "Pinned: the bar stays up.", lang_pt_f346, 1 },
-	{ "Pixel Perfect", lang_pt_f347, 1 },
-	{ "Pixelated", lang_pt_f348, 1 },
-	{ "Placement, overlays", lang_pt_f349, 1 },
-	{ "Plain", lang_pt_f350, 1 },
-	{ "Play", lang_pt_f351, 1 },
-	{ "Playing without achievements this time", lang_pt_f352, 1 },
-	{ "Preparing the game...", lang_pt_f353, 1 },
-	{ "Press %s", lang_pt_f354, 1 },
-	{ "Press A or tap to close", lang_pt_f355, 1 },
-	{ "Press A to close", lang_pt_f356, 1 },
-	{ "Press a button", lang_pt_f357, 1 },
-	{ "Purple", lang_pt_f358, 1 },
-	{ "Push the stick: buttons don't count for this one.", lang_pt_f359, 1 },
-	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_pt_f360, 1 },
-	{ "Quick bar hint", lang_pt_f361, 1 },
+	{ "Menu hint", lang_pt_f283, 1 },
+	{ "Modified ROM: the second screen may not work", lang_pt_f284, 1 },
+	{ "Move", lang_pt_f285, 1 },
+	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_pt_f286, 1 },
+	{ "New", lang_pt_f287, 1 },
+	{ "No RetroArch states here", lang_pt_f288, 1 },
+	{ "No achievements for this ROM (MD5 %s)", lang_pt_f289, 1 },
+	{ "No cheats found (see Cheats in the wiki)", lang_pt_f290, 1 },
+	{ "No controller found", lang_pt_f291, 1 },
+	{ "No folder chosen.", lang_pt_f292, 1 },
+	{ "No folders in this one", lang_pt_f293, 1 },
+	{ "No game has settings of its own.", lang_pt_f294, 1 },
+	{ "No games found", lang_pt_f295, 1 },
+	{ "No patches here yet", lang_pt_f296, 1 },
+	{ "No quick state saved yet.", lang_pt_f297, 1 },
+	{ "None", lang_pt_f298, 1 },
+	{ "Not in the folder any more: it's left out", lang_pt_f299, 1 },
+	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_pt_f300, 1 },
+	{ "Not used", lang_pt_f301, 1 },
+	{ "Nothing", lang_pt_f302, 1 },
+	{ "Nothing mapped", lang_pt_f303, 1 },
+	{ "Nothing saved in slot %d yet", lang_pt_f304, 1 },
+	{ "Nothing to report yet.", lang_pt_f305, 1 },
+	{ "Nov", lang_pt_f306, 1 },
+	{ "Now", lang_pt_f307, 1 },
+	{ "OK", lang_pt_f308, 1 },
+	{ "Oct", lang_pt_f309, 1 },
+	{ "Off", lang_pt_f310, 1 },
+	{ "Off while a patch is on", lang_pt_f311, 1 },
+	{ "Off: every game plays like an ordinary SNES game.", lang_pt_f312, 1 },
+	{ "Off: the left stick does nothing in games.", lang_pt_f313, 1 },
+	{ "Offline", lang_pt_f314, 1 },
+	{ "On", lang_pt_f315, 1 },
+	{ "Only one screen: nothing to move", lang_pt_f316, 1 },
+	{ "Only patches that are on have an order, and this is the only one", lang_pt_f317, 1 },
+	{ "Only when your two screens differ in shape. Experimental.", lang_pt_f318, 1 },
+	{ "Open the menu", lang_pt_f319, 1 },
+	{ "Opens the bezel's own page, for whichever the game or all games have", lang_pt_f320, 1 },
+	{ "Orange", lang_pt_f321, 1 },
+	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_pt_f322, 1 },
+	{ "Outer Bezel Color", lang_pt_f323, 1 },
+	{ "Overlay colors and logo", lang_pt_f324, 1 },
+	{ "Overlays", lang_pt_f325, 1 },
+	{ "Overlays on", lang_pt_f326, 1 },
+	{ "Overlays: Custom", lang_pt_f327, 1 },
+	{ "Overlays: Custom (in /overlays)", lang_pt_f328, 1 },
+	{ "Overlays: Generated", lang_pt_f329, 1 },
+	{ "Overlays: Off", lang_pt_f330, 1 },
+	{ "PM", lang_pt_f331, 1 },
+	{ "Patch not applied: %s can't be read", lang_pt_f332, 1 },
+	{ "Patch not applied: %s is for another ROM", lang_pt_f333, 1 },
+	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_pt_f334, 1 },
+	{ "Patched: the second screen may not work", lang_pt_f335, 1 },
+	{ "Patches", lang_pt_f336, 1 },
+	{ "Patches changed", lang_pt_f337, 1 },
+	{ "Patches changed since the game started", lang_pt_f338, 1 },
+	{ "Patches changed: carrying on from where you were", lang_pt_f339, 1 },
+	{ "Pattern strength", lang_pt_f340, 1 },
+	{ "Paused", lang_pt_f341, 1 },
+	{ "Performance", lang_pt_f342, 1 },
+	{ "Performance: Let the System Decide", lang_pt_f343, 1 },
+	{ "Performance: Set to Max", lang_pt_f344, 1 },
+	{ "Pictures in the middle of their screens, or close together.", lang_pt_f345, 1 },
+	{ "Pink", lang_pt_f346, 1 },
+	{ "Pinned: the bar stays up.", lang_pt_f347, 1 },
+	{ "Pixel Perfect", lang_pt_f348, 1 },
+	{ "Pixelated", lang_pt_f349, 1 },
+	{ "Placement, overlays", lang_pt_f350, 1 },
+	{ "Plain", lang_pt_f351, 1 },
+	{ "Play", lang_pt_f352, 1 },
+	{ "Playing without achievements this time", lang_pt_f353, 1 },
+	{ "Preparing the game...", lang_pt_f354, 1 },
+	{ "Press %s", lang_pt_f355, 1 },
+	{ "Press A or tap to close", lang_pt_f356, 1 },
+	{ "Press A to close", lang_pt_f357, 1 },
+	{ "Press a button", lang_pt_f358, 1 },
+	{ "Purple", lang_pt_f359, 1 },
+	{ "Push the stick: buttons don't count for this one.", lang_pt_f360, 1 },
+	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_pt_f361, 1 },
 	{ "Quick load state", lang_pt_f362, 1 },
 	{ "Quick save state", lang_pt_f363, 1 },
 	{ "Quit", lang_pt_f364, 1 },
@@ -9091,7 +9091,7 @@ static const I18nEntry lang_pt_entries[] = {
 	{ "Second screen", lang_pt_f462, 1 },
 	{ "Second screen scale", lang_pt_f463, 1 },
 	{ "Select", lang_pt_f464, 1 },
-	{ "Select or Start still reach the game when tapped on their own, L3 still opens the quick menu", lang_pt_f465, 1 },
+	{ "Select or Start still reach the game when tapped on their own, L3 still opens the menu", lang_pt_f465, 1 },
 	{ "Sep", lang_pt_f466, 1 },
 	{ "Separate battery save", lang_pt_f467, 1 },
 	{ "Separate save states", lang_pt_f468, 1 },
@@ -9161,13 +9161,13 @@ static const I18nEntry lang_pt_entries[] = {
 	{ "Swap Screens", lang_pt_f532, 1 },
 	{ "Swap screens", lang_pt_f533, 1 },
 	{ "Swapped", lang_pt_f534, 1 },
-	{ "Swipe up for quick menu", lang_pt_f535, 1 },
-	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_pt_f536, 1 },
-	{ "System", lang_pt_f537, 1 },
-	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_pt_f538, 1 },
-	{ "Take Screenshot", lang_pt_f539, 1 },
-	{ "Tap again to close RetroDS.", lang_pt_f540, 1 },
-	{ "Tap the screen or press HOME for the menu", lang_pt_f541, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_pt_f535, 1 },
+	{ "System", lang_pt_f536, 1 },
+	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_pt_f537, 1 },
+	{ "Take Screenshot", lang_pt_f538, 1 },
+	{ "Tap again to close RetroDS.", lang_pt_f539, 1 },
+	{ "Tap the screen or press HOME for the menu", lang_pt_f540, 1 },
+	{ "Tap the screen to open the menu", lang_pt_f541, 1 },
 	{ "Tap the touchscreen to skip a button this device doesn't have", lang_pt_f542, 1 },
 	{ "Tap to set none", lang_pt_f543, 1 },
 	{ "Tap to skip a button this device doesn't have", lang_pt_f544, 1 },
@@ -9295,7 +9295,7 @@ static const char* const lang_zh_CN_f1[] = { " \346\255\243\345\234\250\346\243\
 static const char* const lang_zh_CN_f2[] = { " \345\267\262\346\230\257\346\234\200\346\226\260\347\211\210\346\234\254\343\200\202" };
 static const char* const lang_zh_CN_f3[] = { " \346\257\253\347\247\222" };
 static const char* const lang_zh_CN_f4[] = { " \347\247\222" };
-static const char* const lang_zh_CN_f5[] = { "\346\270\270\346\210\217\345\274\200\345\247\213\346\227\266\346\230\276\347\244\272\342\200\234\344\270\212\346\273\221\346\211\223\345\274\200\345\277\253\346\215\267\350\217\234\345\215\225\342\200\235\343\200\202" };
+static const char* const lang_zh_CN_f5[] = { "\346\270\270\346\210\217\345\274\200\345\247\213\346\227\266\346\230\276\347\244\272\342\200\234\347\202\271\345\207\273\345\261\217\345\271\225\346\211\223\345\274\200\350\217\234\345\215\225\342\200\235\343\200\202" };
 static const char* const lang_zh_CN_f6[] = { "%ca%d" };
 static const char* const lang_zh_CN_f7[] = { "\350\277\231\351\207\214\346\234\211 %d \344\270\252 RetroArch \345\215\263\346\227\266\345\255\230\346\241\243" };
 static const char* const lang_zh_CN_f8[] = { "\345\267\262\346\243\200\346\237\245 %d \344\270\252\346\226\207\344\273\266" };
@@ -9573,85 +9573,85 @@ static const char* const lang_zh_CN_f279[] = { "\345\214\271\351\205\215\345\260
 static const char* const lang_zh_CN_f280[] = { "\346\234\200\351\253\230\357\274\232\345\205\250\351\200\237\357\274\214\346\234\272\345\231\250\346\233\264\347\203\255\343\200\201\346\233\264\350\264\271\347\224\265\343\200\202" };
 static const char* const lang_zh_CN_f281[] = { "5\346\234\210" };
 static const char* const lang_zh_CN_f282[] = { "\344\270\255\357\274\210\346\257\217\347\247\222 15 \346\254\241\357\274\211" };
-static const char* const lang_zh_CN_f283[] = { "\344\277\256\346\224\271\350\277\207\347\232\204 ROM\357\274\232\345\211\257\345\261\217\345\217\257\350\203\275\344\270\215\350\265\267\344\275\234\347\224\250" };
-static const char* const lang_zh_CN_f284[] = { "\347\247\273\345\212\250" };
-static const char* const lang_zh_CN_f285[] = { "\347\247\273\345\212\250\357\274\232\344\270\212/\344\270\213\346\210\226\347\202\271\345\256\203\350\246\201\345\216\273\347\232\204\344\275\215\347\275\256\357\274\214\347\204\266\345\220\216\346\214\211 A\357\274\210\346\210\226\345\206\215\347\202\271\344\270\200\346\254\241\357\274\211\343\200\202\345\210\227\350\241\250\351\207\214\351\235\240\344\270\213\347\232\204\350\241\245\344\270\201\345\220\216\345\272\224\347\224\250" };
-static const char* const lang_zh_CN_f286[] = { "\346\226\260\345\242\236" };
-static const char* const lang_zh_CN_f287[] = { "\350\277\231\351\207\214\346\262\241\346\234\211 RetroArch \345\215\263\346\227\266\345\255\230\346\241\243" };
-static const char* const lang_zh_CN_f288[] = { "\350\277\231\344\270\252 ROM \346\262\241\346\234\211\346\210\220\345\260\261\357\274\210MD5 %s\357\274\211" };
-static const char* const lang_zh_CN_f289[] = { "\346\262\241\346\234\211\346\211\276\345\210\260\351\207\221\346\211\213\346\214\207\357\274\210\350\247\201 wiki \347\232\204\351\207\221\346\211\213\346\214\207\351\241\265\357\274\211" };
-static const char* const lang_zh_CN_f290[] = { "\346\262\241\346\234\211\346\211\276\345\210\260\346\216\247\345\210\266\345\231\250" };
-static const char* const lang_zh_CN_f291[] = { "\346\262\241\346\234\211\351\200\211\346\213\251\346\226\207\344\273\266\345\244\271\343\200\202" };
-static const char* const lang_zh_CN_f292[] = { "\350\277\231\344\270\252\346\226\207\344\273\266\345\244\271\351\207\214\346\262\241\346\234\211\345\255\220\346\226\207\344\273\266\345\244\271" };
-static const char* const lang_zh_CN_f293[] = { "\346\262\241\346\234\211\346\270\270\346\210\217\344\277\235\345\255\230\350\207\252\345\267\261\347\232\204\350\256\276\347\275\256\343\200\202" };
-static const char* const lang_zh_CN_f294[] = { "\346\262\241\346\234\211\346\211\276\345\210\260\346\270\270\346\210\217" };
-static const char* const lang_zh_CN_f295[] = { "\350\277\231\351\207\214\350\277\230\346\262\241\346\234\211\350\241\245\344\270\201" };
-static const char* const lang_zh_CN_f296[] = { "\350\277\230\346\262\241\346\234\211\345\277\253\351\200\237\345\255\230\346\241\243\343\200\202" };
-static const char* const lang_zh_CN_f297[] = { "\346\227\240" };
-static const char* const lang_zh_CN_f298[] = { "\345\267\262\344\270\215\345\234\250\346\226\207\344\273\266\345\244\271\351\207\214\357\274\232\344\274\232\350\242\253\350\267\263\350\277\207" };
-static const char* const lang_zh_CN_f299[] = { "\346\234\252\347\273\247\347\273\255\357\274\232RetroArch \347\232\204\350\207\252\345\212\250\347\212\266\346\200\201\346\235\245\350\207\252\345\256\203\347\232\204\345\217\246\344\270\200\344\270\252 SNES \346\240\270\345\277\203\343\200\202\350\246\201\345\205\261\344\272\253\347\212\266\346\200\201\357\274\214\350\257\267\346\212\212 RetroArch \347\232\204 SNES \346\240\270\345\277\203\350\256\276\344\270\272 bsnes\343\200\202" };
-static const char* const lang_zh_CN_f300[] = { "\344\270\215\344\275\277\347\224\250" };
-static const char* const lang_zh_CN_f301[] = { "\346\227\240" };
-static const char* const lang_zh_CN_f302[] = { "\346\262\241\346\234\211\346\230\240\345\260\204\344\273\273\344\275\225\346\214\211\351\224\256" };
-static const char* const lang_zh_CN_f303[] = { "%d \345\217\267\347\212\266\346\200\201\350\277\230\346\262\241\346\234\211\345\255\230\346\241\243" };
-static const char* const lang_zh_CN_f304[] = { "\346\232\202\346\227\266\346\262\241\346\234\211\345\217\257\346\212\245\345\221\212\347\232\204\345\206\205\345\256\271\343\200\202" };
-static const char* const lang_zh_CN_f305[] = { "11\346\234\210" };
-static const char* const lang_zh_CN_f306[] = { "\347\216\260\345\234\250" };
-static const char* const lang_zh_CN_f307[] = { "\345\245\275" };
-static const char* const lang_zh_CN_f308[] = { "10\346\234\210" };
-static const char* const lang_zh_CN_f309[] = { "\345\205\263" };
-static const char* const lang_zh_CN_f310[] = { "\345\220\257\347\224\250\350\241\245\344\270\201\346\227\266\345\205\263\351\227\255" };
-static const char* const lang_zh_CN_f311[] = { "\345\205\263\357\274\232\346\211\200\346\234\211\346\270\270\346\210\217\351\203\275\345\203\217\346\231\256\351\200\232 SNES \346\270\270\346\210\217\344\270\200\346\240\267\347\216\251\343\200\202" };
-static const char* const lang_zh_CN_f312[] = { "\345\205\263\357\274\232\346\270\270\346\210\217\344\270\255\345\267\246\346\221\207\346\235\206\344\270\215\350\265\267\344\275\234\347\224\250\343\200\202" };
-static const char* const lang_zh_CN_f313[] = { "\347\246\273\347\272\277" };
-static const char* const lang_zh_CN_f314[] = { "\345\274\200" };
-static const char* const lang_zh_CN_f315[] = { "\345\217\252\346\234\211\344\270\200\345\235\227\345\261\217\345\271\225\357\274\232\346\227\240\351\234\200\347\247\273\345\212\250" };
-static const char* const lang_zh_CN_f316[] = { "\345\217\252\346\234\211\345\274\200\347\235\200\347\232\204\350\241\245\344\270\201\346\211\215\346\234\211\351\241\272\345\272\217\357\274\214\350\200\214\350\277\231\346\230\257\345\224\257\344\270\200\344\270\200\344\270\252" };
-static const char* const lang_zh_CN_f317[] = { "\345\217\252\345\234\250\344\270\244\345\235\227\345\261\217\345\271\225\345\275\242\347\212\266\344\270\215\345\220\214\346\227\266\347\224\250\343\200\202\345\256\236\351\252\214\346\200\247\345\212\237\350\203\275\343\200\202" };
-static const char* const lang_zh_CN_f318[] = { "\346\211\223\345\274\200\345\277\253\346\215\267\350\217\234\345\215\225" };
-static const char* const lang_zh_CN_f319[] = { "\346\211\223\345\274\200\350\276\271\346\241\206\350\207\252\345\267\261\347\232\204\351\241\265\351\235\242\357\274\214\351\222\210\345\257\271\346\234\254\346\270\270\346\210\217\346\210\226\346\211\200\346\234\211\346\270\270\346\210\217\345\275\223\345\211\215\347\224\250\347\232\204\351\202\243\345\245\227" };
-static const char* const lang_zh_CN_f320[] = { "\346\251\231" };
-static const char* const lang_zh_CN_f321[] = { "\345\205\266\344\273\226\350\266\205\347\272\247\344\273\273\345\244\251\345\240\202\346\270\270\346\210\217\345\234\250\344\270\200\344\270\252\345\261\217\345\271\225\344\270\212\350\277\220\350\241\214\357\274\214\345\217\246\344\270\200\344\270\252\345\261\217\345\271\225\346\230\276\347\244\272\346\240\207\351\242\230\346\240\207\345\277\227\343\200\202" };
-static const char* const lang_zh_CN_f322[] = { "\350\276\271\346\241\206\345\244\226\350\211\262" };
-static const char* const lang_zh_CN_f323[] = { "\350\246\206\347\233\226\345\261\202\351\242\234\350\211\262\345\222\214\345\276\275\346\240\207" };
-static const char* const lang_zh_CN_f324[] = { "\350\246\206\347\233\226\345\261\202" };
-static const char* const lang_zh_CN_f325[] = { "\350\246\206\347\233\226\345\261\202\347\224\250\344\272\216" };
-static const char* const lang_zh_CN_f326[] = { "\350\246\206\347\233\226\345\261\202\357\274\232\350\207\252\345\256\232\344\271\211" };
-static const char* const lang_zh_CN_f327[] = { "\350\246\206\347\233\226\345\261\202\357\274\232\350\207\252\345\256\232\344\271\211\357\274\210\345\234\250 /overlays \344\270\255\357\274\211" };
-static const char* const lang_zh_CN_f328[] = { "\350\246\206\347\233\226\345\261\202\357\274\232\347\224\237\346\210\220" };
-static const char* const lang_zh_CN_f329[] = { "\350\246\206\347\233\226\345\261\202\357\274\232\345\205\263" };
-static const char* const lang_zh_CN_f330[] = { "\344\270\213\345\215\210" };
-static const char* const lang_zh_CN_f331[] = { "\350\241\245\344\270\201\346\234\252\345\272\224\347\224\250\357\274\232\346\227\240\346\263\225\350\257\273\345\217\226 %s" };
-static const char* const lang_zh_CN_f332[] = { "\350\241\245\344\270\201\346\234\252\345\272\224\347\224\250\357\274\232%s \346\230\257\347\273\231\345\217\246\344\270\200\344\270\252 ROM \347\232\204" };
-static const char* const lang_zh_CN_f333[] = { "\345\267\262\346\211\223\350\241\245\344\270\201\357\274\214\344\275\206\346\234\211\344\270\200\344\270\252\350\241\245\344\270\201\350\242\253\350\267\263\350\277\207\357\274\232\350\247\201\346\270\270\346\210\217\350\217\234\345\215\225\351\207\214\347\232\204\350\241\245\344\270\201" };
-static const char* const lang_zh_CN_f334[] = { "\345\267\262\346\211\223\350\241\245\344\270\201\357\274\232\345\211\257\345\261\217\345\217\257\350\203\275\344\270\215\350\265\267\344\275\234\347\224\250" };
-static const char* const lang_zh_CN_f335[] = { "\350\241\245\344\270\201" };
-static const char* const lang_zh_CN_f336[] = { "\350\241\245\344\270\201\345\267\262\346\224\271\345\212\250" };
-static const char* const lang_zh_CN_f337[] = { "\346\270\270\346\210\217\345\274\200\345\247\213\345\220\216\350\241\245\344\270\201\346\234\211\346\224\271\345\212\250" };
-static const char* const lang_zh_CN_f338[] = { "\350\241\245\344\270\201\345\267\262\346\224\271\345\212\250\357\274\232\344\273\216\345\275\223\345\211\215\344\275\215\347\275\256\347\273\247\347\273\255" };
-static const char* const lang_zh_CN_f339[] = { "\345\233\276\346\241\210\345\274\272\345\272\246" };
-static const char* const lang_zh_CN_f340[] = { "\345\267\262\346\232\202\345\201\234" };
-static const char* const lang_zh_CN_f341[] = { "\346\200\247\350\203\275" };
-static const char* const lang_zh_CN_f342[] = { "\346\200\247\350\203\275\357\274\232\347\224\261\347\263\273\347\273\237\345\206\263\345\256\232" };
-static const char* const lang_zh_CN_f343[] = { "\346\200\247\350\203\275\357\274\232\350\256\276\344\270\272\346\234\200\351\253\230" };
-static const char* const lang_zh_CN_f344[] = { "\347\224\273\351\235\242\345\234\250\345\220\204\350\207\252\345\261\217\345\271\225\344\270\255\351\227\264\357\274\214\346\210\226\345\275\274\346\255\244\351\235\240\350\277\221\343\200\202" };
-static const char* const lang_zh_CN_f345[] = { "\347\262\211" };
-static const char* const lang_zh_CN_f346[] = { "\345\267\262\345\233\272\345\256\232\357\274\232\345\277\253\346\215\267\346\240\217\344\274\232\344\270\200\347\233\264\346\230\276\347\244\272\343\200\202" };
-static const char* const lang_zh_CN_f347[] = { "\345\203\217\347\264\240\347\262\276\347\241\256" };
-static const char* const lang_zh_CN_f348[] = { "\345\203\217\347\264\240\345\214\226" };
-static const char* const lang_zh_CN_f349[] = { "\346\221\206\346\224\276\343\200\201\350\246\206\347\233\226\345\261\202" };
-static const char* const lang_zh_CN_f350[] = { "\347\256\200\346\264\201" };
-static const char* const lang_zh_CN_f351[] = { "\345\274\200\345\247\213" };
-static const char* const lang_zh_CN_f352[] = { "\350\277\231\346\254\241\347\216\251\347\232\204\346\227\266\345\200\231\346\262\241\346\234\211\346\210\220\345\260\261" };
-static const char* const lang_zh_CN_f353[] = { "\346\255\243\345\234\250\345\207\206\345\244\207\346\270\270\346\210\217\342\200\246" };
-static const char* const lang_zh_CN_f354[] = { "\350\257\267\346\214\211 %s" };
-static const char* const lang_zh_CN_f355[] = { "\346\214\211 A \346\210\226\347\202\271\345\207\273\345\205\263\351\227\255" };
-static const char* const lang_zh_CN_f356[] = { "\346\214\211 A \345\205\263\351\227\255" };
-static const char* const lang_zh_CN_f357[] = { "\350\257\267\346\214\211\351\224\256" };
-static const char* const lang_zh_CN_f358[] = { "\347\264\253" };
-static const char* const lang_zh_CN_f359[] = { "\350\257\267\346\216\250\345\212\250\346\221\207\346\235\206\357\274\232\350\277\231\344\270\200\351\241\271\344\270\215\346\216\245\345\217\227\346\214\211\351\224\256\343\200\202" };
-static const char* const lang_zh_CN_f360[] = { "\346\212\212 .ips\343\200\201.ups\343\200\201.bps \346\210\226 .xdelta \346\226\207\344\273\266\346\224\276\350\277\233 %s" };
-static const char* const lang_zh_CN_f361[] = { "\345\277\253\346\215\267\346\240\217\346\217\220\347\244\272" };
+static const char* const lang_zh_CN_f283[] = { "\350\217\234\345\215\225\346\217\220\347\244\272" };
+static const char* const lang_zh_CN_f284[] = { "\344\277\256\346\224\271\350\277\207\347\232\204 ROM\357\274\232\345\211\257\345\261\217\345\217\257\350\203\275\344\270\215\350\265\267\344\275\234\347\224\250" };
+static const char* const lang_zh_CN_f285[] = { "\347\247\273\345\212\250" };
+static const char* const lang_zh_CN_f286[] = { "\347\247\273\345\212\250\357\274\232\344\270\212/\344\270\213\346\210\226\347\202\271\345\256\203\350\246\201\345\216\273\347\232\204\344\275\215\347\275\256\357\274\214\347\204\266\345\220\216\346\214\211 A\357\274\210\346\210\226\345\206\215\347\202\271\344\270\200\346\254\241\357\274\211\343\200\202\345\210\227\350\241\250\351\207\214\351\235\240\344\270\213\347\232\204\350\241\245\344\270\201\345\220\216\345\272\224\347\224\250" };
+static const char* const lang_zh_CN_f287[] = { "\346\226\260\345\242\236" };
+static const char* const lang_zh_CN_f288[] = { "\350\277\231\351\207\214\346\262\241\346\234\211 RetroArch \345\215\263\346\227\266\345\255\230\346\241\243" };
+static const char* const lang_zh_CN_f289[] = { "\350\277\231\344\270\252 ROM \346\262\241\346\234\211\346\210\220\345\260\261\357\274\210MD5 %s\357\274\211" };
+static const char* const lang_zh_CN_f290[] = { "\346\262\241\346\234\211\346\211\276\345\210\260\351\207\221\346\211\213\346\214\207\357\274\210\350\247\201 wiki \347\232\204\351\207\221\346\211\213\346\214\207\351\241\265\357\274\211" };
+static const char* const lang_zh_CN_f291[] = { "\346\262\241\346\234\211\346\211\276\345\210\260\346\216\247\345\210\266\345\231\250" };
+static const char* const lang_zh_CN_f292[] = { "\346\262\241\346\234\211\351\200\211\346\213\251\346\226\207\344\273\266\345\244\271\343\200\202" };
+static const char* const lang_zh_CN_f293[] = { "\350\277\231\344\270\252\346\226\207\344\273\266\345\244\271\351\207\214\346\262\241\346\234\211\345\255\220\346\226\207\344\273\266\345\244\271" };
+static const char* const lang_zh_CN_f294[] = { "\346\262\241\346\234\211\346\270\270\346\210\217\344\277\235\345\255\230\350\207\252\345\267\261\347\232\204\350\256\276\347\275\256\343\200\202" };
+static const char* const lang_zh_CN_f295[] = { "\346\262\241\346\234\211\346\211\276\345\210\260\346\270\270\346\210\217" };
+static const char* const lang_zh_CN_f296[] = { "\350\277\231\351\207\214\350\277\230\346\262\241\346\234\211\350\241\245\344\270\201" };
+static const char* const lang_zh_CN_f297[] = { "\350\277\230\346\262\241\346\234\211\345\277\253\351\200\237\345\255\230\346\241\243\343\200\202" };
+static const char* const lang_zh_CN_f298[] = { "\346\227\240" };
+static const char* const lang_zh_CN_f299[] = { "\345\267\262\344\270\215\345\234\250\346\226\207\344\273\266\345\244\271\351\207\214\357\274\232\344\274\232\350\242\253\350\267\263\350\277\207" };
+static const char* const lang_zh_CN_f300[] = { "\346\234\252\347\273\247\347\273\255\357\274\232RetroArch \347\232\204\350\207\252\345\212\250\347\212\266\346\200\201\346\235\245\350\207\252\345\256\203\347\232\204\345\217\246\344\270\200\344\270\252 SNES \346\240\270\345\277\203\343\200\202\350\246\201\345\205\261\344\272\253\347\212\266\346\200\201\357\274\214\350\257\267\346\212\212 RetroArch \347\232\204 SNES \346\240\270\345\277\203\350\256\276\344\270\272 bsnes\343\200\202" };
+static const char* const lang_zh_CN_f301[] = { "\344\270\215\344\275\277\347\224\250" };
+static const char* const lang_zh_CN_f302[] = { "\346\227\240" };
+static const char* const lang_zh_CN_f303[] = { "\346\262\241\346\234\211\346\230\240\345\260\204\344\273\273\344\275\225\346\214\211\351\224\256" };
+static const char* const lang_zh_CN_f304[] = { "%d \345\217\267\347\212\266\346\200\201\350\277\230\346\262\241\346\234\211\345\255\230\346\241\243" };
+static const char* const lang_zh_CN_f305[] = { "\346\232\202\346\227\266\346\262\241\346\234\211\345\217\257\346\212\245\345\221\212\347\232\204\345\206\205\345\256\271\343\200\202" };
+static const char* const lang_zh_CN_f306[] = { "11\346\234\210" };
+static const char* const lang_zh_CN_f307[] = { "\347\216\260\345\234\250" };
+static const char* const lang_zh_CN_f308[] = { "\345\245\275" };
+static const char* const lang_zh_CN_f309[] = { "10\346\234\210" };
+static const char* const lang_zh_CN_f310[] = { "\345\205\263" };
+static const char* const lang_zh_CN_f311[] = { "\345\220\257\347\224\250\350\241\245\344\270\201\346\227\266\345\205\263\351\227\255" };
+static const char* const lang_zh_CN_f312[] = { "\345\205\263\357\274\232\346\211\200\346\234\211\346\270\270\346\210\217\351\203\275\345\203\217\346\231\256\351\200\232 SNES \346\270\270\346\210\217\344\270\200\346\240\267\347\216\251\343\200\202" };
+static const char* const lang_zh_CN_f313[] = { "\345\205\263\357\274\232\346\270\270\346\210\217\344\270\255\345\267\246\346\221\207\346\235\206\344\270\215\350\265\267\344\275\234\347\224\250\343\200\202" };
+static const char* const lang_zh_CN_f314[] = { "\347\246\273\347\272\277" };
+static const char* const lang_zh_CN_f315[] = { "\345\274\200" };
+static const char* const lang_zh_CN_f316[] = { "\345\217\252\346\234\211\344\270\200\345\235\227\345\261\217\345\271\225\357\274\232\346\227\240\351\234\200\347\247\273\345\212\250" };
+static const char* const lang_zh_CN_f317[] = { "\345\217\252\346\234\211\345\274\200\347\235\200\347\232\204\350\241\245\344\270\201\346\211\215\346\234\211\351\241\272\345\272\217\357\274\214\350\200\214\350\277\231\346\230\257\345\224\257\344\270\200\344\270\200\344\270\252" };
+static const char* const lang_zh_CN_f318[] = { "\345\217\252\345\234\250\344\270\244\345\235\227\345\261\217\345\271\225\345\275\242\347\212\266\344\270\215\345\220\214\346\227\266\347\224\250\343\200\202\345\256\236\351\252\214\346\200\247\345\212\237\350\203\275\343\200\202" };
+static const char* const lang_zh_CN_f319[] = { "\346\211\223\345\274\200\350\217\234\345\215\225" };
+static const char* const lang_zh_CN_f320[] = { "\346\211\223\345\274\200\350\276\271\346\241\206\350\207\252\345\267\261\347\232\204\351\241\265\351\235\242\357\274\214\351\222\210\345\257\271\346\234\254\346\270\270\346\210\217\346\210\226\346\211\200\346\234\211\346\270\270\346\210\217\345\275\223\345\211\215\347\224\250\347\232\204\351\202\243\345\245\227" };
+static const char* const lang_zh_CN_f321[] = { "\346\251\231" };
+static const char* const lang_zh_CN_f322[] = { "\345\205\266\344\273\226\350\266\205\347\272\247\344\273\273\345\244\251\345\240\202\346\270\270\346\210\217\345\234\250\344\270\200\344\270\252\345\261\217\345\271\225\344\270\212\350\277\220\350\241\214\357\274\214\345\217\246\344\270\200\344\270\252\345\261\217\345\271\225\346\230\276\347\244\272\346\240\207\351\242\230\346\240\207\345\277\227\343\200\202" };
+static const char* const lang_zh_CN_f323[] = { "\350\276\271\346\241\206\345\244\226\350\211\262" };
+static const char* const lang_zh_CN_f324[] = { "\350\246\206\347\233\226\345\261\202\351\242\234\350\211\262\345\222\214\345\276\275\346\240\207" };
+static const char* const lang_zh_CN_f325[] = { "\350\246\206\347\233\226\345\261\202" };
+static const char* const lang_zh_CN_f326[] = { "\350\246\206\347\233\226\345\261\202\347\224\250\344\272\216" };
+static const char* const lang_zh_CN_f327[] = { "\350\246\206\347\233\226\345\261\202\357\274\232\350\207\252\345\256\232\344\271\211" };
+static const char* const lang_zh_CN_f328[] = { "\350\246\206\347\233\226\345\261\202\357\274\232\350\207\252\345\256\232\344\271\211\357\274\210\345\234\250 /overlays \344\270\255\357\274\211" };
+static const char* const lang_zh_CN_f329[] = { "\350\246\206\347\233\226\345\261\202\357\274\232\347\224\237\346\210\220" };
+static const char* const lang_zh_CN_f330[] = { "\350\246\206\347\233\226\345\261\202\357\274\232\345\205\263" };
+static const char* const lang_zh_CN_f331[] = { "\344\270\213\345\215\210" };
+static const char* const lang_zh_CN_f332[] = { "\350\241\245\344\270\201\346\234\252\345\272\224\347\224\250\357\274\232\346\227\240\346\263\225\350\257\273\345\217\226 %s" };
+static const char* const lang_zh_CN_f333[] = { "\350\241\245\344\270\201\346\234\252\345\272\224\347\224\250\357\274\232%s \346\230\257\347\273\231\345\217\246\344\270\200\344\270\252 ROM \347\232\204" };
+static const char* const lang_zh_CN_f334[] = { "\345\267\262\346\211\223\350\241\245\344\270\201\357\274\214\344\275\206\346\234\211\344\270\200\344\270\252\350\241\245\344\270\201\350\242\253\350\267\263\350\277\207\357\274\232\350\247\201\346\270\270\346\210\217\350\217\234\345\215\225\351\207\214\347\232\204\350\241\245\344\270\201" };
+static const char* const lang_zh_CN_f335[] = { "\345\267\262\346\211\223\350\241\245\344\270\201\357\274\232\345\211\257\345\261\217\345\217\257\350\203\275\344\270\215\350\265\267\344\275\234\347\224\250" };
+static const char* const lang_zh_CN_f336[] = { "\350\241\245\344\270\201" };
+static const char* const lang_zh_CN_f337[] = { "\350\241\245\344\270\201\345\267\262\346\224\271\345\212\250" };
+static const char* const lang_zh_CN_f338[] = { "\346\270\270\346\210\217\345\274\200\345\247\213\345\220\216\350\241\245\344\270\201\346\234\211\346\224\271\345\212\250" };
+static const char* const lang_zh_CN_f339[] = { "\350\241\245\344\270\201\345\267\262\346\224\271\345\212\250\357\274\232\344\273\216\345\275\223\345\211\215\344\275\215\347\275\256\347\273\247\347\273\255" };
+static const char* const lang_zh_CN_f340[] = { "\345\233\276\346\241\210\345\274\272\345\272\246" };
+static const char* const lang_zh_CN_f341[] = { "\345\267\262\346\232\202\345\201\234" };
+static const char* const lang_zh_CN_f342[] = { "\346\200\247\350\203\275" };
+static const char* const lang_zh_CN_f343[] = { "\346\200\247\350\203\275\357\274\232\347\224\261\347\263\273\347\273\237\345\206\263\345\256\232" };
+static const char* const lang_zh_CN_f344[] = { "\346\200\247\350\203\275\357\274\232\350\256\276\344\270\272\346\234\200\351\253\230" };
+static const char* const lang_zh_CN_f345[] = { "\347\224\273\351\235\242\345\234\250\345\220\204\350\207\252\345\261\217\345\271\225\344\270\255\351\227\264\357\274\214\346\210\226\345\275\274\346\255\244\351\235\240\350\277\221\343\200\202" };
+static const char* const lang_zh_CN_f346[] = { "\347\262\211" };
+static const char* const lang_zh_CN_f347[] = { "\345\267\262\345\233\272\345\256\232\357\274\232\345\277\253\346\215\267\346\240\217\344\274\232\344\270\200\347\233\264\346\230\276\347\244\272\343\200\202" };
+static const char* const lang_zh_CN_f348[] = { "\345\203\217\347\264\240\347\262\276\347\241\256" };
+static const char* const lang_zh_CN_f349[] = { "\345\203\217\347\264\240\345\214\226" };
+static const char* const lang_zh_CN_f350[] = { "\346\221\206\346\224\276\343\200\201\350\246\206\347\233\226\345\261\202" };
+static const char* const lang_zh_CN_f351[] = { "\347\256\200\346\264\201" };
+static const char* const lang_zh_CN_f352[] = { "\345\274\200\345\247\213" };
+static const char* const lang_zh_CN_f353[] = { "\350\277\231\346\254\241\347\216\251\347\232\204\346\227\266\345\200\231\346\262\241\346\234\211\346\210\220\345\260\261" };
+static const char* const lang_zh_CN_f354[] = { "\346\255\243\345\234\250\345\207\206\345\244\207\346\270\270\346\210\217\342\200\246" };
+static const char* const lang_zh_CN_f355[] = { "\350\257\267\346\214\211 %s" };
+static const char* const lang_zh_CN_f356[] = { "\346\214\211 A \346\210\226\347\202\271\345\207\273\345\205\263\351\227\255" };
+static const char* const lang_zh_CN_f357[] = { "\346\214\211 A \345\205\263\351\227\255" };
+static const char* const lang_zh_CN_f358[] = { "\350\257\267\346\214\211\351\224\256" };
+static const char* const lang_zh_CN_f359[] = { "\347\264\253" };
+static const char* const lang_zh_CN_f360[] = { "\350\257\267\346\216\250\345\212\250\346\221\207\346\235\206\357\274\232\350\277\231\344\270\200\351\241\271\344\270\215\346\216\245\345\217\227\346\214\211\351\224\256\343\200\202" };
+static const char* const lang_zh_CN_f361[] = { "\346\212\212 .ips\343\200\201.ups\343\200\201.bps \346\210\226 .xdelta \346\226\207\344\273\266\346\224\276\350\277\233 %s" };
 static const char* const lang_zh_CN_f362[] = { "\345\277\253\351\200\237\350\257\273\345\217\226\347\212\266\346\200\201" };
 static const char* const lang_zh_CN_f363[] = { "\345\277\253\351\200\237\344\277\235\345\255\230\347\212\266\346\200\201" };
 static const char* const lang_zh_CN_f364[] = { "\351\200\200\345\207\272" };
@@ -9755,7 +9755,7 @@ static const char* const lang_zh_CN_f461[] = { "\346\210\252\345\233\276\345\267
 static const char* const lang_zh_CN_f462[] = { "\345\211\257\345\261\217" };
 static const char* const lang_zh_CN_f463[] = { "\345\211\257\345\261\217\347\274\251\346\224\276" };
 static const char* const lang_zh_CN_f464[] = { "Select" };
-static const char* const lang_zh_CN_f465[] = { "\345\215\225\347\213\254\346\214\211 Select \346\210\226 Start \344\273\215\344\274\232\344\274\240\347\273\231\346\270\270\346\210\217\357\274\214L3 \344\273\215\344\274\232\346\211\223\345\274\200\345\277\253\346\215\267\350\217\234\345\215\225" };
+static const char* const lang_zh_CN_f465[] = { "\345\215\225\347\213\254\346\214\211\344\270\213 Select \346\210\226 Start \344\273\215\344\274\232\344\274\240\347\273\231\346\270\270\346\210\217\357\274\214L3 \344\273\215\344\274\232\346\211\223\345\274\200\350\217\234\345\215\225" };
 static const char* const lang_zh_CN_f466[] = { "9\346\234\210" };
 static const char* const lang_zh_CN_f467[] = { "\347\213\254\347\253\213\347\224\265\346\261\240\345\255\230\346\241\243" };
 static const char* const lang_zh_CN_f468[] = { "\347\213\254\347\253\213\345\215\263\346\227\266\345\255\230\346\241\243" };
@@ -9825,13 +9825,13 @@ static const char* const lang_zh_CN_f531[] = { "\347\241\256\345\256\232\357\274
 static const char* const lang_zh_CN_f532[] = { "\344\272\244\346\215\242\345\261\217\345\271\225" };
 static const char* const lang_zh_CN_f533[] = { "\344\272\244\346\215\242\345\261\217\345\271\225" };
 static const char* const lang_zh_CN_f534[] = { "\344\272\244\346\215\242" };
-static const char* const lang_zh_CN_f535[] = { "\344\270\212\346\273\221\346\211\223\345\274\200\345\277\253\346\215\267\350\217\234\345\215\225" };
-static const char* const lang_zh_CN_f536[] = { "\345\267\262\345\234\250 retrods.cfg \344\270\255\345\205\263\351\227\255\357\274\210retroachievements = 0\357\274\211\343\200\202" };
-static const char* const lang_zh_CN_f537[] = { "\347\263\273\347\273\237" };
-static const char* const lang_zh_CN_f538[] = { "ROM \346\226\207\344\273\266\345\220\215\351\207\214\347\232\204\346\240\207\347\255\276\357\274\214\344\276\213\345\246\202 (USA) \346\210\226 (En,Fr,De)\343\200\202" };
-static const char* const lang_zh_CN_f539[] = { "\346\210\252\345\233\276" };
-static const char* const lang_zh_CN_f540[] = { "\345\206\215\347\202\271\344\270\200\346\254\241\351\200\200\345\207\272 RetroDS\343\200\202" };
-static const char* const lang_zh_CN_f541[] = { "\347\202\271\345\261\217\345\271\225\346\210\226\346\214\211 HOME \346\211\223\345\274\200\350\217\234\345\215\225" };
+static const char* const lang_zh_CN_f535[] = { "\345\267\262\345\234\250 retrods.cfg \344\270\255\345\205\263\351\227\255\357\274\210retroachievements = 0\357\274\211\343\200\202" };
+static const char* const lang_zh_CN_f536[] = { "\347\263\273\347\273\237" };
+static const char* const lang_zh_CN_f537[] = { "ROM \346\226\207\344\273\266\345\220\215\351\207\214\347\232\204\346\240\207\347\255\276\357\274\214\344\276\213\345\246\202 (USA) \346\210\226 (En,Fr,De)\343\200\202" };
+static const char* const lang_zh_CN_f538[] = { "\346\210\252\345\233\276" };
+static const char* const lang_zh_CN_f539[] = { "\345\206\215\347\202\271\344\270\200\346\254\241\351\200\200\345\207\272 RetroDS\343\200\202" };
+static const char* const lang_zh_CN_f540[] = { "\347\202\271\345\261\217\345\271\225\346\210\226\346\214\211 HOME \346\211\223\345\274\200\350\217\234\345\215\225" };
+static const char* const lang_zh_CN_f541[] = { "\347\202\271\345\207\273\345\261\217\345\271\225\346\211\223\345\274\200\350\217\234\345\215\225" };
 static const char* const lang_zh_CN_f542[] = { "\347\202\271\350\247\246\346\221\270\345\261\217\345\217\257\350\267\263\350\277\207\350\277\231\345\217\260\350\256\276\345\244\207\344\270\212\346\262\241\346\234\211\347\232\204\346\214\211\351\224\256" };
 static const char* const lang_zh_CN_f543[] = { "\347\202\271\345\207\273\345\217\257\350\256\276\344\270\272\346\227\240" };
 static const char* const lang_zh_CN_f544[] = { "\347\202\271\345\207\273\345\217\257\350\267\263\350\277\207\350\277\231\345\217\260\350\256\276\345\244\207\344\270\212\346\262\241\346\234\211\347\232\204\346\214\211\351\224\256" };
@@ -9958,7 +9958,7 @@ static const I18nEntry lang_zh_CN_entries[] = {
 	{ " It's the newest version.", lang_zh_CN_f2, 1 },
 	{ " ms", lang_zh_CN_f3, 1 },
 	{ " s", lang_zh_CN_f4, 1 },
-	{ "\"Swipe up for quick menu\" at a game's start.", lang_zh_CN_f5, 1 },
+	{ "\"Tap the screen to open the menu\" at a game's start.", lang_zh_CN_f5, 1 },
 	{ "%ca%d", lang_zh_CN_f6, 1 },
 	{ "%d RetroArch state here", lang_zh_CN_f7, 1 },
 	{ "%d file checked", lang_zh_CN_f8, 1 },
@@ -10236,85 +10236,85 @@ static const I18nEntry lang_zh_CN_entries[] = {
 	{ "Max: full speed, a warmer device and a shorter battery.", lang_zh_CN_f280, 1 },
 	{ "May", lang_zh_CN_f281, 1 },
 	{ "Medium (15 a second)", lang_zh_CN_f282, 1 },
-	{ "Modified ROM: the second screen may not work", lang_zh_CN_f283, 1 },
-	{ "Move", lang_zh_CN_f284, 1 },
-	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_zh_CN_f285, 1 },
-	{ "New", lang_zh_CN_f286, 1 },
-	{ "No RetroArch states here", lang_zh_CN_f287, 1 },
-	{ "No achievements for this ROM (MD5 %s)", lang_zh_CN_f288, 1 },
-	{ "No cheats found (see Cheats in the wiki)", lang_zh_CN_f289, 1 },
-	{ "No controller found", lang_zh_CN_f290, 1 },
-	{ "No folder chosen.", lang_zh_CN_f291, 1 },
-	{ "No folders in this one", lang_zh_CN_f292, 1 },
-	{ "No game has settings of its own.", lang_zh_CN_f293, 1 },
-	{ "No games found", lang_zh_CN_f294, 1 },
-	{ "No patches here yet", lang_zh_CN_f295, 1 },
-	{ "No quick state saved yet.", lang_zh_CN_f296, 1 },
-	{ "None", lang_zh_CN_f297, 1 },
-	{ "Not in the folder any more: it's left out", lang_zh_CN_f298, 1 },
-	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_zh_CN_f299, 1 },
-	{ "Not used", lang_zh_CN_f300, 1 },
-	{ "Nothing", lang_zh_CN_f301, 1 },
-	{ "Nothing mapped", lang_zh_CN_f302, 1 },
-	{ "Nothing saved in slot %d yet", lang_zh_CN_f303, 1 },
-	{ "Nothing to report yet.", lang_zh_CN_f304, 1 },
-	{ "Nov", lang_zh_CN_f305, 1 },
-	{ "Now", lang_zh_CN_f306, 1 },
-	{ "OK", lang_zh_CN_f307, 1 },
-	{ "Oct", lang_zh_CN_f308, 1 },
-	{ "Off", lang_zh_CN_f309, 1 },
-	{ "Off while a patch is on", lang_zh_CN_f310, 1 },
-	{ "Off: every game plays like an ordinary SNES game.", lang_zh_CN_f311, 1 },
-	{ "Off: the left stick does nothing in games.", lang_zh_CN_f312, 1 },
-	{ "Offline", lang_zh_CN_f313, 1 },
-	{ "On", lang_zh_CN_f314, 1 },
-	{ "Only one screen: nothing to move", lang_zh_CN_f315, 1 },
-	{ "Only patches that are on have an order, and this is the only one", lang_zh_CN_f316, 1 },
-	{ "Only when your two screens differ in shape. Experimental.", lang_zh_CN_f317, 1 },
-	{ "Open quick menu", lang_zh_CN_f318, 1 },
-	{ "Opens the bezel's own page, for whichever the game or all games have", lang_zh_CN_f319, 1 },
-	{ "Orange", lang_zh_CN_f320, 1 },
-	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_zh_CN_f321, 1 },
-	{ "Outer Bezel Color", lang_zh_CN_f322, 1 },
-	{ "Overlay colors and logo", lang_zh_CN_f323, 1 },
-	{ "Overlays", lang_zh_CN_f324, 1 },
-	{ "Overlays on", lang_zh_CN_f325, 1 },
-	{ "Overlays: Custom", lang_zh_CN_f326, 1 },
-	{ "Overlays: Custom (in /overlays)", lang_zh_CN_f327, 1 },
-	{ "Overlays: Generated", lang_zh_CN_f328, 1 },
-	{ "Overlays: Off", lang_zh_CN_f329, 1 },
-	{ "PM", lang_zh_CN_f330, 1 },
-	{ "Patch not applied: %s can't be read", lang_zh_CN_f331, 1 },
-	{ "Patch not applied: %s is for another ROM", lang_zh_CN_f332, 1 },
-	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_zh_CN_f333, 1 },
-	{ "Patched: the second screen may not work", lang_zh_CN_f334, 1 },
-	{ "Patches", lang_zh_CN_f335, 1 },
-	{ "Patches changed", lang_zh_CN_f336, 1 },
-	{ "Patches changed since the game started", lang_zh_CN_f337, 1 },
-	{ "Patches changed: carrying on from where you were", lang_zh_CN_f338, 1 },
-	{ "Pattern strength", lang_zh_CN_f339, 1 },
-	{ "Paused", lang_zh_CN_f340, 1 },
-	{ "Performance", lang_zh_CN_f341, 1 },
-	{ "Performance: Let the System Decide", lang_zh_CN_f342, 1 },
-	{ "Performance: Set to Max", lang_zh_CN_f343, 1 },
-	{ "Pictures in the middle of their screens, or close together.", lang_zh_CN_f344, 1 },
-	{ "Pink", lang_zh_CN_f345, 1 },
-	{ "Pinned: the bar stays up.", lang_zh_CN_f346, 1 },
-	{ "Pixel Perfect", lang_zh_CN_f347, 1 },
-	{ "Pixelated", lang_zh_CN_f348, 1 },
-	{ "Placement, overlays", lang_zh_CN_f349, 1 },
-	{ "Plain", lang_zh_CN_f350, 1 },
-	{ "Play", lang_zh_CN_f351, 1 },
-	{ "Playing without achievements this time", lang_zh_CN_f352, 1 },
-	{ "Preparing the game...", lang_zh_CN_f353, 1 },
-	{ "Press %s", lang_zh_CN_f354, 1 },
-	{ "Press A or tap to close", lang_zh_CN_f355, 1 },
-	{ "Press A to close", lang_zh_CN_f356, 1 },
-	{ "Press a button", lang_zh_CN_f357, 1 },
-	{ "Purple", lang_zh_CN_f358, 1 },
-	{ "Push the stick: buttons don't count for this one.", lang_zh_CN_f359, 1 },
-	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_zh_CN_f360, 1 },
-	{ "Quick bar hint", lang_zh_CN_f361, 1 },
+	{ "Menu hint", lang_zh_CN_f283, 1 },
+	{ "Modified ROM: the second screen may not work", lang_zh_CN_f284, 1 },
+	{ "Move", lang_zh_CN_f285, 1 },
+	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_zh_CN_f286, 1 },
+	{ "New", lang_zh_CN_f287, 1 },
+	{ "No RetroArch states here", lang_zh_CN_f288, 1 },
+	{ "No achievements for this ROM (MD5 %s)", lang_zh_CN_f289, 1 },
+	{ "No cheats found (see Cheats in the wiki)", lang_zh_CN_f290, 1 },
+	{ "No controller found", lang_zh_CN_f291, 1 },
+	{ "No folder chosen.", lang_zh_CN_f292, 1 },
+	{ "No folders in this one", lang_zh_CN_f293, 1 },
+	{ "No game has settings of its own.", lang_zh_CN_f294, 1 },
+	{ "No games found", lang_zh_CN_f295, 1 },
+	{ "No patches here yet", lang_zh_CN_f296, 1 },
+	{ "No quick state saved yet.", lang_zh_CN_f297, 1 },
+	{ "None", lang_zh_CN_f298, 1 },
+	{ "Not in the folder any more: it's left out", lang_zh_CN_f299, 1 },
+	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_zh_CN_f300, 1 },
+	{ "Not used", lang_zh_CN_f301, 1 },
+	{ "Nothing", lang_zh_CN_f302, 1 },
+	{ "Nothing mapped", lang_zh_CN_f303, 1 },
+	{ "Nothing saved in slot %d yet", lang_zh_CN_f304, 1 },
+	{ "Nothing to report yet.", lang_zh_CN_f305, 1 },
+	{ "Nov", lang_zh_CN_f306, 1 },
+	{ "Now", lang_zh_CN_f307, 1 },
+	{ "OK", lang_zh_CN_f308, 1 },
+	{ "Oct", lang_zh_CN_f309, 1 },
+	{ "Off", lang_zh_CN_f310, 1 },
+	{ "Off while a patch is on", lang_zh_CN_f311, 1 },
+	{ "Off: every game plays like an ordinary SNES game.", lang_zh_CN_f312, 1 },
+	{ "Off: the left stick does nothing in games.", lang_zh_CN_f313, 1 },
+	{ "Offline", lang_zh_CN_f314, 1 },
+	{ "On", lang_zh_CN_f315, 1 },
+	{ "Only one screen: nothing to move", lang_zh_CN_f316, 1 },
+	{ "Only patches that are on have an order, and this is the only one", lang_zh_CN_f317, 1 },
+	{ "Only when your two screens differ in shape. Experimental.", lang_zh_CN_f318, 1 },
+	{ "Open the menu", lang_zh_CN_f319, 1 },
+	{ "Opens the bezel's own page, for whichever the game or all games have", lang_zh_CN_f320, 1 },
+	{ "Orange", lang_zh_CN_f321, 1 },
+	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_zh_CN_f322, 1 },
+	{ "Outer Bezel Color", lang_zh_CN_f323, 1 },
+	{ "Overlay colors and logo", lang_zh_CN_f324, 1 },
+	{ "Overlays", lang_zh_CN_f325, 1 },
+	{ "Overlays on", lang_zh_CN_f326, 1 },
+	{ "Overlays: Custom", lang_zh_CN_f327, 1 },
+	{ "Overlays: Custom (in /overlays)", lang_zh_CN_f328, 1 },
+	{ "Overlays: Generated", lang_zh_CN_f329, 1 },
+	{ "Overlays: Off", lang_zh_CN_f330, 1 },
+	{ "PM", lang_zh_CN_f331, 1 },
+	{ "Patch not applied: %s can't be read", lang_zh_CN_f332, 1 },
+	{ "Patch not applied: %s is for another ROM", lang_zh_CN_f333, 1 },
+	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_zh_CN_f334, 1 },
+	{ "Patched: the second screen may not work", lang_zh_CN_f335, 1 },
+	{ "Patches", lang_zh_CN_f336, 1 },
+	{ "Patches changed", lang_zh_CN_f337, 1 },
+	{ "Patches changed since the game started", lang_zh_CN_f338, 1 },
+	{ "Patches changed: carrying on from where you were", lang_zh_CN_f339, 1 },
+	{ "Pattern strength", lang_zh_CN_f340, 1 },
+	{ "Paused", lang_zh_CN_f341, 1 },
+	{ "Performance", lang_zh_CN_f342, 1 },
+	{ "Performance: Let the System Decide", lang_zh_CN_f343, 1 },
+	{ "Performance: Set to Max", lang_zh_CN_f344, 1 },
+	{ "Pictures in the middle of their screens, or close together.", lang_zh_CN_f345, 1 },
+	{ "Pink", lang_zh_CN_f346, 1 },
+	{ "Pinned: the bar stays up.", lang_zh_CN_f347, 1 },
+	{ "Pixel Perfect", lang_zh_CN_f348, 1 },
+	{ "Pixelated", lang_zh_CN_f349, 1 },
+	{ "Placement, overlays", lang_zh_CN_f350, 1 },
+	{ "Plain", lang_zh_CN_f351, 1 },
+	{ "Play", lang_zh_CN_f352, 1 },
+	{ "Playing without achievements this time", lang_zh_CN_f353, 1 },
+	{ "Preparing the game...", lang_zh_CN_f354, 1 },
+	{ "Press %s", lang_zh_CN_f355, 1 },
+	{ "Press A or tap to close", lang_zh_CN_f356, 1 },
+	{ "Press A to close", lang_zh_CN_f357, 1 },
+	{ "Press a button", lang_zh_CN_f358, 1 },
+	{ "Purple", lang_zh_CN_f359, 1 },
+	{ "Push the stick: buttons don't count for this one.", lang_zh_CN_f360, 1 },
+	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_zh_CN_f361, 1 },
 	{ "Quick load state", lang_zh_CN_f362, 1 },
 	{ "Quick save state", lang_zh_CN_f363, 1 },
 	{ "Quit", lang_zh_CN_f364, 1 },
@@ -10418,7 +10418,7 @@ static const I18nEntry lang_zh_CN_entries[] = {
 	{ "Second screen", lang_zh_CN_f462, 1 },
 	{ "Second screen scale", lang_zh_CN_f463, 1 },
 	{ "Select", lang_zh_CN_f464, 1 },
-	{ "Select or Start still reach the game when tapped on their own, L3 still opens the quick menu", lang_zh_CN_f465, 1 },
+	{ "Select or Start still reach the game when tapped on their own, L3 still opens the menu", lang_zh_CN_f465, 1 },
 	{ "Sep", lang_zh_CN_f466, 1 },
 	{ "Separate battery save", lang_zh_CN_f467, 1 },
 	{ "Separate save states", lang_zh_CN_f468, 1 },
@@ -10488,13 +10488,13 @@ static const I18nEntry lang_zh_CN_entries[] = {
 	{ "Swap Screens", lang_zh_CN_f532, 1 },
 	{ "Swap screens", lang_zh_CN_f533, 1 },
 	{ "Swapped", lang_zh_CN_f534, 1 },
-	{ "Swipe up for quick menu", lang_zh_CN_f535, 1 },
-	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_zh_CN_f536, 1 },
-	{ "System", lang_zh_CN_f537, 1 },
-	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_zh_CN_f538, 1 },
-	{ "Take Screenshot", lang_zh_CN_f539, 1 },
-	{ "Tap again to close RetroDS.", lang_zh_CN_f540, 1 },
-	{ "Tap the screen or press HOME for the menu", lang_zh_CN_f541, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_zh_CN_f535, 1 },
+	{ "System", lang_zh_CN_f536, 1 },
+	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_zh_CN_f537, 1 },
+	{ "Take Screenshot", lang_zh_CN_f538, 1 },
+	{ "Tap again to close RetroDS.", lang_zh_CN_f539, 1 },
+	{ "Tap the screen or press HOME for the menu", lang_zh_CN_f540, 1 },
+	{ "Tap the screen to open the menu", lang_zh_CN_f541, 1 },
 	{ "Tap the touchscreen to skip a button this device doesn't have", lang_zh_CN_f542, 1 },
 	{ "Tap to set none", lang_zh_CN_f543, 1 },
 	{ "Tap to skip a button this device doesn't have", lang_zh_CN_f544, 1 },
@@ -10622,7 +10622,7 @@ static const char* const lang_zh_TW_f1[] = { " \346\255\243\345\234\250\346\252\
 static const char* const lang_zh_TW_f2[] = { " \345\267\262\346\230\257\346\234\200\346\226\260\347\211\210\346\234\254\343\200\202" };
 static const char* const lang_zh_TW_f3[] = { " \346\257\253\347\247\222" };
 static const char* const lang_zh_TW_f4[] = { " \347\247\222" };
-static const char* const lang_zh_TW_f5[] = { "\351\201\212\346\210\262\351\226\213\345\247\213\346\231\202\351\241\257\347\244\272\342\200\234\344\270\212\346\273\221\351\226\213\345\225\237\345\277\253\346\215\267\351\201\270\345\226\256\342\200\235\343\200\202" };
+static const char* const lang_zh_TW_f5[] = { "\351\201\212\346\210\262\351\226\213\345\247\213\346\231\202\351\241\257\347\244\272\343\200\214\351\273\236\346\223\212\350\236\242\345\271\225\351\226\213\345\225\237\351\201\270\345\226\256\343\200\215\343\200\202" };
 static const char* const lang_zh_TW_f6[] = { "%ca%d" };
 static const char* const lang_zh_TW_f7[] = { "\351\200\231\350\243\241\346\234\211 %d \345\200\213 RetroArch \345\215\263\346\231\202\345\255\230\346\252\224" };
 static const char* const lang_zh_TW_f8[] = { "\345\267\262\346\252\242\346\237\245 %d \345\200\213\346\252\224\346\241\210" };
@@ -10900,85 +10900,85 @@ static const char* const lang_zh_TW_f279[] = { "\345\214\271\351\205\215\345\260
 static const char* const lang_zh_TW_f280[] = { "\346\234\200\351\253\230\357\274\232\345\205\250\351\200\237\357\274\214\346\251\237\345\231\250\346\233\264\347\206\261\343\200\201\346\233\264\350\262\273\351\233\273\343\200\202" };
 static const char* const lang_zh_TW_f281[] = { "5\346\234\210" };
 static const char* const lang_zh_TW_f282[] = { "\344\270\255\357\274\210\346\257\217\347\247\222 15 \346\254\241\357\274\211" };
-static const char* const lang_zh_TW_f283[] = { "\344\277\256\346\224\271\351\201\216\347\232\204 ROM\357\274\232\345\211\257\345\261\217\345\217\257\350\203\275\344\270\215\350\265\267\344\275\234\347\224\250" };
-static const char* const lang_zh_TW_f284[] = { "\347\247\273\345\213\225" };
-static const char* const lang_zh_TW_f285[] = { "\347\247\273\345\213\225\357\274\232\344\270\212/\344\270\213\346\210\226\351\273\236\345\256\203\350\246\201\345\216\273\347\232\204\344\275\215\347\275\256\357\274\214\347\204\266\345\276\214\346\214\211 A\357\274\210\346\210\226\345\206\215\351\273\236\344\270\200\346\254\241\357\274\211\343\200\202\345\210\227\350\241\250\350\243\241\351\235\240\344\270\213\347\232\204\350\243\234\344\270\201\345\276\214\346\207\211\347\224\250" };
-static const char* const lang_zh_TW_f286[] = { "\346\226\260\345\242\236" };
-static const char* const lang_zh_TW_f287[] = { "\351\200\231\350\243\241\346\262\222\346\234\211 RetroArch \345\215\263\346\231\202\345\255\230\346\252\224" };
-static const char* const lang_zh_TW_f288[] = { "\351\200\231\345\200\213 ROM \346\262\222\346\234\211\346\210\220\345\260\261\357\274\210MD5 %s\357\274\211" };
-static const char* const lang_zh_TW_f289[] = { "\346\262\222\346\234\211\346\211\276\345\210\260\351\207\221\346\211\213\346\214\207\357\274\210\350\246\213 wiki \347\232\204\351\207\221\346\211\213\346\214\207\351\240\201\357\274\211" };
-static const char* const lang_zh_TW_f290[] = { "\346\262\222\346\234\211\346\211\276\345\210\260\346\216\247\345\210\266\345\231\250" };
-static const char* const lang_zh_TW_f291[] = { "\346\262\222\346\234\211\351\201\270\346\223\207\350\263\207\346\226\231\345\244\276\343\200\202" };
-static const char* const lang_zh_TW_f292[] = { "\351\200\231\345\200\213\350\263\207\346\226\231\345\244\276\350\243\241\346\262\222\346\234\211\345\255\220\350\263\207\346\226\231\345\244\276" };
-static const char* const lang_zh_TW_f293[] = { "\346\262\222\346\234\211\351\201\212\346\210\262\345\204\262\345\255\230\350\207\252\345\267\261\347\232\204\350\250\255\345\256\232\343\200\202" };
-static const char* const lang_zh_TW_f294[] = { "\346\262\222\346\234\211\346\211\276\345\210\260\351\201\212\346\210\262" };
-static const char* const lang_zh_TW_f295[] = { "\351\200\231\350\243\241\351\202\204\346\262\222\346\234\211\350\243\234\344\270\201" };
-static const char* const lang_zh_TW_f296[] = { "\351\202\204\346\262\222\346\234\211\345\277\253\351\200\237\345\255\230\346\252\224\343\200\202" };
-static const char* const lang_zh_TW_f297[] = { "\347\204\241" };
-static const char* const lang_zh_TW_f298[] = { "\345\267\262\344\270\215\345\234\250\350\263\207\346\226\231\345\244\276\350\243\241\357\274\232\346\234\203\350\242\253\350\267\263\351\201\216" };
-static const char* const lang_zh_TW_f299[] = { "\346\234\252\347\271\274\347\272\214\357\274\232RetroArch \347\232\204\350\207\252\345\213\225\347\213\200\346\205\213\344\276\206\350\207\252\345\256\203\347\232\204\345\217\246\344\270\200\345\200\213 SNES \346\240\270\345\277\203\343\200\202\350\246\201\345\205\261\344\272\253\347\213\200\346\205\213\357\274\214\350\253\213\346\212\212 RetroArch \347\232\204 SNES \346\240\270\345\277\203\350\250\255\347\202\272 bsnes\343\200\202" };
-static const char* const lang_zh_TW_f300[] = { "\344\270\215\344\275\277\347\224\250" };
-static const char* const lang_zh_TW_f301[] = { "\347\204\241" };
-static const char* const lang_zh_TW_f302[] = { "\346\262\222\346\234\211\345\260\215\346\230\240\344\273\273\344\275\225\346\214\211\351\215\265" };
-static const char* const lang_zh_TW_f303[] = { "\347\213\200\346\205\213 %d \351\202\204\346\262\222\346\234\211\345\255\230\346\252\224" };
-static const char* const lang_zh_TW_f304[] = { "\346\232\253\346\231\202\346\262\222\346\234\211\345\217\257\345\233\236\345\240\261\347\232\204\345\205\247\345\256\271\343\200\202" };
-static const char* const lang_zh_TW_f305[] = { "11\346\234\210" };
-static const char* const lang_zh_TW_f306[] = { "\347\217\276\345\234\250" };
-static const char* const lang_zh_TW_f307[] = { "\345\245\275" };
-static const char* const lang_zh_TW_f308[] = { "10\346\234\210" };
-static const char* const lang_zh_TW_f309[] = { "\351\227\234" };
-static const char* const lang_zh_TW_f310[] = { "\345\225\237\347\224\250\350\243\234\344\270\201\346\231\202\351\227\234\351\226\211" };
-static const char* const lang_zh_TW_f311[] = { "\351\227\234\357\274\232\346\211\200\346\234\211\351\201\212\346\210\262\351\203\275\345\203\217\346\231\256\351\200\232 SNES \351\201\212\346\210\262\344\270\200\346\250\243\347\216\251\343\200\202" };
-static const char* const lang_zh_TW_f312[] = { "\351\227\234\357\274\232\351\201\212\346\210\262\344\270\255\345\267\246\346\220\226\346\241\277\344\270\215\350\265\267\344\275\234\347\224\250\343\200\202" };
-static const char* const lang_zh_TW_f313[] = { "\351\233\242\347\267\232" };
-static const char* const lang_zh_TW_f314[] = { "\351\226\213" };
-static const char* const lang_zh_TW_f315[] = { "\345\217\252\346\234\211\344\270\200\345\241\212\350\236\242\345\271\225\357\274\232\347\204\241\351\234\200\347\247\273\345\213\225" };
-static const char* const lang_zh_TW_f316[] = { "\345\217\252\346\234\211\351\226\213\350\221\227\347\232\204\350\243\234\344\270\201\346\211\215\346\234\211\351\240\206\345\272\217\357\274\214\350\200\214\351\200\231\346\230\257\345\224\257\344\270\200\344\270\200\345\200\213" };
-static const char* const lang_zh_TW_f317[] = { "\345\217\252\345\234\250\345\205\251\345\241\212\350\236\242\345\271\225\345\275\242\347\213\200\344\270\215\345\220\214\346\231\202\347\224\250\343\200\202\345\257\246\351\251\227\346\200\247\345\212\237\350\203\275\343\200\202" };
-static const char* const lang_zh_TW_f318[] = { "\351\226\213\345\225\237\345\277\253\346\215\267\351\201\270\345\226\256" };
-static const char* const lang_zh_TW_f319[] = { "\351\226\213\345\225\237\351\202\212\346\241\206\350\207\252\345\267\261\347\232\204\351\240\201\351\235\242\357\274\214\351\207\235\345\260\215\346\234\254\351\201\212\346\210\262\346\210\226\346\211\200\346\234\211\351\201\212\346\210\262\347\225\266\345\211\215\347\224\250\347\232\204\351\202\243\345\245\227" };
-static const char* const lang_zh_TW_f320[] = { "\346\251\231" };
-static const char* const lang_zh_TW_f321[] = { "\345\205\266\344\273\226\350\266\205\347\264\232\344\273\273\345\244\251\345\240\202\351\201\212\346\210\262\345\234\250\344\270\200\345\200\213\350\236\242\345\271\225\344\270\212\345\237\267\350\241\214\357\274\214\345\217\246\344\270\200\345\200\213\350\236\242\345\271\225\351\241\257\347\244\272\346\250\231\351\241\214\346\250\231\350\252\214\343\200\202" };
-static const char* const lang_zh_TW_f322[] = { "\351\202\212\346\241\206\345\244\226\350\211\262" };
-static const char* const lang_zh_TW_f323[] = { "\350\246\206\350\223\213\345\261\244\351\241\217\350\211\262\345\222\214\346\250\231\350\252\214" };
-static const char* const lang_zh_TW_f324[] = { "\350\246\206\350\223\213\345\261\244" };
-static const char* const lang_zh_TW_f325[] = { "\350\246\206\350\223\213\345\261\244\347\224\250\346\226\274" };
-static const char* const lang_zh_TW_f326[] = { "\350\246\206\350\223\213\345\261\244\357\274\232\350\207\252\350\250\202" };
-static const char* const lang_zh_TW_f327[] = { "\350\246\206\350\223\213\345\261\244\357\274\232\350\207\252\350\250\202\357\274\210\345\234\250 /overlays \344\270\255\357\274\211" };
-static const char* const lang_zh_TW_f328[] = { "\350\246\206\350\223\213\345\261\244\357\274\232\347\224\237\346\210\220" };
-static const char* const lang_zh_TW_f329[] = { "\350\246\206\350\223\213\345\261\244\357\274\232\351\227\234" };
-static const char* const lang_zh_TW_f330[] = { "\344\270\213\345\215\210" };
-static const char* const lang_zh_TW_f331[] = { "\350\243\234\344\270\201\346\234\252\346\207\211\347\224\250\357\274\232\347\204\241\346\263\225\350\256\200\345\217\226 %s" };
-static const char* const lang_zh_TW_f332[] = { "\350\243\234\344\270\201\346\234\252\346\207\211\347\224\250\357\274\232%s \346\230\257\347\265\246\345\217\246\344\270\200\345\200\213 ROM \347\232\204" };
-static const char* const lang_zh_TW_f333[] = { "\345\267\262\346\211\223\350\243\234\344\270\201\357\274\214\344\275\206\346\234\211\344\270\200\345\200\213\350\243\234\344\270\201\350\242\253\350\267\263\351\201\216\357\274\232\350\246\213\351\201\212\346\210\262\351\201\270\345\226\256\350\243\241\347\232\204\350\243\234\344\270\201" };
-static const char* const lang_zh_TW_f334[] = { "\345\267\262\346\211\223\350\243\234\344\270\201\357\274\232\345\211\257\345\261\217\345\217\257\350\203\275\344\270\215\350\265\267\344\275\234\347\224\250" };
-static const char* const lang_zh_TW_f335[] = { "\350\243\234\344\270\201" };
-static const char* const lang_zh_TW_f336[] = { "\350\243\234\344\270\201\345\267\262\346\224\271\345\213\225" };
-static const char* const lang_zh_TW_f337[] = { "\351\201\212\346\210\262\351\226\213\345\247\213\345\276\214\350\243\234\344\270\201\346\234\211\346\224\271\345\213\225" };
-static const char* const lang_zh_TW_f338[] = { "\350\243\234\344\270\201\345\267\262\346\224\271\345\213\225\357\274\232\345\276\236\347\225\266\345\211\215\344\275\215\347\275\256\347\271\274\347\272\214" };
-static const char* const lang_zh_TW_f339[] = { "\345\234\226\346\241\210\345\274\267\345\272\246" };
-static const char* const lang_zh_TW_f340[] = { "\345\267\262\346\232\253\345\201\234" };
-static const char* const lang_zh_TW_f341[] = { "\346\225\210\350\203\275" };
-static const char* const lang_zh_TW_f342[] = { "\346\225\210\350\203\275\357\274\232\347\224\261\347\263\273\347\265\261\346\261\272\345\256\232" };
-static const char* const lang_zh_TW_f343[] = { "\346\225\210\350\203\275\357\274\232\350\250\255\347\202\272\346\234\200\351\253\230" };
-static const char* const lang_zh_TW_f344[] = { "\347\225\253\351\235\242\345\234\250\345\220\204\350\207\252\350\236\242\345\271\225\344\270\255\351\226\223\357\274\214\346\210\226\345\275\274\346\255\244\351\235\240\350\277\221\343\200\202" };
-static const char* const lang_zh_TW_f345[] = { "\347\262\211" };
-static const char* const lang_zh_TW_f346[] = { "\345\267\262\345\233\272\345\256\232\357\274\232\345\277\253\346\215\267\346\254\204\346\234\203\344\270\200\347\233\264\351\241\257\347\244\272\343\200\202" };
-static const char* const lang_zh_TW_f347[] = { "\345\203\217\347\264\240\347\262\276\347\242\272" };
-static const char* const lang_zh_TW_f348[] = { "\347\225\253\347\264\240\345\214\226" };
-static const char* const lang_zh_TW_f349[] = { "\346\223\272\346\224\276\343\200\201\350\246\206\350\223\213\345\261\244" };
-static const char* const lang_zh_TW_f350[] = { "\347\260\241\346\275\224" };
-static const char* const lang_zh_TW_f351[] = { "\351\226\213\345\247\213" };
-static const char* const lang_zh_TW_f352[] = { "\351\200\231\346\254\241\347\216\251\347\232\204\346\231\202\345\200\231\346\262\222\346\234\211\346\210\220\345\260\261" };
-static const char* const lang_zh_TW_f353[] = { "\346\255\243\345\234\250\346\272\226\345\202\231\351\201\212\346\210\262\342\200\246" };
-static const char* const lang_zh_TW_f354[] = { "\350\253\213\346\214\211 %s" };
-static const char* const lang_zh_TW_f355[] = { "\346\214\211 A \346\210\226\351\273\236\351\201\270\351\227\234\351\226\211" };
-static const char* const lang_zh_TW_f356[] = { "\346\214\211 A \351\227\234\351\226\211" };
-static const char* const lang_zh_TW_f357[] = { "\350\253\213\346\214\211\351\215\265" };
-static const char* const lang_zh_TW_f358[] = { "\347\264\253" };
-static const char* const lang_zh_TW_f359[] = { "\350\253\213\346\216\250\345\213\225\346\220\226\346\241\277\357\274\232\351\200\231\344\270\200\351\240\205\344\270\215\346\216\245\345\217\227\346\214\211\351\215\265\343\200\202" };
-static const char* const lang_zh_TW_f360[] = { "\346\212\212 .ips\343\200\201.ups\343\200\201.bps \346\210\226 .xdelta \346\252\224\346\241\210\346\224\276\351\200\262 %s" };
-static const char* const lang_zh_TW_f361[] = { "\345\277\253\346\215\267\346\254\204\346\217\220\347\244\272" };
+static const char* const lang_zh_TW_f283[] = { "\351\201\270\345\226\256\346\217\220\347\244\272" };
+static const char* const lang_zh_TW_f284[] = { "\344\277\256\346\224\271\351\201\216\347\232\204 ROM\357\274\232\345\211\257\345\261\217\345\217\257\350\203\275\344\270\215\350\265\267\344\275\234\347\224\250" };
+static const char* const lang_zh_TW_f285[] = { "\347\247\273\345\213\225" };
+static const char* const lang_zh_TW_f286[] = { "\347\247\273\345\213\225\357\274\232\344\270\212/\344\270\213\346\210\226\351\273\236\345\256\203\350\246\201\345\216\273\347\232\204\344\275\215\347\275\256\357\274\214\347\204\266\345\276\214\346\214\211 A\357\274\210\346\210\226\345\206\215\351\273\236\344\270\200\346\254\241\357\274\211\343\200\202\345\210\227\350\241\250\350\243\241\351\235\240\344\270\213\347\232\204\350\243\234\344\270\201\345\276\214\346\207\211\347\224\250" };
+static const char* const lang_zh_TW_f287[] = { "\346\226\260\345\242\236" };
+static const char* const lang_zh_TW_f288[] = { "\351\200\231\350\243\241\346\262\222\346\234\211 RetroArch \345\215\263\346\231\202\345\255\230\346\252\224" };
+static const char* const lang_zh_TW_f289[] = { "\351\200\231\345\200\213 ROM \346\262\222\346\234\211\346\210\220\345\260\261\357\274\210MD5 %s\357\274\211" };
+static const char* const lang_zh_TW_f290[] = { "\346\262\222\346\234\211\346\211\276\345\210\260\351\207\221\346\211\213\346\214\207\357\274\210\350\246\213 wiki \347\232\204\351\207\221\346\211\213\346\214\207\351\240\201\357\274\211" };
+static const char* const lang_zh_TW_f291[] = { "\346\262\222\346\234\211\346\211\276\345\210\260\346\216\247\345\210\266\345\231\250" };
+static const char* const lang_zh_TW_f292[] = { "\346\262\222\346\234\211\351\201\270\346\223\207\350\263\207\346\226\231\345\244\276\343\200\202" };
+static const char* const lang_zh_TW_f293[] = { "\351\200\231\345\200\213\350\263\207\346\226\231\345\244\276\350\243\241\346\262\222\346\234\211\345\255\220\350\263\207\346\226\231\345\244\276" };
+static const char* const lang_zh_TW_f294[] = { "\346\262\222\346\234\211\351\201\212\346\210\262\345\204\262\345\255\230\350\207\252\345\267\261\347\232\204\350\250\255\345\256\232\343\200\202" };
+static const char* const lang_zh_TW_f295[] = { "\346\262\222\346\234\211\346\211\276\345\210\260\351\201\212\346\210\262" };
+static const char* const lang_zh_TW_f296[] = { "\351\200\231\350\243\241\351\202\204\346\262\222\346\234\211\350\243\234\344\270\201" };
+static const char* const lang_zh_TW_f297[] = { "\351\202\204\346\262\222\346\234\211\345\277\253\351\200\237\345\255\230\346\252\224\343\200\202" };
+static const char* const lang_zh_TW_f298[] = { "\347\204\241" };
+static const char* const lang_zh_TW_f299[] = { "\345\267\262\344\270\215\345\234\250\350\263\207\346\226\231\345\244\276\350\243\241\357\274\232\346\234\203\350\242\253\350\267\263\351\201\216" };
+static const char* const lang_zh_TW_f300[] = { "\346\234\252\347\271\274\347\272\214\357\274\232RetroArch \347\232\204\350\207\252\345\213\225\347\213\200\346\205\213\344\276\206\350\207\252\345\256\203\347\232\204\345\217\246\344\270\200\345\200\213 SNES \346\240\270\345\277\203\343\200\202\350\246\201\345\205\261\344\272\253\347\213\200\346\205\213\357\274\214\350\253\213\346\212\212 RetroArch \347\232\204 SNES \346\240\270\345\277\203\350\250\255\347\202\272 bsnes\343\200\202" };
+static const char* const lang_zh_TW_f301[] = { "\344\270\215\344\275\277\347\224\250" };
+static const char* const lang_zh_TW_f302[] = { "\347\204\241" };
+static const char* const lang_zh_TW_f303[] = { "\346\262\222\346\234\211\345\260\215\346\230\240\344\273\273\344\275\225\346\214\211\351\215\265" };
+static const char* const lang_zh_TW_f304[] = { "\347\213\200\346\205\213 %d \351\202\204\346\262\222\346\234\211\345\255\230\346\252\224" };
+static const char* const lang_zh_TW_f305[] = { "\346\232\253\346\231\202\346\262\222\346\234\211\345\217\257\345\233\236\345\240\261\347\232\204\345\205\247\345\256\271\343\200\202" };
+static const char* const lang_zh_TW_f306[] = { "11\346\234\210" };
+static const char* const lang_zh_TW_f307[] = { "\347\217\276\345\234\250" };
+static const char* const lang_zh_TW_f308[] = { "\345\245\275" };
+static const char* const lang_zh_TW_f309[] = { "10\346\234\210" };
+static const char* const lang_zh_TW_f310[] = { "\351\227\234" };
+static const char* const lang_zh_TW_f311[] = { "\345\225\237\347\224\250\350\243\234\344\270\201\346\231\202\351\227\234\351\226\211" };
+static const char* const lang_zh_TW_f312[] = { "\351\227\234\357\274\232\346\211\200\346\234\211\351\201\212\346\210\262\351\203\275\345\203\217\346\231\256\351\200\232 SNES \351\201\212\346\210\262\344\270\200\346\250\243\347\216\251\343\200\202" };
+static const char* const lang_zh_TW_f313[] = { "\351\227\234\357\274\232\351\201\212\346\210\262\344\270\255\345\267\246\346\220\226\346\241\277\344\270\215\350\265\267\344\275\234\347\224\250\343\200\202" };
+static const char* const lang_zh_TW_f314[] = { "\351\233\242\347\267\232" };
+static const char* const lang_zh_TW_f315[] = { "\351\226\213" };
+static const char* const lang_zh_TW_f316[] = { "\345\217\252\346\234\211\344\270\200\345\241\212\350\236\242\345\271\225\357\274\232\347\204\241\351\234\200\347\247\273\345\213\225" };
+static const char* const lang_zh_TW_f317[] = { "\345\217\252\346\234\211\351\226\213\350\221\227\347\232\204\350\243\234\344\270\201\346\211\215\346\234\211\351\240\206\345\272\217\357\274\214\350\200\214\351\200\231\346\230\257\345\224\257\344\270\200\344\270\200\345\200\213" };
+static const char* const lang_zh_TW_f318[] = { "\345\217\252\345\234\250\345\205\251\345\241\212\350\236\242\345\271\225\345\275\242\347\213\200\344\270\215\345\220\214\346\231\202\347\224\250\343\200\202\345\257\246\351\251\227\346\200\247\345\212\237\350\203\275\343\200\202" };
+static const char* const lang_zh_TW_f319[] = { "\351\226\213\345\225\237\351\201\270\345\226\256" };
+static const char* const lang_zh_TW_f320[] = { "\351\226\213\345\225\237\351\202\212\346\241\206\350\207\252\345\267\261\347\232\204\351\240\201\351\235\242\357\274\214\351\207\235\345\260\215\346\234\254\351\201\212\346\210\262\346\210\226\346\211\200\346\234\211\351\201\212\346\210\262\347\225\266\345\211\215\347\224\250\347\232\204\351\202\243\345\245\227" };
+static const char* const lang_zh_TW_f321[] = { "\346\251\231" };
+static const char* const lang_zh_TW_f322[] = { "\345\205\266\344\273\226\350\266\205\347\264\232\344\273\273\345\244\251\345\240\202\351\201\212\346\210\262\345\234\250\344\270\200\345\200\213\350\236\242\345\271\225\344\270\212\345\237\267\350\241\214\357\274\214\345\217\246\344\270\200\345\200\213\350\236\242\345\271\225\351\241\257\347\244\272\346\250\231\351\241\214\346\250\231\350\252\214\343\200\202" };
+static const char* const lang_zh_TW_f323[] = { "\351\202\212\346\241\206\345\244\226\350\211\262" };
+static const char* const lang_zh_TW_f324[] = { "\350\246\206\350\223\213\345\261\244\351\241\217\350\211\262\345\222\214\346\250\231\350\252\214" };
+static const char* const lang_zh_TW_f325[] = { "\350\246\206\350\223\213\345\261\244" };
+static const char* const lang_zh_TW_f326[] = { "\350\246\206\350\223\213\345\261\244\347\224\250\346\226\274" };
+static const char* const lang_zh_TW_f327[] = { "\350\246\206\350\223\213\345\261\244\357\274\232\350\207\252\350\250\202" };
+static const char* const lang_zh_TW_f328[] = { "\350\246\206\350\223\213\345\261\244\357\274\232\350\207\252\350\250\202\357\274\210\345\234\250 /overlays \344\270\255\357\274\211" };
+static const char* const lang_zh_TW_f329[] = { "\350\246\206\350\223\213\345\261\244\357\274\232\347\224\237\346\210\220" };
+static const char* const lang_zh_TW_f330[] = { "\350\246\206\350\223\213\345\261\244\357\274\232\351\227\234" };
+static const char* const lang_zh_TW_f331[] = { "\344\270\213\345\215\210" };
+static const char* const lang_zh_TW_f332[] = { "\350\243\234\344\270\201\346\234\252\346\207\211\347\224\250\357\274\232\347\204\241\346\263\225\350\256\200\345\217\226 %s" };
+static const char* const lang_zh_TW_f333[] = { "\350\243\234\344\270\201\346\234\252\346\207\211\347\224\250\357\274\232%s \346\230\257\347\265\246\345\217\246\344\270\200\345\200\213 ROM \347\232\204" };
+static const char* const lang_zh_TW_f334[] = { "\345\267\262\346\211\223\350\243\234\344\270\201\357\274\214\344\275\206\346\234\211\344\270\200\345\200\213\350\243\234\344\270\201\350\242\253\350\267\263\351\201\216\357\274\232\350\246\213\351\201\212\346\210\262\351\201\270\345\226\256\350\243\241\347\232\204\350\243\234\344\270\201" };
+static const char* const lang_zh_TW_f335[] = { "\345\267\262\346\211\223\350\243\234\344\270\201\357\274\232\345\211\257\345\261\217\345\217\257\350\203\275\344\270\215\350\265\267\344\275\234\347\224\250" };
+static const char* const lang_zh_TW_f336[] = { "\350\243\234\344\270\201" };
+static const char* const lang_zh_TW_f337[] = { "\350\243\234\344\270\201\345\267\262\346\224\271\345\213\225" };
+static const char* const lang_zh_TW_f338[] = { "\351\201\212\346\210\262\351\226\213\345\247\213\345\276\214\350\243\234\344\270\201\346\234\211\346\224\271\345\213\225" };
+static const char* const lang_zh_TW_f339[] = { "\350\243\234\344\270\201\345\267\262\346\224\271\345\213\225\357\274\232\345\276\236\347\225\266\345\211\215\344\275\215\347\275\256\347\271\274\347\272\214" };
+static const char* const lang_zh_TW_f340[] = { "\345\234\226\346\241\210\345\274\267\345\272\246" };
+static const char* const lang_zh_TW_f341[] = { "\345\267\262\346\232\253\345\201\234" };
+static const char* const lang_zh_TW_f342[] = { "\346\225\210\350\203\275" };
+static const char* const lang_zh_TW_f343[] = { "\346\225\210\350\203\275\357\274\232\347\224\261\347\263\273\347\265\261\346\261\272\345\256\232" };
+static const char* const lang_zh_TW_f344[] = { "\346\225\210\350\203\275\357\274\232\350\250\255\347\202\272\346\234\200\351\253\230" };
+static const char* const lang_zh_TW_f345[] = { "\347\225\253\351\235\242\345\234\250\345\220\204\350\207\252\350\236\242\345\271\225\344\270\255\351\226\223\357\274\214\346\210\226\345\275\274\346\255\244\351\235\240\350\277\221\343\200\202" };
+static const char* const lang_zh_TW_f346[] = { "\347\262\211" };
+static const char* const lang_zh_TW_f347[] = { "\345\267\262\345\233\272\345\256\232\357\274\232\345\277\253\346\215\267\346\254\204\346\234\203\344\270\200\347\233\264\351\241\257\347\244\272\343\200\202" };
+static const char* const lang_zh_TW_f348[] = { "\345\203\217\347\264\240\347\262\276\347\242\272" };
+static const char* const lang_zh_TW_f349[] = { "\347\225\253\347\264\240\345\214\226" };
+static const char* const lang_zh_TW_f350[] = { "\346\223\272\346\224\276\343\200\201\350\246\206\350\223\213\345\261\244" };
+static const char* const lang_zh_TW_f351[] = { "\347\260\241\346\275\224" };
+static const char* const lang_zh_TW_f352[] = { "\351\226\213\345\247\213" };
+static const char* const lang_zh_TW_f353[] = { "\351\200\231\346\254\241\347\216\251\347\232\204\346\231\202\345\200\231\346\262\222\346\234\211\346\210\220\345\260\261" };
+static const char* const lang_zh_TW_f354[] = { "\346\255\243\345\234\250\346\272\226\345\202\231\351\201\212\346\210\262\342\200\246" };
+static const char* const lang_zh_TW_f355[] = { "\350\253\213\346\214\211 %s" };
+static const char* const lang_zh_TW_f356[] = { "\346\214\211 A \346\210\226\351\273\236\351\201\270\351\227\234\351\226\211" };
+static const char* const lang_zh_TW_f357[] = { "\346\214\211 A \351\227\234\351\226\211" };
+static const char* const lang_zh_TW_f358[] = { "\350\253\213\346\214\211\351\215\265" };
+static const char* const lang_zh_TW_f359[] = { "\347\264\253" };
+static const char* const lang_zh_TW_f360[] = { "\350\253\213\346\216\250\345\213\225\346\220\226\346\241\277\357\274\232\351\200\231\344\270\200\351\240\205\344\270\215\346\216\245\345\217\227\346\214\211\351\215\265\343\200\202" };
+static const char* const lang_zh_TW_f361[] = { "\346\212\212 .ips\343\200\201.ups\343\200\201.bps \346\210\226 .xdelta \346\252\224\346\241\210\346\224\276\351\200\262 %s" };
 static const char* const lang_zh_TW_f362[] = { "\345\277\253\351\200\237\350\256\200\345\217\226\347\213\200\346\205\213" };
 static const char* const lang_zh_TW_f363[] = { "\345\277\253\351\200\237\345\204\262\345\255\230\347\213\200\346\205\213" };
 static const char* const lang_zh_TW_f364[] = { "\351\200\200\345\207\272" };
@@ -11082,7 +11082,7 @@ static const char* const lang_zh_TW_f461[] = { "\346\210\252\345\234\226\345\267
 static const char* const lang_zh_TW_f462[] = { "\345\211\257\345\261\217" };
 static const char* const lang_zh_TW_f463[] = { "\345\211\257\345\261\217\347\270\256\346\224\276" };
 static const char* const lang_zh_TW_f464[] = { "Select" };
-static const char* const lang_zh_TW_f465[] = { "\345\226\256\347\215\250\346\214\211 Select \346\210\226 Start \344\273\215\346\234\203\345\202\263\347\265\246\351\201\212\346\210\262\357\274\214L3 \344\273\215\346\234\203\351\226\213\345\225\237\345\277\253\346\215\267\351\201\270\345\226\256" };
+static const char* const lang_zh_TW_f465[] = { "\345\226\256\347\215\250\346\214\211\344\270\213 Select \346\210\226 Start \344\273\215\346\234\203\345\202\263\347\265\246\351\201\212\346\210\262\357\274\214L3 \344\273\215\346\234\203\351\226\213\345\225\237\351\201\270\345\226\256" };
 static const char* const lang_zh_TW_f466[] = { "9\346\234\210" };
 static const char* const lang_zh_TW_f467[] = { "\347\215\250\347\253\213\351\233\273\346\261\240\345\255\230\346\252\224" };
 static const char* const lang_zh_TW_f468[] = { "\347\215\250\347\253\213\345\215\263\346\231\202\345\255\230\346\252\224" };
@@ -11152,13 +11152,13 @@ static const char* const lang_zh_TW_f531[] = { "\347\242\272\345\256\232\357\274
 static const char* const lang_zh_TW_f532[] = { "\344\272\244\346\217\233\350\236\242\345\271\225" };
 static const char* const lang_zh_TW_f533[] = { "\344\272\244\346\217\233\350\236\242\345\271\225" };
 static const char* const lang_zh_TW_f534[] = { "\344\272\244\346\217\233" };
-static const char* const lang_zh_TW_f535[] = { "\344\270\212\346\273\221\351\226\213\345\225\237\345\277\253\346\215\267\351\201\270\345\226\256" };
-static const char* const lang_zh_TW_f536[] = { "\345\267\262\345\234\250 retrods.cfg \344\270\255\351\227\234\351\226\211\357\274\210retroachievements = 0\357\274\211\343\200\202" };
-static const char* const lang_zh_TW_f537[] = { "\347\263\273\347\265\261" };
-static const char* const lang_zh_TW_f538[] = { "ROM \346\252\224\345\220\215\350\243\241\347\232\204\346\250\231\347\261\244\357\274\214\344\276\213\345\246\202 (USA) \346\210\226 (En,Fr,De)\343\200\202" };
-static const char* const lang_zh_TW_f539[] = { "\346\210\252\345\234\226" };
-static const char* const lang_zh_TW_f540[] = { "\345\206\215\351\273\236\344\270\200\346\254\241\351\200\200\345\207\272 RetroDS\343\200\202" };
-static const char* const lang_zh_TW_f541[] = { "\351\273\236\350\236\242\345\271\225\346\210\226\346\214\211 HOME \351\226\213\345\225\237\351\201\270\345\226\256" };
+static const char* const lang_zh_TW_f535[] = { "\345\267\262\345\234\250 retrods.cfg \344\270\255\351\227\234\351\226\211\357\274\210retroachievements = 0\357\274\211\343\200\202" };
+static const char* const lang_zh_TW_f536[] = { "\347\263\273\347\265\261" };
+static const char* const lang_zh_TW_f537[] = { "ROM \346\252\224\345\220\215\350\243\241\347\232\204\346\250\231\347\261\244\357\274\214\344\276\213\345\246\202 (USA) \346\210\226 (En,Fr,De)\343\200\202" };
+static const char* const lang_zh_TW_f538[] = { "\346\210\252\345\234\226" };
+static const char* const lang_zh_TW_f539[] = { "\345\206\215\351\273\236\344\270\200\346\254\241\351\200\200\345\207\272 RetroDS\343\200\202" };
+static const char* const lang_zh_TW_f540[] = { "\351\273\236\350\236\242\345\271\225\346\210\226\346\214\211 HOME \351\226\213\345\225\237\351\201\270\345\226\256" };
+static const char* const lang_zh_TW_f541[] = { "\351\273\236\346\223\212\350\236\242\345\271\225\351\226\213\345\225\237\351\201\270\345\226\256" };
 static const char* const lang_zh_TW_f542[] = { "\351\273\236\350\247\270\346\216\247\345\274\217\350\236\242\345\271\225\345\217\257\350\267\263\351\201\216\351\200\231\350\207\272\350\243\235\347\275\256\344\270\212\346\262\222\346\234\211\347\232\204\346\214\211\351\215\265" };
 static const char* const lang_zh_TW_f543[] = { "\351\273\236\351\201\270\345\217\257\350\250\255\347\202\272\347\204\241" };
 static const char* const lang_zh_TW_f544[] = { "\351\273\236\351\201\270\345\217\257\350\267\263\351\201\216\351\200\231\350\207\272\350\243\235\347\275\256\344\270\212\346\262\222\346\234\211\347\232\204\346\214\211\351\215\265" };
@@ -11285,7 +11285,7 @@ static const I18nEntry lang_zh_TW_entries[] = {
 	{ " It's the newest version.", lang_zh_TW_f2, 1 },
 	{ " ms", lang_zh_TW_f3, 1 },
 	{ " s", lang_zh_TW_f4, 1 },
-	{ "\"Swipe up for quick menu\" at a game's start.", lang_zh_TW_f5, 1 },
+	{ "\"Tap the screen to open the menu\" at a game's start.", lang_zh_TW_f5, 1 },
 	{ "%ca%d", lang_zh_TW_f6, 1 },
 	{ "%d RetroArch state here", lang_zh_TW_f7, 1 },
 	{ "%d file checked", lang_zh_TW_f8, 1 },
@@ -11563,85 +11563,85 @@ static const I18nEntry lang_zh_TW_entries[] = {
 	{ "Max: full speed, a warmer device and a shorter battery.", lang_zh_TW_f280, 1 },
 	{ "May", lang_zh_TW_f281, 1 },
 	{ "Medium (15 a second)", lang_zh_TW_f282, 1 },
-	{ "Modified ROM: the second screen may not work", lang_zh_TW_f283, 1 },
-	{ "Move", lang_zh_TW_f284, 1 },
-	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_zh_TW_f285, 1 },
-	{ "New", lang_zh_TW_f286, 1 },
-	{ "No RetroArch states here", lang_zh_TW_f287, 1 },
-	{ "No achievements for this ROM (MD5 %s)", lang_zh_TW_f288, 1 },
-	{ "No cheats found (see Cheats in the wiki)", lang_zh_TW_f289, 1 },
-	{ "No controller found", lang_zh_TW_f290, 1 },
-	{ "No folder chosen.", lang_zh_TW_f291, 1 },
-	{ "No folders in this one", lang_zh_TW_f292, 1 },
-	{ "No game has settings of its own.", lang_zh_TW_f293, 1 },
-	{ "No games found", lang_zh_TW_f294, 1 },
-	{ "No patches here yet", lang_zh_TW_f295, 1 },
-	{ "No quick state saved yet.", lang_zh_TW_f296, 1 },
-	{ "None", lang_zh_TW_f297, 1 },
-	{ "Not in the folder any more: it's left out", lang_zh_TW_f298, 1 },
-	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_zh_TW_f299, 1 },
-	{ "Not used", lang_zh_TW_f300, 1 },
-	{ "Nothing", lang_zh_TW_f301, 1 },
-	{ "Nothing mapped", lang_zh_TW_f302, 1 },
-	{ "Nothing saved in slot %d yet", lang_zh_TW_f303, 1 },
-	{ "Nothing to report yet.", lang_zh_TW_f304, 1 },
-	{ "Nov", lang_zh_TW_f305, 1 },
-	{ "Now", lang_zh_TW_f306, 1 },
-	{ "OK", lang_zh_TW_f307, 1 },
-	{ "Oct", lang_zh_TW_f308, 1 },
-	{ "Off", lang_zh_TW_f309, 1 },
-	{ "Off while a patch is on", lang_zh_TW_f310, 1 },
-	{ "Off: every game plays like an ordinary SNES game.", lang_zh_TW_f311, 1 },
-	{ "Off: the left stick does nothing in games.", lang_zh_TW_f312, 1 },
-	{ "Offline", lang_zh_TW_f313, 1 },
-	{ "On", lang_zh_TW_f314, 1 },
-	{ "Only one screen: nothing to move", lang_zh_TW_f315, 1 },
-	{ "Only patches that are on have an order, and this is the only one", lang_zh_TW_f316, 1 },
-	{ "Only when your two screens differ in shape. Experimental.", lang_zh_TW_f317, 1 },
-	{ "Open quick menu", lang_zh_TW_f318, 1 },
-	{ "Opens the bezel's own page, for whichever the game or all games have", lang_zh_TW_f319, 1 },
-	{ "Orange", lang_zh_TW_f320, 1 },
-	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_zh_TW_f321, 1 },
-	{ "Outer Bezel Color", lang_zh_TW_f322, 1 },
-	{ "Overlay colors and logo", lang_zh_TW_f323, 1 },
-	{ "Overlays", lang_zh_TW_f324, 1 },
-	{ "Overlays on", lang_zh_TW_f325, 1 },
-	{ "Overlays: Custom", lang_zh_TW_f326, 1 },
-	{ "Overlays: Custom (in /overlays)", lang_zh_TW_f327, 1 },
-	{ "Overlays: Generated", lang_zh_TW_f328, 1 },
-	{ "Overlays: Off", lang_zh_TW_f329, 1 },
-	{ "PM", lang_zh_TW_f330, 1 },
-	{ "Patch not applied: %s can't be read", lang_zh_TW_f331, 1 },
-	{ "Patch not applied: %s is for another ROM", lang_zh_TW_f332, 1 },
-	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_zh_TW_f333, 1 },
-	{ "Patched: the second screen may not work", lang_zh_TW_f334, 1 },
-	{ "Patches", lang_zh_TW_f335, 1 },
-	{ "Patches changed", lang_zh_TW_f336, 1 },
-	{ "Patches changed since the game started", lang_zh_TW_f337, 1 },
-	{ "Patches changed: carrying on from where you were", lang_zh_TW_f338, 1 },
-	{ "Pattern strength", lang_zh_TW_f339, 1 },
-	{ "Paused", lang_zh_TW_f340, 1 },
-	{ "Performance", lang_zh_TW_f341, 1 },
-	{ "Performance: Let the System Decide", lang_zh_TW_f342, 1 },
-	{ "Performance: Set to Max", lang_zh_TW_f343, 1 },
-	{ "Pictures in the middle of their screens, or close together.", lang_zh_TW_f344, 1 },
-	{ "Pink", lang_zh_TW_f345, 1 },
-	{ "Pinned: the bar stays up.", lang_zh_TW_f346, 1 },
-	{ "Pixel Perfect", lang_zh_TW_f347, 1 },
-	{ "Pixelated", lang_zh_TW_f348, 1 },
-	{ "Placement, overlays", lang_zh_TW_f349, 1 },
-	{ "Plain", lang_zh_TW_f350, 1 },
-	{ "Play", lang_zh_TW_f351, 1 },
-	{ "Playing without achievements this time", lang_zh_TW_f352, 1 },
-	{ "Preparing the game...", lang_zh_TW_f353, 1 },
-	{ "Press %s", lang_zh_TW_f354, 1 },
-	{ "Press A or tap to close", lang_zh_TW_f355, 1 },
-	{ "Press A to close", lang_zh_TW_f356, 1 },
-	{ "Press a button", lang_zh_TW_f357, 1 },
-	{ "Purple", lang_zh_TW_f358, 1 },
-	{ "Push the stick: buttons don't count for this one.", lang_zh_TW_f359, 1 },
-	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_zh_TW_f360, 1 },
-	{ "Quick bar hint", lang_zh_TW_f361, 1 },
+	{ "Menu hint", lang_zh_TW_f283, 1 },
+	{ "Modified ROM: the second screen may not work", lang_zh_TW_f284, 1 },
+	{ "Move", lang_zh_TW_f285, 1 },
+	{ "Moving it: Up / Down or tap where it goes, then A (or tap it again). The one lower in the list is applied later", lang_zh_TW_f286, 1 },
+	{ "New", lang_zh_TW_f287, 1 },
+	{ "No RetroArch states here", lang_zh_TW_f288, 1 },
+	{ "No achievements for this ROM (MD5 %s)", lang_zh_TW_f289, 1 },
+	{ "No cheats found (see Cheats in the wiki)", lang_zh_TW_f290, 1 },
+	{ "No controller found", lang_zh_TW_f291, 1 },
+	{ "No folder chosen.", lang_zh_TW_f292, 1 },
+	{ "No folders in this one", lang_zh_TW_f293, 1 },
+	{ "No game has settings of its own.", lang_zh_TW_f294, 1 },
+	{ "No games found", lang_zh_TW_f295, 1 },
+	{ "No patches here yet", lang_zh_TW_f296, 1 },
+	{ "No quick state saved yet.", lang_zh_TW_f297, 1 },
+	{ "None", lang_zh_TW_f298, 1 },
+	{ "Not in the folder any more: it's left out", lang_zh_TW_f299, 1 },
+	{ "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.", lang_zh_TW_f300, 1 },
+	{ "Not used", lang_zh_TW_f301, 1 },
+	{ "Nothing", lang_zh_TW_f302, 1 },
+	{ "Nothing mapped", lang_zh_TW_f303, 1 },
+	{ "Nothing saved in slot %d yet", lang_zh_TW_f304, 1 },
+	{ "Nothing to report yet.", lang_zh_TW_f305, 1 },
+	{ "Nov", lang_zh_TW_f306, 1 },
+	{ "Now", lang_zh_TW_f307, 1 },
+	{ "OK", lang_zh_TW_f308, 1 },
+	{ "Oct", lang_zh_TW_f309, 1 },
+	{ "Off", lang_zh_TW_f310, 1 },
+	{ "Off while a patch is on", lang_zh_TW_f311, 1 },
+	{ "Off: every game plays like an ordinary SNES game.", lang_zh_TW_f312, 1 },
+	{ "Off: the left stick does nothing in games.", lang_zh_TW_f313, 1 },
+	{ "Offline", lang_zh_TW_f314, 1 },
+	{ "On", lang_zh_TW_f315, 1 },
+	{ "Only one screen: nothing to move", lang_zh_TW_f316, 1 },
+	{ "Only patches that are on have an order, and this is the only one", lang_zh_TW_f317, 1 },
+	{ "Only when your two screens differ in shape. Experimental.", lang_zh_TW_f318, 1 },
+	{ "Open the menu", lang_zh_TW_f319, 1 },
+	{ "Opens the bezel's own page, for whichever the game or all games have", lang_zh_TW_f320, 1 },
+	{ "Orange", lang_zh_TW_f321, 1 },
+	{ "Other Super Nintendo games play on one screen, with their title logo on the other.", lang_zh_TW_f322, 1 },
+	{ "Outer Bezel Color", lang_zh_TW_f323, 1 },
+	{ "Overlay colors and logo", lang_zh_TW_f324, 1 },
+	{ "Overlays", lang_zh_TW_f325, 1 },
+	{ "Overlays on", lang_zh_TW_f326, 1 },
+	{ "Overlays: Custom", lang_zh_TW_f327, 1 },
+	{ "Overlays: Custom (in /overlays)", lang_zh_TW_f328, 1 },
+	{ "Overlays: Generated", lang_zh_TW_f329, 1 },
+	{ "Overlays: Off", lang_zh_TW_f330, 1 },
+	{ "PM", lang_zh_TW_f331, 1 },
+	{ "Patch not applied: %s can't be read", lang_zh_TW_f332, 1 },
+	{ "Patch not applied: %s is for another ROM", lang_zh_TW_f333, 1 },
+	{ "Patched, but a patch was left out: see Patches in the game's menu", lang_zh_TW_f334, 1 },
+	{ "Patched: the second screen may not work", lang_zh_TW_f335, 1 },
+	{ "Patches", lang_zh_TW_f336, 1 },
+	{ "Patches changed", lang_zh_TW_f337, 1 },
+	{ "Patches changed since the game started", lang_zh_TW_f338, 1 },
+	{ "Patches changed: carrying on from where you were", lang_zh_TW_f339, 1 },
+	{ "Pattern strength", lang_zh_TW_f340, 1 },
+	{ "Paused", lang_zh_TW_f341, 1 },
+	{ "Performance", lang_zh_TW_f342, 1 },
+	{ "Performance: Let the System Decide", lang_zh_TW_f343, 1 },
+	{ "Performance: Set to Max", lang_zh_TW_f344, 1 },
+	{ "Pictures in the middle of their screens, or close together.", lang_zh_TW_f345, 1 },
+	{ "Pink", lang_zh_TW_f346, 1 },
+	{ "Pinned: the bar stays up.", lang_zh_TW_f347, 1 },
+	{ "Pixel Perfect", lang_zh_TW_f348, 1 },
+	{ "Pixelated", lang_zh_TW_f349, 1 },
+	{ "Placement, overlays", lang_zh_TW_f350, 1 },
+	{ "Plain", lang_zh_TW_f351, 1 },
+	{ "Play", lang_zh_TW_f352, 1 },
+	{ "Playing without achievements this time", lang_zh_TW_f353, 1 },
+	{ "Preparing the game...", lang_zh_TW_f354, 1 },
+	{ "Press %s", lang_zh_TW_f355, 1 },
+	{ "Press A or tap to close", lang_zh_TW_f356, 1 },
+	{ "Press A to close", lang_zh_TW_f357, 1 },
+	{ "Press a button", lang_zh_TW_f358, 1 },
+	{ "Purple", lang_zh_TW_f359, 1 },
+	{ "Push the stick: buttons don't count for this one.", lang_zh_TW_f360, 1 },
+	{ "Put .ips, .ups, .bps or .xdelta files in %s", lang_zh_TW_f361, 1 },
 	{ "Quick load state", lang_zh_TW_f362, 1 },
 	{ "Quick save state", lang_zh_TW_f363, 1 },
 	{ "Quit", lang_zh_TW_f364, 1 },
@@ -11745,7 +11745,7 @@ static const I18nEntry lang_zh_TW_entries[] = {
 	{ "Second screen", lang_zh_TW_f462, 1 },
 	{ "Second screen scale", lang_zh_TW_f463, 1 },
 	{ "Select", lang_zh_TW_f464, 1 },
-	{ "Select or Start still reach the game when tapped on their own, L3 still opens the quick menu", lang_zh_TW_f465, 1 },
+	{ "Select or Start still reach the game when tapped on their own, L3 still opens the menu", lang_zh_TW_f465, 1 },
 	{ "Sep", lang_zh_TW_f466, 1 },
 	{ "Separate battery save", lang_zh_TW_f467, 1 },
 	{ "Separate save states", lang_zh_TW_f468, 1 },
@@ -11815,13 +11815,13 @@ static const I18nEntry lang_zh_TW_entries[] = {
 	{ "Swap Screens", lang_zh_TW_f532, 1 },
 	{ "Swap screens", lang_zh_TW_f533, 1 },
 	{ "Swapped", lang_zh_TW_f534, 1 },
-	{ "Swipe up for quick menu", lang_zh_TW_f535, 1 },
-	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_zh_TW_f536, 1 },
-	{ "System", lang_zh_TW_f537, 1 },
-	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_zh_TW_f538, 1 },
-	{ "Take Screenshot", lang_zh_TW_f539, 1 },
-	{ "Tap again to close RetroDS.", lang_zh_TW_f540, 1 },
-	{ "Tap the screen or press HOME for the menu", lang_zh_TW_f541, 1 },
+	{ "Switched off in retrods.cfg (retroachievements = 0).", lang_zh_TW_f535, 1 },
+	{ "System", lang_zh_TW_f536, 1 },
+	{ "Tags in a ROM's file name, like (USA) or (En,Fr,De).", lang_zh_TW_f537, 1 },
+	{ "Take Screenshot", lang_zh_TW_f538, 1 },
+	{ "Tap again to close RetroDS.", lang_zh_TW_f539, 1 },
+	{ "Tap the screen or press HOME for the menu", lang_zh_TW_f540, 1 },
+	{ "Tap the screen to open the menu", lang_zh_TW_f541, 1 },
 	{ "Tap the touchscreen to skip a button this device doesn't have", lang_zh_TW_f542, 1 },
 	{ "Tap to set none", lang_zh_TW_f543, 1 },
 	{ "Tap to skip a button this device doesn't have", lang_zh_TW_f544, 1 },

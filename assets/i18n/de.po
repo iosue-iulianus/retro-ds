@@ -2127,3 +2127,18 @@ msgstr "Der Item-Bildschirm (zum Auswählen tippen), die Weltkarte, soweit du si
 
 msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
 msgstr "Andere Super-Nintendo-Spiele laufen auf einem Bildschirm, mit ihrem Titellogo auf dem anderen."
+
+msgid "Tap the screen to open the menu"
+msgstr "Tippe auf den Bildschirm, um das Menü zu öffnen"
+
+msgid "Menu hint"
+msgstr "Menü-Hinweis"
+
+msgid "\"Tap the screen to open the menu\" at a game's start."
+msgstr "„Tippe auf den Bildschirm, um das Menü zu öffnen“ beim Spielstart."
+
+msgid "Open the menu"
+msgstr "Menü öffnen"
+
+msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
+msgstr "Select oder Start erreichen das Spiel weiterhin, wenn sie allein gedrückt werden, L3 öffnet weiterhin das Menü"

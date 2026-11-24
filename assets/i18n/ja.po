@@ -2124,3 +2124,18 @@ msgstr "アイテム画面 (タップで選択)、探索した範囲のワール
 
 msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
 msgstr "その他のスーパーファミコンのゲームは片方の画面で遊べ、もう片方にはタイトルロゴが表示されます。"
+
+msgid "Tap the screen to open the menu"
+msgstr "画面をタップしてメニューを開く"
+
+msgid "Menu hint"
+msgstr "メニューのヒント"
+
+msgid "\"Tap the screen to open the menu\" at a game's start."
+msgstr "ゲーム開始時に「画面をタップしてメニューを開く」を表示します。"
+
+msgid "Open the menu"
+msgstr "メニューを開く"
+
+msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
+msgstr "Select や Start は単独で押せばゲームに届きます。L3 は引き続きメニューを開きます"

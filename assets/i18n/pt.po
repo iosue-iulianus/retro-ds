@@ -2128,3 +2128,18 @@ msgstr "A tela de itens (toque para escolher), o mapa do mundo até onde você e
 
 msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
 msgstr "Os outros jogos de Super Nintendo rodam em uma tela, com o logotipo na outra."
+
+msgid "Tap the screen to open the menu"
+msgstr "Toque na tela para abrir o menu"
+
+msgid "Menu hint"
+msgstr "Dica do menu"
+
+msgid "\"Tap the screen to open the menu\" at a game's start."
+msgstr "\"Toque na tela para abrir o menu\" no início de um jogo."
+
+msgid "Open the menu"
+msgstr "Abrir o menu"
+
+msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
+msgstr "Select ou Start ainda chegam ao jogo quando tocados sozinhos, L3 ainda abre o menu"

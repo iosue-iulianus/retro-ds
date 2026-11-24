@@ -102,7 +102,7 @@ typedef struct Config {
 	bool autoSave;        /* save a resume point on quitting the game (save_on_quit) */
 	bool autoLoad;        /* load it on launching the game (auto_load) */
 	bool barPinned;       /* the quick bar stays up (quick_bar_pinned) */
-	bool barHint;         /* "Swipe up for quick menu" at a game's start (quick_bar_hint) */
+	bool barHint;         /* "Tap the screen to open the menu" at a game's start (quick_bar_hint) */
 	bool nameTags;        /* library keeps (USA), (En,Fr) etc. in game names */
 	bool showAll;         /* library lists games without a map profile too */
 	int brightTop, brightBottom; /* this app's brightness for each screen, 20..100 (brightness_top / _bottom, issue #56): a dimming layer, not the system's */

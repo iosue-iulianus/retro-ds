@@ -482,8 +482,7 @@ static bool half_item(int item) {
 	       item == M_LIBRARY || item == M_EXIT;
 }
 /* Save State / Load State and Close Game / Close RetroDS are big: their row
- * is TALL_ROW times as tall as the others, and the two further apart than
- * other pairs, so a thumb can't take one for the other */
+ * is TALL_ROW times as tall as the others */
 #define TALL_ROW 1.75f
 static bool tall_item(int item) {
 	return item == M_SAVE || item == M_LOAD || item == M_LIBRARY || item == M_EXIT;
@@ -1575,8 +1574,7 @@ static SDL_Rect item_rect(int scr, int i) {
 	item_row_geom(scr, itemRow[i], &y, &h);
 	SDL_Rect r = { g.margin, y, g.w, h };
 	if (itemSide[i] >= 0) {
-		int gap = tall_item(menuItems[i]) ? g.gap * 4 : g.gap;
-		int hw = (g.w - gap) / 2;
+		int hw = (g.w - g.gap) / 2;
 		r.x += itemSide[i] * (g.w - hw);
 		r.w = hw;
 	}
@@ -2045,8 +2043,18 @@ static void bar_close(void) {
 	barGesture = G_NONE;
 	barExitArmed = 0;
 }
+/* The quick bar (GBA DS's, up with a swipe from the bottom edge) is off:
+ * the owner found it ugly (Nov 24, 2026). A tap opens the pause menu, and so
+ * do L3 and the quick menu hotkey (bar_toggle). The code stays, unreachable
+ * while QUICK_BAR is 0. */
+#define QUICK_BAR 0
+static void open_menu(void);
 /* L3, or the quick menu hotkey: up, as with a swipe; again: down */
 static void bar_toggle(void) {
+	if (!QUICK_BAR) {
+		open_menu();
+		return;
+	}
 	if (barOpen) {
 		bar_close();
 		return;
@@ -2075,11 +2083,9 @@ static void draw_icon(int s, const char* const* art, int cx, int cy, int size, S
 	}
 }
 
-/* The hint at a game's start, "Swipe up for quick menu" under an arrow
- * pointing up, at the bottom of the touchscreen: it slides down and away 3
- * seconds in, or at the first touch, or as the bar or the menu comes up
- * (not shown with the bar pinned: it's up already; nor with quick_bar_hint
- * = 0). */
+/* The hint at a game's start, "Tap the screen to open the menu", at the
+ * bottom of the touchscreen: it slides down and away 3 seconds in, or at the
+ * first touch, or as the menu comes up (not with quick_bar_hint = 0). */
 static int hintState;     /* 0 not yet shown, 1 up, 2 going */
 static Uint32 hintSince;  /* its first frame */
 static float hintShown;   /* 0 away .. 1 all the way up */
@@ -2090,7 +2096,7 @@ static void hint_dismiss(void) {
 
 static void draw_hint(void) {
 	if (hintState == 0) {
-		if (cfg->barPinned || !cfg->barHint) {
+		if (!cfg->barHint) {
 			hintState = 2;
 			return;
 		}
@@ -2102,23 +2108,17 @@ static void draw_hint(void) {
 	if (hintShown <= 0) return;
 	int s = ui_touch_screen();
 	float px = ui_px(s);
-	static const char* text = N_("Swipe up for quick menu");
+	static const char* text = N_("Tap the screen to open the menu");
 	int cap = px * 7, tw = ui_font_width(TF_BOLD, cap, text);
 	int padX = px * 6, padY = px * 4, aw = px * 7, ah = px * 6, m = px * 6;
 	int w = tw + padX * 2, h = cap + padY * 2;
 	SDL_Rect r = screens[s].rect;
+	(void) aw;
 	int y = r.h - m - h + (int) ((1.0f - hintShown) * (h + ah + m + 1));
 	SDL_Rect b = { (r.w - w) / 2, y, w, h };
 	ui_fill_round(s, (SDL_Rect) { b.x - 1, b.y - 1, b.w + 2, b.h + 2 }, G_EDGE, px * 3 + 1);
 	ui_fill_round(s, b, G_BG, px * 3);
-	/* the arrow on top: the box's edge round it, filled as the box */
 	int cx = r.w / 2;
-	for (int i = 0; i <= ah; ++i) {
-		int half = aw * i / SDL_max(1, ah);
-		ui_fill(s, (SDL_Rect) { cx - half - 1, b.y - ah - 1 + i, half * 2 + 2, 1 }, G_EDGE);
-		if (half * 2 - 2 > 0) ui_fill(s, (SDL_Rect) { cx - half + 1, b.y - ah - 1 + i, half * 2 - 2, 1 }, G_BG);
-	}
-	ui_fill(s, (SDL_Rect) { cx - aw + 1, b.y - 1, aw * 2 - 2, 2 }, G_BG); /* (open into the box) */
 	ui_font_text(s, TF_BOLD, cx, b.y + b.h / 2, cap, text, G_TEXT, 0);
 }
 
@@ -5621,8 +5621,8 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_CHEATS;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_SHOT;
 	if (ra_enabled()) pages[PG_GAME][pageLen[PG_GAME]++] = M_ACH;
-	/* (Patches and Submit a Bug Report left out, owner, Nov 24, 2026: the
-	 * quick bar still has the bug report) */
+	/* (Patches and Submit a Bug Report left out, owner, Nov 24, 2026; with
+	 * the quick bar off too, no bug reports from the app for now) */
 	if (fromLibrary) pages[PG_GAME][pageLen[PG_GAME]++] = M_LIBRARY;
 	pages[PG_GAME][pageLen[PG_GAME]++] = M_EXIT;
 	ui_color_correction(cfg->colorCorrection); /* (Display > Color Correction, for this session's pictures) */
@@ -5690,15 +5690,15 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		if (!stateWarned) ui_osd(ok ? "Patches changed: carrying on from where you were" : "Patches changed");
 	} else if (cfg->autoLoad && !patchReload && file_exists(gp.autoState)) { /* (not right after switching a patch) */
 		if (state_load(gp.autoState)) {
-			if (!stateWarned) ui_osd("Resumed. Tap or HOME for the menu");
+			if (!stateWarned && !cfg->barHint) ui_osd("Resumed. Tap or HOME for the menu"); /* (the hint says it, when it's on) */
 		} else if (stateLoadKind == STATE_FILE_OTHER_CORE) {
 			/* (RetroArch's automatic state, from another of its GBA cores) */
 			ui_osd_long("Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes.");
 		}
-	} else {
+	} else if (!cfg->barHint) {
 		ui_osd("Tap the screen or press HOME for the menu");
 	}
-	if (cfg->barPinned) barOpen = true, barSince = SDL_GetTicks(); /* (pinned: up from the start) */
+	if (QUICK_BAR && cfg->barPinned) barOpen = true, barSince = SDL_GetTicks(); /* (pinned: up from the start) */
 	rewind_setup();
 
 	/* The device runs at a fixed rate. The GBA's own rate follows the game's
@@ -5888,7 +5888,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 				if (p.kind == 1) {
 					barGesture = G_NONE;
 					barDownOpen = barOpen;
-					if (p.screen == ts && barOpen) {
+					if (QUICK_BAR && p.screen == ts && barOpen) {
 						SDL_Rect pin = bar_pin(ts);
 						SDL_Point pt = { p.x, p.y };
 						barSince = SDL_GetTicks();
@@ -5897,7 +5897,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 						barGX = p.x, barGY = p.y;
 						continue;
 					}
-					if (p.screen == ts && p.y >= screens[ts].rect.h - u * 36) {
+					if (QUICK_BAR && p.screen == ts && p.y >= screens[ts].rect.h - u * 36) {
 						barGesture = G_TRACK;
 						barGX = p.x, barGY = p.y;
 						continue;
@@ -6403,7 +6403,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		if (wasMenu && !menuOpen) {
 			if (noteOpen) note_done(true); /* (closed some other way: saved with what's typed) */
 			suppress_held();
-			if (cfg->barPinned) barOpen = true, barSince = SDL_GetTicks(); /* (pinned: back after the menu) */
+			if (QUICK_BAR && cfg->barPinned) barOpen = true, barSince = SDL_GetTicks(); /* (pinned: back after the menu) */
 			if (audio) SDL_PauseAudioDevice(audio, 0);
 			next = SDL_GetPerformanceCounter() / freq;
 			fpsT0 = next;

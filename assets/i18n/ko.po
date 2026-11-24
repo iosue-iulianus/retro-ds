@@ -2124,3 +2124,18 @@ msgstr "아이템 화면 (탭해서 선택), 탐험한 만큼의 월드 맵, 던
 
 msgid "Other Super Nintendo games play on one screen, with their title logo on the other."
 msgstr "다른 슈퍼 패미컴 게임은 한 화면에서 실행되고, 다른 화면에는 타이틀 로고가 표시됩니다."
+
+msgid "Tap the screen to open the menu"
+msgstr "화면을 탭하여 메뉴 열기"
+
+msgid "Menu hint"
+msgstr "메뉴 안내"
+
+msgid "\"Tap the screen to open the menu\" at a game's start."
+msgstr "게임 시작 시 \"화면을 탭하여 메뉴 열기\"를 표시합니다."
+
+msgid "Open the menu"
+msgstr "메뉴 열기"
+
+msgid "Select or Start still reach the game when tapped on their own, L3 still opens the menu"
+msgstr "Select나 Start는 단독으로 누르면 게임에 전달되고, L3는 계속 메뉴를 엽니다"
