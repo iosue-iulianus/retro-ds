@@ -1028,12 +1028,24 @@ static void draw_alt_map(int s) {
 }
 
 void draw_alt(int s) {
-	/* in a dungeon the items slide over black, and the dungeon's map shows
-	 * once they're away (the owner, Nov 24, 2026: the map under them on the
-	 * overworld only) */
+	/* ALTTP-1: the items slide up from the screen's bottom or down off it at
+	 * the game's speed: 8 of the items' pixels a frame of the game's (60.1 a
+	 * second), whatever the display's rate */
+	SDL_Rect slideImg = ui_image_rect(s, ALTTP_W, ALTTP_H, cfg->mapScale);
+	float slideK = slideImg.h > 0 ? slideImg.h / (float) ALTTP_H : 1, dist = SDL_max(1.f, (float) screens[s].rect.h - slideImg.y);
+	Uint64 now = SDL_GetPerformanceCounter();
+	double dt = altSlideT ? (double) (now - altSlideT) / SDL_GetPerformanceFrequency() : 0;
+	altSlideT = now;
+	float to = altPage == 0 ? 1.f : 0.f, step = (float) (SDL_min(dt, 0.1) * 8 * slideK * 60.0988 / dist);
+	altItemsUp = to > altItemsUp ? SDL_min(to, altItemsUp + step) : SDL_max(to, altItemsUp - step);
+	int itemsDy = (int) ((1 - altItemsUp) * dist + 0.5f);
+	/* under the items: outdoors the world map; in a dungeon its map, above
+	 * the items and moving with them, pushed up off the screen as they come
+	 * up and back down after them (the owner, Nov 25, 2026); where there's
+	 * no map, black (the logo once they're away: game.c) */
 	bool dungeon = alttp_in_dungeon(alt), nomap = alt_no_map();
-	if ((dungeon || nomap) && altItemsUp > 0) {
-		/* (black: the screen's fill, as before) */
+	if (nomap || (dungeon && altItemsUp >= 1)) {
+		/* (black: the screen's fill) */
 	} else if (dungeon) {
 		/* the picture's own scale, the canvas as many of its pixels as the screen holds */
 		SDL_Rect img = ui_image_rect(s, ALTTP_W, ALTTP_H, cfg->mapScale);
@@ -1091,20 +1103,10 @@ void draw_alt(int s) {
 			++mapWork.dungeon;
 		}
 	shown:
-		ui_image_pixels(s, altDunFlip ? altDunWideTexB : altDunWideTex, W, H, cfg->mapScale, SHADER_ON);
+		ui_image_pixels_at(s, altDunFlip ? altDunWideTexB : altDunWideTex, W, H, cfg->mapScale, SHADER_ON, itemsDy - (int) (dist + 0.5f));
 	}
-	else if (!nomap) draw_alt_map(s);
-	/* ALTTP-1: the items over it, sliding up from the screen's bottom or
-	 * down off it at the game's speed: 8 of the items' pixels a frame of
-	 * the game's (60.1 a second), whatever the display's rate */
-	SDL_Rect img = ui_image_rect(s, ALTTP_W, ALTTP_H, cfg->mapScale);
-	float k = img.h > 0 ? img.h / (float) ALTTP_H : 1, dist = SDL_max(1.f, (float) screens[s].rect.h - img.y);
-	Uint64 now = SDL_GetPerformanceCounter();
-	double dt = altSlideT ? (double) (now - altSlideT) / SDL_GetPerformanceFrequency() : 0;
-	altSlideT = now;
-	float to = altPage == 0 ? 1.f : 0.f, step = (float) (SDL_min(dt, 0.1) * 8 * k * 60.0988 / dist);
-	altItemsUp = to > altItemsUp ? SDL_min(to, altItemsUp + step) : SDL_max(to, altItemsUp - step);
-	if (altItemsUp > 0) ui_image_pixels_at(s, altItemsTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON, (int) ((1 - altItemsUp) * dist + 0.5f));
+	else draw_alt_map(s);
+	if (altItemsUp > 0) ui_image_pixels_at(s, altItemsTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON, itemsDy);
 }
 
 static void alt_sound(uint8_t id);
