@@ -5561,7 +5561,13 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	ROW(PG_SPEED, "save_on_quit");
 	ROW(PG_SPEED, "auto_load");
 	ROW(PG_MAP, "map");
-	ROW(PG_MAP, "map_interval");
+	{
+		/* Map refresh: how often a map is captured on the hidden copy, so only
+		 * for a game whose second screen is a capture (not one RetroDS draws
+		 * itself, nor a logo-only one) */
+		const MapProfile* mp = profile_find(emu.gameCode);
+		if (mp && !mp->native && !mp->logoOnly) ROW(PG_MAP, "map_interval");
+	}
 #undef ROW
 	set_page(0);
 	slot_pick_newest();
