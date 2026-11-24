@@ -38,7 +38,7 @@ target_include_directories(webpdec PUBLIC "${WEBP}")
 # --- SNES DS ---
 set(S "${SNESDS_ROOT}/src")
 add_library(main SHARED
-	${S}/main.c ${S}/config.c ${S}/font.c ${S}/ui.c ${S}/library.c ${S}/game.c ${S}/paths.c ${S}/image.c ${S}/mapper.c ${S}/hotkeys.c ${S}/folderpick.c
+	${S}/main.c ${S}/config.c ${S}/font.c ${S}/ui.c ${S}/library.c ${S}/game.c ${S}/game_sm.c ${S}/game_alttp.c ${S}/paths.c ${S}/image.c ${S}/mapper.c ${S}/hotkeys.c ${S}/folderpick.c
 	${S}/brand_data.c ${S}/bezel.c ${S}/bezel_logo.c ${S}/logo.c ${S}/cheats.c ${S}/esde.c ${S}/textfont.c ${S}/fonts_data.c ${S}/i18n.c ${S}/i18n_data.c
 	${S}/emu.c ${S}/patch.c ${S}/mapcap.c ${S}/smmap.c ${S}/alttp.c ${S}/alttp_dungeon.c ${S}/profiles.c ${S}/ra.c ${S}/update.c ${S}/http.c ${S}/sha256.c
 	${S}/android.c)
