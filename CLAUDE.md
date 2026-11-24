@@ -12,18 +12,17 @@ The owner (Joshua) decides what gets built and tests on the device.
 Nothing counts as working until it has run on the Duo.
 
 **Status:** M1 (SNES games on one screen) is merged: the emulator is the
-libretro bsnes core and GBA DS's GBA-only features are gone. M2, on
-branch `m2-super-metroid` (draft PR #3): Super Metroid's second screen,
+libretro bsnes core and GBA DS's GBA-only features are gone. M2 and M3
+are merged too (PRs #3 and #4, Nov 24, 2026, after the owner tried them
+on the Duo). M2: Super Metroid's second screen,
 the game on the screen closer to 4:3 (the Duo's bottom one), overlays
 (the bezel) off by default. Its map and SAMUS page are drawn by SNES DS
 itself from the ROM and RAM (`src/smmap.c`, the profile's `native`; no
 hidden copy runs for Super Metroid): pixel-exact against the game's
 pause screen (`tools/sm_map.py`, the harness's `smmap` and `smtoggle`),
 scrolled smoothly on the GPU (drag, fling, glide), and tapping an item
-on the SAMUS page switches it (the write exception, SM-10). Next: try it
-on the Duo; the reserve mode switch isn't done. M3, on branch
-`m3-a-link-to-the-past` (from M2, pushed; on the Duo since Nov 22): A
-Link to the Past's second screen (`docs/games/a-link-to-the-past.md`,
+on the SAMUS page switches it (the write exception, SM-10); the reserve
+mode switch isn't done. M3: A Link to the Past's second screen (`docs/games/a-link-to-the-past.md`,
 ALTTP-1 to 14), all drawn by SNES DS: the items screen (tap to select, a
 write exception) with the zoom pane; X for the map: outdoors the world
 assembled from the game's own ground layer as Link sees it (video RAM, a
@@ -34,9 +33,9 @@ whole top screen; in dungeons the dungeon map as the game draws it
 (tiles decompressed from the ROM, its background black); the logo in
 special areas, at game over and the menus; at the title the sword falls
 from the top screen into the game's across the gap between the screens
-(`screen_gap_mm`). PRs: M2 #3 and M3 #4 into `snes` (Nov 24, 2026);
-`game.c`'s two drawn second screens split out on branch `split-game-c`
-(after M3). Parked: the 120 Hz map judder (the bottom screen's present
+(`screen_gap_mm`). `game.c`'s two drawn second screens are in
+`game_sm.c` and `game_alttp.c` (PR #5). Next: M4 (Chrono Trigger).
+Parked: the 120 Hz map judder (the bottom screen's present
 blocks 6 to 8 ms at 120 Hz). Both games' checks run with
 `scripts/check-games.sh`. Much of `src/` is
 GBA DS's (the game list, menus, settings, Android glue); upstream's session
