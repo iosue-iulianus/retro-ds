@@ -170,7 +170,7 @@ void ui_theme(int light);
 enum { AC_BG, AC_HEADER, AC_ROW, AC_BTN, AC_BTN_SEL, AC_EDGE, AC_HI, AC_HI_INK, AC_SEL_MID, AC_LIT_MID,
        AC_SEL_HI, AC_SEL_LO, AC_SEL_EDGE, AC_SEL_BORDER, AC_SEL_RING, AC_LIT_BORDER, AC_LIT_HI, AC_LIT_LO, AC_LIT_EDGE, AC_COUNT };
 #define ACCENT_COUNT 7
-void ui_accent(const char* id);              /* by its name in the config ("purple"...); unknown: purple */
+void ui_accent(const char* id);              /* by its name in the config ("red"...); unknown: red */
 SDL_Color ui_accent_color(int role);
 void ui_brightness(int top, int bottom); /* each screen's brightness, 20..100: dims this app's picture only */
 bool ui_theme_light(void);

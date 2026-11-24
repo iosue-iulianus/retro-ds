@@ -20,7 +20,7 @@ void config_defaults(Config* c) {
 	strcpy(c->stateFolder, "retrods");
 	strcpy(c->scale, "integer");
 	strcpy(c->mapScale, "integer");
-	strcpy(c->accent, "purple");
+	strcpy(c->accent, "red");
 	strcpy(c->hotkey, "home");
 	for (int i = 0; i < HK_COUNT; ++i) strcpy(c->hotkeyBtn[i], hotkeyDefaults[i]);
 	c->shaderLast = SH_GRID;
@@ -434,7 +434,7 @@ void config_usage(const char* argv0) {
 #define ARR(a) a, (int) (sizeof(a) / sizeof(a[0]))
 static const SettingChoice chTheme[] = { { "dark", "Dark", 0 }, { "light", "Light", 1 } };
 static const SettingChoice chAccent[] = {
-	{ "purple", "Purple", 0 }, { "blue", "Blue", 0 }, { "teal", "Teal", 0 }, { "green", "Green", 0 }, { "red", "Red", 0 }, { "orange", "Orange", 0 }, { "pink", "Pink", 0 },
+	{ "red", "Red", 0 }, { "purple", "Purple", 0 }, { "blue", "Blue", 0 }, { "teal", "Teal", 0 }, { "green", "Green", 0 }, { "orange", "Orange", 0 }, { "pink", "Pink", 0 },
 };
 static const SettingChoice chOnOff[] = { { "0", "Off", 0 }, { "1", "On", 1 } };
 static const SettingChoice chShown[] = { { "0", "Supported games only", 0 }, { "1", "All games", 1 } };

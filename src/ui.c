@@ -2849,6 +2849,7 @@ static void accent_build(void) {
 }
 void ui_accent(const char* id) {
 	int n = 0;
+	for (int i = 0; i < ACCENT_COUNT; ++i) if (!strcmp("red", accents[i].id)) n = i; /* the default */
 	for (int i = 0; id && i < ACCENT_COUNT; ++i) if (!strcmp(id, accents[i].id)) n = i;
 	accentIdx = n;
 	accentValid = false;
