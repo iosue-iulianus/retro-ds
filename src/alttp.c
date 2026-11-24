@@ -125,6 +125,9 @@ enum { P_ITEMS, P_NAME, P_PROGRESS, P_ABILITY, P_EQUIPMENT, P_COUNT };
  * the Y items at the bottom right, every pane moved whole) */
 static const int8_t paneGame[P_COUNT][2] = { { 1, 5 }, { 21, 5 }, { 21, 11 }, { 1, 21 }, { 21, 21 } };
 static const int8_t paneTouch[P_COUNT][2] = { { 12, 15 }, { 1, 24 }, { 1, 15 }, { 12, 5 }, { 1, 5 } };
+/* each pane's frame on the game's screen, in tiles (first and last column, row) */
+static const int8_t paneBox[P_COUNT][4] = { { 1, 5, 19, 19 }, { 21, 5, 30, 10 }, { 21, 11, 30, 19 }, { 1, 21, 19, 29 }, { 21, 21, 30, 29 } };
+
 
 struct Alttp {
 	uint8_t* rom;
@@ -781,6 +784,7 @@ static const WriteRange altWrites[] = {
 	{ 0x7EF34F, 1, "the bottle selected" },
 	{ 0x7EC74A, 4, "the HUD's item box, top" },
 	{ 0x7EC78A, 4, "the HUD's item box, bottom" },
+	{ 0x7E012F, 1, "the sound request (ALTTP-16)" },
 };
 
 const WriteRange* alttp_write_ranges(int* n) {
@@ -1856,4 +1860,15 @@ bool alttp_seen_merge(Alttp* a, const void* data, size_t n) {
 	}
 	if (added) a->dirty = true;
 	return ok;
+}
+
+/* ALTTP-1: the panes' places on the items picture (alttp.h) */
+int alttp_items_panes(int rects[][4], int max) {
+	int n = 0;
+	for (int p = 0; p < P_COUNT && n < max; ++p, ++n) {
+		int dx = paneTouch[p][0] - paneGame[p][0], dy = paneTouch[p][1] - paneGame[p][1];
+		rects[n][0] = (paneBox[p][0] + dx) * 8, rects[n][1] = (paneBox[p][1] + dy - MENU_ROW0) * 8; /* (the picture starts at MENU_ROW0) */
+		rects[n][2] = (paneBox[p][2] - paneBox[p][0] + 1) * 8, rects[n][3] = (paneBox[p][3] - paneBox[p][1] + 1) * 8;
+	}
+	return n;
 }

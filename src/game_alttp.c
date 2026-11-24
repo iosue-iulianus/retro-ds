@@ -21,7 +21,7 @@ Alttp* alt;
 bool altShown;   /* the second screen shows it (else the logo, ALTTP-9) */
 int altPage;     /* 0 the items screen, 1 the map (ALTTP-1) */
 /* ALTTP-3: the map's zooms, world pixels a pixel of the screen (each tap
- * the next, out; from the farthest, the closest; a pinch goes between
+ * the next, in; from the closest, the farthest; a pinch goes between
  * them and settles on the nearest), the one it's at or going to, and the
  * zoom shown now (gliding to it) */
 static const float altZooms[] = { 0.5f, 1, 2, 4 };
@@ -81,6 +81,27 @@ void draw_alt_title(int s) {
 	ui_image_part(s, altSwordTex, (SDL_Rect) { 0, 0, altSwordW, altSwordH }, (SDL_Rect) { tx, ty, w, h });
 } /* the zoom indicator, put together (alt_zoom_indicator) */
 static int altZoomAt = -1; /* the level it shows (-1: to be made again) */
+/* ALTTP-1: the items screen over the map, as the game's own comes over the
+ * game: the panes solid (their windows black), clear round them. (By the
+ * panes' places: their titles, DO and ITEM, sit on the frames' top edges, so
+ * the black round a pane runs into it there.) */
+static const uint32_t* alt_items_clear(const uint32_t* in) {
+	static uint32_t out[ALTTP_W * ALTTP_H];
+	int r[8][4], n = alttp_items_panes(r, 8);
+	for (int y = 0; y < ALTTP_H; ++y) {
+		for (int x = 0; x < ALTTP_W; ++x) {
+			int i = y * ALTTP_W + x;
+			bool in_pane = false;
+			for (int k = 0; k < n && !in_pane; ++k) in_pane = x >= r[k][0] && y >= r[k][1] && x < r[k][0] + r[k][2] && y < r[k][1] + r[k][3];
+			out[i] = !in_pane ? 0 : (in[i] >> 24) ? in[i] | 0xFF000000u : 0xFF000000u;
+		}
+	}
+	return out;
+}
+/* ALTTP-1: how far the items are up (0 away below the screen, 1 up) */
+static float altItemsUp = 1;
+static Uint64 altSlideT;
+
 /* The map's pieces on the GPU (alttp_piece): made when first shown, made
  * again when the piece changed (at most every ALT_REMAKE seconds while
  * Link walks), the least lately shown let go past ALT_BUDGET bytes. The
@@ -390,7 +411,7 @@ void alt_textures(void) {
 		for (int k = 0; k < 9; ++k) {
 			if (*t[k]) SDL_DestroyTexture(*t[k]);
 		}
-		altItemsTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_NONE);
+		altItemsTex[i] = native_texture(i, ALTTP_W, ALTTP_H, SDL_BLENDMODE_BLEND); /* (clear round the panes: ALTTP-1) */
 		altDunWideTex[i] = altDunWideTexB[i] = NULL; /* (made at its size when shown) */
 		altMarkerTex[i] = native_texture(i, 32, 32, SDL_BLENDMODE_BLEND);
 		altGoalTex[i] = native_texture(i, ALTTP_GOAL_MAX * 16, 16, SDL_BLENDMODE_BLEND);
@@ -529,8 +550,8 @@ void alt_tick(void) {
 	Uint64 now = SDL_GetPerformanceCounter();
 	if (!altSavedT) altSavedT = now;
 	if ((double) (now - altSavedT) / SDL_GetPerformanceFrequency() > 60) altSavedT = now, alt_save_start();
-	/* ALTTP-5: the dungeon map, while it's shown (it blinks as the game's) */
-	if (altPage == 1 && alttp_in_dungeon(alt) && alttp_playing(alt)) {
+	/* ALTTP-5: the dungeon map, under the items (it blinks as the game's) */
+	if (alttp_in_dungeon(alt) && alttp_playing(alt)) {
 		/* (drawn while Link is played: elsewhere, game over and the like,
 		 * video memory holds other tiles; the last drawing stays) */
 		int lo, hi, link;
@@ -546,8 +567,9 @@ void alt_tick(void) {
 		altFloor = ALTTP_FLOOR_AS_GAME;
 	}
 	if (altItemsDirty) {
+		const uint32_t* items = alt_items_clear(alttp_items(alt));
 		for (int i = 0; i < nViews; ++i) {
-			if (altItemsTex[i]) ui_update_texture(altItemsTex[i], alttp_items(alt), ALTTP_W * 4);
+			if (altItemsTex[i]) ui_update_texture(altItemsTex[i], items, ALTTP_W * 4);
 			if (altMarkerTex[i]) ui_update_texture(altMarkerTex[i], alttp_marker(alt), 32 * 4);
 		}
 		altItemsDirty = false;
@@ -743,7 +765,7 @@ static const uint32_t* alt_triforce(void) {
  * inside, solid as the game's panes), the closest at the top: a dot
  * each, a Triforce for the level it's at (or nearest, while pinched).
  * Put together as one picture, drawn at a whole number of screen pixels
- * to one of its own. */
+ * to one of its own: the game's pixel size. */
 static void alt_zoom_indicator(int s, SDL_Rect a) {
 	int v = screens[s].view;
 	if (!altZoomTex[v]) return;
@@ -776,7 +798,14 @@ static void alt_zoom_indicator(int s, SDL_Rect a) {
 		ui_update_texture(altZoomTex[v], px, W * 4);
 		altZoomAt = at;
 	}
-	int k = SDL_max(1, a.h / 540), m = SDL_max(2, a.h / 54);
+	/* (its pixels the size of the game's on the game screen, by the two
+	 * screens' pixels per inch, to a whole number: the owner, Nov 24, 2026;
+	 * the sizes unknown, the game screen's pixels as they are) */
+	int g = game_screen();
+	SDL_Rect gi = ui_image_rect(g, picW, picH, cfg->scale);
+	float gp = picH > 0 ? (float) gi.h / picH : 2, pg = ui_screen_ppi(g), ps = ui_screen_ppi(s);
+	if (pg > 0 && ps > 0) gp *= ps / pg;
+	int k = SDL_max(1, (int) (gp + 0.5f)), m = SDL_max(2, a.h / 54);
 	int w = ALTTP_ZOOM_PANE_W * k, h = ALTTP_ZOOM_PANE_H * k;
 	ui_image_part(s, altZoomTex, (SDL_Rect) { 0, 0, ALTTP_ZOOM_PANE_W, ALTTP_ZOOM_PANE_H }, (SDL_Rect) { a.x + a.w - w - m, a.y + a.h - h - m, w, h });
 }
@@ -864,7 +893,8 @@ static void draw_alt_map(int s) {
 }
 
 void draw_alt(int s) {
-	if (altPage == 1 && alttp_in_dungeon(alt)) {
+	/* under the items, the map: the dungeon's in a dungeon, else the world map */
+	if (alttp_in_dungeon(alt)) {
 		/* the picture's own scale, the canvas as many of its pixels as the screen holds */
 		SDL_Rect img = ui_image_rect(s, ALTTP_W, ALTTP_H, cfg->mapScale);
 		float k = img.w > 0 ? img.w / (float) ALTTP_W : 1;
@@ -923,10 +953,23 @@ void draw_alt(int s) {
 	shown:
 		ui_image_pixels(s, altDunFlip ? altDunWideTexB : altDunWideTex, W, H, cfg->mapScale, SHADER_ON);
 	}
-	else if (altPage == 1) draw_alt_map(s);
-	else ui_image_pixels(s, altItemsTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON);
+	else draw_alt_map(s);
+	/* ALTTP-1: the items over it, sliding up from the screen's bottom or
+	 * down off it at the game's speed: 8 of the items' pixels a frame of
+	 * the game's (60.1 a second), whatever the display's rate */
+	SDL_Rect img = ui_image_rect(s, ALTTP_W, ALTTP_H, cfg->mapScale);
+	float k = img.h > 0 ? img.h / (float) ALTTP_H : 1, dist = SDL_max(1.f, (float) screens[s].rect.h - img.y);
+	Uint64 now = SDL_GetPerformanceCounter();
+	double dt = altSlideT ? (double) (now - altSlideT) / SDL_GetPerformanceFrequency() : 0;
+	altSlideT = now;
+	float to = altPage == 0 ? 1.f : 0.f, step = (float) (SDL_min(dt, 0.1) * 8 * k * 60.0988 / dist);
+	altItemsUp = to > altItemsUp ? SDL_min(to, altItemsUp + step) : SDL_max(to, altItemsUp - step);
+	if (altItemsUp > 0) ui_image_pixels_at(s, altItemsTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON, (int) ((1 - altItemsUp) * dist + 0.5f));
 }
 
+static void alt_sound(uint8_t id);
+#define ALT_SFX_OPEN 0x11
+#define ALT_SFX_CLOSE 0x12
 /* ALTTP-1: X, while Link is played, switches the second screen between
  * the items and the map instead of opening the game's own map. Returns
  * the keys the game gets. */
@@ -939,10 +982,26 @@ uint32_t alt_keys(uint32_t keys) {
 	if (x && !altXDown) {
 		altPage ^= 1;
 		if (altPage) altUser = false, altHaveView = false, altFocus = false;
-		fprintf(stderr, "second screen: %s\n", altPage ? "the map" : "the items");
+		alt_sound(altPage ? ALT_SFX_CLOSE : ALT_SFX_OPEN); /* ALTTP-16 */
+		fprintf(stderr, "second screen: the items %s\n", altPage ? "slide away" : "slide up");
 	}
 	altXDown = x;
 	return keys & ~(uint32_t) K_X;
+}
+
+/* ALTTP-16: the game plays its own sound: $11 the items screen opening,
+ * $12 closing, asked as the game asks (its sound request, $7E012F),
+ * between frames, only when nothing is waiting there */
+static void alt_sound(uint8_t id) {
+	size_t n = 0;
+	const uint8_t* w = emu_memory(&emu, EMU_MEM_WRAM, &n);
+	if (!w || n < 0x20000 || !alttp_playing(alt) || w[0x012F]) return;
+	Write out = { 0x7E012F, id };
+	int nOk;
+	const WriteRange* ok = alttp_write_ranges(&nOk);
+	char what[64];
+	snprintf(what, sizeof what, "(frame %llu) sound $%02X", (unsigned long long) frameCount, id);
+	emu_apply(&emu, what, &out, 1, ok, nOk);
 }
 
 /* A tap on the second screen: on the items screen, Y item selected
@@ -957,7 +1016,8 @@ static void alt_tap(int x, int y) {
 		 * the owner, Nov 23, 2026; a pinch zooms round its fingers) */
 		altFocusX = altVX + x * altZ, altFocusY = altVY + y * altZ, altFocus = true;
 		altUser = true, altVelX = altVelY = 0;
-		altZoomI = (altZoomI + 1) % ALT_ZOOMS;
+		altZoomI = (altZoomI + ALT_ZOOMS - 1) % ALT_ZOOMS; /* (closer: the owner, Nov 24, 2026) */
+		alt_sound(ALT_SFX_OPEN); /* ALTTP-16 */
 		fprintf(stderr, "map zoom: %g world pixels a pixel\n", altZooms[altZoomI]);
 		return;
 	}

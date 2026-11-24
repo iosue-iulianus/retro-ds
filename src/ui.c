@@ -1546,7 +1546,7 @@ static bool sw_render(int v) {
 		DrawOp* o = &rv->ops[i];
 		switch (o->kind) {
 		case OP_IMAGE: ui_image(o->screen, o->tex, o->a, o->b, o->mode, o->hasRect ? &o->r : NULL); break;
-		case OP_PIXELS: ui_image_pixels(o->screen, o->tex, o->a, o->b, o->mode, o->d); break;
+		case OP_PIXELS: ui_image_pixels_at(o->screen, o->tex, o->a, o->b, o->mode, o->d, o->c); break;
 		case OP_FILL: ui_fill(o->screen, o->r, o->col); break;
 		case OP_ROUND: ui_fill_round(o->screen, o->r, o->col, o->a); break;
 		case OP_TEXT: ui_text(o->screen, o->a, o->b, o->c, o->text, o->col); break;
@@ -2059,9 +2059,12 @@ static SDL_Texture* shader_mask(int v, int dw, int dh, int gw, int gh, int kc) {
 static void draw_pixels(SDL_Renderer* ren, int v, SDL_Texture* src, int w, int h, const SDL_Rect* dstp, int lcd);
 
 void ui_image_pixels(int screen, SDL_Texture* const* texPerView, int w, int h, const char* mode, int lcd) {
+	ui_image_pixels_at(screen, texPerView, w, h, mode, lcd, 0);
+}
+void ui_image_pixels_at(int screen, SDL_Texture* const* texPerView, int w, int h, const char* mode, int lcd, int dy) {
 	RECORD(screen, OP_PIXELS) {
 		rec_tex(o, texPerView);
-		o->a = w, o->b = h, o->d = lcd;
+		o->a = w, o->b = h, o->c = dy, o->d = lcd;
 		snprintf(o->mode, sizeof(o->mode), "%s", mode);
 		return;
 	}
@@ -2071,7 +2074,8 @@ void ui_image_pixels(int screen, SDL_Texture* const* texPerView, int w, int h, c
 	SDL_Texture* src = texPerView[v];
 	SDL_Rect dst, pic = { s->rect.x + s->pic.x, s->rect.y + s->pic.y, s->pic.w, s->pic.h };
 	fit_rect_at(&pic, w, h, mode, s->align, &dst);
-	/* zoom can be wider than the screen: keep it off the other screen */
+	dst.y += dy;
+	/* (moved down, or bigger than the screen: kept off the other screen) */
 	bool clip = dst.x < s->rect.x || dst.y < s->rect.y || dst.x + dst.w > s->rect.x + s->rect.w ||
 	            dst.y + dst.h > s->rect.y + s->rect.h;
 	SDL_Rect prev;
@@ -2133,7 +2137,21 @@ static void draw_pixels(SDL_Renderer* ren, int v, SDL_Texture* src, int w, int h
 	SDL_RenderSetClipRect(ren, NULL); /* the clip belongs to the screen, not the pipe target */
 	SDL_SetRenderTarget(ren, target);
 	SDL_SetTextureScaleMode(src, SDL_ScaleModeNearest);
+	/* a picture with clear parts (A Link to the Past's items over its map):
+	 * the target cleared and the picture copied in as it is, alpha and all,
+	 * then blended onto the screen; the target is shared by every picture
+	 * of a size, and what was left in it (the game's frame, 256 x 224 too)
+	 * showed through. Opaque pictures as before. */
+	SDL_BlendMode sb = SDL_BLENDMODE_NONE;
+	SDL_GetTextureBlendMode(src, &sb);
+	bool alpha = sb != SDL_BLENDMODE_NONE;
+	if (alpha) {
+		SDL_SetRenderDrawColor(ren, 0, 0, 0, 0);
+		SDL_RenderClear(ren);
+		SDL_SetTextureBlendMode(src, SDL_BLENDMODE_NONE);
+	}
 	SDL_RenderCopy(ren, src, NULL, NULL);
+	if (alpha) SDL_SetTextureBlendMode(src, sb);
 	if (lcd) {
 		SDL_Texture* grid = shader_mask(v, w * k, h * k, gw, gh, k * c);
 		if (grid) SDL_RenderCopy(ren, grid, NULL, NULL);
@@ -2141,6 +2159,7 @@ static void draw_pixels(SDL_Renderer* ren, int v, SDL_Texture* src, int w, int h
 	SDL_SetRenderTarget(ren, NULL);
 	if (clipped) SDL_RenderSetClipRect(ren, &clipRect);
 	SDL_SetTextureScaleMode(target, exact ? SDL_ScaleModeNearest : SDL_ScaleModeLinear);
+	SDL_SetTextureBlendMode(target, alpha ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
 	SDL_RenderCopy(ren, target, NULL, &dst);
 }
 

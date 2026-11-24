@@ -99,6 +99,9 @@ const uint32_t* alttp_sky(const Alttp* a, int world);
 #define ALTTP_ZOOM_PANE_W 32
 #define ALTTP_ZOOM_PANE_H 80
 const uint32_t* alttp_zoom_pane(const Alttp* a);
+/* The items screen's panes on its picture (alttp_items), in its pixels: x, y,
+ * w, h each; returns how many (ALTTP-1: what's over the map) */
+int alttp_items_panes(int rects[][4], int max);
 
 /* The world map's goal markers (ALTTP-11), as the game's own map would
  * show them now in the world Link is in (blinking as there): each at

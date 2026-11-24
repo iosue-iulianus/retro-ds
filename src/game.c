@@ -4957,7 +4957,7 @@ static void make_logo_canvas(void) {
 static void draw_game(void) {
 	bool mapOn = mc || nat || alt || logoOnly; /* logo-only games: the logo stands in for the map */
 	if (nat && natShown) native_step();
-	if (alt && altShown && altPage == 1 && !alttp_in_dungeon(alt)) alt_step();
+	if (alt && altShown && !alttp_in_dungeon(alt)) alt_step(); /* (the map is under the items too: ALTTP-1) */
 	for (int s = 0; s < nScreens; ++s) {
 		bool showGame = nScreens == 1 ? !(singleShowsMap && mapOn) : (s == game_screen() || !mapOn);
 		SDL_Rect r = screens[s].rect;

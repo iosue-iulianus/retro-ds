@@ -139,6 +139,8 @@ void ui_image_part(int screen, SDL_Texture* const* texPerView, SDL_Rect src, SDL
  * lcd: 0 no grid, 1 a cell per pixel, n a cell per n x n pixels (a picture
  * made at n times the GBA's resolution, like Mario Kart's HUD screen). */
 void ui_image_pixels(int screen, SDL_Texture* const* texPerView, int w, int h, const char* mode, int lcd);
+/* ...moved dy pixels down from there (sliding in: A Link to the Past's items, ALTTP-1) */
+void ui_image_pixels_at(int screen, SDL_Texture* const* texPerView, int w, int h, const char* mode, int lcd, int dy);
 /* Where ui_image_pixels puts a w x h image on a screen (screen-local coords). */
 SDL_Rect ui_image_rect(int screen, int w, int h, const char* mode);
 void ui_fill(int screen, SDL_Rect local, SDL_Color c);
