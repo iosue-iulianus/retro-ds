@@ -834,7 +834,7 @@ static void draw_cheats(int scr) {
 	ui_fill_round(scr, b, C_BTN, rad);
 	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, cap, "Back", C_TEXT);
 	ui_fill_round(scr, t, C_BTN_EDGE, rad);
-	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Cheats", (SDL_Color) { 20, 16, 36, 255 });
+	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Cheats", ui_ink_on(C_BTN_EDGE));
 	SDL_Rect clip = { screens[scr].rect.x, screens[scr].rect.y + g.top, r.w, g.listH };
 	ui_clip(scr, &clip);
 	int tcap = g.tpx * 5; /* Barlow capitals, about the pixel font's height */
@@ -1481,7 +1481,7 @@ static void draw_patches(int scr) {
 	ui_fill_round(scr, b, C_BTN, rad);
 	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, cap, "Back", C_TEXT);
 	ui_fill_round(scr, t, C_BTN_EDGE, rad);
-	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Patches", (SDL_Color) { 20, 16, 36, 255 });
+	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Patches", ui_ink_on(C_BTN_EDGE));
 	SDL_Rect clip = { screens[scr].rect.x, screens[scr].rect.y + g.top, r.w, g.listH };
 	ui_clip(scr, &clip);
 	int tcap = g.tpx * 5;
@@ -1705,7 +1705,7 @@ static void draw_note(int scr) {
 	ui_fill_round(scr, b, C_BTN, rad);
 	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, cap, "Skip", C_TEXT);
 	ui_fill_round(scr, t, C_BTN_EDGE, rad);
-	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Bug Report", (SDL_Color) { 20, 16, 36, 255 });
+	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Bug Report", ui_ink_on(C_BTN_EDGE));
 	/* the note so far, with a cursor; the hint while it's empty */
 	ui_fill_round(scr, g.field, (SDL_Color) { 30, 26, 50, 255 }, rad);
 	int tc = SDL_max(4, g.field.h / 6), pad = mg.pad;
@@ -1730,7 +1730,7 @@ static void draw_note(int scr) {
 			bool lit = noteKeys[r][c][0] == '\x01' && noteShift;
 			(void) special; /* (the special keys look like the others) */
 			ui_key(scr, k, rad, sel ? KEY_SEL : lit ? KEY_LIT : KEY_PLAIN);
-			ui_label(scr, k.x + k.w / 2, k.y + k.h / 2, kc, note_key_label(r, c), lit ? (SDL_Color) { 20, 16, 36, 255 } : C_TEXT);
+			ui_label(scr, k.x + k.w / 2, k.y + k.h / 2, kc, note_key_label(r, c), lit ? ui_ink_on(ui_key_mid(KEY_LIT)) : C_TEXT);
 		}
 	}
 }
@@ -2551,7 +2551,7 @@ static void draw_ovl_menu(int scr) {
 	ui_fill_round(scr, b, C_BTN, rad);
 	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, cap, "Back", C_TEXT);
 	ui_fill_round(scr, t, C_BTN_EDGE, rad);
-	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Overlays", (SDL_Color) { 20, 16, 36, 255 });
+	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Overlays", ui_ink_on(C_BTN_EDGE));
 	int rows[8], n = ovl_rows(rows);
 	if (ovlSel >= n) ovlSel = n - 1;
 	for (int i = 0; i < n; ++i) {
@@ -2592,7 +2592,7 @@ static void draw_picker(int scr) {
 	SDL_Rect r = screens[scr].rect;
 	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, r.h }, (SDL_Color) { 12, 10, 22, 255 });
 	ui_fill_round(scr, p.title, C_BTN_EDGE, mg.rad);
-	ui_label(scr, p.title.x + p.title.w / 2, p.title.y + p.title.h / 2, p.cap, pickWhich ? "Outer Bezel Color" : "Inner Bezel Color", (SDL_Color) { 20, 16, 36, 255 });
+	ui_label(scr, p.title.x + p.title.w / 2, p.title.y + p.title.h / 2, p.cap, pickWhich ? "Outer Bezel Color" : "Inner Bezel Color", ui_ink_on(C_BTN_EDGE));
 	pick_textures();
 	ui_image(scr, pickSqTex, pickTexW, pickTexH, "stretch", &p.sq);
 	ui_image(scr, pickHueTex, 1, 360, "stretch", &p.hue);
@@ -2642,7 +2642,7 @@ static void draw_hex(int scr) {
 	ui_fill_round(scr, b, C_BTN, mg.rad);
 	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, mg.cap, "Back", C_TEXT);
 	ui_fill_round(scr, t, C_BTN_EDGE, mg.rad);
-	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, mg.cap, "Hex Color", (SDL_Color) { 20, 16, 36, 255 });
+	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, mg.cap, "Hex Color", ui_ink_on(C_BTN_EDGE));
 	SDL_Rect f = hex_field(scr);
 	ui_fill_round(scr, f, (SDL_Color) { 30, 26, 50, 255 }, mg.rad);
 	char shown[16];
@@ -2852,7 +2852,7 @@ static void draw_rows_page(int scr, const MenuGeom* mg) {
 		SDL_Rect r = scope_rect(scr, h);
 		bool on = (h == 1) == scopeAll;
 		ui_key(scr, r, rad, on ? (rowSel == 0 ? KEY_SEL : KEY_LIT) : KEY_PLAIN);
-		ui_label(scr, r.x + r.w / 2, r.y + r.h / 2, cap, h ? "All games" : "This game", on ? (rowSel == 0 ? C_TEXT : (SDL_Color) { 20, 16, 36, 255 }) : C_DIS);
+		ui_label(scr, r.x + r.w / 2, r.y + r.h / 2, cap, h ? "All games" : "This game", on ? (rowSel == 0 ? C_TEXT : ui_ink_on(ui_key_mid(KEY_LIT))) : C_DIS);
 	}
 	const char* note = NULL;
 	bool noteGold = false;
@@ -3028,7 +3028,7 @@ static void draw_menu(void) {
 		ui_fill_round(scr, b, C_BTN, rad);
 		ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, cap, "Back", C_TEXT);
 		ui_fill_round(scr, t, C_BTN_EDGE, rad);
-		ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Achievements", (SDL_Color) { 20, 16, 36, 255 });
+		ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Achievements", ui_ink_on(C_BTN_EDGE));
 		ra_list_draw(scr, ach_area(scr));
 		if (nScreens > 1) {
 			int o = ui_other_screen();
@@ -3075,7 +3075,7 @@ static void draw_menu(void) {
 		SDL_Rect r = top_box(scr, t, N_PAGES);
 		bool on = t == curPage;
 		ui_key(scr, r, rad, on ? KEY_LIT : KEY_PLAIN);
-		draw_tab_icon(scr, t, r, on ? (SDL_Color) { 20, 16, 36, 255 } : ui_theme_light() ? (SDL_Color) { 92, 94, 112, 255 } : (SDL_Color) { 150, 152, 168, 255 }, ui_key_mid(on ? KEY_LIT : KEY_PLAIN));
+		draw_tab_icon(scr, t, r, on ? ui_ink_on(ui_key_mid(KEY_LIT)) : ui_theme_light() ? (SDL_Color) { 92, 94, 112, 255 } : (SDL_Color) { 150, 152, 168, 255 }, ui_key_mid(on ? KEY_LIT : KEY_PLAIN));
 	}
 	SDL_Rect t0 = top_box(scr, 0, N_PAGES), t1 = top_box(scr, N_PAGES - 1, N_PAGES);
 	/* L1 / R1 button prompts beside the tabs (the prompt art is 25:16) */

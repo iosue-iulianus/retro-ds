@@ -2845,6 +2845,19 @@ static void accent_build(void) {
 	}
 	accentSet[AC_HI] = hi;
 	accentSet[AC_HI_INK] = hiInk;
+	/* the surfaces are neutral whatever the colour: OLED black with a dark
+	 * grey header, or white with a light grey one */
+	if (themeLight) {
+		accentSet[AC_BG] = (SDL_Color) { 255, 255, 255, 255 };
+		accentSet[AC_HEADER] = (SDL_Color) { 234, 234, 238, 255 };
+		accentSet[AC_ROW] = (SDL_Color) { 242, 242, 245, 255 };
+		accentSet[AC_BTN] = (SDL_Color) { 222, 222, 228, 240 };
+	} else {
+		accentSet[AC_BG] = (SDL_Color) { 0, 0, 0, 255 };
+		accentSet[AC_HEADER] = (SDL_Color) { 28, 28, 31, 255 };
+		accentSet[AC_ROW] = (SDL_Color) { 18, 18, 20, 255 };
+		accentSet[AC_BTN] = (SDL_Color) { 36, 36, 40, 240 };
+	}
 	if (!strcmp(accents[accentIdx].id, "red")) {
 		/* red is the logo's own (assets/brand/retrods-logo.png, as
 		 * tools/logo_transparent.py prints it): what's selected is that red,
@@ -2858,6 +2871,16 @@ static void accent_build(void) {
 		accentSet[AC_SEL_LO] = logoRed;
 		accentSet[AC_SEL_EDGE] = hsl_to_rgb(h, sat, l * 0.45f, 255);
 		accentSet[AC_SEL_BORDER] = hsl_to_rgb(h, sat, l * 0.2f, 255);
+		/* no pale tints (pale red is pink): the ring, edges and what's lit
+		 * (the page tab) in deeper or brighter reds, the highlight gold */
+		accentSet[AC_SEL_RING] = accentSet[AC_EDGE] = hsl_to_rgb(h, sat, 0.58f, 255);
+		accentSet[AC_LIT_MID] = hsl_to_rgb(h, sat, 0.36f, 255);
+		accentSet[AC_LIT_HI] = hsl_to_rgb(h, sat, 0.40f, 255);
+		accentSet[AC_LIT_LO] = hsl_to_rgb(h, sat, 0.36f, 255);
+		accentSet[AC_LIT_BORDER] = hsl_to_rgb(h, sat, 0.10f, 255);
+		accentSet[AC_LIT_EDGE] = hsl_to_rgb(h, sat, 0.20f, 255);
+		accentSet[AC_HI] = (SDL_Color) { 240, 200, 96, 255 };
+		accentSet[AC_HI_INK] = (SDL_Color) { 122, 82, 0, 255 };
 	}
 	accentValid = true;
 }
@@ -2882,6 +2905,9 @@ bool ui_theme_light(void) {
 SDL_Color ui_key_ink(void) {
 	return themeLight ? (SDL_Color) { 69, 71, 90, 255 } : (SDL_Color) { 238, 240, 255, 255 };
 }
+SDL_Color ui_ink_on(SDL_Color bg) {
+	return rel_lum(bg) > 0.3f ? (SDL_Color) { 20, 16, 36, 255 } : (SDL_Color) { 255, 255, 255, 255 };
+}
 SDL_Color ui_key_mid(int state) {
 	if (state == KEY_SEL) return ui_accent_color(AC_SEL_MID);
 	if (state == KEY_LIT) return ui_accent_color(AC_LIT_MID);
@@ -2903,6 +2929,15 @@ static void key_add(int screen, SDL_Rect r, bool plain) {
 }
 /* a big opaque fill that isn't a key: a panel, the dimming */
 static void key_layer(int screen, SDL_Rect r, SDL_Color c) {
+	/* (the light theme's surfaces are pale: text on them in ink, as on a key) */
+	static const int pale[] = { AC_BG, AC_HEADER, AC_ROW };
+	for (int i = 0; i < 3; ++i) {
+		SDL_Color p = ui_accent_color(pale[i]);
+		if (c.r == p.r && c.g == p.g && c.b == p.b && c.a == p.a) {
+			key_add(screen, r, true);
+			return;
+		}
+	}
 	if (c.a >= 190 && r.w * r.h > 90000) key_add(screen, r, false);
 }
 

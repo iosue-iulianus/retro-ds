@@ -175,7 +175,8 @@ SDL_Color ui_accent_color(int role);
 void ui_brightness(int top, int bottom); /* each screen's brightness, 20..100: dims this app's picture only */
 bool ui_theme_light(void);
 SDL_Color ui_key_ink(void);          /* text and icons on a key */
-SDL_Color ui_key_mid(int state);    /* about the key's colour (for cut-outs) */
+SDL_Color ui_key_mid(int state);
+SDL_Color ui_ink_on(SDL_Color bg); /* text on a coloured key or tab: dark ink on a pale one, white on a deep one */    /* about the key's colour (for cut-outs) */
 /* Text in Barlow (textfont.h: TF_BOLD for labels and headings, TF_BODY for
  * longer text), any UTF-8 string, capitals capPx tall and centred on cy.
  * align: -1 starts at x, 0 is centred on x, 1 ends at x. */
