@@ -422,7 +422,25 @@ static void slow_frame_note(SlowFrame f) {
 	if (f.total > slowWorst.total) slowWorst = f;
 }
 
+/* The second screen's GPU work in the last second, for the slow frames'
+ * line (A Link to the Past's map: what it sent to the GPU) */
+static struct {
+	bool on;
+	int uploads, made, dropped, dungeon, mostDrawn, drawn;
+} mapWork;
+
+static void map_work_frame(void) {
+	if (mapWork.drawn > mapWork.mostDrawn) mapWork.mostDrawn = mapWork.drawn;
+	mapWork.drawn = 0;
+}
+
 static void slow_frame_report(bool debug) {
+	char work[160] = "";
+	if (mapWork.on) {
+		snprintf(work, sizeof work, "; this second the map sent %d piece(s) (%d new texture(s), %d dropped), the dungeon map %d time(s), drew %d piece(s) at most a frame",
+		         mapWork.uploads, mapWork.made, mapWork.dropped, mapWork.dungeon, mapWork.mostDrawn);
+	}
+	memset(&mapWork, 0, sizeof mapWork);
 #ifndef __ANDROID__
 	if (!debug) {
 		slowCount = 0;
@@ -435,9 +453,9 @@ static void slow_frame_report(bool debug) {
 	fprintf(stderr,
 	        "slow frames: %d in the last second; worst (frame %llu) %.1f ms: input/menu %.1f, emulating %.1f (sound hand-off %.1f), "
 	        "RetroAchievements %.1f, map %.1f, drawing %.1f (top screen %s %.1f, bottom %s %.1f); "
-	        "ran %.1f ms of it (waited %.1f: %.1f while emulating, %.1f while drawing), preempted %ld time(s), on cpu %d at %d MHz\n",
+	        "ran %.1f ms of it (waited %.1f: %.1f while emulating, %.1f while drawing), preempted %ld time(s), on cpu %d at %d MHz%s\n",
 	        slowCount, w->frame, w->total, w->input, w->emulate, w->audio, w->ra, w->map, w->draw,
-	        w->redraws & 1 ? "redrawn" : "kept", w->top, w->redraws & 2 ? "redrawn" : "kept", w->bottom, w->cpuMs, w->total - w->cpuMs, w->waitEmu, w->waitDraw, w->preempted, w->cpu, w->mhz);
+	        w->redraws & 1 ? "redrawn" : "kept", w->top, w->redraws & 2 ? "redrawn" : "kept", w->bottom, w->cpuMs, w->total - w->cpuMs, w->waitEmu, w->waitDraw, w->preempted, w->cpu, w->mhz, work);
 	slowCount = 0;
 	slowWorst.total = 0;
 }
@@ -5293,6 +5311,8 @@ static void alt_file_events(void) {
 
 /* After the frames of a pass of the loop: the game read again */
 static void alt_tick(void) {
+	mapWork.on = true;
+	map_work_frame();
 	size_t n = 0, vn = 0, sn = 0;
 	const uint8_t* w = emu_memory(&emu, EMU_MEM_WRAM, &n);
 	const uint8_t* v = emu_memory(&emu, EMU_MEM_VRAM, &vn);
@@ -5423,8 +5443,8 @@ static AltPiece* alt_cache_find(int world, int piece, int level) {
 
 static void alt_cache_drop(AltPiece* e) {
 	for (int i = 0; i < 2; ++i) {
-		if (e->tex[i]) SDL_DestroyTexture(e->tex[i]), altCacheBytes -= bytes_of(e);
-		if (e->texB[i]) SDL_DestroyTexture(e->texB[i]), altCacheBytes -= bytes_of(e);
+		if (e->tex[i]) SDL_DestroyTexture(e->tex[i]), altCacheBytes -= bytes_of(e), ++mapWork.dropped;
+		if (e->texB[i]) SDL_DestroyTexture(e->texB[i]), altCacheBytes -= bytes_of(e), ++mapWork.dropped;
 	}
 	memset(e, 0, sizeof *e);
 	e->world = -1;
@@ -5469,9 +5489,10 @@ static void alt_piece_collect(int v) {
 		/* (into the texture not shown: the first time, tex) */
 		bool shownAny = e && (e->flip ? e->texB[v] : e->tex[v]);
 		SDL_Texture** t = !e ? NULL : !shownAny ? (e->flip ? &e->texB[v] : &e->tex[v]) : (e->flip ? &e->tex[v] : &e->texB[v]);
-		if (t && !*t && (*t = native_texture(v, n, n, SDL_BLENDMODE_BLEND))) altCacheBytes += bytes_of(e);
+		if (t && !*t && (*t = native_texture(v, n, n, SDL_BLENDMODE_BLEND))) altCacheBytes += bytes_of(e), ++mapWork.made;
 		if (t && *t) {
 			ui_update_texture(*t, altWOut, n * 4);
+			++mapWork.uploads;
 			if (shownAny) e->flip = !e->flip;
 			e->ver = altWVer, e->madeT = SDL_GetPerformanceCounter();
 		}
@@ -5640,7 +5661,7 @@ static void draw_alt_map(int s) {
 			uint32_t ver = alttp_piece_version(alt, world, i);
 			bool want = false;
 			SDL_Texture* const* t = ver ? alt_piece_tex(v, world, i, level, ver, &want) : NULL;
-			if (t) ui_image_part(s, t, (SDL_Rect) { 0, 0, n, n }, (SDL_Rect) { x, y, pw, ph });
+			if (t) ui_image_part(s, t, (SDL_Rect) { 0, 0, n, n }, (SDL_Rect) { x, y, pw, ph }), ++mapWork.drawn;
 			float dx = (px + 0.5f) * ALTTP_PIECE - cxw, dy = (py + 0.5f) * ALTTP_PIECE - cyw;
 			/* (one not made at all before one made but out of date) */
 			float d = dx * dx + dy * dy + (t ? 1e12f : 0);
@@ -5720,6 +5741,7 @@ static void draw_alt(int s) {
 			for (int y = 0; y < ALTTP_H; ++y) memcpy(&altDunWide[(y0 + y) * W + x0], &altDunPx[y * ALTTP_W], ALTTP_W * 4);
 			altDunFlip = !altDunFlip;
 			ui_update_texture(altDunFlip ? altDunWideTexB[v] : altDunWideTex[v], altDunWide, W * 4);
+			++mapWork.dungeon;
 		}
 	shown:
 		ui_image_pixels(s, altDunFlip ? altDunWideTexB : altDunWideTex, W, H, cfg->mapScale, SHADER_ON);
