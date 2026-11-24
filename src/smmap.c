@@ -716,12 +716,12 @@ void smmap_place(const SmMap* m, int vx, int vy, int* lx, int* ly, int* mx, int*
 
 /* ---- switching items (SM-10) */
 typedef struct {
-	SmWrite* out;
+	Write* out;
 	int n, max;
 } Writes;
 
 static void w8(Writes* w, uint32_t addr, int v) {
-	if (w->n < w->max) w->out[w->n++] = (SmWrite) { addr & 0x1FFFF, (uint8_t) v };
+	if (w->n < w->max) w->out[w->n++] = (Write) { 0x7E0000 | (addr & 0x1FFFF), (uint8_t) v };
 }
 
 static void w16(Writes* w, uint32_t addr, int v) {
@@ -729,8 +729,27 @@ static void w16(Writes* w, uint32_t addr, int v) {
 	w8(w, addr + 1, (v >> 8) & 0xFF);
 }
 
-int smmap_toggle(const SmMap* m, const uint8_t* wram, int category, int index, SmWrite* out, int max) {
+static const WriteRange smWrites[] = {
+	{ 0x7E09A6, 2, "the beams equipped" },
+	{ 0x7E09A2, 2, "the items equipped" },
+	{ 0x7E0A74, 2, "the suit's palette" },
+	{ 0x7E00D0, 0x200, "the game's VRAM queue (the beam's tiles)" },
+	{ 0x7E0330, 2, "the VRAM queue's end" },
+	{ 0x7EC180, 32, "Samus's palette (the suit)" },
+	{ 0x7EC1C0, 32, "sprite palette 6 (the beam)" },
+};
+
+const WriteRange* smmap_write_ranges(int* n) {
+	*n = (int) (sizeof smWrites / sizeof smWrites[0]);
+	return smWrites;
+}
+
+int smmap_toggle(const SmMap* m, const uint8_t* wram, int category, int index, Write* out, int max) {
 	Writes w = { out, 0, max };
+	/* SM-10: only in plain gameplay (game state $0998 = $08): not in a
+	 * door, nor with the game's own pause menu and equipment screen open,
+	 * whose code changes the same equipment and refresh state */
+	if (wram[0x0998] != 0x08 || wram[0x0999] != 0x00) return 0;
 	if (category == SMMAP_BEAMS) {
 		if (index < 0 || index >= 5 || ram16(wram, 0x0A76)) return 0; /* (Hyper Beam: nothing to switch) */
 		int mask = r16(m, 0x82C04C + index * 2);

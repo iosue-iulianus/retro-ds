@@ -18,6 +18,7 @@
  *   peek ADDR [LEN]        print LEN bytes (hex SNES address: 7E0998)
  *   poke ADDR LEN VAL      write 1 or 2 bytes
  *   dumpram NAME           OUTDIR/NAME.ram: the 128 KB of work RAM
+ *   dumpvram NAME          OUTDIR/NAME.vram: the 64 KB of video RAM
  *   copy                   A's state into B (timed)
  *   mapcap NAME [opts]     copy A into B, press a button on B and run B
  *                          until the screen is up and settled; writes
@@ -36,6 +37,31 @@
  *   smtoggle CAT INDEX     Super Metroid: switch an item on or off as
  *                          the drawn equipment page does (src/smmap.c:
  *                          CAT 1 beams, 2 suit / misc., 3 boots)
+ *   alttp on|off           A Link to the Past (src/alttp.c): read A's RAM
+ *                          after every frame from now on (the map takes the
+ *                          ground on screen as the app would)
+ *   alttp items NAME       the items screen as the second screen shows it
+ *   alttp map NAME ZOOM X Y W H   the world map Link is in, W x H shown
+ *                          pixels from world pixel (X, Y) at ZOOM (1, 2, 4)
+ *   alttp dungeon NAME [FLOOR]   the dungeon map Link is in (FLOOR at
+ *                          the top, else as the game opens it)
+ *   alttp piece NAME W I L   the map's piece I of world W at level L as
+ *                          the app's GPU map draws it (NAME.png)
+ *   alttp seen NAME W GX GY GW GH   the seen squares of world W, GW x GH
+ *                          of them from square (GX, GY), a pixel each
+ *                          (white: seen)
+ *   alttp goals            the world map's markers shown now (ALTTP-11)
+ *   alttp marker NAME      Link's marker on the map (32 x 32, its middle at
+ *                          Link's place) and where it goes on the picture
+ *   alttp select ITEM      select Y item ITEM (1 bow ... 20 mirror) as a
+ *                          tap on the items screen would
+ *   alttp offlist          a write off the game's list (the module's
+ *                          $7E0010): emu_apply must refuse it, nothing written
+ *   alttp take             take the ground on screen now, whatever the game
+ *                          is doing
+ *   alttp save PATH / alttp load PATH   the seen record
+ *   alttp merge PATH       a saved record merged into the one held (as
+ *                          loading a state with one does)
  *   bench [FRAMES]         the M0 measurements (see docs/M0-results.md)
  *   context N              savestate context for both (0 normal,
  *                          1 runahead same instance, 2 same binary)
@@ -47,6 +73,7 @@
  *                          the default, shows the problem it fixes)
  */
 #include "../src/emu.h"
+#include "../src/alttp.h"
 #include "../src/smmap.h"
 
 #include <pthread.h>
@@ -115,10 +142,11 @@ static void smtoggle_cmd(Emu* e, const char* romPath, int cat, int index) {
 	size_t n;
 	const uint8_t* w = emu_memory(e, EMU_MEM_WRAM, &n);
 	if (!sm_open(romPath) || !w || n < 0x20000) return;
-	SmWrite out[128];
-	int k = smmap_toggle(sm, w, cat, index, out, 128);
-	for (int i = 0; i < k; ++i) emu_write8(e, 0x7E0000 + out[i].addr, out[i].val);
-	printf("smtoggle %d %d: %d byte(s) written\n", cat, index, k);
+	Write out[128];
+	int k = smmap_toggle(sm, w, cat, index, out, 128), nOk;
+	const WriteRange* ok = smmap_write_ranges(&nOk);
+	int done = k > 0 ? emu_apply(e, "smtoggle", out, k, ok, nOk) : 0;
+	printf("smtoggle %d %d: %d byte(s) written%s\n", cat, index, done < 0 ? 0 : done, done < 0 ? " (REFUSED: off the list)" : "");
 }
 
 static void smmap_cmd(Emu* e, const char* romPath, const char* name, const char* a, const char* b) {
@@ -159,6 +187,155 @@ static void smmap_cmd(Emu* e, const char* romPath, const char* name, const char*
 	out_path(path, sizeof path, name, ".png");
 	if (!write_png(path, px, SMMAP_W, SMMAP_H, SMMAP_W)) fprintf(stderr, "can't write %s\n", path);
 	else printf("smmap %s (view %d, %d)\n", path, vx, vy);
+}
+
+/* ---- A Link to the Past (src/alttp.c) ---- */
+
+static Alttp* alt;
+static bool altTrack;
+
+static bool alt_open(const char* romPath) {
+	if (!alt) {
+		size_t n = 0;
+		uint8_t* rom = emu_rom_read_played(romPath, &n, NULL, NULL, NULL);
+		alt = alttp_new(rom, n);
+		if (!alt) fprintf(stderr, "alttp: not a ROM it knows\n");
+	}
+	return alt != NULL;
+}
+
+static void alt_update(Emu* e) {
+	size_t n, vn, sn;
+	const uint8_t* w = emu_memory(e, EMU_MEM_WRAM, &n);
+	const uint8_t* v = emu_memory(e, EMU_MEM_VRAM, &vn);
+	const uint8_t* s = emu_memory(e, EMU_MEM_SRAM, &sn);
+	if (w && n >= 0x20000) alttp_update(alt, w, v && vn >= 0x10000 ? v : NULL, s && sn >= 0x2000 ? s : NULL);
+}
+
+/* One frame of A or B; A's RAM read after it while tracking */
+static void frame(Emu* e, uint32_t keys) {
+	emu_frame(e, keys);
+	if (altTrack && alt && e == &inst[0]) alt_update(e);
+}
+
+static void alttp_cmd(Emu* e, const char* romPath, const char* line) {
+	char sub[16] = "", name[512] = "";
+	int zoom = 1, x = 0, y = 0, w = 256, h = 224;
+	sscanf(line, "%*s %15s %511s %d %d %d %d %d", sub, name, &zoom, &x, &y, &w, &h);
+	if (!alt_open(romPath)) return;
+	char path[1200];
+	if (!strcmp(sub, "on") || !strcmp(sub, "off")) {
+		altTrack = sub[1] == 'n';
+		if (altTrack) alt_update(e);
+	} else if (!strcmp(sub, "items")) {
+		alt_update(e);
+		out_path(path, sizeof path, name, ".png");
+		bool ok = write_png(path, alttp_items(alt), ALTTP_W, ALTTP_H, ALTTP_W);
+		printf("alttp items %s: %s\n", path, ok ? "ok" : "FAILED");
+	} else if (!strcmp(sub, "seen")) {
+		/* (zoom, x, y, w, h: the world and the squares, a pixel each) */
+		if (w < 1 || h < 1 || w > 256 || h > 256) return;
+		uint32_t* px = malloc((size_t) w * h * 4);
+		for (int gy = 0; px && gy < h; ++gy) {
+			for (int gx = 0; gx < w; ++gx) px[gy * w + gx] = alttp_seen_at(alt, zoom, (x + gx) * 16, (y + gy) * 16) ? 0xFFFFFFFFu : 0xFF000000u;
+		}
+		out_path(path, sizeof path, name, ".png");
+		bool ok = px && write_png(path, px, w, h, w);
+		printf("alttp seen %s: %s\n", path, ok ? "ok" : "FAILED");
+		free(px);
+	} else if (!strcmp(sub, "piece")) {
+		/* (zoom, x, y: the world, the piece, the level) */
+		int n = ALTTP_PIECE >> (y < 0 ? 0 : y > 4 ? 4 : y);
+		uint32_t* px = malloc((size_t) ALTTP_PIECE * ALTTP_PIECE * 4);
+		double t0 = now_ms();
+		if (px) alttp_piece(alt, zoom, x, y, px);
+		double t1 = now_ms();
+		out_path(path, sizeof path, name, ".png");
+		bool ok = px && write_png(path, px, n, n, n);
+		printf("alttp piece %s (version %u, %.1f ms): %s\n", path, alttp_piece_version(alt, zoom, x), t1 - t0, ok ? "ok" : "FAILED");
+		free(px);
+	} else if (!strcmp(sub, "goals")) {
+		alt_update(e);
+		const AltGoal* g;
+		int n = alttp_goals(alt, &g);
+		printf("alttp goals: %d\n", n);
+		for (int i = 0; i < n; ++i) printf("  %d,%d size %d from %d,%d\n", g[i].x, g[i].y, g[i].size, g[i].dx, g[i].dy);
+	} else if (!strcmp(sub, "marker")) {
+		alt_update(e);
+		size_t n;
+		const uint8_t* wr = emu_memory(e, EMU_MEM_WRAM, &n);
+		int world, lx, ly;
+		alttp_link(alt, &world, &lx, &ly);
+		out_path(path, sizeof path, name, ".png");
+		bool ok = write_png(path, alttp_marker(alt), 32, 32, 32);
+		/* (the marker's top left on the picture: Link's place less the camera) */
+		int px = lx - 16 - (wr[0xE2] | wr[0xE3] << 8), py = ly - 16 - (wr[0xE8] | wr[0xE9] << 8) - 1;
+		printf("alttp marker %s (on the picture at %d,%d): %s\n", path, px, py, ok ? "ok" : "FAILED");
+	} else if (!strcmp(sub, "map")) {
+		if (w < 1 || h < 1 || w > 4096 || h > 4096) return;
+		uint32_t* px = malloc((size_t) w * h * 4);
+		int world, lx, ly;
+		alttp_link(alt, &world, &lx, &ly);
+		alttp_compose(alt, world, zoom, x, y, w, h, px);
+		out_path(path, sizeof path, name, ".png");
+		bool ok = px && write_png(path, px, w, h, w);
+		printf("alttp map %s (world %d, Link %d,%d): %s\n", path, world, lx, ly, ok ? "ok" : "FAILED");
+		free(px);
+	} else if (!strcmp(sub, "dungeon")) {
+		size_t vn;
+		alt_update(e);
+		const uint8_t* v = emu_memory(e, EMU_MEM_VRAM, &vn);
+		int floor = ALTTP_FLOOR_AS_GAME;
+		sscanf(line, "%*s %*s %*s %d", &floor);
+		const uint32_t* px = alttp_dungeon_map(alt, v, floor);
+		out_path(path, sizeof path, name, ".png");
+		bool ok = px && write_png(path, px, ALTTP_W, ALTTP_H, ALTTP_W);
+		printf("alttp dungeon %s: %s\n", path, ok ? "ok" : px ? "FAILED" : "not in a dungeon");
+	} else if (!strcmp(sub, "select")) {
+		size_t n;
+		alt_update(e);
+		const uint8_t* wr = emu_memory(e, EMU_MEM_WRAM, &n);
+		Write out[32];
+		int k = alttp_select(alt, wr, atoi(name), out, 32), nOk;
+		const WriteRange* ok = alttp_write_ranges(&nOk);
+		int done = k > 0 ? emu_apply(e, "alttp select", out, k, ok, nOk) : 0;
+		printf("alttp select %d: %d byte(s) written%s\n", atoi(name), done < 0 ? 0 : done, done < 0 ? " (REFUSED: off the list)" : "");
+	} else if (!strcmp(sub, "offlist")) {
+		size_t n;
+		const uint8_t* wr = emu_memory(e, EMU_MEM_WRAM, &n);
+		uint8_t before = wr ? wr[0x10] : 0;
+		Write w[2] = { { 0x7E0202, 1 }, { 0x7E0010, (uint8_t) (before ^ 0xFF) } }; /* (one listed, one not) */
+		int nOk;
+		const WriteRange* ok = alttp_write_ranges(&nOk);
+		uint8_t item = wr ? wr[0x202] : 0;
+		int done = emu_apply(e, "offlist", w, 2, ok, nOk);
+		printf("alttp offlist: %s; $7E0010 %s, $7E0202 %s\n", done < 0 ? "refused" : "APPLIED", wr && wr[0x10] == before ? "unchanged" : "CHANGED",
+		       wr && wr[0x202] == item ? "unchanged" : "CHANGED");
+	} else if (!strcmp(sub, "take")) {
+		size_t n, vn;
+		const uint8_t* wr = emu_memory(e, EMU_MEM_WRAM, &n);
+		const uint8_t* v = emu_memory(e, EMU_MEM_VRAM, &vn);
+		if (wr && v) alttp_capture_now(alt, wr, v);
+	} else if (!strcmp(sub, "merge")) {
+		FILE* f = fopen(name, "rb");
+		uint8_t* d = NULL;
+		long n = 0;
+		if (f) {
+			fseek(f, 0, SEEK_END), n = ftell(f), fseek(f, 0, SEEK_SET);
+			d = n > 0 ? malloc((size_t) n) : NULL;
+			if (d && fread(d, 1, (size_t) n, f) != (size_t) n) n = 0;
+			fclose(f);
+		}
+		bool ok = d && n > 0 && alttp_seen_merge(alt, d, (size_t) n);
+		free(d);
+		printf("alttp merge %s: %s\n", name, ok ? "ok" : "FAILED");
+	} else if (!strcmp(sub, "save") || !strcmp(sub, "load")) {
+		double t0 = now_ms();
+		bool ok = sub[0] == 's' ? alttp_save_seen(alt, name) : alttp_load_seen(alt, name);
+		struct stat st;
+		printf("alttp %s %s: %s (%.1f ms, %lld bytes)\n", sub, name, ok ? "ok" : "FAILED", now_ms() - t0,
+		       stat(name, &st) == 0 ? (long long) st.st_size : -1LL);
+	}
 }
 
 /* ---- state copy ---- */
@@ -476,17 +653,19 @@ int main(int argc, char** argv) {
 		char cmd[32] = "", s1[512] = "", s2[64] = "", s3[64] = "";
 		sscanf(p, "%31s %511s %63s %63s", cmd, s1, s2, s3);
 		if (!strcmp(cmd, "wait")) {
-			for (int i = atoi(s1); i > 0; --i) emu_frame(e, 0);
+			for (int i = atoi(s1); i > 0; --i) frame(e, 0);
 		} else if (!strcmp(cmd, "hold")) {
 			uint32_t k = parse_keys(s1);
-			for (int i = atoi(s2); i > 0; --i) emu_frame(e, k);
+			for (int i = atoi(s2); i > 0; --i) frame(e, k);
 		} else if (!strcmp(cmd, "tap")) {
 			uint32_t k = parse_keys(s1);
 			int count = *s2 ? atoi(s2) : 1;
 			for (int c = 0; c < count; ++c) {
-				for (int i = 0; i < 3; ++i) emu_frame(e, k);
-				for (int i = 0; i < 9; ++i) emu_frame(e, 0);
+				for (int i = 0; i < 3; ++i) frame(e, k);
+				for (int i = 0; i < 9; ++i) frame(e, 0);
 			}
+		} else if (!strcmp(cmd, "alttp")) {
+			alttp_cmd(e, rom, p);
 		} else if (!strcmp(cmd, "smtoggle")) {
 			smtoggle_cmd(e, rom, atoi(s1), atoi(s2));
 		} else if (!strcmp(cmd, "smmap")) {
@@ -509,11 +688,12 @@ int main(int argc, char** argv) {
 			unsigned v = (unsigned) strtoul(s3, NULL, 16);
 			if (atoi(s2) == 2) emu_write16(e, addr, (uint16_t) v);
 			else emu_write8(e, addr, (uint8_t) v);
-		} else if (!strcmp(cmd, "dumpram")) {
+		} else if (!strcmp(cmd, "dumpram") || !strcmp(cmd, "dumpvram")) {
+			bool video = cmd[4] == 'v';
 			char path[1200];
-			out_path(path, sizeof path, s1, ".ram");
+			out_path(path, sizeof path, s1, video ? ".vram" : ".ram");
 			size_t n;
-			uint8_t* w = emu_memory(e, EMU_MEM_WRAM, &n);
+			uint8_t* w = emu_memory(e, video ? EMU_MEM_VRAM : EMU_MEM_WRAM, &n);
 			FILE* o = w ? fopen(path, "wb") : NULL;
 			if (o) {
 				fwrite(w, 1, n, o);

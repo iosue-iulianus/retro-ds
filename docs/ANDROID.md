@@ -539,6 +539,16 @@ frontend launch intents.
   the sound queue is kept level by dropping/repeating a sample frame per
   chunk. Not tested on Android yet: the AChoreographer idea above would be
   the alternative if interval 1 misbehaves there.
+- Nov 22, 2026 (M3): the Duo's game screen is the second display's own
+  surface, whose rate ui_display_hz can't read (0), so pacing was never
+  matched there ("display 0.000 Hz") and nothing was presented in step.
+  pacing_update now takes the other screen's display when the game's is
+  unknown, and matches at a half, third or quarter of the display's rate
+  whatever the setting (k = 1 still needs Match Display Rate): in the
+  Duo's 120 Hz mode the game's own clock gave each frame one, two or three
+  refreshes (the owner saw about 85 fps and judder on the map); matched,
+  the loop runs at 60.000 and that screen presents with swap interval 2
+  (ui_sync_view(view, every)). Not yet seen on the Duo.
 
 ## Updates (Oct 28, 2026)
 

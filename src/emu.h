@@ -14,6 +14,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "writes.h"
+
 /* The SNES screen, as the player sees it: 256 x 224 (239 with overscan).
  * Hi-res pictures are 512 wide and interlaced ones twice as tall, but show
  * at the same size on screen. */
@@ -179,9 +181,10 @@ void emu_patch_plan(const char* rom, char files[][1024], int n);
  * checksum of each game as it would be played) */
 uint8_t* emu_rom_read_patched(const char* path, char files[][1024], int n, size_t* size, int* patch, char* patchName);
 
-/* Memory. Work RAM ($7E0000-$7FFFFF, 128 KB) and the cartridge's battery
- * RAM, or NULL. */
-enum { EMU_MEM_WRAM, EMU_MEM_SRAM };
+/* Memory. Work RAM ($7E0000-$7FFFFF, 128 KB), the cartridge's battery
+ * RAM and video RAM (64 KB, words little-endian; bsnes gives it only with
+ * its fast PPU, the default), or NULL. Read-only for SNES DS. */
+enum { EMU_MEM_WRAM, EMU_MEM_SRAM, EMU_MEM_VRAM };
 uint8_t* emu_memory(Emu* e, int region, size_t* size);
 /* By SNES address as the CPU sees it: banks $7E/$7F, and the low 8 KB
  * mirror at $0000-$1FFF of banks $00-$3F and $80-$BF. Anything else reads
@@ -191,6 +194,11 @@ uint16_t emu_read16(Emu* e, uint32_t addr);
 uint32_t emu_read24(Emu* e, uint32_t addr);
 uint32_t emu_read32(Emu* e, uint32_t addr);
 void emu_write8(Emu* e, uint32_t addr, uint8_t value);
+/* A batch of writes (writes.h), between frames: every address must lie in
+ * one of the game's ranges and in work RAM, else none is written; each
+ * one logged with its old and new value, under `what`. The number
+ * written, -1 if refused. */
+int emu_apply(Emu* e, const char* what, const Write* w, int n, const WriteRange* ok, int nOk);
 void emu_write16(Emu* e, uint32_t addr, uint16_t value);
 
 /* Up to maxFrames stereo frames of audio; returns frames read. */

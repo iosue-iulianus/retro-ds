@@ -21,7 +21,22 @@ hidden copy runs for Super Metroid): pixel-exact against the game's
 pause screen (`tools/sm_map.py`, the harness's `smmap` and `smtoggle`),
 scrolled smoothly on the GPU (drag, fling, glide), and tapping an item
 on the SAMUS page switches it (the write exception, SM-10). Next: try it
-on the Duo; the reserve mode switch isn't done. Much of `src/` is
+on the Duo; the reserve mode switch isn't done. M3, on branch
+`m3-a-link-to-the-past` (from M2, pushed; on the Duo since Nov 22): A
+Link to the Past's second screen (`docs/games/a-link-to-the-past.md`,
+ALTTP-1 to 14), all drawn by SNES DS: the items screen (tap to select, a
+write exception) with the zoom pane; X for the map: outdoors the world
+assembled from the game's own ground layer as Link sees it (video RAM, a
+core patch; the strips by area boundaries taken during the scroll),
+the game's own clouds over the rest with a puffy edge, Link's sprite
+walking, the world map's goal markers, pinch and tap zoom over the
+whole top screen; in dungeons the dungeon map as the game draws it
+(tiles decompressed from the ROM, its background black); the logo in
+special areas, at game over and the menus; at the title the sword falls
+from the top screen into the game's across the gap between the screens
+(`screen_gap_mm`). Next: the PRs (M2's #3 first, then M3's), splitting
+`game.c`'s second screens out (`native_*`, `alt_*`); both games' checks
+run with `scripts/check-games.sh`. Much of `src/` is
 GBA DS's (the game list, menus, settings, Android glue); upstream's session
 notes, with the detail on every inherited subsystem, are
 `git show 3b452dc:CLAUDE.md` (GBA DS v1.5.6, the commit this fork starts
@@ -235,10 +250,20 @@ Device details:
 - Test states and saves live outside the repo, in
   `/home/joshua/projects/snes-ds/test-data/<game>/` (Super Metroid:
   `crateria-ship.state`, playing at the ship, and
-  `crateria-pause-map.state`). Never delete them; copy new ones from the
+  `crateria-pause-map.state`; A Link to the Past: `harness-*`, made in the
+  harness). Never delete them; copy new ones from the
   Duo there. The app loads one from a script line `TICK LOAD:path`, and
   `SNESDS_SCREENS=1920x1080,1280x960` (with `SNESDS_WINDOW=1920x2040`)
   stands in for the Duo's two screens.
+- **The second screens' regression check:** `scripts/check-games.sh
+  --alttp ROM --sm ROM` (`tools/check_games.py`, about 15 s on the host)
+  builds the harness and compares both games' second screens with the
+  games' own screens and the Python references: ALttP's items screen,
+  dungeon map, Link's marker, the GPU map pieces (with the owner's seen
+  record, `test-data/a-link-to-the-past/duo-seen-2026-11-23.alttp1`),
+  the writes; Super Metroid's map, SAMUS page and item switches. Run it
+  before merging anything that touches a second screen; `--only NAME`
+  for one check, `--out DIR` to keep the pictures.
 - `tools/ramdiff.py` (RAM dumps with a screen open vs closed) carries over.
 - The app runs headless: `SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy
   SDL_RENDER_DRIVER=software SNESDS_WINDOW=1024x1536 build/host/snes-ds
@@ -272,7 +297,23 @@ Device details:
   the game's RAM (map, equipment page, item switching); `game.c`'s
   `native_*` show it (chrome as a picture, the map's layer and marker as
   textures at screen-pixel offsets).
-- `mapcap.c`: map capture on the hidden copy in a background thread, on a
+- `alttp.c`, `alttp_dungeon.c`: A Link to the Past's second screen (the
+  items screen, the world map from the game's screens and its seen record,
+  the dungeon map, the title sword's place); `game.c`'s `alt_*` show it:
+  the map as 512 x 512 pieces on the GPU (two textures each, written by
+  turns: a texture the GPU is drawing from is never written, which made
+  drivers wait), made on a thread of their own, the seen record's pieces
+  compressed on another ahead of its saves, the minute's
+  save copied on the game's thread and written on another.
+- `writes.h`, `emu_apply` (`emu.c`): the only way the second screen writes
+  to a game (SM-10, ALTTP-10): full SNES addresses, each checked against
+  the game's list (`smmap_write_ranges`, `alttp_write_ranges`), all of a
+  batch or none, each byte logged old>new. The Python references are
+  `tools/alttp_items.py`, `alttp_world.py`, `alttp_gfx.py`,
+  `alttp_dungeon.py`; `tools/alttp_save.py` makes test saves.
+- `mapcap.c`: map capture on the hidden copy in a background thread
+  (no game uses it now: both draw their own; kept for games that won't,
+  the owner's choice, Nov 23, 2026), on a
   normalized 256x224 picture (hi-res and interlaced ones halved): profiles
   give coordinates on the SNES screen.
 - `profiles.c/.h`: everything game-specific (`MapProfile`), keyed by game

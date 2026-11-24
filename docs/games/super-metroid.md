@@ -20,7 +20,7 @@ Every game also follows the general rules GBA DS set out (`docs/reference/gba/RE
 
 **SM-3. Last good map stays.** Where the game isn't being played (a cutscene, the game over screen, the ending) or Samus is on Ceres Station, the last map shown stays up.
 
-**SM-4. Logo before the first map.** Until the map is first shown, and at the title screen, the intro, the file select and the options, the second screen shows the logo, taken from the title screen.
+**SM-4. Logo before the first map.** Until the map is first shown, and at the title screen, the intro, the file select and the options, the second screen shows the logo, taken from the title screen: its lettering alone (the game's own main screen layers, `$7E0069`, set to sprites only, `$10`, for the frame taken, on the copy that takes it, never the one played), the black round it trimmed (one pixel of outline kept), on black. *(Nov 22, 2026: until then the room and grid behind the lettering came with it.)*
 
 **SM-5. A still map.** *Retired Nov 22, 2026: the drawn map (SM-8) blinks as the game's does.* (The map was shown still, each part that blinks on the pause screen (Samus's marker, the scroll arrows, the plates) at its brightest. *(Until Nov 21, 2026's test builds the marker blinked, but the recorded loop was shorter than the game's cycles, 24 and 54 frames, and everything that blinks pulsed too fast.)*)
 
@@ -32,7 +32,7 @@ Every game also follows the general rules GBA DS set out (`docs/reference/gba/RE
 
 **SM-9. Where the map rests.** At the view the game's own pause screen would open on: the area's map centred where it can be, moved just enough to keep Samus's square in view. When she walks out of it, the map glides to the new one.
 
-**SM-10. The equipment page, drawn and tappable.** Tapping SAMUS shows Samus's equipment page as the game's pause screen draws it, drawn by SNES DS from the cartridge and her equipment in the game's memory: the wireframe Samus for her suit and boots, SUPPLY (reserve mode, the reserve tanks and their energy), BEAM, SUIT, MISC. and BOOTS with every item she has, lit when it's on and greyed when it's off. There's no cursor: tapping an item's name switches it on or off, as pressing A on it would on the pause screen (equipping Spazer switches Plasma off and the other way round; Hyper Beam can't be switched), and the game picks it up at once, as it would on unpausing: Samus's colours for the suit, the beam's shots and colours. Tapping MAP goes back to the map, as does Samus reaching another square. The reserve mode (AUTO / MANUAL) isn't switched from here yet. Checked against the game's own page (`tools/snes-harness.c`'s `smmap NAME page`, six sets of items): the same pixels but for the game's cursor.
+**SM-10. The equipment page, drawn and tappable.** Tapping SAMUS shows Samus's equipment page as the game's pause screen draws it, drawn by SNES DS from the cartridge and her equipment in the game's memory: the wireframe Samus for her suit and boots, SUPPLY (reserve mode, the reserve tanks and their energy), BEAM, SUIT, MISC. and BOOTS with every item she has, lit when it's on and greyed when it's off. There's no cursor: tapping an item's name switches it on or off, as pressing A on it would on the pause screen (equipping Spazer switches Plasma off and the other way round; Hyper Beam can't be switched), and the game picks it up at once, as it would on unpausing: Samus's colours for the suit, the beam's shots and colours. Tapping MAP goes back to the map, as does Samus reaching another square. The reserve mode (AUTO / MANUAL) isn't switched from here yet. Checked against the game's own page (`tools/snes-harness.c`'s `smmap NAME page`, six sets of items): the same pixels but for the game's cursor. A tap switches an item only in plain gameplay (game state `$0998` = `$08`): not in a door or while rooms load, and not with the game's own pause menu or equipment screen open, whose code changes the same equipment and refresh state (Nov 23, 2026, from a review of the write path; checked in the harness: paused, a tap writes nothing; in play, the same item switches).
 
 ## Exceptions
 
@@ -73,6 +73,8 @@ Sprites on the map (from the routines named above; drawn by `tools/sm_map.py`, w
 - Elevator destinations (`Display_Map_Elevator_Destinations`, `$82:BB30`-ish): only with the area's map station; per-area pointers `Map_Elevator_Destinations`, 3 words an entry (x, y, spritemap ID `$59`-`$5E`), ending `$FFFF`; palette 0.
 
 ## Switching an item (SM-10)
+
+How it's written (Nov 23, 2026): the module returns the bytes as full SNES addresses (`Write`, `src/writes.h`); the frontend applies them with `emu_apply`, which checks every address against the game's list (`smmap_write_ranges: $09A6, $09A2, $0A74, the game's VRAM queue $00D0 ($200 bytes) and its end $0330, palettes $C180 and $C1C0, 32 bytes each`, the ranges named below) and writes all of a batch or none of it, logging each byte's old and new value with the frame. Checked in the harness: every action's batch is on the list (`smtoggle` for every category and item, twice), and a batch with one address off the list is refused whole, nothing written (`alttp offlist`).
 
 What a tap writes, all in work RAM, between two frames (`smmap_toggle` in `src/smmap.c`):
 

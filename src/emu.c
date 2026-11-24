@@ -1212,7 +1212,8 @@ void* emu_state_file_get_extra(Emu* e, const char* path, size_t* n) {
 uint8_t* emu_memory(Emu* e, int region, size_t* size) {
 	if (size) *size = 0;
 	if (!e->core) return NULL;
-	unsigned id = region == EMU_MEM_SRAM ? RETRO_MEMORY_SAVE_RAM : RETRO_MEMORY_SYSTEM_RAM;
+	unsigned id = region == EMU_MEM_SRAM ? RETRO_MEMORY_SAVE_RAM
+		: region == EMU_MEM_VRAM ? RETRO_MEMORY_VIDEO_RAM : RETRO_MEMORY_SYSTEM_RAM;
 	ENTER(e);
 	uint8_t* p = e->core->get_memory_data(id);
 	size_t n = e->core->get_memory_size(id);
@@ -1253,6 +1254,31 @@ void emu_write8(Emu* e, uint32_t addr, uint8_t value) {
 	uint8_t* w = emu_memory(e, EMU_MEM_WRAM, &n);
 	long i = wram_index(addr);
 	if (w && i >= 0 && (size_t) i < n) w[i] = value;
+}
+
+int emu_apply(Emu* e, const char* what, const Write* w, int n, const WriteRange* ok, int nOk) {
+	size_t size;
+	uint8_t* ram = emu_memory(e, EMU_MEM_WRAM, &size);
+	if (!ram || n < 0) return -1;
+	for (int i = 0; i < n; ++i) {
+		long at = wram_index(w[i].addr);
+		bool listed = false;
+		for (int k = 0; k < nOk && !listed; ++k) listed = w[i].addr >= ok[k].addr && w[i].addr - ok[k].addr < ok[k].size;
+		if (at < 0 || (size_t) at >= size || !listed) {
+			fprintf(stderr, "write %s: refused, $%06X isn't %s; nothing written\n", what, (unsigned) w[i].addr,
+			        listed ? "work RAM" : "on the game's list");
+			return -1;
+		}
+	}
+	char line[2048];
+	int len = snprintf(line, sizeof line, "write %s:", what);
+	for (int i = 0; i < n; ++i) {
+		long at = wram_index(w[i].addr);
+		if (len < (int) sizeof line - 24) len += snprintf(line + len, sizeof line - (size_t) len, " $%06X %02X>%02X", (unsigned) w[i].addr, ram[at], w[i].value);
+		ram[at] = w[i].value;
+	}
+	fprintf(stderr, "%s%s\n", line, len >= (int) sizeof line - 24 ? " ..." : "");
+	return n;
 }
 
 void emu_write16(Emu* e, uint32_t addr, uint16_t value) {

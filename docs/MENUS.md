@@ -55,7 +55,7 @@ a line, or the file, goes back to the settings for all games.
 Per-game keys: `swap`, `scale`, `map_scale`, `smooth`, `border_color`,
 `overlays`, `overlay_screens`, `bezel_*`, `shader`, `lcd_strength`,
 `color_correction`, `lcd_ghosting`, `frame_buffer`, `match_display`,
-`screen_match`, `screen_placement`, `map`,
+`screen_match`, `screen_placement`, `screen_gap_mm`, `map`,
 `map_interval`, `custom_logos`, `pinball_live`, `rewind`,
 `rewind_seconds`, `fast_forward`, `ff_speed`, `ab_swap`, `show_fps`,
 `audio_latency`, `save_on_quit`, `auto_load`, and the new `brightness_top`,
@@ -99,7 +99,7 @@ returns one step. B/Back and HOME work as now.
 | Category | Rows |
 |---|---|
 | **Games** | Show all games: Supported only / All games (#54), Game name tags, Game folders (Android: choose; Linux: shown), Logo folder, Custom logos |
-| **Display** | Scale (game, second screen), Shader and strength, Brightness: top, Brightness: bottom (#56), Color correction, LCD ghosting, Smooth scaling, Swap screens, Screen shapes, Screen placement, Overlays and bezel, Border colour |
+| **Display** | Scale (game, second screen), Shader and strength, Brightness: top, Brightness: bottom (#56), Color correction, LCD ghosting, Smooth scaling, Swap screens, Screen shapes, Screen placement, Gap between screens (Automatic, None, 5 to 40 mm: for what crosses from one screen to the other, such as A Link to the Past's title sword; Automatic is the device's if known, the Retroid Pocket Duo's 25 mm), Overlays and bezel, Border colour |
 | **Controls** | Left stick as D-pad (#57), Face buttons (#55), Turbo rate, GBA A/B swap, Map Buttons, Hotkeys, menu combo |
 | **Speed and sound** | Show FPS, Performance, Frame buffer, Match display rate, Rewind and its length, Fast forward and its speed, Sound delay |
 | **Second screen** | Map on/off, Map refresh, Pinball live view |

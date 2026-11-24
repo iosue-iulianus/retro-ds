@@ -172,6 +172,22 @@ typedef struct MapProfile {
 		MacroStep steps[24];
 		int minX, minY, maxX, maxY;
 		int rev; /* bump when the logo changes, so cached logos are made again */
+		/* written to the (silent) copy's work RAM just before the frame
+		 * taken, when pokeAddr isn't 0: a game's own copy of the layers
+		 * shown, so only the logo's are (the copy is never played) */
+		uint32_t pokeAddr;
+		uint8_t pokeVal;
+		/* the black round the logo (reached from the box's edge) made
+		 * transparent, but for a pixel's outline next to the logo */
+		bool trimBlack;
+		/* a second picture taken the frame after the logo's: with dropPoke
+		 * (as pokeAddr) written, the pixels inside dropRects (x0, y0, x1,
+		 * y1; up to 4, the first with x1 0 ends the list) kept, the rest
+		 * clear, cut to their box: <logo>-drop.png (A Link to the Past:
+		 * the title's sword, falling from the second screen, ALTTP-14) */
+		uint32_t dropPokeAddr;
+		uint8_t dropPokeVal;
+		int dropRects[4][4];
 	} logo;
 
 	int animFrames; /* frames to record for the blinking/pulsing marker loop */
@@ -191,9 +207,11 @@ typedef struct MapProfile {
 	enum { STILL_BRIGHT, STILL_COVER, STILL_FIRST, STILL_RED } stillPick;
 	/* The second screen drawn by SNES DS itself from the cartridge and
 	 * the game's RAM, instead of captured: NATIVE_SUPER_METROID, its
-	 * pause map (src/smmap.c, SM-8). No hidden copy runs; the profile's
-	 * hide / hideIf (and touch.tap, the plates) still apply. */
-	enum { NATIVE_NONE, NATIVE_SUPER_METROID } native;
+	 * pause map (src/smmap.c, SM-8); NATIVE_ALTTP, A Link to the Past's
+	 * items screen and the world map from its own screens (src/alttp.c,
+	 * ALTTP-1 and on). No hidden copy runs; the profile's hide / hideIf
+	 * (and touch.tap, the plates) still apply. */
+	enum { NATIVE_NONE, NATIVE_SUPER_METROID, NATIVE_ALTTP } native;
 	/* Instead of opening a map: the profile builds the second screen's
 	 * picture itself (crop_w x crop_h, into out) on the shadow core from
 	 * the live game's state; NULL on success, else why not. */
