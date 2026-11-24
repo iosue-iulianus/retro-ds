@@ -22,13 +22,21 @@ pause screen (`tools/sm_map.py`, the harness's `smmap` and `smtoggle`),
 scrolled smoothly on the GPU (drag, fling, glide), and tapping an item
 on the SAMUS page switches it (the write exception, SM-10). Next: try it
 on the Duo; the reserve mode switch isn't done. M3, on branch
-`m3-a-link-to-the-past` (from M2, local): A Link to the Past's second
-screen (`docs/games/a-link-to-the-past.md`), all drawn by SNES DS: the
-items screen (tap to select, a write exception), X for the map: outdoors
-the world assembled from the game's own ground layer as Link sees it
-(video RAM, a core patch), clouds over the rest; in dungeons the
-dungeon map as the game draws it (tiles decompressed from the ROM).
-Checked pixel for pixel on the host; not yet on the Duo. Much of `src/` is
+`m3-a-link-to-the-past` (from M2, pushed; on the Duo since Nov 22): A
+Link to the Past's second screen (`docs/games/a-link-to-the-past.md`,
+ALTTP-1 to 14), all drawn by SNES DS: the items screen (tap to select, a
+write exception) with the zoom pane; X for the map: outdoors the world
+assembled from the game's own ground layer as Link sees it (video RAM, a
+core patch; the strips by area boundaries taken during the scroll),
+the game's own clouds over the rest with a puffy edge, Link's sprite
+walking, the world map's goal markers, pinch and tap zoom over the
+whole top screen; in dungeons the dungeon map as the game draws it
+(tiles decompressed from the ROM, its background black); the logo in
+special areas, at game over and the menus; at the title the sword falls
+from the top screen into the game's across the gap between the screens
+(`screen_gap_mm`). Next: a local script running both games' harness
+checks, the PRs (M2's #3 first, then M3's), splitting `game.c`'s second
+screens out (`native_*`, `alt_*`). Much of `src/` is
 GBA DS's (the game list, menus, settings, Android glue); upstream's session
 notes, with the detail on every inherited subsystem, are
 `git show 3b452dc:CLAUDE.md` (GBA DS v1.5.6, the commit this fork starts
@@ -282,10 +290,20 @@ Device details:
   textures at screen-pixel offsets).
 - `alttp.c`, `alttp_dungeon.c`: A Link to the Past's second screen (the
   items screen, the world map from the game's screens and its seen record,
-  the dungeon map); `game.c`'s `alt_*` show it. The Python references are
+  the dungeon map, the title sword's place); `game.c`'s `alt_*` show it:
+  the map as 512 x 512 pieces on the GPU (two textures each, written by
+  turns: a texture the GPU is drawing from is never written, which made
+  drivers wait), made on a thread of their own, the seen record's pieces
+  compressed on another ahead of its saves.
+- `writes.h`, `emu_apply` (`emu.c`): the only way the second screen writes
+  to a game (SM-10, ALTTP-10): full SNES addresses, each checked against
+  the game's list (`smmap_write_ranges`, `alttp_write_ranges`), all of a
+  batch or none, each byte logged old>new. The Python references are
   `tools/alttp_items.py`, `alttp_world.py`, `alttp_gfx.py`,
   `alttp_dungeon.py`; `tools/alttp_save.py` makes test saves.
-- `mapcap.c`: map capture on the hidden copy in a background thread, on a
+- `mapcap.c`: map capture on the hidden copy in a background thread
+  (no game uses it now: both draw their own; kept for games that won't,
+  the owner's choice, Nov 23, 2026), on a
   normalized 256x224 picture (hi-res and interlaced ones halved): profiles
   give coordinates on the SNES screen.
 - `profiles.c/.h`: everything game-specific (`MapProfile`), keyed by game
