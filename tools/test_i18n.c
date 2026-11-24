@@ -189,11 +189,11 @@ static void test_fallback(const char* ttfPath) {
 		printf("skipped the font fallback test: no font file (pass DejaVuSans.ttf)\n");
 		return;
 	}
-	const char* greek = "\316\223\316\265\316\271\316\254"; /* Γειά: Jost has no Greek */
+	const char* greek = "\316\223\316\265\316\271\316\254"; /* Γειά: Barlow has no Greek */
 	const char* latin = "Pok\303\251mon Left 12";
 	tf_fallback_clear();
 	TfBitmap latinBefore, greekBefore, greekAfter, latinAfter, mixed;
-	const char* iota = "\316\271"; /* narrow in DejaVu, a full-width .notdef box in Jost */
+	const char* iota = "\316\271"; /* narrow in DejaVu, a full-width .notdef box in Barlow */
 	int wGreekBefore = tf_width(TF_BODY, 40, greek), wIotaBefore = tf_width(TF_BODY, 40, iota);
 	CHECK(tf_render(TF_BODY, 40, latin, &latinBefore));
 	CHECK(tf_render(TF_BODY, 40, greek, &greekBefore));
@@ -201,10 +201,10 @@ static void test_fallback(const char* ttfPath) {
 	CHECK(tf_fallback_add(TF_BODY, ttf));
 	CHECK(tf_fallback_add(TF_BOLD, ttf));
 	int wGreekAfter = tf_width(TF_BODY, 40, greek);
-	CHECK(wGreekAfter > 0 && tf_width(TF_BODY, 40, iota) != wIotaBefore); /* drawn by DejaVu now, not Jost's .notdef */
+	CHECK(wGreekAfter > 0 && tf_width(TF_BODY, 40, iota) != wIotaBefore); /* drawn by DejaVu now, not Barlow's .notdef */
 	CHECK(tf_render(TF_BODY, 40, greek, &greekAfter));
 	CHECK(ink(&greekAfter) > 0 && ink(&greekAfter) != ink(&greekBefore));
-	/* Latin text, accents included, stays in Jost: the same pixels as before */
+	/* Latin text, accents included, stays in Barlow: the same pixels as before */
 	CHECK(tf_render(TF_BODY, 40, latin, &latinAfter));
 	CHECK(latinAfter.w == latinBefore.w && latinAfter.h == latinBefore.h && latinAfter.baseline == latinBefore.baseline);
 	CHECK(!memcmp(latinAfter.alpha, latinBefore.alpha, (size_t) latinBefore.w * latinBefore.h));
@@ -214,12 +214,12 @@ static void test_fallback(const char* ttfPath) {
 	      abs(tf_width(TF_BODY, 40, "Left \316\223\316\265\316\271\316\254") - tf_width(TF_BODY, 40, "Left ") - wGreekAfter) <= 2);
 	CHECK(mixed.baseline >= latinAfter.baseline);
 
-	tf_fallback_clear(); /* back to Jost alone */
+	tf_fallback_clear(); /* back to Barlow alone */
 	CHECK(tf_width(TF_BODY, 40, greek) == wGreekBefore);
 	/* a fallback past the limit is refused, not a crash */
 	int added = 0;
 	for (int i = 0; i < 11; ++i) added += tf_fallback_add(TF_BODY, ttf);
-	CHECK(added == 9); /* (CHAIN_MAX 10: Jost and nine) */
+	CHECK(added == 9); /* (CHAIN_MAX 10: Barlow and nine) */
 	tf_fallback_clear();
 	CHECK(!tf_fallback_add(TF_BODY, (const unsigned char*) "not a font"));
 	tf_free(&latinBefore), tf_free(&greekBefore), tf_free(&greekAfter), tf_free(&latinAfter), tf_free(&mixed);
@@ -257,7 +257,7 @@ static void test_names(void) {
 		}
 	}
 	tf_fallback_clear();
-	CHECK(!tf_has_codepoint(TF_BOLD, 0x5DC5)); /* 巅 with Jost alone: a box */
+	CHECK(!tf_has_codepoint(TF_BOLD, 0x5DC5)); /* 巅 with Barlow alone: a box */
 }
 
 int main(int argc, char** argv) {

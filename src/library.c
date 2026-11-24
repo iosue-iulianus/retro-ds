@@ -1218,7 +1218,7 @@ static int fit_cap(int face, int cap, int maxW, const char* text) {
 	return SDL_max(c, cap * 45 / 100);
 }
 
-/* Body text in Jost, word-wrapped; returns the y below it. */
+/* Body text in Barlow, word-wrapped; returns the y below it. */
 static int draw_wrapped(int scr, int x, int y, int width, float px, const char* text, SDL_Color c) {
 	return ui_font_wrap(scr, TF_BODY, x, y, width, px * 4, text, c);
 }

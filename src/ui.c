@@ -2949,7 +2949,7 @@ void ui_key(int screen, SDL_Rect r, int radius, int state) {
 	key_add(screen, r, state == KEY_PLAIN);
 }
 
-/* ---------------------------------------------------------- text in Jost
+/* ---------------------------------------------------------- text in Barlow
  * Rasterized by textfont.c, kept as white textures (tinted when drawn), per
  * view; the least recently drawn are dropped when the cache is full. */
 typedef struct {
@@ -3007,7 +3007,7 @@ static TextEntry* text_entry(int view, int font, int cap, const char* text) {
 	return slot;
 }
 
-/* Text widths, remembered: measuring Jost text (kerning for every pair of
+/* Text widths, remembered: measuring Barlow text (kerning for every pair of
  * letters) costs real time on the handhelds' small cores, and the same
  * strings are measured every frame (centred labels, wrapped text, the
  * achievement popups fitting their lines). Direct-mapped by hash. */

@@ -176,7 +176,7 @@ void ui_brightness(int top, int bottom); /* each screen's brightness, 20..100: d
 bool ui_theme_light(void);
 SDL_Color ui_key_ink(void);          /* text and icons on a key */
 SDL_Color ui_key_mid(int state);    /* about the key's colour (for cut-outs) */
-/* Text in Jost (textfont.h: TF_BOLD for labels and headings, TF_BODY for
+/* Text in Barlow (textfont.h: TF_BOLD for labels and headings, TF_BODY for
  * longer text), any UTF-8 string, capitals capPx tall and centred on cy.
  * align: -1 starts at x, 0 is centred on x, 1 ends at x. */
 void ui_font_text(int screen, int font, int x, int cy, int capPx, const char* text, SDL_Color c, int align);

@@ -809,7 +809,7 @@ static int cheat_row_at(int scr, int x, int y) {
 }
 
 /* fits s into maxChars, ending in "..." when cut */
-/* s in Jost, cut short with "..." if it's wider than maxW. */
+/* s in Barlow, cut short with "..." if it's wider than maxW. */
 static void fit_text(char* out, size_t size, int font, int capPx, const char* s, int maxW) {
 	snprintf(out, size, "%s", s);
 	if (ui_font_width(font, capPx, out) <= maxW) return;
@@ -834,7 +834,7 @@ static void draw_cheats(int scr) {
 	ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, cap, "Cheats", (SDL_Color) { 20, 16, 36, 255 });
 	SDL_Rect clip = { screens[scr].rect.x, screens[scr].rect.y + g.top, r.w, g.listH };
 	ui_clip(scr, &clip);
-	int tcap = g.tpx * 5; /* Jost capitals, about the pixel font's height */
+	int tcap = g.tpx * 5; /* Barlow capitals, about the pixel font's height */
 	int pillW = ui_label_width(scr, tcap, "Off") + px * 8;
 	int nameW = g.w - pillW - px * 10;
 	for (int i = 0; i < nCheatRows; ++i) {
