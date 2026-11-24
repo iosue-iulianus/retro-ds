@@ -12,18 +12,17 @@ The owner (Joshua) decides what gets built and tests on the device.
 Nothing counts as working until it has run on the Duo.
 
 **Status:** M1 (SNES games on one screen) is merged: the emulator is the
-libretro bsnes core and GBA DS's GBA-only features are gone. M2, on
-branch `m2-super-metroid` (draft PR #3): Super Metroid's second screen,
+libretro bsnes core and GBA DS's GBA-only features are gone. M2 and M3
+are merged too (PRs #3 and #4, Nov 24, 2026, after the owner tried them
+on the Duo). M2: Super Metroid's second screen,
 the game on the screen closer to 4:3 (the Duo's bottom one), overlays
 (the bezel) off by default. Its map and SAMUS page are drawn by SNES DS
 itself from the ROM and RAM (`src/smmap.c`, the profile's `native`; no
 hidden copy runs for Super Metroid): pixel-exact against the game's
 pause screen (`tools/sm_map.py`, the harness's `smmap` and `smtoggle`),
 scrolled smoothly on the GPU (drag, fling, glide), and tapping an item
-on the SAMUS page switches it (the write exception, SM-10). Next: try it
-on the Duo; the reserve mode switch isn't done. M3, on branch
-`m3-a-link-to-the-past` (from M2, pushed; on the Duo since Nov 22): A
-Link to the Past's second screen (`docs/games/a-link-to-the-past.md`,
+on the SAMUS page switches it (the write exception, SM-10); the reserve
+mode switch isn't done. M3: A Link to the Past's second screen (`docs/games/a-link-to-the-past.md`,
 ALTTP-1 to 14), all drawn by SNES DS: the items screen (tap to select, a
 write exception) with the zoom pane; X for the map: outdoors the world
 assembled from the game's own ground layer as Link sees it (video RAM, a
@@ -34,9 +33,11 @@ whole top screen; in dungeons the dungeon map as the game draws it
 (tiles decompressed from the ROM, its background black); the logo in
 special areas, at game over and the menus; at the title the sword falls
 from the top screen into the game's across the gap between the screens
-(`screen_gap_mm`). Next: the PRs (M2's #3 first, then M3's), splitting
-`game.c`'s second screens out (`native_*`, `alt_*`); both games' checks
-run with `scripts/check-games.sh`. Much of `src/` is
+(`screen_gap_mm`). `game.c`'s two drawn second screens are in
+`game_sm.c` and `game_alttp.c` (PR #5). Next: M4 (Chrono Trigger).
+Parked: the 120 Hz map judder (the bottom screen's present
+blocks 6 to 8 ms at 120 Hz). Both games' checks run with
+`scripts/check-games.sh`. Much of `src/` is
 GBA DS's (the game list, menus, settings, Android glue); upstream's session
 notes, with the detail on every inherited subsystem, are
 `git show 3b452dc:CLAUDE.md` (GBA DS v1.5.6, the commit this fork starts
@@ -294,12 +295,13 @@ Device details:
   next frame's keys (the loop takes map and bug-report snapshots just
   before a frame for that).
 - `smmap.c`: Super Metroid's second screen drawn from the cartridge and
-  the game's RAM (map, equipment page, item switching); `game.c`'s
-  `native_*` show it (chrome as a picture, the map's layer and marker as
+  the game's RAM (map, equipment page, item switching); `game_sm.c`'s
+  `native_*` show it in a play session (chrome as a picture, the map's layer and marker as
   textures at screen-pixel offsets).
 - `alttp.c`, `alttp_dungeon.c`: A Link to the Past's second screen (the
   items screen, the world map from the game's screens and its seen record,
-  the dungeon map, the title sword's place); `game.c`'s `alt_*` show it:
+  the dungeon map, the title sword's place); `game_alttp.c`'s `alt_*`
+  show it in a play session:
   the map as 512 x 512 pieces on the GPU (two textures each, written by
   turns: a texture the GPU is drawing from is never written, which made
   drivers wait), made on a thread of their own, the seen record's pieces
@@ -318,7 +320,9 @@ Device details:
   give coordinates on the SNES screen.
 - `profiles.c/.h`: everything game-specific (`MapProfile`), keyed by game
   code (CRC32). Super Metroid so far (`docs/games/super-metroid.md`).
-- `game.c`: a play session (input, the second screen, pause menu). The
+- `game.c`: a play session (input, the second screen, pause menu; the
+  two drawn second screens in `game_sm.c` and `game_alttp.c`, what they
+  share with it in `game_screens.h`). The
   game's picture is `texW` x `texH` as the core draws it, shown as `picW` x
   `picH` (256 x 224 or 239). The second screen is an SNES-sized picture
   (`SNES_W` x `SNES_H`).
