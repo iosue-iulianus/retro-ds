@@ -959,6 +959,10 @@ static uint16_t ground(const Alttp* a, int w, int x, int y) {
 	return c ? c[(y % CHUNK) * CHUNK + x % CHUNK] : 0;
 }
 
+bool alttp_seen_at(const Alttp* a, int world, int x, int y) {
+	return is_seen(a, world & 1, x, y);
+}
+
 void alttp_compose(const Alttp* a, int world, int zoom, int vx, int vy, int w, int h, uint32_t* out) {
 	world &= 1;
 	if (zoom != 2 && zoom != 4) zoom = 1;

@@ -47,6 +47,9 @@
  *                          the top, else as the game opens it)
  *   alttp piece NAME W I L   the map's piece I of world W at level L as
  *                          the app's GPU map draws it (NAME.png)
+ *   alttp seen NAME W GX GY GW GH   the seen squares of world W, GW x GH
+ *                          of them from square (GX, GY), a pixel each
+ *                          (white: seen)
  *   alttp goals            the world map's markers shown now (ALTTP-11)
  *   alttp marker NAME      Link's marker on the map (32 x 32, its middle at
  *                          Link's place) and where it goes on the picture
@@ -229,6 +232,17 @@ static void alttp_cmd(Emu* e, const char* romPath, const char* line) {
 		out_path(path, sizeof path, name, ".png");
 		bool ok = write_png(path, alttp_items(alt), ALTTP_W, ALTTP_H, ALTTP_W);
 		printf("alttp items %s: %s\n", path, ok ? "ok" : "FAILED");
+	} else if (!strcmp(sub, "seen")) {
+		/* (zoom, x, y, w, h: the world and the squares, a pixel each) */
+		if (w < 1 || h < 1 || w > 256 || h > 256) return;
+		uint32_t* px = malloc((size_t) w * h * 4);
+		for (int gy = 0; px && gy < h; ++gy) {
+			for (int gx = 0; gx < w; ++gx) px[gy * w + gx] = alttp_seen_at(alt, zoom, (x + gx) * 16, (y + gy) * 16) ? 0xFFFFFFFFu : 0xFF000000u;
+		}
+		out_path(path, sizeof path, name, ".png");
+		bool ok = px && write_png(path, px, w, h, w);
+		printf("alttp seen %s: %s\n", path, ok ? "ok" : "FAILED");
+		free(px);
 	} else if (!strcmp(sub, "piece")) {
 		/* (zoom, x, y: the world, the piece, the level) */
 		int n = ALTTP_PIECE >> (y < 0 ? 0 : y > 4 ? 4 : y);

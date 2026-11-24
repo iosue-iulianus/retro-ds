@@ -34,9 +34,9 @@ whole top screen; in dungeons the dungeon map as the game draws it
 (tiles decompressed from the ROM, its background black); the logo in
 special areas, at game over and the menus; at the title the sword falls
 from the top screen into the game's across the gap between the screens
-(`screen_gap_mm`). Next: a local script running both games' harness
-checks, the PRs (M2's #3 first, then M3's), splitting `game.c`'s second
-screens out (`native_*`, `alt_*`). Much of `src/` is
+(`screen_gap_mm`). Next: the PRs (M2's #3 first, then M3's), splitting
+`game.c`'s second screens out (`native_*`, `alt_*`); both games' checks
+run with `scripts/check-games.sh`. Much of `src/` is
 GBA DS's (the game list, menus, settings, Android glue); upstream's session
 notes, with the detail on every inherited subsystem, are
 `git show 3b452dc:CLAUDE.md` (GBA DS v1.5.6, the commit this fork starts
@@ -255,6 +255,15 @@ Device details:
   Duo there. The app loads one from a script line `TICK LOAD:path`, and
   `SNESDS_SCREENS=1920x1080,1280x960` (with `SNESDS_WINDOW=1920x2040`)
   stands in for the Duo's two screens.
+- **The second screens' regression check:** `scripts/check-games.sh
+  --alttp ROM --sm ROM` (`tools/check_games.py`, about 15 s on the host)
+  builds the harness and compares both games' second screens with the
+  games' own screens and the Python references: ALttP's items screen,
+  dungeon map, Link's marker, the GPU map pieces (with the owner's seen
+  record, `test-data/a-link-to-the-past/duo-seen-2026-11-23.alttp1`),
+  the writes; Super Metroid's map, SAMUS page and item switches. Run it
+  before merging anything that touches a second screen; `--only NAME`
+  for one check, `--out DIR` to keep the pictures.
 - `tools/ramdiff.py` (RAM dumps with a screen open vs closed) carries over.
 - The app runs headless: `SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy
   SDL_RENDER_DRIVER=software SNESDS_WINDOW=1024x1536 build/host/snes-ds

@@ -73,6 +73,8 @@ void alttp_link(const Alttp* a, int* world, int* x, int* y);
  * w x h shown pixels from world pixel (vx, vy), the seen ground and the
  * clouds elsewhere, into out (w x h) */
 void alttp_compose(const Alttp* a, int world, int zoom, int vx, int vy, int w, int h, uint32_t* out);
+/* Whether world pixel (x, y) of `world` has been seen (its 16 x 16 square) */
+bool alttp_seen_at(const Alttp* a, int world, int x, int y);
 /* The map in pieces, for drawing it on the GPU: piece i (row by row,
  * ALTTP_PIECES a row) of `world` at level L (each pixel 2^L x 2^L world
  * pixels, averaged), (ALTTP_PIECE >> L) squared pixels into out; what
