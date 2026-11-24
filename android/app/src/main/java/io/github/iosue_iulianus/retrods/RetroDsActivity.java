@@ -155,18 +155,18 @@ public class RetroDsActivity extends SDLActivity {
     }
 
     /**
-     * "SNES DS" on the internal storage, where people can reach it (cheats,
+     * "RetroDS" on the internal storage, where people can reach it (cheats,
      * overlays, screenshots, save states), laid out like the ROCKNIX install
      * folder. Needs All files access; without it, the app's own folder.
-     * Data from builds that used the app's folder is copied over once.
-     * This is the default: a folder the player chose instead (Settings >
-     * Folders) is set up by the native side (android_data_setup), and then
-     * "SNES DS" isn't made.
+     * Data from builds that used the app's folder is copied over once, and
+     * so is SNES DS's folder (importSnesDs). This is the default: a folder
+     * the player chose instead (Settings > Folders) is set up by the native
+     * side (android_data_setup), and then "RetroDS" isn't made.
      */
     private File dataFolder() {
         File appDir = getExternalFilesDir(null);
         if (appDir == null) appDir = getFilesDir();
-        File shared = new File(Environment.getExternalStorageDirectory(), "SNES DS");
+        File shared = new File(Environment.getExternalStorageDirectory(), "RetroDS");
         boolean canShare = Build.VERSION.SDK_INT < 30 || Environment.isExternalStorageManager();
         String now = LauncherActivity.dataFolderSetting(this, "data_dir_now");
         if (canShare && now != null && !new File(now).equals(shared) && !shared.isDirectory()) return shared;
@@ -180,7 +180,75 @@ public class RetroDsActivity extends SDLActivity {
             Log.i(TAG, "moving " + oldStates + " to " + newStates);
             if (copyTree(oldStates, newStates)) deleteTree(oldStates);
         }
+        importSnesDs(shared);
         return shared;
+    }
+
+    /* RetroDS was called SNES DS (another application ID, so Android gives
+     * it none of SNES DS's data). Once, while RetroDS has no states of its
+     * own, copy what's in "SNES DS" on the internal storage into "RetroDS":
+     * states, cheats, logos, screenshots, overlays, the settings. Copied,
+     * never moved: SNES DS keeps all of it. snes-ds.cfg becomes retrods.cfg,
+     * and paths into "SNES DS" in the .cfg files point into "RetroDS".
+     * Logs and the cores' cache aren't copied. The list of what was copied
+     * is in RetroDS/imported-from-snes-ds.txt, which also marks it done. */
+    static final String IMPORT_RECORD = "imported-from-snes-ds.txt";
+
+    private static void importSnesDs(File to) {
+        File from = new File(Environment.getExternalStorageDirectory(), "SNES DS");
+        File record = new File(to, IMPORT_RECORD);
+        if (!from.isDirectory() || record.exists() || new File(to, "states").exists()) return;
+        StringBuilder done = new StringBuilder("# copied from " + from + " when RetroDS first started;\n"
+                + "# SNES DS's own folder is unchanged\n");
+        boolean ok = importTree(from, to, from.getPath(), to.getPath(), done);
+        Log.i(TAG, "copied SNES DS's files into " + to + (ok ? "" : " (some failed: see " + IMPORT_RECORD + ")"));
+        try (OutputStream os = new FileOutputStream(record)) {
+            os.write(done.toString().getBytes("UTF-8"));
+        } catch (IOException e) {
+            Log.e(TAG, "writing " + record + ": " + e);
+        }
+    }
+
+    private static boolean importTree(File from, File to, String oldRoot, String newRoot, StringBuilder done) {
+        String name = from.getName();
+        if (from.isDirectory()) {
+            if (name.equals("cache")) return true; /* the cores' copies: made again */
+            if (!to.isDirectory() && !to.mkdirs()) return false;
+            File[] list = from.listFiles();
+            boolean ok = true;
+            if (list != null) for (File f : list) {
+                String n = f.getName();
+                if (n.endsWith(".log")) continue;
+                ok &= importTree(f, new File(to, n.equals("snes-ds.cfg") ? "retrods.cfg" : n), oldRoot, newRoot, done);
+            }
+            return ok;
+        }
+        if (to.exists()) return true;
+        boolean ok;
+        if (name.endsWith(".cfg")) {
+            ok = copyCfg(from, to, oldRoot, newRoot);
+        } else {
+            ok = copyTree(from, to);
+        }
+        done.append(ok ? "" : "FAILED ").append(to.getPath().substring(newRoot.length() + 1)).append('\n');
+        return ok;
+    }
+
+    /* a settings file, with its paths into SNES DS's folder moved to RetroDS's */
+    private static boolean copyCfg(File from, File to, String oldRoot, String newRoot) {
+        try (InputStream is = new FileInputStream(from)) {
+            java.io.ByteArrayOutputStream b = new java.io.ByteArrayOutputStream();
+            byte[] buf = new byte[1 << 16];
+            for (int n; (n = is.read(buf)) > 0; ) b.write(buf, 0, n);
+            String text = b.toString("UTF-8").replace(oldRoot + "/", newRoot + "/");
+            try (OutputStream os = new FileOutputStream(to)) {
+                os.write(text.getBytes("UTF-8"));
+            }
+            return true;
+        } catch (IOException e) {
+            Log.e(TAG, "copying " + from + ": " + e);
+            return false;
+        }
     }
 
     private static boolean copyTree(File from, File to) {
