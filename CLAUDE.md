@@ -1,7 +1,10 @@
 # RetroDS: notes for Claude sessions
 
-RetroDS is a fork of kyannon/gba-ds (GBA DS) into a Super Nintendo emulator
-for dual-screen handhelds, built for the **Retroid Pocket Duo** on Android
+RetroDS ("your favourite classics, with the second screen they never had.
+Not a Nintendo DS emulator.") was SNES DS until Nov 24, 2026: a fork of
+kyannon/gba-ds (GBA DS) into a Super Nintendo emulator, now widening to
+other consoles (`docs/SCOPE.md`: the PlayStation next), for dual-screen
+handhelds, built for the **Retroid Pocket Duo** on Android
 16: bottom screen 4.5" 1280x960 (4:3), top screen 5.5" 1920x1080 (16:9),
 both 120 Hz OLED, Qualcomm Q-7790, 8 GB RAM. The game runs on the bottom
 screen; the top screen shows the game's own map or status screen (captured
@@ -34,7 +37,9 @@ whole top screen; in dungeons the dungeon map as the game draws it
 special areas, at game over and the menus; at the title the sword falls
 from the top screen into the game's across the gap between the screens
 (`screen_gap_mm`). `game.c`'s two drawn second screens are in
-`game_sm.c` and `game_alttp.c` (PR #5). Next: M4 (Chrono Trigger).
+`game_sm.c` and `game_alttp.c` (PR #5). The rename to RetroDS is on
+the `retrods` branch (SCOPE.md 4). Next: the PlayStation with Symphony
+of the Night (SCOPE.md step 1), instead of Chrono Trigger.
 Parked: the 120 Hz map judder (the bottom screen's present
 blocks 6 to 8 ms at 120 Hz). Both games' checks run with
 `scripts/check-games.sh`. Much of `src/` is
@@ -135,28 +140,34 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
 
 ## Conventions
 
-- **Branches:** `snes` is the fork's main line. Work happens on topic
-  branches cut from it (`m0-libretro`, `game/super-metroid`), merged back
-  when built and tried. `main` and `dev` mirror upstream and are never
+- **Branches:** `retrods` is the main line (cut from `snes`, SNES DS's
+  line, on Nov 24, 2026; `snes` stays as history). Work happens on topic
+  branches cut from it, merged back when built and tried. `main` and `dev` mirror upstream and are never
   committed to.
 - **Remotes:** `origin` is RetroDS's own repo (iosue-iulianus/retro-ds,
   private, a standalone copy with GBA DS's history, not a GitHub fork);
-  `snes` is its default branch. `upstream` is GBA DS (kyannon/gba-ds):
+  `retrods` is its default branch (the owner renamed the repo from
+  snes-ds, Nov 24, 2026; the old URL redirects). `upstream` is GBA DS (kyannon/gba-ds):
   fetch from it to pick up fixes to shared code, never push there.
 - **Names:** the app is RetroDS everywhere: binary `retrods`, `retrods.cfg`,
   `RETRODS_*` variables and macros, Android package and application ID
   `io.github.iosue_iulianus.retrods` (JNI names write its `_` as `_1`:
   `Java_io_github_iosue_1iulianus_retrods_...`), classes `RetroDsActivity` and
-  `RetroDsHereActivity`, the "RetroDS" folder on Android. Still to do: the
-  logo artwork (`src/brand_data.c`, from `tools/make_brand.py`), whose font
-  isn't settled. GBA DS is named on purpose in the README's credits, this
+  `RetroDsHereActivity`, the "RetroDS" folder on Android. The logo and
+  icon are the owner's (`assets/brand/source/`; `tools/logo_transparent.py`
+  and `tools/make_brand.py --logo-only` for the app's banner,
+  `tools/make_icon.py` for the launcher icon). Kept from SNES DS on purpose:
+  the signing key (`~/.config/snes-ds-signing/`, alias `snesds`), the
+  state blocks `SDSC` / `SDSX` (old states load), the bsnes patch's
+  `snesds*` accessors, and the first-start copy from the "SNES DS" folder
+  (`RetroDsActivity.importSnesDs`). GBA DS is named on purpose in the README's credits, this
   file, Philosophy, the changelog's opening, `docs/reference/gba/` and the
   APK's licence notice; `src/profiles.c`, the dump and mask tables and the
   GBA tooling docs (`docs/TESTING.md`, `docs/patches.md`) keep "GBA DS" in
   their prose because they describe GBA DS's games, until the port
   replaces them. Some development notes inherited from GBA DS (dated ones
   in `docs/ANDROID.md`, version mentions in comments) now say RetroDS where
-  they meant GBA DS.
+  they meant GBA DS or SNES DS.
 - **Commits:** small, one idea each, with the session's attribution
   trailers. Write long messages to a file and `git commit -F`. Never
   force-push, never rewrite pushed history.
@@ -186,7 +197,7 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   three times as `libsnes_{a,b,c}.so` with their own sonames by patchelf,
   extracted to `nativeLibraryDir`, passed as `RETRODS_CORE_DIR`). It needs
   the SDK and NDK, so it runs on GitHub Actions
-  (`.github/workflows/android.yml`: pushes to `snes`, pull requests into
+  (`.github/workflows/android.yml`: pushes to `retrods`, pull requests into
   it, "Run workflow"); release-signed with the repo's secrets (the key is
   in the owner's `~/.config/snes-ds-signing/`). Getting it onto the Duo:
   "The device loop" below.
@@ -197,8 +208,8 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
 How a change gets onto the owner's Retroid Pocket Duo. The workspace
 can't build Android itself (no SDK), so:
 
-1. **Push the branch.** An open pull request into `snes` (or a push to
-   `snes`) runs `.github/workflows/android.yml` (the release-signed APK)
+1. **Push the branch.** An open pull request into `retrods` (or a push to
+   `retrods`) runs `.github/workflows/android.yml` (the release-signed APK)
    and the i18n check. If i18n fails, it's almost always shifted line
    numbers: run `python3 tools/i18n.py all`, commit the `.pot`, push.
 2. **Wait for the Android run of that exact commit.** Each push starts
@@ -220,6 +231,11 @@ can't build Android itself (no SDK), so:
    "$(wslpath -w APK)"`. Same signing key, so data and settings stay.
    Never suggest uninstalling: without All files access the app's own
    folder (and its states) goes with it.
+   **The first RetroDS install is a new app** beside SNES DS (another
+   application ID): back up `SNES DS/states/` and the saves first, install
+   (no `-r` needed), and check that RetroDS's first start copied them
+   (`RetroDS/imported-from-snes-ds.txt`). SNES DS stays installed until
+   the owner has seen their states in RetroDS.
 
 Device details:
 

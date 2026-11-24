@@ -1,46 +1,44 @@
 # RetroDS
 
-A Super Nintendo emulator for dual-screen handhelds, built for the Retroid Pocket Duo on Android. The game plays on one screen, and the other shows the game's own map or status screen, kept current as you play, the way the DS Castlevanias use their second screen.
+**Your favourite classics, with the second screen they never had. Not a Nintendo DS emulator.**
 
-RetroDS is a fork of [GBA DS](https://github.com/kyannon/gba-ds) by kyannon, which does the same for the Game Boy Advance. The idea, the design and most of the code around the emulator (the game list, the menus, settings, the Android app) come from GBA DS. RetroDS swaps the GBA emulator for an SNES one and writes its own game profiles. If you play GBA games on a two-screen handheld, use GBA DS.
+RetroDS plays games from older consoles on dual-screen Android handhelds, built for the Retroid Pocket Duo. The game plays on one screen; the other shows what the game would have put on a DS's second screen: its map, its items, its status, drawn live in the game's own style and kept current as you play. Touch it to look around and to pick items; play with the buttons.
 
-**Status: early development, not playable yet.** The first milestone (M0, a host-only proof of concept) is done: an SNES core runs twice side by side, and the hidden copy opens Super Metroid's and A Link to the Past's maps from the live game's state without touching it. See [docs/M0-results.md](docs/M0-results.md). The app itself is still GBA DS's until the port is done.
+RetroDS doesn't play Nintendo DS games.
+
+RetroDS was called SNES DS until November 2026, and is a fork of [GBA DS](https://github.com/kyannon/gba-ds) by kyannon, which does the same for the Game Boy Advance. The idea, the design and most of the code around the emulator (the game list, the menus, settings, the Android app) come from GBA DS. If you play GBA games on a two-screen handheld, use GBA DS.
+
+**Status: early development.** Super Nintendo games run, and two have their second screen:
+
+- **Super Metroid**: the area map and the SAMUS equipment page, drawn from the game's own data, scrolled by touch; tap an item to switch it.
+- **A Link to the Past**: the items screen (tap to select), the world map built from what you've seen, and the dungeon maps.
+
+Next: the PlayStation, starting with Castlevania: Symphony of the Night. Any other SNES game runs on one screen, with its title logo on the other.
 
 ## How it works
 
-RetroDS runs a second, silent copy of the emulator next to the one you play. About every second, and after each room change, it copies the live game's state into the silent copy, presses the map button there, waits for the map screen to settle and checks it (a memory value that holds only while the map is open, and fixed pixels of its frame) before showing it. Title screens, cutscenes and menus are rejected, and the last good map stays up. The game you're playing is never paused, sent input or changed.
-
-The emulator is a [libretro](https://www.libretro.com) core loaded as a library. Releases will ship [bsnes](https://github.com/bsnes-emu/bsnes) (GPLv3), with a small patch that lets RetroDS read the game's work RAM (`scripts/cores/`).
-
-Some games will also get **custom asset mode**: for a screen that can't be captured well (A Link to the Past's whole-world map), you supply your own map picture, and RetroDS shows it with a marker at your position, read from the game's memory. RetroDS ships no game art; see [docs/custom-assets.md](docs/custom-assets.md).
+The emulator is a [libretro](https://www.libretro.com) core loaded as a library: [bsnes](https://github.com/bsnes-emu/bsnes) (GPLv3) for the Super Nintendo, with a small patch that lets RetroDS read the game's memory (`scripts/cores/`). Each frame, RetroDS reads the live game's memory and draws the second screen from the game's own graphics and data. Touching the second screen only changes the game where its own menu would (switching an item), each such change listed per game in `docs/games/`.
 
 What goes on the second screen, and what doesn't, is set out in [Philosophy](wiki/Philosophy.md).
-
-## Games
-
-First in line: Super Metroid, Chrono Trigger, then A Link to the Past and Final Fantasy IV, V and VI. Any other SNES game will still run, on one screen.
 
 ## Building (development)
 
 On a Linux host with git, make, gcc and libpng:
 
 ```sh
-scripts/build-cores.sh snes9x   # bsnes (patched) and snes9x into ../cores
-make m0                         # build/host/retrods-harness
-build/host/retrods-harness ../cores/bsnes/bsnes_libretro.so ROM OUTDIR SCRIPT
+scripts/setup-host.sh           # SDL2, the cores, the app and the harness
+make && make tools              # build/host/retrods, build/host/retrods-harness
 ```
 
-The harness runs two copies of the core from a script (button presses, save states, memory reads, map captures, benchmarks); its commands are listed at the top of `tools/retrods-harness.c`. snes9x is for local experiments only: its licence doesn't allow it to be distributed with GPL software, so RetroDS never ships it.
-
-The rest of the build (the app, the Android build) is still GBA DS's; see `CLAUDE.md`.
+The harness runs copies of the core from a script (button presses, save states, memory reads, benchmarks); its commands are listed at the top of `tools/retrods-harness.c`. The Android build runs on GitHub Actions (`scripts/build-android.sh`); see `CLAUDE.md`.
 
 ## AI disclosure
 
-RetroDS is written almost entirely by AI: the code, documentation and commit messages are written by Claude, Anthropic's AI model, in Claude Code sessions. Its owner decides what gets built and how it should behave, and tests it on the device. GBA DS, which RetroDS is built from, was made the same way (see its README). The RetroDS logo was generated with Google's Gemini (its background made transparent by `tools/logo_transparent.py`). Emulation itself is bsnes's, a long-established, human-written emulator.
+RetroDS is written almost entirely by AI: the code, documentation and commit messages are written by Claude, Anthropic's AI model, in Claude Code sessions. Its owner decides what gets built and how it should behave, and tests it on the device. GBA DS, which RetroDS is built from, was made the same way (see its README). The RetroDS logo and icon are the owner's. Emulation itself is the cores', long-established, human-written emulators.
 
 ## Not affiliated
 
-RetroDS is an independent project. It is not affiliated with, endorsed by or sponsored by Nintendo, Retroid, or the GBA DS project. Super Nintendo and the names of the games are trademarks of their owners, used here only to say what RetroDS runs. No ROMs or game art are included.
+RetroDS is an independent fan project. It is not affiliated with, endorsed by or sponsored by Nintendo, Sony Interactive Entertainment, Konami, Square Enix, Intelligent Systems, Retroid, the GBA DS project, or any other company whose games it can run. All trademarks belong to their owners. RetroDS includes no games, BIOS files or game graphics: it reads them from copies you own.
 
 ## Licence
 

@@ -10,9 +10,9 @@ name: Android
 
 on:
   push:
-    branches: [snes]
+    branches: [retrods]
   pull_request:
-    branches: [snes]
+    branches: [retrods]
   workflow_dispatch:
 
 jobs:

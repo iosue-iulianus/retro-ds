@@ -6,6 +6,15 @@ changelog up to then is `git show 3b452dc:CHANGELOG.md` (and on
 
 ## v0.1.0 (not yet released)
 
+- **SNES DS is now RetroDS**, widening to other consoles (the PlayStation
+  next). A new app on Android (`io.github.iosue_iulianus.retrods`), so it
+  installs beside SNES DS. On its first start it copies the "SNES DS"
+  folder's states, cheats, logos, screenshots, overlays and settings into
+  its own "RetroDS" folder; SNES DS's folder is left as it was, so keep
+  SNES DS until RetroDS shows your states. Battery saves stay beside the
+  ROMs. `retrods.cfg` on Linux (it reads `~/.config/snes-ds/snes-ds.cfg`
+  until there is one). A new logo and icon, by the owner.
+
 Nothing playable yet: SNES DS still runs GBA games until the emulator is
 swapped. What has changed from GBA DS v1.5.6 so far:
 
