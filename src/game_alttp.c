@@ -893,8 +893,17 @@ static void draw_alt_map(int s) {
 }
 
 void draw_alt(int s) {
-	/* under the items, the map: the dungeon's in a dungeon, else the world map */
-	if (alttp_in_dungeon(alt)) {
+	/* in a dungeon, as before: the items on black, or (X) the dungeon's map
+	 * (the owner, Nov 24, 2026: the slide over the map on the overworld only) */
+	bool dungeon = alttp_in_dungeon(alt);
+	if (dungeon && altPage == 0) {
+		altItemsUp = 1, altSlideT = 0;
+		ui_image_pixels(s, altItemsTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON);
+		return;
+	}
+	if (dungeon) altItemsUp = 0, altSlideT = 0;
+	/* under the items, the world map */
+	if (dungeon) {
 		/* the picture's own scale, the canvas as many of its pixels as the screen holds */
 		SDL_Rect img = ui_image_rect(s, ALTTP_W, ALTTP_H, cfg->mapScale);
 		float k = img.w > 0 ? img.w / (float) ALTTP_W : 1;
