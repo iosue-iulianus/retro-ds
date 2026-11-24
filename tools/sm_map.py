@@ -147,7 +147,7 @@ def map_sprites(rom, ram, marker=None):
     """The map screen's sprites, in OAM order (the first is on top), as
     PauseMenu_0_MapScreen ($82:9120) adds them: (x, y, spritemap ID,
     palette bits), x and y in map pixels. The scroll arrows and the
-    L / R / START highlights are left out (SNES DS draws its own frame)."""
+    L / R / START highlights are left out (RetroDS draws its own frame)."""
     area = area_of(ram)
     out = []
     # Samus's position ($82:B9C8).

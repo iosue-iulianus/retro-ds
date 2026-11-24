@@ -1,4 +1,4 @@
-/* SNES DS's emulator: a libretro core (bsnes) loaded from a .so.
+/* RetroDS's emulator: a libretro core (bsnes) loaded from a .so.
  *
  * Each open Emu has a core of its own: libretro cores keep their state in
  * globals, so every Emu open at once (the game, the hidden copy that takes
@@ -133,31 +133,31 @@ bool emu_rewind_step(Emu* e);
 size_t emu_rewind_count(void);
 
 /* State files: RetroArch's format (RASTATE, blocks up to "END "), so
- * RetroArch's bsnes core of the same version loads SNES DS's states and the
- * other way round. MEM holds the core's bytes; SNES DS adds SDSC (the ROM's
+ * RetroArch's bsnes core of the same version loads RetroDS's states and the
+ * other way round. MEM holds the core's bytes; RetroDS adds SDSC (the ROM's
  * CRC32 as played) and SDSX (its second screen, `extra`), which RetroArch
  * skips. RetroArch usually compresses its files (RZIP, zlib chunks). */
 typedef enum {
-	STATE_FORMAT_OWN,            /* SNES DS's own states: RASTATE, uncompressed */
+	STATE_FORMAT_OWN,            /* RetroDS's own states: RASTATE, uncompressed */
 	STATE_FORMAT_RETROARCH,      /* RetroArch's, uncompressed */
 	STATE_FORMAT_RETROARCH_RZIP, /* RetroArch's, compressed (its savestate_file_compression) */
 } StateFormat;
 typedef enum {
 	STATE_FILE_NONE,       /* no such file */
-	STATE_FILE_OWN,        /* saved by SNES DS */
-	STATE_FILE_RETROARCH,  /* RetroArch's (or SNES DS's, saved into RetroArch's folder) */
+	STATE_FILE_OWN,        /* saved by RetroDS */
+	STATE_FILE_RETROARCH,  /* RetroArch's (or RetroDS's, saved into RetroArch's folder) */
 	STATE_FILE_OTHER_CORE, /* another core's or another version's: not loadable */
-	STATE_FILE_UNREADABLE, /* damaged, or compressed in a way SNES DS can't read */
+	STATE_FILE_UNREADABLE, /* damaged, or compressed in a way RetroDS can't read */
 } StateFileKind;
 bool emu_state_save_file(Emu* e, const char* path);
 bool emu_state_save_file_as(Emu* e, const char* path, const void* extra, size_t extraN, StateFormat fmt);
 bool emu_state_load_file(Emu* e, const char* path);
-/* *fromRetrods (may be NULL): saved by SNES DS (it has SNES DS's blocks) */
+/* *fromRetrods (may be NULL): saved by RetroDS (it has RetroDS's blocks) */
 StateFileKind emu_state_file_kind(Emu* e, const char* path, bool* fromRetrods);
 /* The CRC32 of the ROM (as played) a state was saved with; false if the
- * file doesn't say (not SNES DS's) */
+ * file doesn't say (not RetroDS's) */
 bool emu_state_file_rom_crc(const char* path, uint32_t* crc);
-/* SNES DS's second-screen data in a state file, malloc'd (NULL: none) */
+/* RetroDS's second-screen data in a state file, malloc'd (NULL: none) */
 void* emu_state_file_get_extra(Emu* e, const char* path, size_t* n);
 
 /* ROMs. emu_rom_read_all: the ROM file (inside a .zip too) without a
@@ -183,7 +183,7 @@ uint8_t* emu_rom_read_patched(const char* path, char files[][1024], int n, size_
 
 /* Memory. Work RAM ($7E0000-$7FFFFF, 128 KB), the cartridge's battery
  * RAM and video RAM (64 KB, words little-endian; bsnes gives it only with
- * its fast PPU, the default), or NULL. Read-only for SNES DS. */
+ * its fast PPU, the default), or NULL. Read-only for RetroDS. */
 enum { EMU_MEM_WRAM, EMU_MEM_SRAM, EMU_MEM_VRAM };
 uint8_t* emu_memory(Emu* e, int region, size_t* size);
 /* By SNES address as the CPU sees it: banks $7E/$7F, and the low 8 KB

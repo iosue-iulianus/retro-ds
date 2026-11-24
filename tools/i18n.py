@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SNES DS translations: extract, check and compile (docs/I18N.md).
+"""RetroDS translations: extract, check and compile (docs/I18N.md).
 
   tools/i18n.py pot        write assets/i18n/retrods.pot from the source
   tools/i18n.py check      check the .po files against the template
@@ -486,7 +486,7 @@ def check_format(en, tr, subset):
 
 def write_pot(msgs, path):
     lines = [
-        "# SNES DS: the strings the interface can say (made by tools/i18n.py pot: don't edit).",
+        "# RetroDS: the strings the interface can say (made by tools/i18n.py pot: don't edit).",
         '# Translators: copy this file to <language code>.po, fill in the header and the msgstr lines.',
         'msgid ""',
         'msgstr ""',

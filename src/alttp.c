@@ -121,7 +121,7 @@
 #define SKY_H ALTTP_SKY_H
 
 enum { P_ITEMS, P_NAME, P_PROGRESS, P_ABILITY, P_EQUIPMENT, P_COUNT };
-/* each pane's place on the game's own screen, and on SNES DS's (ALTTP-10:
+/* each pane's place on the game's own screen, and on RetroDS's (ALTTP-10:
  * the Y items at the bottom right, every pane moved whole) */
 static const int8_t paneGame[P_COUNT][2] = { { 1, 5 }, { 21, 5 }, { 21, 11 }, { 1, 21 }, { 21, 21 } };
 static const int8_t paneTouch[P_COUNT][2] = { { 12, 15 }, { 1, 24 }, { 1, 15 }, { 12, 5 }, { 1, 5 } };

@@ -1,5 +1,5 @@
 # Native part of the Android app: libSDL2.so (built from source) and
-# libmain.so (SNES DS itself, the same sources as the desktop build, plus
+# libmain.so (RetroDS itself, the same sources as the desktop build, plus
 # src/android.c). The emulator isn't linked in: it's the libretro core
 # scripts/build-android.sh puts beside them (libsnes_a.so ...), loaded at
 # run time (src/emu.c).
@@ -35,7 +35,7 @@ add_library(webpdec STATIC ${WEBP_SRC})
 set_target_properties(webpdec PROPERTIES C_STANDARD 11 C_EXTENSIONS ON)
 target_include_directories(webpdec PUBLIC "${WEBP}")
 
-# --- SNES DS ---
+# --- RetroDS ---
 set(S "${RETRODS_ROOT}/src")
 add_library(main SHARED
 	${S}/main.c ${S}/config.c ${S}/font.c ${S}/ui.c ${S}/library.c ${S}/game.c ${S}/game_sm.c ${S}/game_alttp.c ${S}/paths.c ${S}/image.c ${S}/mapper.c ${S}/hotkeys.c ${S}/folderpick.c

@@ -3,7 +3,7 @@
 
 The game's own map screen (X outdoors) is a Mode 7 picture: 64 x 64 tiles
 of 8 x 8 pixels, 8 bits a pixel, shown tilted. This draws the same picture
-without the tilt, as SNES DS would show it on the second screen, and covers
+without the tilt, as RetroDS would show it on the second screen, and covers
 the parts Link hasn't seen yet. Addresses and formats are in
 docs/games/a-link-to-the-past.md ("The data").
 

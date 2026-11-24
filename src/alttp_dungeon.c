@@ -1,4 +1,4 @@
-/* A Link to the Past's dungeon map (ALTTP-5, ALTTP-6), drawn by SNES DS as
+/* A Link to the Past's dungeon map (ALTTP-5, ALTTP-6), drawn by RetroDS as
  * the game draws it when X is pressed in a dungeon (Module0E_03_01_DrawMap,
  * $0A:E0DC), without the game opening it. The Python references are
  * tools/alttp_dungeon.py (tilemaps, sprites, the picture: pixel for pixel

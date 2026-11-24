@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Renders the square SNES DS icon: two stacked rounded screens with a glass
+"""Renders the square RetroDS icon: two stacked rounded screens with a glass
 sheen, lettered in the logo's style (GBA on the top screen, DS on the bottom).
 
     tools/make_icon.py FUTURA_BOLD_ITALIC.otf GAMECUBEN.ttf [OUT.png]

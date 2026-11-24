@@ -205,7 +205,7 @@ typedef struct MapProfile {
 	/* (STILL_RED: a spot with red in it at its reddest, others at their
 	 * brightest: a marker that fades red to white) */
 	enum { STILL_BRIGHT, STILL_COVER, STILL_FIRST, STILL_RED } stillPick;
-	/* The second screen drawn by SNES DS itself from the cartridge and
+	/* The second screen drawn by RetroDS itself from the cartridge and
 	 * the game's RAM, instead of captured: NATIVE_SUPER_METROID, its
 	 * pause map (src/smmap.c, SM-8); NATIVE_ALTTP, A Link to the Past's
 	 * items screen and the world map from its own screens (src/alttp.c,
@@ -237,7 +237,7 @@ DumpKind profile_dump(const char* gameCode, uint32_t crc, const char** name);
 /* The release's No-Intro name, without a revision's or reissue's mark;
  * false if it has no list of dumps */
 bool profile_release_name(const char* gameCode, char* out, size_t size);
-/* A patch SNES DS knows (src/dumps_data.h), by its file's checksum: the
+/* A patch RetroDS knows (src/dumps_data.h), by its file's checksum: the
  * CRC32 of the file without its last four bytes, and its size */
 typedef struct {
 	char code[9];      /* the release it's for (its game code; "" if not known) */

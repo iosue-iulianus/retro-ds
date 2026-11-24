@@ -1,4 +1,4 @@
-/* The button mapper (Settings > Map Buttons): asks for each button SNES DS
+/* The button mapper (Settings > Map Buttons): asks for each button RetroDS
  * uses in turn, by where it is on a GBA-style layout (A the right face
  * button, B the bottom one, X the top, Y the left), and records which raw
  * button, hat or axis of the controller it is. The result is an SDL game

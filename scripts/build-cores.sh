@@ -1,5 +1,5 @@
 #!/bin/sh
-# SNES DS: fetch and build the libretro cores for the host, at pinned
+# RetroDS: fetch and build the libretro cores for the host, at pinned
 # commits, into ../cores (beside the repo).
 #
 #   scripts/build-cores.sh            bsnes (the shipped core, patched)
@@ -10,7 +10,7 @@
 #                                     in ANDROID_NDK_HOME): ../cores/bsnes/android/libretro.so
 #
 # bsnes gets scripts/cores/bsnes-memory.patch: libretro's bsnes exposes no
-# memory through retro_get_memory_data, and SNES DS reads work RAM and loads
+# memory through retro_get_memory_data, and RetroDS reads work RAM and loads
 # and saves cartridge RAM itself (bsnes writes it only when the game is
 # unloaded); video RAM too, read for maps assembled from the game's own
 # screens (A Link to the Past). It also takes states for the same instance (rewind) without

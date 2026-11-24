@@ -1,4 +1,4 @@
-# SNES DS build
+# RetroDS build
 #
 #   scripts/setup-host.sh     first time: SDL2 into deps/, the cores into ../cores, then builds
 #   make / make tools         host build (build/host/retrods, build/host/retrods-harness)

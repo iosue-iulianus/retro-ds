@@ -1,10 +1,10 @@
-/* SNES DS's own bezel round the picture (Overlays: Generated), drawn on the
+/* RetroDS's own bezel round the picture (Overlays: Generated), drawn on the
  * device for whatever screen and picture it's asked for. The design is
  * tools/make_overlays.py's (the reference: it draws the same at any size,
  * for checking this against): in GBA pixels (u, one GBA pixel at the
  * picture's scale), the outer colour all over, a bezel in the inner colour
  * 12u round the picture with 3u corners (out to the screen's edge where
- * less than 2u of the outer colour would be left), the SNES DS logo (black
+ * less than 2u of the outer colour would be left), the RetroDS logo (black
  * outline, dimmed letters) in the bezel by the hinge: below the picture on
  * the top screen, above it on the bottom one (Screen Placement: Closest
  * to Gap: below it on the bottom screen only, game.c draw_bezel), 56% of

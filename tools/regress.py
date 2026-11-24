@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SNES DS regression tests.
+"""RetroDS regression tests.
 
 Runs the cases in tests/regress/*.json against the fixtures repository
 (kyannon/gba-ds-tests, private: ROMs, save states and approved screenshots)
@@ -130,7 +130,7 @@ _releaseNames = None
 
 
 def release_name(code):
-    """The release's No-Intro name as SNES DS names its patches folder
+    """The release's No-Intro name as RetroDS names its patches folder
     (profile_release_name: the tested dump's, else the first official one's,
     the title with its region and languages only), or None."""
     global _releaseNames
@@ -250,7 +250,7 @@ def run_app(case, args, workdir):
                 return r
             dst = os.path.join(sd, name)
             os.makedirs(os.path.dirname(dst), exist_ok=True)
-            shutil.copy(src, dst)  # (a copy: SNES DS may save over it)
+            shutil.copy(src, dst)  # (a copy: RetroDS may save over it)
             # (in order, a minute apart, from noon UTC on Jan 1, 2020: slot
             # labels show the same date on any machine, in any time zone)
             t = 1577880000 + 60 * i
@@ -516,11 +516,11 @@ def write_report(results, outdir):
             status.lower(), html.escape(c["id"]), html.escape(c["game"]), status, r["secs"],
             html.escape(c.get("desc", "")), "".join(items), "".join(pics)))
     fails = sum(1 for r in results if not r["ok"])
-    page = """<!doctype html><meta charset=utf-8><title>SNES DS regression</title>
+    page = """<!doctype html><meta charset=utf-8><title>RetroDS regression</title>
 <style>body{font:14px system-ui;margin:16px;background:#fff;color:#111}section{border-top:1px solid #ccc;padding:8px 0}
 .fail h2{color:#b00}.ok{color:#060}.bad{color:#b00}.miss{color:#a60}img{max-width:256px;image-rendering:pixelated;border:1px solid #ccc}
 figure{display:inline-block;margin:4px}small{font-weight:normal;color:#666}</style>
-<h1>SNES DS regression: %d of %d cases pass</h1>%s""" % (len(results) - fails, len(results), "".join(
+<h1>RetroDS regression: %d of %d cases pass</h1>%s""" % (len(results) - fails, len(results), "".join(
         sorted(rows, key=lambda s: not s.startswith("<section class=fail"))))
     open(os.path.join(outdir, "index.html"), "w").write(page)
 

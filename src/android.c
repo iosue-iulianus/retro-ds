@@ -116,7 +116,7 @@ void android_data_setup(void) {
 void android_config_defaults(Config* c) {
 	/* shared storage ignores case: this is also a folder called SNES */
 	snprintf(c->romDir, sizeof(c->romDir), "/storage/emulated/0/ROMs/snes");
-	/* RETRODS_HOME is "SNES DS" on the internal storage (or, without All files
+	/* RETRODS_HOME is "RetroDS" on the internal storage (or, without All files
 	 * access, the app's folder), laid out like the ROCKNIX install folder:
 	 * states/ (the default state_dir), logos/ and overlays/ (asset_dir),
 	 * cheats/, screenshots/, retrods.log */
@@ -139,7 +139,7 @@ void android_config_defaults(Config* c) {
 			              "<CODE>-top.png and <CODE>-bottom.png are for one game.\n"
 			              "To use them, set Display > Overlays in the pause menu to Custom (in /overlays). Which Screen\n"
 			              "there picks the screens: Both, Top Only or Bottom Only. Swapping screens doesn't move them.\n"
-			              "A screen with no file of its own gets SNES DS's generated bezel in its default colors.\n\n"
+			              "A screen with no file of its own gets RetroDS's generated bezel in its default colors.\n\n"
 			              "Names for one scaling or screen shape, and more, in the wiki:\n"
 			              "https://github.com/iosue-iulianus/retro-ds/wiki/Overlays\n" },
 			{ "logos", "Optional: your own logo images (<CODE>.png or .bmp) override the ones extracted from the games.\n" },

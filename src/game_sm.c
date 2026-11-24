@@ -1,5 +1,5 @@
 /* Super Metroid's second screen in a play session (game.c): the map and
- * the SAMUS page drawn by SNES DS (src/smmap.c), scrolled and tapped.
+ * the SAMUS page drawn by RetroDS (src/smmap.c), scrolled and tapped.
  * Moved out of game.c as it was (Nov 24, 2026). */
 #include "game_screens.h"
 #include "android.h"
@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* ---- Super Metroid's map, drawn by SNES DS (src/smmap.c; SM-7 to SM-9)
+/* ---- Super Metroid's map, drawn by RetroDS (src/smmap.c; SM-7 to SM-9)
  * The chrome (frame, name, plate) is a picture like a captured map; the
  * map's layer and the marker are textures of their own, placed at the
  * view in screen pixels, so it scrolls smoothly at the display's rate. */
@@ -56,7 +56,7 @@ void native_open(const char* rom, const MapProfile* p) {
 	uint8_t* data = emu_rom_read_played(rom, &n, NULL, NULL, NULL);
 	nat = smmap_new(data, n);
 	natProf = nat ? p : NULL;
-	fprintf(stderr, "second screen: %s\n", nat ? "drawn by SNES DS (Super Metroid's map)" : "can't draw Super Metroid's map");
+	fprintf(stderr, "second screen: %s\n", nat ? "drawn by RetroDS (Super Metroid's map)" : "can't draw Super Metroid's map");
 }
 
 SDL_Texture* native_texture(int v, int w, int h, SDL_BlendMode blend) {

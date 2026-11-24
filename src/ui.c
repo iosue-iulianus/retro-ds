@@ -414,7 +414,7 @@ static void open_pads(void) {
 bool ui_init(Config* c, bool wantDual) {
 	cfg = c;
 	debug = getenv("RETRODS_DEBUG") != NULL;
-	SDL_SetHint(SDL_HINT_APP_NAME, "SNES DS");
+	SDL_SetHint(SDL_HINT_APP_NAME, "RetroDS");
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, cfg->smooth ? "linear" : "nearest");
 #ifdef __ANDROID__
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft");
@@ -451,7 +451,7 @@ bool ui_init(Config* c, bool wantDual) {
 	 * the other window), or failing that with a software renderer. */
 	/* (RETRODS_WINDOW: tools/androidtest, a window of that size, as SDL's
 	 * offscreen driver makes a full-screen one 1024x768) */
-	if (!create_view(&views[0], 0, "SNES DS", !getenv("RETRODS_WINDOW"), 1024, 768)) return false;
+	if (!create_view(&views[0], 0, "RetroDS", !getenv("RETRODS_WINDOW"), 1024, 768)) return false;
 	nViews = 1;
 	int sw, sh, w0, h0;
 	SDL_RendererInfo ri;
@@ -500,8 +500,8 @@ bool ui_init(Config* c, bool wantDual) {
 	fprintf(stderr, "touch devices: %d\n", SDL_GetNumTouchDevices());
 	if (dual && displays >= 2) {
 		nViews = 2;
-		if (!create_view(&views[0], 0, "SNES DS", true, 720, 480) ||
-		    !create_view(&views[1], 1, "SNES DS map", true, 720, 480)) {
+		if (!create_view(&views[0], 0, "RetroDS", true, 720, 480) ||
+		    !create_view(&views[1], 1, "RetroDS map", true, 720, 480)) {
 			return false;
 		}
 	} else {
@@ -515,7 +515,7 @@ bool ui_init(Config* c, bool wantDual) {
 			if (SDL_GetDesktopDisplayMode(0, &m) == 0 && m.w > 0 && m.h > 0) ww = m.w, wh = m.h;
 			fprintf(stderr, "BananaOS: both panels as one window, %dx%d\n", ww, wh);
 		}
-		if (!create_view(&views[0], 0, "SNES DS", fullscreen, ww, wh)) return false;
+		if (!create_view(&views[0], 0, "RetroDS", fullscreen, ww, wh)) return false;
 	}
 	ui_layout();
 	return true;
@@ -930,7 +930,7 @@ static void evdev_touch_poll(void) {
 			evAx[a].min = ai.minimum, evAx[a].max = ai.maximum;
 		}
 		if (cfg->touchRotate < 0) cfg->touchRotate = evAx[0].max - evAx[0].min >= evAx[1].max - evAx[1].min ? 0 : 90;
-		/* ours alone while SNES DS runs (fails if another program holds it) */
+		/* ours alone while RetroDS runs (fails if another program holds it) */
 		int grab = ioctl(evTouchFd, EVIOCGRAB, 1);
 		char name[64] = "?";
 		ioctl(evTouchFd, EVIOCGNAME(sizeof(name)), name);
@@ -975,7 +975,7 @@ static void evdev_touch_poll(void) {
 	}
 }
 
-/* SNES DS's own volume, where the system leaves the volume keys to the
+/* RetroDS's own volume, where the system leaves the volume keys to the
  * program running (launch.sh sets RETRODS_VOLUME to the file that keeps it:
  * the RG DS Plus's Stock Linux OS, whose ports play straight to the sound card).
  * The keys come as key events, from their input device, or as raw joystick

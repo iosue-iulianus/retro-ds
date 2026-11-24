@@ -1,4 +1,4 @@
-/* SNES DS M0 harness: two instances of a libretro core, driven by a script.
+/* RetroDS M0 harness: two instances of a libretro core, driven by a script.
  *
  *   retrods-harness CORE ROM OUTDIR SCRIPT
  *
@@ -28,11 +28,11 @@
  *                          stable=8 maxdiff=64 max=600 blind=1 (frames
  *                          before `until` holds run without drawing)
  *                          verbose=1 (pixels changed, frame by frame)
- *   smmap NAME [VX VY|game|page]  Super Metroid's map as SNES DS draws it
+ *   smmap NAME [VX VY|game|page]  Super Metroid's map as RetroDS draws it
  *                          (src/smmap.c), from A's RAM: NAME.png, 256 x
  *                          178, at the view given, the game's own ($B1,
  *                          $B3: its pause screen, the blinking as on its
- *                          picture) or where SNES DS rests it; or its
+ *                          picture) or where RetroDS rests it; or its
  *                          equipment page
  *   smtoggle CAT INDEX     Super Metroid: switch an item on or off as
  *                          the drawn equipment page does (src/smmap.c:

@@ -1,4 +1,4 @@
-/* SNES DS: a GBA emulator for dual-screen handhelds that keeps the game's own
+/* RetroDS: a GBA emulator for dual-screen handhelds that keeps the game's own
  * map on the second screen.
  *
  *   library.c  game list (rescans the ROM folder every time it opens)
@@ -68,10 +68,10 @@ static void on_crash(int sig) {
 int main(int argc, char** argv) {
 	for (int i = 1; i < argc; ++i) {
 		if (!strcmp(argv[i], "--version")) {
-			printf("SNES DS %s\n", RETRODS_VERSION);
+			printf("RetroDS %s\n", RETRODS_VERSION);
 			return 0;
 		}
-		/* --supported ROM: exit 0 if SNES DS has second-screen support for the
+		/* --supported ROM: exit 0 if RetroDS has second-screen support for the
 		 * game (a profile for its code), 1 if not, 2 if it can't be read */
 		if (!strcmp(argv[i], "--supported") && i + 1 < argc) {
 			char code[9];
@@ -82,12 +82,12 @@ int main(int argc, char** argv) {
 		}
 	}
 #ifdef __ANDROID__
-	/* SNES DS's folder where the player chose it (Settings > Folders), its
+	/* RetroDS's folder where the player chose it (Settings > Folders), its
 	 * files moved there first if it's new: before the log, which goes in it */
 	android_data_setup();
 	android_init_log();
 #endif
-	fprintf(stderr, "SNES DS %s\n", RETRODS_VERSION);
+	fprintf(stderr, "RetroDS %s\n", RETRODS_VERSION);
 	Config cfg;
 	config_defaults(&cfg);
 #ifdef __ANDROID__
@@ -127,7 +127,7 @@ int main(int argc, char** argv) {
 			config_load_file(&cfg, path);
 		}
 #if !defined(__ANDROID__)
-		/* data-folder.cfg: data_dir, where SNES DS keeps its own files (in a
+		/* data-folder.cfg: data_dir, where RetroDS keeps its own files (in a
 		 * file of its own, which neither the zip nor an update has) */
 		snprintf(path, sizeof(path), "%s/data-folder.cfg", exeDir);
 		config_load_file(&cfg, path);
@@ -137,7 +137,7 @@ int main(int argc, char** argv) {
 		config_usage(argv[0]);
 		return 1;
 	}
-	/* SNES DS's data folder (states/, cheats/, overlays/, logos/...): the
+	/* RetroDS's data folder (states/, cheats/, overlays/, logos/...): the
 	 * app's folder, or data_dir, moved there when that changes (paths.c) */
 	char dataDir[480];
 	snprintf(dataDir, sizeof(dataDir), "%s", exeDir);

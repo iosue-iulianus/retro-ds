@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """A Link to the Past's tile sheets, decompressed from the cartridge (M3).
 
-The reference for the graphics SNES DS needs that aren't in video RAM while
+The reference for the graphics RetroDS needs that aren't in video RAM while
 Link plays: the dungeon map's tiles (ALTTP-5). The game keeps its tiles in
 compressed sheets of 64 tiles at 3 bits a pixel and widens them to 4 bits
 as it loads a tileset; this does the same, so a tileset can be built

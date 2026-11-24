@@ -1,4 +1,4 @@
-/* A Link to the Past's second screen, made by SNES DS
+/* A Link to the Past's second screen, made by RetroDS
  * (docs/games/a-link-to-the-past.md, ALTTP-1 and on):
  * - the items screen (ALTTP-10): the game's START screen built from the
  *   cartridge's tables and Link's items, its panes moved for touch (the Y
@@ -119,7 +119,7 @@ const uint32_t* alttp_goal_pictures(const Alttp* a);
 const uint32_t* alttp_marker(const Alttp* a);
 bool alttp_marker_on(const Alttp* a);
 
-/* The seen record (ALTTP-2) for each of the game's files, in SNES DS's own
+/* The seen record (ALTTP-2) for each of the game's files, in RetroDS's own
  * file beside the battery save. alttp_update says ALTTP_FILE when Link is
  * played from another file than before (alttp_file: 1 to 3, from the
  * cartridge RAM's $1FFE): the last file's record is saved, then this

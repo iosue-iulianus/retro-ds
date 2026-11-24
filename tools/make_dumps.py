@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Write each supported release's known dumps: the "Dumps" row of every rules
-file (docs/games/*.md) and src/dumps_data.h, the table SNES DS checks a ROM's
+file (docs/games/*.md) and src/dumps_data.h, the table RetroDS checks a ROM's
 CRC32 against to tell a clean copy of a game from a modified one.
 
   tools/make_dumps.py --dat DAT [--fixtures DIR] [--check]

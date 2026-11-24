@@ -1,4 +1,4 @@
-/* A Link to the Past's dungeon map, drawn by SNES DS (alttp_dungeon.c;
+/* A Link to the Past's dungeon map, drawn by RetroDS (alttp_dungeon.c;
  * docs/games/a-link-to-the-past.md, ALTTP-5 and ALTTP-6). Used by alttp.c. */
 #ifndef RETRODS_ALTTP_DUNGEON_H
 #define RETRODS_ALTTP_DUNGEON_H

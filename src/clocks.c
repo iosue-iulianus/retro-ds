@@ -1,13 +1,13 @@
 /* The Performance setting (issue #50): "Set to max" holds the CPU, memory
- * controller and GPU at their fastest while SNES DS runs; "Let the system
+ * controller and GPU at their fastest while RetroDS runs; "Let the system
  * decide" leaves the governors as they are (EmulationStation's choice on
  * ROCKNIX). Under a governor that lets the clock drop between frames, a
  * busy frame can come too late on some devices: stutters and sound gaps.
  * Held at max, the battery runs down faster and the device gets warmer.
  *
  * What each governor was is kept in memory and in GOV_STATE, which
- * launch.sh reads and puts back if SNES DS ends without doing so (a crash,
- * being killed). Only the governors SNES DS changed are ever put back. */
+ * launch.sh reads and puts back if RetroDS ends without doing so (a crash,
+ * being killed). Only the governors RetroDS changed are ever put back. */
 #include "clocks.h"
 
 #if defined(__linux__) && !defined(__ANDROID__)
@@ -39,7 +39,7 @@ static const char* short_name(const char* path) {
 }
 
 /* the governor files: every CPU policy, and the memory controller's and the
- * GPU's devfreq (not the NPU's or others': nothing SNES DS uses) */
+ * GPU's devfreq (not the NPU's or others': nothing RetroDS uses) */
 static int governors(char paths[][160], int max) {
 	int n = 0;
 	char dir[200];

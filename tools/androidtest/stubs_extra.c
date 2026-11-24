@@ -7,7 +7,7 @@ void android_set_pinning(bool on) { (void) on; }
 void android_pin_game_thread(void) { cpu_set_t s; CPU_ZERO(&s); CPU_SET(1, &s); fprintf(stderr, "stub pin game: %d\n", sched_setaffinity(0, sizeof s, &s)); }
 void android_pin_worker_thread(const char* w) { (void) w; cpu_set_t s; CPU_ZERO(&s); CPU_SET(0, &s); fprintf(stderr, "stub pin worker: %d\n", sched_setaffinity(0, sizeof s, &s)); }
 int android_raise_thread(void) { return 0; }
-/* SNES DS's folder (issue #34): data-folder.cfg in $RETRODS_APP_FILES if set,
+/* RetroDS's folder (issue #34): data-folder.cfg in $RETRODS_APP_FILES if set,
  * else none; the move itself isn't run here (android.c's android_data_setup) */
 #include <stdio.h>
 #include <stdlib.h>

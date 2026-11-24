@@ -2,8 +2,8 @@
 <!-- Machine translated; see docs/I18N.md. app_name stays in values/. -->
 <resources>
     <string name="files_title">允許存取所有檔案</string>
-    <string name="files_why">SNES DS 會從你的 ROM 資料夾讀取遊戲，並把存檔狀態、螢幕截圖、密技和遊戲標誌儲存在儲存空間中的「SNES DS」資料夾裡。Android 把這項權限稱為「所有檔案的存取權」。\n\n在下一個畫面中，為 SNES DS 開啟它，然後返回。</string>
+    <string name="files_why">RetroDS 會從你的 ROM 資料夾讀取遊戲，並把存檔狀態、螢幕截圖、密技和遊戲標誌儲存在儲存空間中的「RetroDS」資料夾裡。Android 把這項權限稱為「所有檔案的存取權」。\n\n在下一個畫面中，為 RetroDS 開啟它，然後返回。</string>
     <string name="files_open">繼續</string>
     <string name="files_not_now">稍後再說</string>
-    <string name="need_files">SNES DS 需要「所有檔案的存取權」才能讀取你的 ROM 資料夾。請開啟它，然後返回。</string>
+    <string name="need_files">RetroDS 需要「所有檔案的存取權」才能讀取你的 ROM 資料夾。請開啟它，然後返回。</string>
 </resources>

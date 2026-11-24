@@ -52,7 +52,7 @@ static struct {
 static void save_state_file(void) {
 	FILE* f = fopen(U.stateFile, "w");
 	if (!f) return;
-	fprintf(f, "# SNES DS updates (the game list's Settings > Updates)\n");
+	fprintf(f, "# RetroDS updates (the game list's Settings > Updates)\n");
 	fprintf(f, "last_check = %ld\n", U.info.lastCheck);
 	if (U.skip[0]) fprintf(f, "skip = %s\n", U.skip);
 	if (U.autoCfg >= 0) fprintf(f, "auto = %d\n", U.autoCfg);
@@ -332,7 +332,7 @@ static bool ends_with(const char* s, const char* end) {
 }
 
 #ifndef __ANDROID__
-/* SNES DS is released for Android only: the desktop build (development)
+/* RetroDS is released for Android only: the desktop build (development)
  * can check for a release but not install one. */
 static bool install_zip(const char* zip, char* err, size_t errSize) {
 	snprintf(err, errSize, "updates install on Android only");
@@ -422,14 +422,14 @@ static void android_poll(void) {
 	U.info.state = UPD_ERROR;
 	if (st == -3) {
 		snprintf(U.info.error, sizeof(U.info.error),
-		         "Android won't install v%s over this copy of SNES DS: it was signed with another key (a test build?). "
-		         "Uninstall SNES DS, then install the new version from github.com/iosue-iulianus/retro-ds/releases. Your files in "
-		         "the SNES DS folder are kept.", U.info.version);
+		         "Android won't install v%s over this copy of RetroDS: it was signed with another key (a test build?). "
+		         "Uninstall RetroDS, then install the new version from github.com/iosue-iulianus/retro-ds/releases. Your files in "
+		         "the RetroDS folder are kept.", U.info.version);
 	} else if (st == -5) {
 		snprintf(U.info.error, sizeof(U.info.error),
-		         "Android won't install v%s over this copy of SNES DS: this copy is a test build made after it, and "
-		         "Android doesn't go back to an earlier build. Keep this one, or uninstall SNES DS and install v%s from "
-		         "github.com/iosue-iulianus/retro-ds/releases (your files in the SNES DS folder are kept).", U.info.version,
+		         "Android won't install v%s over this copy of RetroDS: this copy is a test build made after it, and "
+		         "Android doesn't go back to an earlier build. Keep this one, or uninstall RetroDS and install v%s from "
+		         "github.com/iosue-iulianus/retro-ds/releases (your files in the RetroDS folder are kept).", U.info.version,
 		         U.info.version);
 	} else if (st == -4) {
 		snprintf(U.info.error, sizeof(U.info.error), "There isn't enough storage free to install the update.");

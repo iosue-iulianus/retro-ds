@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """A Link to the Past's overworld, assembled from the game's own screens (M3).
 
-The reference for SNES DS's world map (ALTTP-1, ALTTP-2): while Link is
+The reference for RetroDS's world map (ALTTP-1, ALTTP-2): while Link is
 outdoors, what the game screen shows of the ground is kept, in the game's
 own pixels, and put together into a map of each world; the parts never seen
 are covered with the clouds of the game's world map (light clouds in the

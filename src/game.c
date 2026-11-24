@@ -248,10 +248,10 @@ static char subCode[9];          /* the profile in use: the game's code */
 static const char* dump_text(char* buf, size_t n) {
 	const char* name;
 	switch (profile_dump(emu.gameCode, emu.romCrc, &name)) {
-	case DUMP_TESTED: snprintf(buf, n, "CRC32 %08x, the dump SNES DS is tested on (%s)", emu.romCrc, name); break;
-	case DUMP_OFFICIAL: snprintf(buf, n, "CRC32 %08x, an official dump SNES DS isn't tested on (%s)", emu.romCrc, name); break;
-	case DUMP_MOD_TESTED: snprintf(buf, n, "CRC32 %08x, a mod SNES DS is tested on (%s)", emu.romCrc, name); break;
-	case DUMP_MOD: snprintf(buf, n, "CRC32 %08x, a known mod SNES DS isn't tested on (%s)", emu.romCrc, name); break;
+	case DUMP_TESTED: snprintf(buf, n, "CRC32 %08x, the dump RetroDS is tested on (%s)", emu.romCrc, name); break;
+	case DUMP_OFFICIAL: snprintf(buf, n, "CRC32 %08x, an official dump RetroDS isn't tested on (%s)", emu.romCrc, name); break;
+	case DUMP_MOD_TESTED: snprintf(buf, n, "CRC32 %08x, a mod RetroDS is tested on (%s)", emu.romCrc, name); break;
+	case DUMP_MOD: snprintf(buf, n, "CRC32 %08x, a known mod RetroDS isn't tested on (%s)", emu.romCrc, name); break;
 	case DUMP_MODIFIED:
 		snprintf(buf, n, "CRC32 %08x, not a known dump of %.8s: modified (a patch or hack), trimmed or a bad dump", emu.romCrc,
 		         emu.gameCode);
@@ -320,7 +320,7 @@ static SDL_Texture* logoCanvasTex[2];
 static SDL_Texture* overlayTex[2][2];
 static int overlayW[2], overlayH[2];
 static char overlayMode[2][32];
-/* SNES DS's own bezel (draw_bezel, bezel.c): [0] top screen, [1] bottom,
+/* RetroDS's own bezel (draw_bezel, bezel.c): [0] top screen, [1] bottom,
  * made again when anything it's drawn from changes */
 static SDL_Texture* bezelTex[2][2];
 static int bezelW[2], bezelH[2];
@@ -467,7 +467,7 @@ enum MenuItem { M_RESUME, M_CHEATS, M_PATCHES, M_ACH, M_SHOT, M_SWAP, M_SCALE, M
 static const char* menuLabels[] = {
 	/* title case: drawn in Futura from the built-in images (tools/make_brand.py) */
 	[M_RESUME] = N_("Resume"), [M_SWAP] = N_("Swap Screens"), [M_SAVE] = N_("Save State"), [M_SCALE] = "", [M_LCD] = "", [M_FPS] = "", [M_FRAMEBUF] = "", [M_OVERLAY] = "", [M_LOGO] = "", [M_MATCH] = "", [M_REWIND] = "", [M_RESTART] = N_("Restart Game"),
-	[M_LOAD] = N_("Load State"), [M_CHEATS] = "Cheats", [M_PATCHES] = "Patches", [M_BUTTONS] = N_("Buttons"), [M_ACH] = "Achievements", [M_SHOT] = N_("Take Screenshot"), [M_LIBRARY] = N_("Close Game"), [M_EXIT] = N_("Close SNES DS"),
+	[M_LOAD] = N_("Load State"), [M_CHEATS] = "Cheats", [M_PATCHES] = "Patches", [M_BUTTONS] = N_("Buttons"), [M_ACH] = "Achievements", [M_SHOT] = N_("Take Screenshot"), [M_LIBRARY] = N_("Close Game"), [M_EXIT] = N_("Close RetroDS"),
 	[M_AUTOSAVE] = "", [M_AUTOLOAD] = "", [M_BUG] = N_("Submit a Bug Report"), [M_SLOT] = "", [M_FF] = "", [M_COLOR] = "", [M_GHOST] = "", [M_PIXLOGO] = "", [M_PLACE] = "",
 };
 static int menuItems[12], nMenuItems;
@@ -478,7 +478,7 @@ static bool half_item(int item) {
 	return item == M_RESUME || item == M_RESTART || item == M_SAVE || item == M_LOAD || item == M_AUTOSAVE || item == M_AUTOLOAD || item == M_REWIND || item == M_FF ||
 	       item == M_COLOR || item == M_GHOST || item == M_CHEATS || item == M_PATCHES || item == M_SHOT || item == M_BUG;
 }
-/* Close Game and Close SNES DS are double height: two rows tall, side by side
+/* Close Game and Close RetroDS are double height: two rows tall, side by side
  * when both are there, else the one across the whole row */
 static bool tall_item(int item) {
 	return item == M_LIBRARY || item == M_EXIT;
@@ -538,7 +538,7 @@ static void suppress_held(void) {
 	for (int b = 0; b < B_COUNT; ++b) suppress[b] = btnNow[b];
 }
 static const char* pageNames[N_PAGES] = { "Game", N_("Display"), "Screens", "Controls", N_("Speed"), N_("Map")};
-/* Restart Game, Close Game and Close SNES DS ask first: chosen once, the
+/* Restart Game, Close Game and Close RetroDS ask first: chosen once, the
  * button says "Are You Sure?" (and the note what happens); chosen again,
  * it's done. Another page, another button or closing the menu calls it off. */
 static int armedItem = -1;
@@ -569,7 +569,7 @@ static SDL_Rect ach_area(int scr);
  * widest fits (item_label gives the current one). */
 static const char* const allLabels[] = {
 	N_("Resume"), N_("Restart Game"), N_("Are You Sure?"), N_("Save State"), N_("Load State"), "Cheats", "Patches", "Achievements",
-	N_("Take Screenshot"), N_("Close Game"), N_("Close SNES DS"), N_("Submit a Bug Report"),
+	N_("Take Screenshot"), N_("Close Game"), N_("Close RetroDS"), N_("Submit a Bug Report"),
 	"\u2039   Slot 0: Sep 30, 12:59 PM   \u203A", /* (the slot row, with its arrows) */
 };
 /* the labels of the half-width buttons, which fit in half the width */
@@ -912,7 +912,7 @@ typedef struct {
 	bool usable;       /* applies to this ROM on its own */
 	ByteRange* ranges; /* (usable) the bytes it changes */
 	int nRanges;
-	/* a patch SNES DS knows (docs/patches.md): the ROMs it's made for, and
+	/* a patch RetroDS knows (docs/patches.md): the ROMs it's made for, and
 	 * what to say when it goes on one of them (an optional patch: on
 	 * another patch's result, found when they're tried together) */
 	const KnownPatch* known;
@@ -1067,7 +1067,7 @@ static void patch_describe(const uint8_t* rom, size_t romN, uint32_t romCrc, con
 		snprintf(pi->note, sizeof(pi->note), tr("Made for another version of the game: it can't be switched on for this ROM"));
 	} else if (r != PATCH_APPLIED && compressed) {
 		snprintf(pi->note, sizeof(pi->note),
-		         tr("An xdelta made with compression, which SNES DS can't read: patch the ROM with it beforehand, or make it again without (xdelta3 -S none)"));
+		         tr("An xdelta made with compression, which RetroDS can't read: patch the ROM with it beforehand, or make it again without (xdelta3 -S none)"));
 	} else if (r != PATCH_APPLIED) {
 		snprintf(pi->note, sizeof(pi->note), tr("Can't be read: not a patch, or damaged"));
 	} else if (pi->known && !pi->baseOk) {
@@ -1820,7 +1820,7 @@ static void draw_battery(void) {
  * Swiping up from the bottom of the touchscreen brings up a bar along its
  * bottom, over whatever it shows, without pausing: the time, the battery
  * and the frames a second, then icon buttons: Save State, Load State,
- * Settings (the pause menu), Bug Report (bug_report) and Close SNES DS
+ * Settings (the pause menu), Bug Report (bug_report) and Close RetroDS
  * (tapped twice). In games with another button layout, Controls above.
  * Swiping down, the pause menu opening or 5 seconds untouched put it
  * away. Greys only, to sit over any game's colours. */
@@ -1829,7 +1829,7 @@ static float barShown;          /* 0 hidden .. 1 all the way up (sliding) */
 static Uint32 barSince;         /* last touched */
 static Uint32 barLitAt;         /* a button's action just done: it shows white a moment */
 static int barLit = -1;
-static Uint32 barExitArmed;     /* Close SNES DS tapped once (a second tap within 3 s closes) */
+static Uint32 barExitArmed;     /* Close RetroDS tapped once (a second tap within 3 s closes) */
 enum { G_NONE, G_TRACK, G_DONE, G_BTN, G_PIN };
 static int barGesture = G_NONE;
 static int barBtn = -1;         /* the button under the finger (G_BTN) */
@@ -2313,7 +2313,7 @@ static const char* ovl_row_label(int row) {
 	switch (row) {
 	case OR_MODE: return modes[SDL_clamp(cfg->overlayMode, 0, 2)];
 	case OR_SCREENS: return cfg->overlays == OVL_TOP ? N_("Which Screen: Top Only"): cfg->overlays == OVL_BOTTOM ? N_("Which Screen: Bottom Only"): N_("Which Screen: Both");
-	case OR_LOGO: return cfg->bezelLogo ? N_("SNES DS Logo: Show"): N_("SNES DS Logo: Hide");
+	case OR_LOGO: return cfg->bezelLogo ? N_("RetroDS Logo: Show"): N_("RetroDS Logo: Hide");
 	case OR_INNER: return N_("Inner Bezel Color");
 	case OR_OUTER: return N_("Outer Bezel Color");
 	default: return N_("Reset Bezels");
@@ -2702,7 +2702,7 @@ static void ovl_close_all(void) {
  * retrods.cfg, for this game or for all games); with none chosen, ab_swap's
  * layout. Before v1.5.4 a game's choices were kept in <game>.buttons: read
  * once into the game's own settings (fb_load). Only the game's keys change
- * (run loop, the GBA layout's branch): SNES DS's own screens keep B_A / B_B.
+ * (run loop, the GBA layout's branch): RetroDS's own screens keep B_A / B_B.
  * In games with a layout picker (profile `controls`), the SNES / four-button
  * layout decides the face buttons wherever it's in use. */
 enum { FB_RIGHT, FB_BOTTOM, FB_TOP, FB_LEFT, FB_FACES, FB_L = FB_FACES, FB_R, FB_UP, FB_DOWN, FB_PADLEFT, FB_PADRIGHT, FB_COUNT };
@@ -3149,7 +3149,7 @@ static void draw_menu(void) {
 		int lc = cap;
 		if (tall_item(menuItems[i])) {
 			/* double height: the text as big as the button and its widest label allow */
-			static const char* const tallLabels[] = { "Close Game", "Close SNES DS", "Are You Sure?" };
+			static const char* const tallLabels[] = { "Close Game", "Close RetroDS", "Are You Sure?" };
 			int widest = 1;
 			for (size_t k = 0; k < sizeof(tallLabels) / sizeof(*tallLabels); ++k) widest = SDL_max(widest, ui_label_width(scr, 100, tallLabels[k]));
 			lc = SDL_min(r.h * 2 / 5, (r.w - mg.pad * 2) * 100 / widest);
@@ -3160,7 +3160,7 @@ static void draw_menu(void) {
 		int lastRow = SDL_min(nMenuRows, ROW_VIS) - 1;
 		SDL_Rect last = { 0, mg.top + lastRow * (mg.h + mg.gap), 0, mg.h };
 		int nc = SDL_min(mg.noteCap, mg.noteCap * mg.w / SDL_max(1, ui_font_width(TF_BOLD, mg.noteCap, menuNote)));
-		/* (the last item is always a whole row: Close SNES DS, Show FPS...) */
+		/* (the last item is always a whole row: Close RetroDS, Show FPS...) */
 		ui_font_text(scr, TF_BOLD, screens[scr].rect.w / 2, last.y + last.h + mg.h * 3 / 5, nc, menuNote, C_GOLD, 0);
 	}
 	if (nScreens > 1) {
@@ -3383,7 +3383,7 @@ static void screen_restore_apply(void) {
 	                   blob_find(b, n, "SNAP", &sz) ? " copy" : "");
 }
 /* Save states, with the RetroAchievements progress beside them (<state>.ra;
- * for one in RetroArch's folder, in SNES DS's own: <state_dir>/retroarch/) */
+ * for one in RetroArch's folder, in RetroDS's own: <state_dir>/retroarch/) */
 static const char* state_ra_side(const char* path) {
 	static char side[1200];
 	if (!state_is_retroarch(path)) return path;
@@ -3430,14 +3430,14 @@ static bool state_load(const char* path) {
 	stateLoadKind = emu_state_file_kind(&emu, path, &fromRetrods);
 	bool ok = emu_state_load_file(&emu, path);
 	{
-		static const char* const kinds[] = { "no file", "SNES DS's", "RetroArch's", "another emulator's", "unreadable" };
+		static const char* const kinds[] = { "no file", "RetroDS's", "RetroArch's", "another emulator's", "unreadable" };
 		fprintf(stderr, "load state: %s: %s (%s%s)\n", path, ok ? "loaded" : "not loaded", kinds[stateLoadKind],
-		        stateLoadKind == STATE_FILE_RETROARCH ? (fromRetrods ? ", saved by SNES DS" : ", saved by RetroArch") : "");
+		        stateLoadKind == STATE_FILE_RETROARCH ? (fromRetrods ? ", saved by RetroDS" : ", saved by RetroArch") : "");
 	}
 	stateWarned = false;
 	if (ok && !stateNoCheck) state_rom_check(path);
 	if (ok) {
-		/* (saved by RetroArch over one of SNES DS's: the progress kept with
+		/* (saved by RetroArch over one of RetroDS's: the progress kept with
 		 * that one is another moment's, so achievements start over) */
 		const char* side = state_ra_side(path);
 		if (side != path && !fromRetrods) {
@@ -3469,7 +3469,7 @@ static bool state_load(const char* path) {
 /* README.txt in the bug-reports folder: how to send a report (written with
  * the first report, if it isn't there; replaced when the text changes) */
 static const char bugReadme[] =
-	"SNES DS bug reports\n"
+	"RetroDS bug reports\n"
 	"==================\n"
 	"\n"
 	"Each zip in this folder is one bug report, saved by the quick bar's bug\n"
@@ -3481,7 +3481,7 @@ static const char bugReadme[] =
 	"  - GAME-DATE-keys.txt        every button you pressed in between\n"
 	"  - GAME-DATE-info.txt        your note (if you typed one), your device,\n"
 	"                              system, screens and settings, and the end\n"
-	"                              of SNES DS's log\n"
+	"                              of RetroDS's log\n"
 	"\n"
 	"In the pinball games' two-screen view, also what both screens showed\n"
 	"(GAME-DATE-tall.png, with the two extra copies' own pictures), the\n"
@@ -3526,8 +3526,8 @@ static const char bugReadme[] =
 	"  - Anything you changed in Settings or retrods.cfg, and whether cheats\n"
 	"    were on.\n"
 	"\n"
-	"If SNES DS crashes, won't start, or a game won't load (so there's no way\n"
-	"to make a report), attach retrods.log instead: it's in the SNES DS folder,\n"
+	"If RetroDS crashes, won't start, or a game won't load (so there's no way\n"
+	"to make a report), attach retrods.log instead: it's in the RetroDS folder,\n"
 	"next to this bug-reports folder. Say which system you use (ROCKNIX,\n"
 	"BananaOS, Anbernic's own system, Android) and which device.\n"
 	"\n"
@@ -3670,11 +3670,11 @@ static void log_path(char* out, size_t size) {
 #endif
 }
 
-/* The report's -info.txt: the device and system, SNES DS's settings, the
+/* The report's -info.txt: the device and system, RetroDS's settings, the
  * game and the end of the log (without lines about passwords or tokens). */
 static void bug_info(Text* t, const char* date, uint64_t back) {
 #ifdef RETRODS_VERSION
-	text_add(t, "SNES DS %s bug report, %s\n\n", RETRODS_VERSION, date);
+	text_add(t, "RetroDS %s bug report, %s\n\n", RETRODS_VERSION, date);
 #endif
 	text_add(t, "== Device\n");
 	char line[256];
@@ -3736,7 +3736,7 @@ static void bug_info(Text* t, const char* date, uint64_t back) {
 		text_add(t, "Save states: shared with RetroArch in %s (%s, %s); slot %d\n", gp.raDir, cfg->raStateDir[0] ? "chosen by hand" : "from its settings",
 		         gp.raCompress ? "compressed" : "uncompressed", stateSlot);
 	else
-		text_add(t, "Save states: SNES DS's own%s; slot %d\n", !strcmp(cfg->stateFolder, "retroarch") ? " (shared with RetroArch, but its folder wasn't found)" : "",
+		text_add(t, "Save states: RetroDS's own%s; slot %d\n", !strcmp(cfg->stateFolder, "retroarch") ? " (shared with RetroArch, but its folder wasn't found)" : "",
 		         stateSlot);
 
 	text_add(t, "\n== Settings\n");
@@ -3846,13 +3846,13 @@ static bool bug_report(char* out, size_t outSize) {
 #else
 	const char* version = "?";
 #endif
-	text_add(&t, "# SNES DS bug report, %s\n", date);
-	text_add(&t, "# SNES DS %s, %s (%s%s%s)\n", version, gp.base, emu.gameCode, strcmp(subCode, emu.gameCode) ? ", playing " : "",
+	text_add(&t, "# RetroDS bug report, %s\n", date);
+	text_add(&t, "# RetroDS %s, %s (%s%s%s)\n", version, gp.base, emu.gameCode, strcmp(subCode, emu.gameCode) ? ", playing " : "",
 	         strcmp(subCode, emu.gameCode) ? subCode : "");
 	text_add(&t, "# Cheats on: %d.\n", cheats_on(&cheats));
 	text_add(&t, "# %s is the game %.1f seconds (%llu frames) before %s.\n", name[1], (to - from) / fps60,
 	         (unsigned long long) (to - from), name[0]);
-	text_add(&t, "# The keys the game got from then on (after SNES DS's button layouts), by frame:\n#\n");
+	text_add(&t, "# The keys the game got from then on (after RetroDS's button layouts), by frame:\n#\n");
 	text_add(&t, "#  frame    time  event\n");
 	unsigned prev = 0;
 	uint64_t since[12] = { 0 };
@@ -4243,7 +4243,7 @@ static double audioSpeed = 1.0; /* emulated time per real time */
 /* ---- Keeping the game and its sound going while a frame's present is held
  * up (issue #50). On one player's RG DS Plus (ROCKNIX, a second SD card),
  * presenting a frame stalled for half a second every few seconds: the
- * graphics driver waiting for sway to give a buffer back. Nothing in SNES DS
+ * graphics driver waiting for sway to give a buffer back. Nothing in RetroDS
  * can make the screen take the frame sooner, but the emulator isn't needed
  * for presenting: once a present has taken 1.5 frames, this thread runs the
  * game's frames on time with the last keys held (run_frame, as the frame
@@ -4562,7 +4562,7 @@ static void load_overlay(int s, int which) {
 	}
 }
 
-/* SNES DS's own bezel round screen s's picture (bezel.c): in the player's
+/* RetroDS's own bezel round screen s's picture (bezel.c): in the player's
  * colours and with their logo setting (Overlays: Generated; while the
  * colour picker is open, its colour as it's picked), or in the defaults
  * (a screen without a PNG in Overlays: Custom). Nothing where the picture
@@ -5206,7 +5206,7 @@ static bool activate(int item, enum GameExit* exitTo) {
 		armedItem = item;
 		const char* lost = cfg->autoSave ? N_("your place is saved"): N_("unsaved progress is lost");
 		if (item == M_RESTART) snprintf(menuNote, sizeof(menuNote), tr("Choose it again to restart: unsaved progress is lost"));
-		else snprintf(menuNote, sizeof(menuNote), tr("Choose it again to close %s: %s"), item == M_EXIT ? "SNES DS" : tr("the game"), lost);
+		else snprintf(menuNote, sizeof(menuNote), tr("Choose it again to close %s: %s"), item == M_EXIT ? "RetroDS" : tr("the game"), lost);
 		return false;
 	}
 	armedItem = -1;
@@ -5830,7 +5830,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 						} else if (bb == BB_EXIT) {
 							if (!barExitArmed) {
 								barExitArmed = barSince;
-								ui_osd("Tap again to close SNES DS.");
+								ui_osd("Tap again to close RetroDS.");
 							} else {
 								exitTo = GAME_QUIT_APP;
 								done = true;

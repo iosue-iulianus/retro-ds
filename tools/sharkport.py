@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """GameShark / Action Replay "SharkPortSave" files (.sps, .gsv) to battery
-saves SNES DS (mGBA) loads: tools/sharkport.py IN.sps [OUT.sav].
+saves RetroDS (mGBA) loads: tools/sharkport.py IN.sps [OUT.sav].
 
 The container: a length-prefixed "SharkPortSave", the platform, then
 length-prefixed title, date and notes, the payload's size, the payload (a

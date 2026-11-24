@@ -135,10 +135,10 @@ public class RetroDsActivity extends SDLActivity {
         } catch (ErrnoException e) {
             Log.e(TAG, "setenv: " + e);
         }
-        Log.i(TAG, "SNES DS " + BuildConfig.VERSION_NAME + ", data in " + home);
+        Log.i(TAG, "RetroDS " + BuildConfig.VERSION_NAME + ", data in " + home);
         /* launch.log: the steps up to the native side's own log, so a start
          * that dies before retrods.log exists can still be followed */
-        LauncherActivity.launchLog(this, "starting SNES DS " + BuildConfig.VERSION_NAME + " on " + Build.MANUFACTURER + " "
+        LauncherActivity.launchLog(this, "starting RetroDS " + BuildConfig.VERSION_NAME + " on " + Build.MANUFACTURER + " "
                 + Build.MODEL + " (" + Build.HARDWARE + "), Android " + Build.VERSION.RELEASE + " (API "
                 + Build.VERSION.SDK_INT + "), ABIs " + java.util.Arrays.toString(Build.SUPPORTED_ABIS)
                 + ", data in " + home);
@@ -159,7 +159,7 @@ public class RetroDsActivity extends SDLActivity {
      * overlays, screenshots, save states), laid out like the ROCKNIX install
      * folder. Needs All files access; without it, the app's own folder.
      * Data from builds that used the app's folder is copied over once, and
-     * so is SNES DS's folder (importSnesDs). This is the default: a folder
+     * so is RetroDS's folder (importSnesDs). This is the default: a folder
      * the player chose instead (Settings > Folders) is set up by the native
      * side (android_data_setup), and then "RetroDS" isn't made.
      */
@@ -442,7 +442,7 @@ public class RetroDsActivity extends SDLActivity {
             final boolean[] answered = { false };
             AlertDialog d = new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
                     .setTitle("RetroAchievements")
-                    .setMessage("Sign in with your retroachievements.org account. SNES DS keeps a sign-in token, not your password.")
+                    .setMessage("Sign in with your retroachievements.org account. RetroDS keeps a sign-in token, not your password.")
                     .setView(box)
                     .setPositiveButton("Sign in", (dialog, which) -> {
                         answered[0] = true;
@@ -594,7 +594,7 @@ public class RetroDsActivity extends SDLActivity {
     /* ------------------------------------------------------------ in the background (issue #28) */
 
     /* Android leaves a Presentation up while its activity is in the
-     * background: the second display stayed SNES DS's (and awake) until the
+     * background: the second display stayed RetroDS's (and awake) until the
      * app closed. So it's hidden while the app can't be seen and shown
      * again when it can. Hiding takes its surface away (the native side lets
      * go of it: nativeSetSurface(null)) and showing brings a new one, which

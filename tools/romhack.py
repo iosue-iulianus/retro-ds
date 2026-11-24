@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""How well does SNES DS take to a romhack? Applies a patch to the release it's
+"""How well does RetroDS take to a romhack? Applies a patch to the release it's
 made for and runs that release's regression cases on the patched ROM.
 
   tools/romhack.py PATCH [--base CODE|ROM] [--name NAME] [--out DIR]
@@ -12,8 +12,8 @@ ROM file. A ROM that's already patched is matched to its release's fixture
 by the code in its header (or --base).
 
 It reports:
-  - the patched ROM: its header (a changed code means SNES DS won't know the
-    game at all), size and CRC32, and whether that's a dump or mod SNES DS
+  - the patched ROM: its header (a changed code means RetroDS won't know the
+    game at all), size and CRC32, and whether that's a dump or mod RetroDS
     already knows (src/dumps_data.h);
   - what the patch changes: how much, and where (the largest areas, and
     which went into the base's free space, 0x00 / 0xFF);
@@ -177,7 +177,7 @@ def apply_vcdiff(src, p):
     if p[:3] != b"\xd6\xc3\xc4" or p[3] != 0:
         raise ValueError("not an xdelta")
     if p[4] & 3:
-        raise ValueError("an xdelta made with compression (xdelta3 -S), which SNES DS can't read")
+        raise ValueError("an xdelta made with compression (xdelta3 -S), which RetroDS can't read")
     i = 5
     if p[4] & 4:
         n, i = _vcd_int(p, i)
@@ -196,7 +196,7 @@ def apply_vcdiff(src, p):
         _, i = _vcd_int(p, i)
         tlen, i = _vcd_int(p, i)
         if p[i]:
-            raise ValueError("an xdelta made with compression (xdelta3 -S), which SNES DS can't read")
+            raise ValueError("an xdelta made with compression (xdelta3 -S), which RetroDS can't read")
         i += 1
         al, i = _vcd_int(p, i)
         il, i = _vcd_int(p, i)
@@ -386,9 +386,9 @@ def main():
         os.path.relpath(romPath, ROOT), len(rom), crc, title, code, ver))
     k = known.get((code, crc))
     if k:
-        rep.append("SNES DS already knows it: %s%s (%s)." % ("a mod" if k[1] else "a dump", ", tested" if k[0] else "", k[2]))
+        rep.append("RetroDS already knows it: %s%s (%s)." % ("a mod" if k[1] else "a dump", ", tested" if k[0] else "", k[2]))
     if code != bCode:
-        rep.append("**Its header code is `%s`, not the game's `%s`: SNES DS won't know it as the game, so it plays on one "
+        rep.append("**Its header code is `%s`, not the game's `%s`: RetroDS won't know it as the game, so it plays on one "
                    "screen.** Supporting it means adding `%s` to the profile (as a release), not a Mods row." % (code, bCode, code))
     rep.append("")
 
@@ -416,7 +416,7 @@ def main():
     slug, casesPath = game_for(bCode)
     verdict = None
     if not slug:
-        rep.append("No rules file lists `%s` in its Releases row: SNES DS has no profile for this game." % bCode)
+        rep.append("No rules file lists `%s` in its Releases row: RetroDS has no profile for this game." % bCode)
     elif a.no_tests:
         rep.append("Tests not run (--no-tests).")
     elif not casesPath:

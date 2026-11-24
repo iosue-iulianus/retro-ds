@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <SDL.h>
 
-/* SNES DS's own bezel round the picture (Overlays: Generated), drawn on the
+/* RetroDS's own bezel round the picture (Overlays: Generated), drawn on the
  * device: see bezel.c. */
 
 #define BEZEL_INNER_DEFAULT 0x1A1A1A
@@ -13,7 +13,7 @@
 
 /* A screen of sw x sh whose picture is pic: RGBA32, transparent inside
  * the picture. above: the logo above the picture (the bottom screen's
- * design, by the hinge), else below it; inner, outer: RRGGBB; logo: the SNES DS logo in
+ * design, by the hinge), else below it; inner, outer: RRGGBB; logo: the RetroDS logo in
  * the bezel. NULL if out of memory. */
 SDL_Surface* bezel_surface(int sw, int sh, SDL_Rect pic, bool above, uint32_t inner, uint32_t outer, bool logo);
 

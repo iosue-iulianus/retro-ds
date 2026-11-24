@@ -1,6 +1,6 @@
-# SNES DS: notes for Claude sessions
+# RetroDS: notes for Claude sessions
 
-SNES DS is a fork of kyannon/gba-ds (GBA DS) into a Super Nintendo emulator
+RetroDS is a fork of kyannon/gba-ds (GBA DS) into a Super Nintendo emulator
 for dual-screen handhelds, built for the **Retroid Pocket Duo** on Android
 16: bottom screen 4.5" 1280x960 (4:3), top screen 5.5" 1920x1080 (16:9),
 both 120 Hz OLED, Qualcomm Q-7790, 8 GB RAM. The game runs on the bottom
@@ -16,14 +16,14 @@ libretro bsnes core and GBA DS's GBA-only features are gone. M2 and M3
 are merged too (PRs #3 and #4, Nov 24, 2026, after the owner tried them
 on the Duo). M2: Super Metroid's second screen,
 the game on the screen closer to 4:3 (the Duo's bottom one), overlays
-(the bezel) off by default. Its map and SAMUS page are drawn by SNES DS
+(the bezel) off by default. Its map and SAMUS page are drawn by RetroDS
 itself from the ROM and RAM (`src/smmap.c`, the profile's `native`; no
 hidden copy runs for Super Metroid): pixel-exact against the game's
 pause screen (`tools/sm_map.py`, the harness's `smmap` and `smtoggle`),
 scrolled smoothly on the GPU (drag, fling, glide), and tapping an item
 on the SAMUS page switches it (the write exception, SM-10); the reserve
 mode switch isn't done. M3: A Link to the Past's second screen (`docs/games/a-link-to-the-past.md`,
-ALTTP-1 to 14), all drawn by SNES DS: the items screen (tap to select, a
+ALTTP-1 to 14), all drawn by RetroDS: the items screen (tap to select, a
 write exception) with the zoom pane; X for the map: outdoors the world
 assembled from the game's own ground layer as Link sees it (video RAM, a
 core patch; the strips by area boundaries taken during the scroll),
@@ -51,7 +51,7 @@ Super Nintendo with a touch second screen. (1) The game screen is the
 game; small changes to it only where the second screen takes something
 over, listed and switchable. (2) The second screen is in the game's own
 style: the game's art (screens, cartridge graphics, what it draws), new
-layouts allowed, no SNES DS font/icons/panels; small touch hints (an
+layouts allowed, no RetroDS font/icons/panels; small touch hints (an
 arrow on a plate) listed. (3) Useful at a glance and smooth: live,
 display-rate scrolling, no capture delays or jumps; the logo or the last
 good picture when unsure. (4) Touch the second screen (look, choose,
@@ -82,7 +82,7 @@ pictures) remains an option. How sessions apply it:
 ### Custom asset mode
 
 Opt-in per game: only a profile with an `.asset` section uses it, and only
-when the player has put the files in place. SNES DS ships no asset. They
+when the player has put the files in place. RetroDS ships no asset. They
 live in `assets/user/<game>/` (gitignored): never commit, generate or
 download one. Lossless only (PNG or lossless WebP, 1 image pixel = 1 game
 pixel); anything missing or invalid is logged and falls back to the
@@ -139,15 +139,15 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   branches cut from it (`m0-libretro`, `game/super-metroid`), merged back
   when built and tried. `main` and `dev` mirror upstream and are never
   committed to.
-- **Remotes:** `origin` is SNES DS's own repo (iosue-iulianus/retro-ds,
+- **Remotes:** `origin` is RetroDS's own repo (iosue-iulianus/retro-ds,
   private, a standalone copy with GBA DS's history, not a GitHub fork);
   `snes` is its default branch. `upstream` is GBA DS (kyannon/gba-ds):
   fetch from it to pick up fixes to shared code, never push there.
-- **Names:** the app is SNES DS everywhere: binary `retrods`, `retrods.cfg`,
+- **Names:** the app is RetroDS everywhere: binary `retrods`, `retrods.cfg`,
   `RETRODS_*` variables and macros, Android package and application ID
   `io.github.iosue_iulianus.retrods` (JNI names write its `_` as `_1`:
   `Java_io_github_iosue_1iulianus_retrods_...`), classes `RetroDsActivity` and
-  `RetroDsHereActivity`, the "SNES DS" folder on Android. Still to do: the
+  `RetroDsHereActivity`, the "RetroDS" folder on Android. Still to do: the
   logo artwork (`src/brand_data.c`, from `tools/make_brand.py`), whose font
   isn't settled. GBA DS is named on purpose in the README's credits, this
   file, Philosophy, the changelog's opening, `docs/reference/gba/` and the
@@ -155,7 +155,7 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   GBA tooling docs (`docs/TESTING.md`, `docs/patches.md`) keep "GBA DS" in
   their prose because they describe GBA DS's games, until the port
   replaces them. Some development notes inherited from GBA DS (dated ones
-  in `docs/ANDROID.md`, version mentions in comments) now say SNES DS where
+  in `docs/ANDROID.md`, version mentions in comments) now say RetroDS where
   they meant GBA DS.
 - **Commits:** small, one idea each, with the session's attribution
   trailers. Write long messages to a file and `git commit -F`. Never
@@ -209,12 +209,12 @@ can't build Android itself (no SDK), so:
    `gh run view ID --json status` until `completed`.
 3. **Download it** into the scratchpad: `gh run download ID -R
    iosue-iulianus/retro-ds` gives `retrods-vX-android/*.apk`.
-4. **Check SNES DS isn't in use.** `adb.exe -s 192.168.0.217:PORT shell
+4. **Check RetroDS isn't in use.** `adb.exe -s 192.168.0.217:PORT shell
    'dumpsys activity activities | grep -E "ResumedActivity:"'`: if
    `RetroDsActivity` is resumed the owner is playing; wait (or ask). A
    cached process in the background is fine (it auto-saves on leaving).
 5. **Back up the owner's states first** (never lose them): pull the
-   newest `SNES DS/states/*.state` (and the `.srm` in `ROMs/snes`) into
+   newest `RetroDS/states/*.state` (and the `.srm` in `ROMs/snes`) into
    `/home/joshua/projects/snes-ds/test-data/<game>/`, read-only.
 6. **Install over the old one:** `adb.exe -s IP:PORT install -r
    "$(wslpath -w APK)"`. Same signing key, so data and settings stay.
@@ -227,7 +227,7 @@ Device details:
   with mirrored networking). The Duo is at 192.168.0.217; the port
   changes whenever wireless debugging restarts (`adb.exe mdns services`
   or `adb.exe devices`).
-- Paths on the device: `/storage/emulated/0/SNES DS/` (log
+- Paths on the device: `/storage/emulated/0/RetroDS/` (log
   `retrods.log`, `states/`, `launch.log`), ROMs in
   `/storage/emulated/0/ROMs/snes/`.
 - Screenshots of each display: `adb.exe exec-out screencap -d DISPLAY_ID
@@ -236,7 +236,7 @@ Device details:
   logical display 0, the bottom (second screen) display 2.
 - Test taps without the owner: `adb.exe shell input -d 0 tap X Y` (top
   display coordinates); the log's `touch down on screen ...` lines show
-  where SNES DS put it. Only tap where it can't upset the game.
+  where RetroDS put it. Only tap where it can't upset the game.
 - Debug logging (`RETRODS_DEBUG`) can't be switched on at runtime on
   Android; the log has the 5-second frame lines and touch lines.
 
@@ -288,7 +288,7 @@ Device details:
   patches applied, from a `.zip` too) is cached by CRC32 and loaded from
   there. Game codes are that ROM file's CRC32 as 8 hex digits. Battery saves
   through `RETRO_MEMORY_SAVE_RAM`, written in the background as they
-  change. States in RetroArch's RASTATE format with SNES DS's blocks (SDSC:
+  change. States in RetroArch's RASTATE format with RetroDS's blocks (SDSC:
   ROM CRC, SDSX: the second screen). Rewind keeps XOR deltas of
   same-instance states (taken without disturbing the game). Snapshots of
   the live game for other copies must use `emu_state_save_live` with the
@@ -357,8 +357,8 @@ Device details:
 - Overlays default to Off: the owner doesn't want the bezel (on OLED
   screens the black round the picture is the frame).
 - For the port, left by the rename: ES-DE's integration (`esde.c`) still
-  adds SNES DS to ES-DE's `gba` system; links in `android.c` point at
-  wiki pages SNES DS doesn't have yet (Playing, Overlays); the Display
+  adds RetroDS to ES-DE's `gba` system; links in `android.c` point at
+  wiki pages RetroDS doesn't have yet (Playing, Overlays); the Display
   theme's hint mentions the web player (a translated string: change it with
   its translations); the .po files keep translations of removed strings
   (obsolete, warnings only); three display hints are fuzzy (shown in

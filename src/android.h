@@ -26,12 +26,12 @@
 Uint32 android_touch_event(void);
 void android_touch_pos(const SDL_Event* ev, float* x, float* y);
 
-/* stderr (where all of SNES DS's logging goes) to logcat (tag RETRODS) and to
+/* stderr (where all of RetroDS's logging goes) to logcat (tag RETRODS) and to
  * <RETRODS_HOME>/retrods.log. Call first thing in main. */
 void android_init_log(void);
 /* The folder Java gave us for config, states, logos (RETRODS_HOME), or NULL. */
 const char* android_home(void);
-/* SNES DS's folder (issue #34): "SNES DS" on the internal storage, or the one
+/* RetroDS's folder (issue #34): "RetroDS" on the internal storage, or the one
  * the player chose (Settings > Folders: data_dir in data-folder.cfg in the
  * app's own storage, RETRODS_APP_FILES, which updates keep), moved there
  * first if that's new; RETRODS_HOME is set to it. Before android_init_log. */

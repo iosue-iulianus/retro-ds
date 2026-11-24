@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-/* Display > Overlays: off, SNES DS's own bezel drawn by the app in the
+/* Display > Overlays: off, RetroDS's own bezel drawn by the app in the
  * player's colours (bezel.c), or the player's PNGs in overlays/ (a screen
  * without one: the bezel in its default colours). OVM_LEGACY: a config from
  * before (overlays = top / both...), settled at start (main.c): custom if
@@ -41,7 +41,7 @@ typedef struct Config {
 	char borderColor[16]; /* RRGGBB behind the map screen (outside the map image) */
 	int overlayMode;   /* OVM_*: overlays */
 	int overlays;      /* OVL_TOP | OVL_BOTTOM: overlay_screens, the screens that have them */
-	bool bezelLogo;    /* the SNES DS logo in the generated bezel */
+	bool bezelLogo;    /* the RetroDS logo in the generated bezel */
 	char bezelInner[8], bezelOuter[8]; /* its colours, RRGGBB */
 	int shader;        /* SH_*: a pattern over every pixel on both screens (Display > Shader) */
 	bool colorCorrection; /* the GBA's screen colours (mGBA's GBA Color shader) */
@@ -67,12 +67,12 @@ typedef struct Config {
 	int audioLatency;  /* ms */
 	bool audioAuto;    /* raise the sound delay a step when the sound keeps running dry (game.c; the setting itself is left alone) */
 	bool keepSound;    /* the game and its sound go on while the system holds up a frame's present (game.c keeper) */
-	bool perfMax;      /* Linux: CPU, memory and GPU clocks held at their fastest while SNES DS runs (clocks.c); off: the system decides */
+	bool perfMax;      /* Linux: CPU, memory and GPU clocks held at their fastest while RetroDS runs (clocks.c); off: the system decides */
 	int ffSpeed;       /* fast-forward multiplier (the menu cycles FF_SPEED_MIN..MAX) */
 	int screenGapMm;   /* the gap between the two screens' pictures (mm), for what crosses it; -1 the device's known one (else 0) */
 	char saveDir[512]; /* battery saves; default: next to the ROM */
 	char saveExt[8];   /* their extension: srm (RetroArch's too, so shared), or sav */
-	char saveFrom[512]; /* where SNES DS kept them before (<game>.sav), carried over: BananaOS */
+	char saveFrom[512]; /* where RetroDS kept them before (<game>.sav), carried over: BananaOS */
 	char stateDir[512]; /* save states, thumbnails, prefs; default: <app>/states */
 	char stateFolder[12]; /* slots 0-9 and the automatic state: "retrods" (stateDir) or "retroarch" (RetroArch's own, shared: issue #39) */
 	char raStateDir[512]; /* RetroArch's state folder when it isn't found from its settings (retroarch_state_dir) */
@@ -82,11 +82,11 @@ typedef struct Config {
 	char cheatDir[1024]; /* RetroArch .cht folders, ':'-separated (searched two levels deep) */
 	char patchDir[1024]; /* patches, a folder per game in it (GEN-9); default: <assetDir>/patches */
 	char libraryView[8]; /* game list: "list" (names) or "grid" (logos) */
-	char esConfigDir[512]; /* EmulationStation's config folder (Settings: SNES DS in EmulationStation) */
+	char esConfigDir[512]; /* EmulationStation's config folder (Settings: RetroDS in EmulationStation) */
 	char assetDir[512]; /* logos etc.; default: the data folder */
 	char logoFolder[512]; /* scraped logos, found by the ROM's file name (GEN-11); empty: none */
 	int customLogos;      /* the player's own and scraped logos (GEN-11): CL_PIXELATED, CL_FULL or CL_OFF */
-	char dataDir[512]; /* data_dir: SNES DS's data folder (states/, cheats/...); default: the app's folder (paths.c data_dir_setup) */
+	char dataDir[512]; /* data_dir: RetroDS's data folder (states/, cheats/...); default: the app's folder (paths.c data_dir_setup) */
 	char touchScreen[16]; /* first | second: which screen has the touch panel */
 	char topScreen[16];   /* Android: auto | app | second: which display is the top screen */
 	char screenMatch[8];  /* keep | aspect | size: the wider screen's picture area (ui.c layout_pictures) */
@@ -95,7 +95,7 @@ typedef struct Config {
 	char touchMap[16];    /* window | screen: how touch coordinates map */
 	/* Read the touchscreen straight from this input device (/dev/input/eventN)
 	 * instead of SDL's touches (the RG DS Plus's Stock Linux OS: weston hands
-	 * SNES DS none); its coordinates are fractions of the touch screen.
+	 * RetroDS none); its coordinates are fractions of the touch screen.
 	 * touch_rotate: 0, 90, 180 or 270 degrees; -1: by the panel's shape. */
 	char touchDevice[128];
 	int touchRotate;

@@ -1,4 +1,4 @@
-# SNES DS: the strings the interface can say (made by tools/i18n.py pot: don't edit).
+# RetroDS: the strings the interface can say (made by tools/i18n.py pot: don't edit).
 # Translators: copy this file to <language code>.po, fill in the header and the msgstr lines.
 msgid ""
 msgstr ""
@@ -61,7 +61,7 @@ msgstr ""
 
 #: src/mapper.c:430
 #, c-format
-msgid "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in retrods.log too: send it in to have it built into SNES DS for this device."
+msgid "%d of %d set for %s, kept in controllers.txt beside RetroDS's save states. The line for it is in retrods.log too: send it in to have it built into RetroDS for this device."
 msgstr ""
 
 #: src/game.c:877
@@ -249,7 +249,7 @@ msgid "A game's save already next to it, or in the other type, is copied over th
 msgstr ""
 
 #: src/library.c:2221
-msgid "A new version of SNES DS"
+msgid "A new version of RetroDS"
 msgstr ""
 
 #: src/config.c:481
@@ -307,7 +307,7 @@ msgid "AM"
 msgstr ""
 
 #: src/game.c:1070
-msgid "An xdelta made with compression, which SNES DS can't read: patch the ROM with it beforehand, or make it again without (xdelta3 -S none)"
+msgid "An xdelta made with compression, which RetroDS can't read: patch the ROM with it beforehand, or make it again without (xdelta3 -S none)"
 msgstr ""
 
 #: src/android.c:438
@@ -471,7 +471,7 @@ msgstr ""
 
 #: src/paths.c:671
 #, c-format
-msgid "Can't reach SNES DS's folder, using %s for now: %s"
+msgid "Can't reach RetroDS's folder, using %s for now: %s"
 msgstr ""
 
 #: src/game.c:2113
@@ -529,6 +529,10 @@ msgstr ""
 msgid "Choose it again to restart: unsaved progress is lost"
 msgstr ""
 
+#: src/library.c:1926
+msgid "Choose RetroDS folder"
+msgstr ""
+
 #: src/library.c:1925
 msgid "Choose ROM folder"
 msgstr ""
@@ -537,13 +541,9 @@ msgstr ""
 msgid "Choose save folder"
 msgstr ""
 
-#: src/library.c:1926
-msgid "Choose SNES DS folder"
-msgstr ""
-
 #: src/paths.c:698
 #, c-format
-msgid "Chosen folder is inside SNES DS's own, files not moved: %s"
+msgid "Chosen folder is inside RetroDS's own, files not moved: %s"
 msgstr ""
 
 #: src/paths.c:695
@@ -560,7 +560,7 @@ msgid "Close Game"
 msgstr ""
 
 #: src/game.c:470 src/game.c:572
-msgid "Close SNES DS"
+msgid "Close RetroDS"
 msgstr ""
 
 #: src/config.c:452
@@ -597,7 +597,7 @@ msgstr ""
 
 #: src/library.c:2264
 #, c-format
-msgid "Confirm the update to v%s in Android's installer. Android closes SNES DS while it installs; open it again afterwards. If Android asks first, allow SNES DS to install apps."
+msgid "Confirm the update to v%s in Android's installer. Android closes RetroDS while it installs; open it again afterwards. If Android asks first, allow RetroDS to install apps."
 msgstr ""
 
 #: src/mapper.c:248
@@ -606,7 +606,7 @@ msgstr ""
 
 #: src/esde.c:439
 #, c-format
-msgid "Couldn't change the files in %s/custom_systems: allow SNES DS All files access in Android's settings."
+msgid "Couldn't change the files in %s/custom_systems: allow RetroDS All files access in Android's settings."
 msgstr ""
 
 #: src/ra.c:691
@@ -627,7 +627,7 @@ msgstr ""
 
 #: src/paths.c:714
 #, c-format
-msgid "Couldn't move SNES DS's files, they stay in %s"
+msgid "Couldn't move RetroDS's files, they stay in %s"
 msgstr ""
 
 #: src/library.c:1983
@@ -749,7 +749,7 @@ msgid "Each pixel a little darker toward its edges"
 msgstr ""
 
 #: src/library.c:1726
-msgid "Earn achievements in casual mode with your retroachievements.org account. SNES DS keeps a sign-in token, not your password."
+msgid "Earn achievements in casual mode with your retroachievements.org account. RetroDS keeps a sign-in token, not your password."
 msgstr ""
 
 #: src/config.c:467
@@ -1177,7 +1177,7 @@ msgid "Made for another version of the game: it can't be switched on for this RO
 msgstr ""
 
 #: src/library.c:1697
-msgid "Makes SNES DS the emulator for Game Boy Advance games in ES-DE. For a game it doesn't support, choose another in ES-DE (the game's metadata > Alternative emulator)."
+msgid "Makes RetroDS the emulator for Game Boy Advance games in ES-DE. For a game it doesn't support, choose another in ES-DE (the game's metadata > Alternative emulator)."
 msgstr ""
 
 #: src/game.c:540
@@ -1719,7 +1719,7 @@ msgid "RetroArch's settings weren't found here: choose the folder where it keeps
 msgstr ""
 
 #: src/library.c:2063
-msgid "RetroArch's settings weren't found, so slots 0-9 and the automatic state are SNES DS's own again."
+msgid "RetroArch's settings weren't found, so slots 0-9 and the automatic state are RetroDS's own again."
 msgstr ""
 
 #: src/library.c:2050
@@ -1729,6 +1729,71 @@ msgstr ""
 #: src/library.c:2060
 #, c-format
 msgid "RetroArch's state folder is found from its settings again: %s."
+msgstr ""
+
+#: src/library.c:1827 src/library.c:1866
+msgid "RetroDS can't save files there: allow it All files access in Android's settings, or choose another folder."
+msgstr ""
+
+#: src/library.c:1679
+msgid "RetroDS in ES-DE: Off"
+msgstr ""
+
+#: src/library.c:1679
+msgid "RetroDS in ES-DE: On"
+msgstr ""
+
+#: src/esde.c:441
+msgid "RetroDS is now ES-DE's emulator for Game Boy Advance games. Quit ES-DE and open it again to see it."
+msgstr ""
+
+#: src/esde.c:443
+msgid "RetroDS is out of ES-DE's emulator list. Quit ES-DE and open it again to see it."
+msgstr ""
+
+#: src/game.c:2316
+msgid "RetroDS Logo: Hide"
+msgstr ""
+
+#: src/game.c:2316
+msgid "RetroDS Logo: Show"
+msgstr ""
+
+#: src/library.c:1391
+msgid "RetroDS Settings"
+msgstr ""
+
+#: src/library.c:2238
+#, c-format
+msgid "RetroDS v%s is out (this is v%s). Update now to download it (%.1f MB) and install it: Android asks you to confirm. Your games, saves, states and settings are kept."
+msgstr ""
+
+#: src/library.c:2242
+#, c-format
+msgid "RetroDS v%s is out (this is v%s). Update now to download it (%.1f MB) and restart into it; your games, saves, states and settings are kept."
+msgstr ""
+
+#: src/config.c:491
+msgid "RetroDS's bezel, or your own PNGs, round the picture."
+msgstr ""
+
+#: src/library.c:1822
+msgid "RetroDS's files are kept there already."
+msgstr ""
+
+#: src/library.c:1832
+#, c-format
+msgid "RetroDS's files go to %s the next time it starts: close RetroDS and open it again."
+msgstr ""
+
+#: src/library.c:1942
+#, c-format
+msgid "RetroDS's own files (states, settings, cheats, overlays) are in %s, moving to %s at the next start."
+msgstr ""
+
+#: src/library.c:1944
+#, c-format
+msgid "RetroDS's own files (states, settings, cheats, overlays) are in %s."
 msgstr ""
 
 #: src/config.c:516
@@ -1827,11 +1892,11 @@ msgid "Save State %d"
 msgstr ""
 
 #: src/library.c:2108
-msgid "Save States: Shared with RetroArch"
+msgid "Save States: RetroDS's Own"
 msgstr ""
 
 #: src/library.c:2108
-msgid "Save States: SNES DS's Own"
+msgid "Save States: Shared with RetroArch"
 msgstr ""
 
 #: src/game.c:5258
@@ -2080,7 +2145,7 @@ msgid "Slot %d: Empty"
 msgstr ""
 
 #: src/library.c:2093
-msgid "Slots 0-9 and the automatic state are now RetroArch's. SNES DS's own states stay in its folder, for when this is switched back."
+msgid "Slots 0-9 and the automatic state are now RetroArch's. RetroDS's own states stay in its folder, for when this is switched back."
 msgstr ""
 
 #: src/library.c:2056
@@ -2089,7 +2154,7 @@ msgid "Slots 0-9 and the automatic state are now shared with RetroArch, in %s."
 msgstr ""
 
 #: src/library.c:2093
-msgid "Slots 0-9 and the automatic state are SNES DS's own again. The states saved in RetroArch's folder stay there."
+msgid "Slots 0-9 and the automatic state are RetroDS's own again. The states saved in RetroArch's folder stay there."
 msgstr ""
 
 #: src/library.c:2038
@@ -2099,11 +2164,11 @@ msgstr ""
 
 #: src/library.c:2036
 #, c-format
-msgid "Slots 0-9 and the resume point are SNES DS's own. Shared, they're RetroArch's: %s."
+msgid "Slots 0-9 and the resume point are RetroDS's own. Shared, they're RetroArch's: %s."
 msgstr ""
 
 #: src/library.c:2034
-msgid "Slots 0-9 and the resume point are SNES DS's own. To share them, choose RetroArch's state folder."
+msgid "Slots 0-9 and the resume point are RetroDS's own. To share them, choose RetroArch's state folder."
 msgstr ""
 
 #: src/config.c:461
@@ -2136,71 +2201,6 @@ msgstr ""
 
 #: src/config.c:458
 msgid "SNES Down"
-msgstr ""
-
-#: src/library.c:1827 src/library.c:1866
-msgid "SNES DS can't save files there: allow it All files access in Android's settings, or choose another folder."
-msgstr ""
-
-#: src/library.c:1679
-msgid "SNES DS in ES-DE: Off"
-msgstr ""
-
-#: src/library.c:1679
-msgid "SNES DS in ES-DE: On"
-msgstr ""
-
-#: src/esde.c:441
-msgid "SNES DS is now ES-DE's emulator for Game Boy Advance games. Quit ES-DE and open it again to see it."
-msgstr ""
-
-#: src/esde.c:443
-msgid "SNES DS is out of ES-DE's emulator list. Quit ES-DE and open it again to see it."
-msgstr ""
-
-#: src/game.c:2316
-msgid "SNES DS Logo: Hide"
-msgstr ""
-
-#: src/game.c:2316
-msgid "SNES DS Logo: Show"
-msgstr ""
-
-#: src/library.c:1391
-msgid "SNES DS Settings"
-msgstr ""
-
-#: src/library.c:2238
-#, c-format
-msgid "SNES DS v%s is out (this is v%s). Update now to download it (%.1f MB) and install it: Android asks you to confirm. Your games, saves, states and settings are kept."
-msgstr ""
-
-#: src/library.c:2242
-#, c-format
-msgid "SNES DS v%s is out (this is v%s). Update now to download it (%.1f MB) and restart into it; your games, saves, states and settings are kept."
-msgstr ""
-
-#: src/config.c:491
-msgid "SNES DS's bezel, or your own PNGs, round the picture."
-msgstr ""
-
-#: src/library.c:1822
-msgid "SNES DS's files are kept there already."
-msgstr ""
-
-#: src/library.c:1832
-#, c-format
-msgid "SNES DS's files go to %s the next time it starts: close SNES DS and open it again."
-msgstr ""
-
-#: src/library.c:1942
-#, c-format
-msgid "SNES DS's own files (states, settings, cheats, overlays) are in %s, moving to %s at the next start."
-msgstr ""
-
-#: src/library.c:1944
-#, c-format
-msgid "SNES DS's own files (states, settings, cheats, overlays) are in %s."
 msgstr ""
 
 #: src/config.c:457
@@ -2351,7 +2351,7 @@ msgid "Take Screenshot"
 msgstr ""
 
 #: src/game.c:5833
-msgid "Tap again to close SNES DS."
+msgid "Tap again to close RetroDS."
 msgstr ""
 
 #: src/game.c:5588
@@ -2389,7 +2389,7 @@ msgid "That one is already %s. Press another, or tap to skip."
 msgstr ""
 
 #: src/library.c:1824
-msgid "That's inside SNES DS's own folder: choose one outside it."
+msgid "That's inside RetroDS's own folder: choose one outside it."
 msgstr ""
 
 #: src/hotkeys.c:180
@@ -2401,7 +2401,7 @@ msgid "the bottom face button"
 msgstr ""
 
 #: src/mapper.c:44
-msgid "the button that opens SNES DS's menu (Home, Menu or Function)"
+msgid "the button that opens RetroDS's menu (Home, Menu or Function)"
 msgstr ""
 
 #: src/game.c:5209
@@ -2446,7 +2446,11 @@ msgid "The patches aren't as the game started: restart it to play with them (or 
 msgstr ""
 
 #: src/library.c:2121
-msgid "The processor, memory and graphics run at full speed while SNES DS is open: the smoothest play, but the battery runs down faster and the device gets warmer."
+msgid "The processor, memory and graphics run at full speed while RetroDS is open: the smoothest play, but the battery runs down faster and the device gets warmer."
+msgstr ""
+
+#: src/config.c:493
+msgid "The RetroDS logo in the generated bezel."
 msgstr ""
 
 #: src/mapper.c:34
@@ -2463,10 +2467,6 @@ msgstr ""
 
 #: src/mapper.c:41
 msgid "the second right shoulder button"
-msgstr ""
-
-#: src/config.c:493
-msgid "The SNES DS logo in the generated bezel."
 msgstr ""
 
 #: src/library.c:2122
@@ -2495,7 +2495,7 @@ msgstr ""
 
 #: src/library.c:2285
 #, c-format
-msgid "This is SNES DS v%s."
+msgid "This is RetroDS v%s."
 msgstr ""
 
 #: src/library.c:1172
@@ -2716,7 +2716,7 @@ msgid "with another version of the game (other patches, or another ROM)"
 msgstr ""
 
 #: src/library.c:2297
-msgid "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds."
+msgid "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds."
 msgstr ""
 
 #: src/config.c:441

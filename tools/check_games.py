@@ -2,7 +2,7 @@
 """The second screens' regression check: both games' harness checks in one run.
 
 Runs the harness (build/host/retrods-harness) on the test states and compares
-what SNES DS draws with the game's own screens and with the Python
+what RetroDS draws with the game's own screens and with the Python
 references, as each check in docs/games/*.md was first made. Run it before
 merging a branch that touches a second screen (scripts/check-games.sh
 builds the harness first).
@@ -19,7 +19,7 @@ A Link to the Past:
              (alttp_items.py --check), and the harness's picture of it the
              same as the Python one (three sets of items)
   dungeon    the dungeon map's tilemaps and sprites as the game's, and
-             SNES DS's picture pixel for pixel as the game's screen
+             RetroDS's picture pixel for pixel as the game's screen
   marker     Link's marker: his pixels the same as on the game's picture,
              walking every way (Light and Dark World)
   pieces     the GPU map pieces (levels 0 to 2) the same as the map
@@ -29,7 +29,7 @@ A Link to the Past:
   writes     every item select's writes on the game's list; a write off it
              refused, nothing written
 Super Metroid:
-  smmap      the map as SNES DS draws it pixel for pixel as the game's pause
+  smmap      the map as RetroDS draws it pixel for pixel as the game's pause
              screen (its frame and map; not the game's scroll arrows), and
              sm_map.py's reference too
   smpage     the equipment page as the game's but for its cursor
@@ -125,7 +125,7 @@ def alttp_dungeon(rom, data, out):
         report("dungeon", rc == 0, "%s: alttp_dungeon.py %s" % (s, "; ".join(text.splitlines())))
         a, b = png(os.path.join(out, "duc-" + s + ".png")), png(base + ".png")
         n = int((a != b).any(2).sum()) if a.shape == b.shape else -1
-        report("dungeon", n == 0, "%s: SNES DS's picture vs the game's, %d pixels differ" % (s, n))
+        report("dungeon", n == 0, "%s: RetroDS's picture vs the game's, %d pixels differ" % (s, n))
 
 
 def alttp_marker(rom, data, out):
@@ -232,13 +232,13 @@ def alttp_writes(rom, data, out):
 
 # (state, paused by START first): the opening's, and two of the owner's with the map station's reveal
 SM_MAP_STATES = [("crateria-pause-map", False), ("duo-slot0-mapstation-2026-11-21", False), ("duo-auto-latest", True)]
-# the game's scroll arrows (x0, y0, x1, y1 on SNES DS's picture): SNES DS's map is dragged instead
+# the game's scroll arrows (x0, y0, x1, y1 on RetroDS's picture): RetroDS's map is dragged instead
 SM_ARROWS = [(118, 11, 137, 23), (120, 140, 135, 150), (11, 74, 21, 89), (234, 74, 245, 91)]
 # all items and beams collected; some on (Varia, Spring Ball off; Charge, Wave)
 SM_ITEMS = ["poke 7E09A4 2 F32F", "poke 7E09A2 2 F32D", "poke 7E09A8 2 100F", "poke 7E09A6 2 1009"]
 SM_TOGGLES = [(1, i) for i in range(5)] + [(2, i) for i in range(6)] + [(3, i) for i in range(3)]
 SM_TOP = 38       # the game's pause screen frame starts 38 lines down
-SM_ROWS = 161     # SNES DS's frame and map (its buttons below are its own)
+SM_ROWS = 161     # RetroDS's frame and map (its buttons below are its own)
 SM_CURSOR = (0, 0, 80, 100)  # x0, y0, x1, y1: where the game's cursor and arrow are on the page
 
 
@@ -261,7 +261,7 @@ def sm_map(rom, data, out):
             arrows += int(d[y0:y1, x0:x1].sum())
             d[y0:y1, x0:x1] = False
         n = int(d.sum())
-        report("smmap", n == 0, "%s: SNES DS's map vs the game's pause screen, %d pixels differ (%d in the game's scroll arrows)" % (s, n, arrows))
+        report("smmap", n == 0, "%s: RetroDS's map vs the game's pause screen, %d pixels differ (%d in the game's scroll arrows)" % (s, n, arrows))
 
 
 def sm_page(rom, data, out):

@@ -378,7 +378,7 @@ bool config_parse_args(Config* c, int argc, char** argv) {
 
 void config_usage(const char* argv0) {
 	fprintf(stderr,
-	        "SNES DS " RETRODS_VERSION "\n"
+	        "RetroDS " RETRODS_VERSION "\n"
 	        "usage: %s [options] [game.gba]\n"
 	        "\n"
 	        "Without a game, opens the game library (games found in --rom-dir).\n"
@@ -419,7 +419,7 @@ void config_usage(const char* argv0) {
 	        "  --ff-speed=N|max       fast-forward multiplier (3)\n"
 	        "  --save-dir=DIR         battery saves (next to the ROM)\n"
 	        "  --state-dir=DIR        save states and thumbnails (<data folder>/states)\n"
-	        "  --data-dir=DIR         SNES DS's data folder: states, cheats, overlays, logos...\n"
+	        "  --data-dir=DIR         RetroDS's data folder: states, cheats, overlays, logos...\n"
 	        "                         (the app's folder; best set in data-folder.cfg there)\n"
 	        "\n"
 	        "Testing: --load-state=FILE --quit-after=TICKS --input-script=FILE\n"
@@ -488,9 +488,9 @@ static const Setting settingsTable[] = {
 	{ "screen_match", "Screen shapes", SF_STR, OFFB(screenMatch), ARR(chMatch), 0, 0, 0, NULL, "Only when your two screens differ in shape. Experimental." },
 	{ "screen_gap_mm", "Gap between screens", SF_INT, OFFB(screenGapMm), ARR(chGap), 0, 0, 0, NULL, "For what crosses from one screen to the other. Automatic: the device's, if known." },
 	{ "screen_placement", "Screen placement", SF_STR, OFFB(screenPlace), ARR(chPlace), 0, 0, 0, NULL, "Pictures in the middle of their screens, or close together." },
-	{ "overlays", "Overlays", SF_INT, OFFB(overlayMode), ARR(chOverlays), 0, 0, 0, NULL, "SNES DS's bezel, or your own PNGs, round the picture." },
+	{ "overlays", "Overlays", SF_INT, OFFB(overlayMode), ARR(chOverlays), 0, 0, 0, NULL, "RetroDS's bezel, or your own PNGs, round the picture." },
 	{ "overlay_screens", "Overlays on", SF_INT, OFFB(overlays), ARR(chOvlScreens), 0, 0, 0, NULL, "Which screens have them." },
-	{ "bezel_logo", "Bezel logo", SF_BOOL, OFFB(bezelLogo), ARR(chOnOff), 0, 0, 0, NULL, "The SNES DS logo in the generated bezel." },
+	{ "bezel_logo", "Bezel logo", SF_BOOL, OFFB(bezelLogo), ARR(chOnOff), 0, 0, 0, NULL, "The RetroDS logo in the generated bezel." },
 	{ "show_fps", "Show FPS", SF_BOOL, OFFB(showFps), ARR(chOnOff), 0, 0, 0, NULL, "Frames a second above the game, all the time." },
 
 	{ "theme", "Light/dark mode", SF_BOOL, OFFB(lightTheme), ARR(chTheme), 0, 0, 0, NULL, "The menus' buttons: dark grey, or light grey like the web player's." },

@@ -1,4 +1,4 @@
-"""Make the SNES DS logo's white background transparent.
+"""Make the RetroDS logo's white background transparent.
 
 Background = near-white regions connected to the border, plus enclosed
 near-white regions (the D's counter, gaps between the buttons) that are not

@@ -1,4 +1,4 @@
-/* Super Metroid's pause map drawn by SNES DS (smmap.h). Where everything
+/* Super Metroid's pause map drawn by RetroDS (smmap.h). Where everything
  * is, from P.JBoy's bank logs: docs/games/super-metroid.md, "The map's
  * data". tools/sm_map.py is the same drawing in Python, checked pixel for
  * pixel against the game's own pause screen; this follows it. */

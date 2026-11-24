@@ -103,7 +103,7 @@ returns one step. B/Back and HOME work as now.
 | **Controls** | Left stick as D-pad (#57), Face buttons (#55), Turbo rate, GBA A/B swap, Map Buttons, Hotkeys, menu combo |
 | **Speed and sound** | Show FPS, Performance, Frame buffer, Match display rate, Rewind and its length, Fast forward and its speed, Sound delay |
 | **Second screen** | Map on/off, Map refresh, Pinball live view |
-| **Saves** | Save on quit, Auto-load, Save folder and type, SNES DS data folder |
+| **Saves** | Save on quit, Auto-load, Save folder and type, RetroDS data folder |
 | **System** | Language, RetroAchievements, Updates, EmulationStation / BananaOS list (as now) |
 
 The existing special screens (Map Buttons, Hotkeys, Updates, Folders,
@@ -122,7 +122,7 @@ Six tabs (Game, Display, Screens, Controls, Speed, Map; L1 / R1 and taps); a pag
 
 | Tab | Holds |
 |---|---|
-| **Game** | Resume / Restart Game and Save State / Load State (two to a row), the slot, then Cheats / Patches and Take Screenshot / Submit a Bug Report (two to a row; Achievements between them when on), then Close Game and Close SNES DS last, double height and side by side (Close SNES DS alone, full width, when the game wasn't started from the game list) (actions) |
+| **Game** | Resume / Restart Game and Save State / Load State (two to a row), the slot, then Cheats / Patches and Take Screenshot / Submit a Bug Report (two to a row; Achievements between them when on), then Close Game and Close RetroDS last, double height and side by side (Close RetroDS alone, full width, when the game wasn't started from the game list) (actions) |
 | **Display** | the Display category's rows; Overlays opens its screen as now |
 | **Controls** | the Controls category's rows; Face buttons becomes four rows here instead of its own screen |
 | **More** | Speed and sound, Second screen and Saves rows that make sense for one game |

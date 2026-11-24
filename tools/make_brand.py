@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Embeds SNES DS's branding images in src/brand_data.c.
+"""Embeds RetroDS's branding images in src/brand_data.c.
 
     tools/make_brand.py FUTURA_BOLD_ITALIC.otf   everything (button prompts in Futura)
     tools/make_brand.py --logo-only              only the logo, in the existing file

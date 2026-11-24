@@ -1,5 +1,5 @@
 > **Reference, from GBA DS.** These pages describe GBA DS's GBA games and its
-> rule format, kept as references for SNES DS's own rules (SNES games get
+> rule format, kept as references for RetroDS's own rules (SNES games get
 > their pages in `docs/games/`). Links to other GBA games' pages point at
 > files that are only in git history (`git show 3b452dc:docs/games/<page>`).
 

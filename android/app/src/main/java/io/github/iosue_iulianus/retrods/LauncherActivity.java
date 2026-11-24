@@ -51,12 +51,12 @@ public class LauncherActivity extends Activity {
     }
 
     /* ------------------------------------------------------------ launch.log
-     * What frontends sent and what came of it, in the SNES DS folder, so a
+     * What frontends sent and what came of it, in the RetroDS folder, so a
      * launch that fails before the game starts (when retrods.log isn't
      * written) can be looked at without adb. */
 
     static File dataDir(Context c) {
-        /* the folder the player chose (Settings > Folders), once SNES DS has moved there */
+        /* the folder the player chose (Settings > Folders), once RetroDS has moved there */
         String now = dataFolderSetting(c, "data_dir_now");
         if (now != null && new File(now).isDirectory()) return new File(now);
         if (Build.VERSION.SDK_INT < 30 || Environment.isExternalStorageManager()) {
@@ -69,7 +69,7 @@ public class LauncherActivity extends Activity {
 
     /**
      * A line of data-folder.cfg in the app's own storage (kept through updates):
-     * data_dir, the folder the player chose for SNES DS's files, and
+     * data_dir, the folder the player chose for RetroDS's files, and
      * data_dir_now, where they are (the native side moves them: paths.c
      * data_dir_setup). Null if it isn't set.
      */

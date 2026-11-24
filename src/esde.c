@@ -8,17 +8,17 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-/* ------------------------------------------------------------ what SNES DS puts in */
+/* ------------------------------------------------------------ what RetroDS puts in */
 
-#define CMD_OPEN "<command label=\"SNES DS (Standalone)\">"
+#define CMD_OPEN "<command label=\"RetroDS (Standalone)\">"
 /* LauncherActivity reads the extra "rom" as a file path: patches beside the
  * game then work (they don't with a content link, %ROMPROVIDER%) */
 #define CMD_LINE "        " CMD_OPEN "%EMULATOR_SNES-DS% %ACTIVITY_CLEAR_TASK% %ACTIVITY_CLEAR_TOP% %EXTRA_rom%=%ROM%</command>\n"
 
 #define COPY_MARK "retrods: ES-DE's own gba entry"
 #define COPY_NOTE                                                                                              \
-	"        <!-- " COPY_MARK ", copied by SNES DS (Settings > SNES DS in ES-DE) with SNES DS put first.\n" \
-	"             SNES DS brings it up to date when it starts, and takes it out when that's switched off. -->\n"
+	"        <!-- " COPY_MARK ", copied by RetroDS (Settings > RetroDS in ES-DE) with RetroDS put first.\n" \
+	"             RetroDS brings it up to date when it starts, and takes it out when that's switched off. -->\n"
 
 /* ES-DE's own gba system for Android (resources/systems/android/es_systems.xml,
  * ES-DE 3.4, Sep 2026). With RetroArch in SAF mode its RetroArch lines end
@@ -51,7 +51,7 @@ static const char* const GBA_BODY =
 #define RULE_OPEN "<emulator name=\"SNES-DS\">"
 static const char* const RULE =
 	"    " RULE_OPEN "\n"
-	"        <!-- retrods: SNES DS, added by SNES DS (Settings > SNES DS in ES-DE); switching that off takes it out -->\n"
+	"        <!-- retrods: RetroDS, added by RetroDS (Settings > RetroDS in ES-DE); switching that off takes it out -->\n"
 	"        <rule type=\"androidpackage\">\n"
 	"            <entry>io.github.iosue_iulianus.retrods/.LauncherActivity</entry>\n"
 	"        </rule>\n"
@@ -199,9 +199,9 @@ char* esde_systems_add(const char* xml, bool saf) {
 		/* (the marker is in a comment: looked for in the text itself) */
 		const char* mark = strstr(xml + from, COPY_MARK);
 		if (mark && (size_t) (mark - xml) < to) {
-			out = splice(xml, from, to, sys); /* SNES DS's copy: brought up to date */
+			out = splice(xml, from, to, sys); /* RetroDS's copy: brought up to date */
 		} else {
-			/* the player's own gba entry: SNES DS's line first among its emulators */
+			/* the player's own gba entry: RetroDS's line first among its emulators */
 			const char* own = strstr(m + from, CMD_OPEN);
 			if (own && (size_t) (own - m) < to) {
 				size_t a = line_start(m, (size_t) (own - m));
@@ -436,11 +436,11 @@ bool esde_integration_set(bool on, char* msg, size_t msgSize) {
 		if (ok) edit(dir, "es_find_rules.xml", rules_remove, false);
 	}
 	if (!ok)
-		snprintf(msg, msgSize, tr("Couldn't change the files in %s/custom_systems: allow SNES DS All files access in Android's settings."), dir);
+		snprintf(msg, msgSize, tr("Couldn't change the files in %s/custom_systems: allow RetroDS All files access in Android's settings."), dir);
 	else if (on)
-		snprintf(msg, msgSize, tr("SNES DS is now ES-DE's emulator for Game Boy Advance games. Quit ES-DE and open it again to see it."));
+		snprintf(msg, msgSize, tr("RetroDS is now ES-DE's emulator for Game Boy Advance games. Quit ES-DE and open it again to see it."));
 	else
-		snprintf(msg, msgSize, tr("SNES DS is out of ES-DE's emulator list. Quit ES-DE and open it again to see it."));
+		snprintf(msg, msgSize, tr("RetroDS is out of ES-DE's emulator list. Quit ES-DE and open it again to see it."));
 	return ok;
 }
 

@@ -4,7 +4,7 @@
  * ones the regression tests run on.
  *
  * (Empty for now: GBA DS's GBA dumps were removed with its profiles, and
- * SNES DS has no game pages with Releases rows yet. Each table ends with
+ * RetroDS has no game pages with Releases rows yet. Each table ends with
  * an empty entry, which never matches.) */
 static const KnownDump knownDumps[] = {
 	{ "", 0, false, false, NULL },

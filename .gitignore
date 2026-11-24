@@ -21,7 +21,7 @@ __pycache__/
 # the Chinese fonts' variable sources (tools/make_zh_font.py): only the subsets are kept
 assets/fonts/NotoSans*[[]wght[]].ttf
 
-# SNES DS: custom asset mode files are the player's own, never committed
+# RetroDS: custom asset mode files are the player's own, never committed
 assets/user/
 # ROMs and states never go in the repo
 *.sfc

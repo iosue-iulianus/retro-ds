@@ -1,4 +1,4 @@
-/* SNES DS's emulator: a libretro core loaded from a .so (see emu.h). */
+/* RetroDS's emulator: a libretro core loaded from a .so (see emu.h). */
 #include "emu.h"
 #include "libretro.h"
 #include "patch.h"
@@ -209,7 +209,7 @@ static uint8_t* zip_first_rom(const uint8_t* z, size_t zn, size_t* outN) {
 			}
 		} else {
 			free(out);
-			fprintf(stderr, "emu: %s in the zip is compressed in a way SNES DS can't read (method %u)\n", name, method);
+			fprintf(stderr, "emu: %s in the zip is compressed in a way RetroDS can't read (method %u)\n", name, method);
 			return NULL;
 		}
 		*outN = usize;
@@ -1167,7 +1167,7 @@ bool emu_state_load_file(Emu* e, const char* path) {
 	bool ok = sf.memN == e->stateSize && unserialize_in(e, sf.mem, sf.memN);
 	if (!ok) fprintf(stderr, "emu: the core didn't take the state %s (%zu bytes, its states %zu)\n", path, sf.memN, e->stateSize);
 	fprintf(stderr, "load state: %s: %s (%s)\n", path, ok ? "loaded" : "not loaded",
-	        kind == STATE_FILE_OWN ? "SNES DS's" : sf.compressed ? "RetroArch's, compressed" : "RetroArch's");
+	        kind == STATE_FILE_OWN ? "RetroDS's" : sf.compressed ? "RetroArch's, compressed" : "RetroArch's");
 	free(sf.b);
 	return ok;
 }

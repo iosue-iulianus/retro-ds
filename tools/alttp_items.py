@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """A Link to the Past's items screen, built as the game builds it (M3).
 
-The reference for SNES DS's items screen (ALTTP-10). The game draws its
+The reference for RetroDS's items screen (ALTTP-10). The game draws its
 items screen (START) as a 32 x 32 tilemap in work RAM ($7E1000) for BG3,
 with tiles that stay in video RAM for the HUD; this builds the same tilemap
 from the cartridge's tables and Link's items in work RAM, pane by pane, so
@@ -42,7 +42,7 @@ BLANK = 0x207F              # nothing (see-through)
 FILL = 0x24F5               # a pane's dark inside
 
 # where each pane is on the game's own screen (column, row of the 32 x 32
-# map; width, height), and where SNES DS puts it for touch: the Y items at
+# map; width, height), and where RetroDS puts it for touch: the Y items at
 # the bottom right, every pane moved as a whole, its inside as the game's
 PANES = ("items", "name", "progress", "ability", "equipment")
 GAME = {"items": (1, 5), "name": (21, 5), "progress": (21, 11),

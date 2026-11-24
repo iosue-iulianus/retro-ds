@@ -275,7 +275,7 @@ void cheats_load(Cheats* c, const Config* cfg, const char* romPath, const char* 
 #ifdef __ANDROID__
 	snprintf(dirs, sizeof(dirs), "%s", cfg->cheatDir);
 #else
-	/* SNES DS's own cheats folder (retrods/cheats), then cheat_dir's folders */
+	/* RetroDS's own cheats folder (retrods/cheats), then cheat_dir's folders */
 	snprintf(dirs, sizeof(dirs), "%s/cheats:%s", cfg->assetDir, cfg->cheatDir);
 #endif
 	char* save;

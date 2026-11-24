@@ -1,4 +1,4 @@
-# SNES DS: Chinese (Simplified). Translations from PR #62 (DokiOnjouji) with the strings it lacked added; not yet reviewed by a second speaker.
+# RetroDS: Chinese (Simplified). Translations from PR #62 (DokiOnjouji) with the strings it lacked added; not yet reviewed by a second speaker.
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -45,8 +45,8 @@ msgstr[0] "找到 %d 个游戏。"
 msgid "%d of %d"
 msgstr "第 %d / %d 个"
 
-msgid "%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. The line for it is in retrods.log too: send it in to have it built into SNES DS for this device."
-msgstr "%d/%d 个按键设置好了（%s），保存在 SNES DS 即时存档旁边的 controllers.txt 里。retrods.log 里也有对应的行：把它发过来，就能为这台设备把它内置到 SNES DS 里。"
+msgid "%d of %d set for %s, kept in controllers.txt beside RetroDS's save states. The line for it is in retrods.log too: send it in to have it built into RetroDS for this device."
+msgstr "%d/%d 个按键设置好了（%s），保存在 RetroDS 即时存档旁边的 controllers.txt 里。retrods.log 里也有对应的行：把它发过来，就能为这台设备把它内置到 RetroDS 里。"
 
 msgid "%d on"
 msgstr "已开 %d 项"
@@ -151,8 +151,8 @@ msgstr "每行像素下面有一条暗线"
 msgid "A game's save already next to it, or in the other type, is copied over the first time you play it. .srm is the type RetroArch uses: choose its saves folder too to share each game's save with it."
 msgstr "游戏旁边已有的存档，或是另一种格式的存档，会在第一次玩时复制过来。.srm 是 RetroArch 用的格式：把它的存档文件夹也选上，就能和它共享每个游戏的存档。"
 
-msgid "A new version of SNES DS"
-msgstr "SNES DS 有新版本"
+msgid "A new version of RetroDS"
+msgstr "RetroDS 有新版本"
 
 msgid "A pattern over every pixel, on both screens."
 msgstr "两块屏幕上盖住每个像素的图案。"
@@ -169,8 +169,8 @@ msgstr "成就"
 msgid "Add a note (optional): what happened, and what you expected to happen."
 msgstr "加个说明（可选）：发生了什么，你原本期望怎样。"
 
-msgid "Adds SNES DS to the emulators for Game Boy Advance games in EmulationStation. Pick it for one game (its Advanced Game Options > Emulator) or for all of them (the system's advanced settings). The other emulators keep working as before."
-msgstr "在 EmulationStation 的 Game Boy Advance 模拟器里加入 SNES DS。可以给单个游戏选（它的高级游戏选项 > 模拟器），也可以给全部游戏选（系统的进阶设置）。其他模拟器照旧可用。"
+msgid "Adds RetroDS to the emulators for Game Boy Advance games in EmulationStation. Pick it for one game (its Advanced Game Options > Emulator) or for all of them (the system's advanced settings). The other emulators keep working as before."
+msgstr "在 EmulationStation 的 Game Boy Advance 模拟器里加入 RetroDS。可以给单个游戏选（它的高级游戏选项 > 模拟器），也可以给全部游戏选（系统的进阶设置）。其他模拟器照旧可用。"
 
 msgid "All"
 msgstr "全部"
@@ -199,8 +199,8 @@ msgstr "总是启用，最先应用（RetroArch 的做法：与 ROM 同名的补
 msgid "AM"
 msgstr "上午"
 
-msgid "An xdelta made with compression, which SNES DS can't read: patch the ROM with it beforehand, or make it again without (xdelta3 -S none)"
-msgstr "用压缩做的 xdelta，SNES DS 读不了：请先用它把 ROM 打好，或者重新做一个不压缩的（xdelta3 -S none）"
+msgid "An xdelta made with compression, which RetroDS can't read: patch the ROM with it beforehand, or make it again without (xdelta3 -S none)"
+msgstr "用压缩做的 xdelta，RetroDS 读不了：请先用它把 ROM 打好，或者重新做一个不压缩的（xdelta3 -S none）"
 
 msgid "Android's installer couldn't be reached"
 msgstr "无法连接 Android 的安装程序"
@@ -325,11 +325,11 @@ msgstr "无法读取"
 msgid "Can't be read: not a patch, or damaged"
 msgstr "无法读取：不是补丁，或者已损坏"
 
-msgid "Can't find the SNES DS folder."
-msgstr "找不到 SNES DS 的文件夹。"
+msgid "Can't find the RetroDS folder."
+msgstr "找不到 RetroDS 的文件夹。"
 
-msgid "Can't reach SNES DS's folder, using %s for now: %s"
-msgstr "无法访问 SNES DS 的文件夹，暂时使用 %s：%s"
+msgid "Can't reach RetroDS's folder, using %s for now: %s"
+msgstr "无法访问 RetroDS 的文件夹，暂时使用 %s：%s"
 
 msgid "Can't rewind further"
 msgstr "不能再往前倒了"
@@ -364,8 +364,8 @@ msgstr "检查 EmulationStation 的 RetroAchievements 设置里的账号"
 msgid "Choose a folder in Android's file picker..."
 msgstr "在 Android 的文件选择器里选一个文件夹…"
 
-msgid "Choose SNES DS folder"
-msgstr "选择 SNES DS 文件夹"
+msgid "Choose RetroDS folder"
+msgstr "选择 RetroDS 文件夹"
 
 msgid "Choose it again to close %s: %s"
 msgstr "再选一次关闭%s：%s"
@@ -379,8 +379,8 @@ msgstr "选择 ROM 文件夹"
 msgid "Choose save folder"
 msgstr "选择存档文件夹"
 
-msgid "Chosen folder is inside SNES DS's own, files not moved: %s"
-msgstr "所选文件夹在 SNES DS 自己的文件夹里面，文件未移动：%s"
+msgid "Chosen folder is inside RetroDS's own, files not moved: %s"
+msgstr "所选文件夹在 RetroDS 自己的文件夹里面，文件未移动：%s"
 
 msgid "Chosen folder not found, files not moved: %s"
 msgstr "找不到所选文件夹，文件未移动：%s"
@@ -391,8 +391,8 @@ msgstr "在此选择："
 msgid "Close Game"
 msgstr "关闭游戏"
 
-msgid "Close SNES DS"
-msgstr "退出 SNES DS"
+msgid "Close RetroDS"
+msgstr "退出 RetroDS"
 
 msgid "Closest to gap"
 msgstr "靠近间隙"
@@ -418,8 +418,8 @@ msgstr "颜色校正：开"
 msgid "Colors as a Game Boy Advance's screen showed them."
 msgstr "按 Game Boy Advance 屏幕显示的颜色。"
 
-msgid "Confirm the update to v%s in Android's installer. Android closes SNES DS while it installs; open it again afterwards. If Android asks first, allow SNES DS to install apps."
-msgstr "在 Android 的安装程序里确认更新到 v%s。安装时 Android 会关闭 SNES DS，装完再打开它。如果 Android 先询问，请允许 SNES DS 安装应用。"
+msgid "Confirm the update to v%s in Android's installer. Android closes RetroDS while it installs; open it again afterwards. If Android asks first, allow RetroDS to install apps."
+msgstr "在 Android 的安装程序里确认更新到 v%s。安装时 Android 会关闭 RetroDS，装完再打开它。如果 Android 先询问，请允许 RetroDS 安装应用。"
 
 msgid "Connect a controller and try again."
 msgstr "请连接控制器再试。"
@@ -430,14 +430,14 @@ msgstr "控制"
 msgid "Couldn't change %s."
 msgstr "无法修改 %s。"
 
-msgid "Couldn't change the files in %s/custom_systems: allow SNES DS All files access in Android's settings."
-msgstr "无法修改 %s/custom_systems 里的文件：请在 Android 设置里给 SNES DS“所有文件访问权限”。"
+msgid "Couldn't change the files in %s/custom_systems: allow RetroDS All files access in Android's settings."
+msgstr "无法修改 %s/custom_systems 里的文件：请在 Android 设置里给 RetroDS“所有文件访问权限”。"
 
 msgid "Couldn't connect"
 msgstr "无法连接"
 
-msgid "Couldn't find SNES DS's folder."
-msgstr "找不到 SNES DS 的文件夹。"
+msgid "Couldn't find RetroDS's folder."
+msgstr "找不到 RetroDS 的文件夹。"
 
 msgid "Couldn't keep that choice."
 msgstr "无法保存这个选择。"
@@ -448,8 +448,8 @@ msgstr "无法载入成就"
 msgid "Couldn't load the game"
 msgstr "无法载入游戏"
 
-msgid "Couldn't move SNES DS's files, they stay in %s"
-msgstr "无法移动 SNES DS 的文件，它们仍在 %s"
+msgid "Couldn't move RetroDS's files, they stay in %s"
+msgstr "无法移动 RetroDS 的文件，它们仍在 %s"
 
 msgid "Couldn't open the file picker."
 msgstr "无法打开文件选择器。"
@@ -547,8 +547,8 @@ msgstr "正在下载"
 msgid "Each pixel a little darker toward its edges"
 msgstr "每个像素越靠边越暗一点"
 
-msgid "Earn achievements in casual mode with your retroachievements.org account. SNES DS keeps a sign-in token, not your password."
-msgstr "用你的 retroachievements.org 账号在休闲模式下获得成就。SNES DS 只保存登录令牌，不保存密码。"
+msgid "Earn achievements in casual mode with your retroachievements.org account. RetroDS keeps a sign-in token, not your password."
+msgstr "用你的 retroachievements.org 账号在休闲模式下获得成就。RetroDS 只保存登录令牌，不保存密码。"
 
 msgid "English"
 msgstr "英语"
@@ -664,8 +664,8 @@ msgstr "游戏从 %s 读取（含子文件夹）。存档（%s）保存在 %s。
 msgid "Games are read from %s (subfolders too). Saves (%s) are kept next to the games."
 msgstr "游戏从 %s 读取（含子文件夹）。存档（%s）保存在游戏旁边。"
 
-msgid "Games picked in BananaOS's own Game Boy Advance list start in SNES DS when it has second-screen support for them. Restart BananaOS after switching this."
-msgstr "在 BananaOS 自己的 Game Boy Advance 列表里选中的游戏，只要 SNES DS 支持它的副屏，就用 SNES DS 启动。切换后请重启 BananaOS。"
+msgid "Games picked in BananaOS's own Game Boy Advance list start in RetroDS when it has second-screen support for them. Restart BananaOS after switching this."
+msgstr "在 BananaOS 自己的 Game Boy Advance 列表里选中的游戏，只要 RetroDS 支持它的副屏，就用 RetroDS 启动。切换后请重启 BananaOS。"
 
 msgid "Games shown"
 msgstr "显示的游戏"
@@ -688,62 +688,62 @@ msgstr "SNES B"
 msgid "SNES Down"
 msgstr "SNES 下"
 
-msgid "SNES DS can't save files there: allow it All files access in Android's settings, or choose another folder."
-msgstr "SNES DS 无法在那里保存文件：在 Android 设置里给它“所有文件访问权限”，或者另选一个文件夹。"
+msgid "RetroDS can't save files there: allow it All files access in Android's settings, or choose another folder."
+msgstr "RetroDS 无法在那里保存文件：在 Android 设置里给它“所有文件访问权限”，或者另选一个文件夹。"
 
-msgid "SNES DS in BananaOS's GBA list: Off"
-msgstr "SNES DS 在 BananaOS 的 GBA 列表中：关"
+msgid "RetroDS in BananaOS's GBA list: Off"
+msgstr "RetroDS 在 BananaOS 的 GBA 列表中：关"
 
-msgid "SNES DS in BananaOS's GBA list: On"
-msgstr "SNES DS 在 BananaOS 的 GBA 列表中：开"
+msgid "RetroDS in BananaOS's GBA list: On"
+msgstr "RetroDS 在 BananaOS 的 GBA 列表中：开"
 
-msgid "SNES DS in EmulationStation: Off"
-msgstr "SNES DS 在 EmulationStation 中：关"
+msgid "RetroDS in EmulationStation: Off"
+msgstr "RetroDS 在 EmulationStation 中：关"
 
-msgid "SNES DS in EmulationStation: On"
-msgstr "SNES DS 在 EmulationStation 中：开"
+msgid "RetroDS in EmulationStation: On"
+msgstr "RetroDS 在 EmulationStation 中：开"
 
-msgid "SNES DS in ES-DE: Off"
-msgstr "SNES DS 在 ES-DE 中：关"
+msgid "RetroDS in ES-DE: Off"
+msgstr "RetroDS 在 ES-DE 中：关"
 
-msgid "SNES DS in ES-DE: On"
-msgstr "SNES DS 在 ES-DE 中：开"
+msgid "RetroDS in ES-DE: On"
+msgstr "RetroDS 在 ES-DE 中：开"
 
-msgid "SNES DS is now ES-DE's emulator for Game Boy Advance games. Quit ES-DE and open it again to see it."
-msgstr "SNES DS 现在是 ES-DE 的 Game Boy Advance 模拟器。退出 ES-DE 再打开就能看到。"
+msgid "RetroDS is now ES-DE's emulator for Game Boy Advance games. Quit ES-DE and open it again to see it."
+msgstr "RetroDS 现在是 ES-DE 的 Game Boy Advance 模拟器。退出 ES-DE 再打开就能看到。"
 
-msgid "SNES DS is out of ES-DE's emulator list. Quit ES-DE and open it again to see it."
-msgstr "SNES DS 已从 ES-DE 的模拟器列表中移除。退出 ES-DE 再打开就能看到。"
+msgid "RetroDS is out of ES-DE's emulator list. Quit ES-DE and open it again to see it."
+msgstr "RetroDS 已从 ES-DE 的模拟器列表中移除。退出 ES-DE 再打开就能看到。"
 
-msgid "SNES DS Logo: Hide"
-msgstr "SNES DS 徽标：隐藏"
+msgid "RetroDS Logo: Hide"
+msgstr "RetroDS 徽标：隐藏"
 
-msgid "SNES DS Logo: Show"
-msgstr "SNES DS 徽标：显示"
+msgid "RetroDS Logo: Show"
+msgstr "RetroDS 徽标：显示"
 
-msgid "SNES DS Settings"
-msgstr "SNES DS 设置"
+msgid "RetroDS Settings"
+msgstr "RetroDS 设置"
 
-msgid "SNES DS v%s is out (this is v%s). Update now to download it (%.1f MB) and install it: Android asks you to confirm. Your games, saves, states and settings are kept."
-msgstr "SNES DS v%s 发布了（当前是 v%s）。现在更新会下载它（%.1f MB）并安装：Android 会让你确认。你的游戏、存档、状态和设置都保留。"
+msgid "RetroDS v%s is out (this is v%s). Update now to download it (%.1f MB) and install it: Android asks you to confirm. Your games, saves, states and settings are kept."
+msgstr "RetroDS v%s 发布了（当前是 v%s）。现在更新会下载它（%.1f MB）并安装：Android 会让你确认。你的游戏、存档、状态和设置都保留。"
 
-msgid "SNES DS v%s is out (this is v%s). Update now to download it (%.1f MB) and restart into it; your games, saves, states and settings are kept."
-msgstr "SNES DS v%s 发布了（当前是 v%s）。现在更新会下载它（%.1f MB）并重启进入新版本；你的游戏、存档、状态和设置都保留。"
+msgid "RetroDS v%s is out (this is v%s). Update now to download it (%.1f MB) and restart into it; your games, saves, states and settings are kept."
+msgstr "RetroDS v%s 发布了（当前是 v%s）。现在更新会下载它（%.1f MB）并重启进入新版本；你的游戏、存档、状态和设置都保留。"
 
-msgid "SNES DS's bezel, or your own PNGs, round the picture."
-msgstr "画面周围的 SNES DS 边框，或你自己的 PNG。"
+msgid "RetroDS's bezel, or your own PNGs, round the picture."
+msgstr "画面周围的 RetroDS 边框，或你自己的 PNG。"
 
-msgid "SNES DS's files are kept there already."
-msgstr "SNES DS 的文件已经在那里了。"
+msgid "RetroDS's files are kept there already."
+msgstr "RetroDS 的文件已经在那里了。"
 
-msgid "SNES DS's files go to %s the next time it starts: close SNES DS and open it again."
-msgstr "SNES DS 的文件下次启动时会移到 %s：请关闭 SNES DS 再打开。"
+msgid "RetroDS's files go to %s the next time it starts: close RetroDS and open it again."
+msgstr "RetroDS 的文件下次启动时会移到 %s：请关闭 RetroDS 再打开。"
 
-msgid "SNES DS's own files (states, settings, cheats, overlays) are in %s, moving to %s at the next start."
-msgstr "SNES DS 自己的文件（即时存档、设置、金手指、覆盖层）在 %s，下次启动会移到 %s。"
+msgid "RetroDS's own files (states, settings, cheats, overlays) are in %s, moving to %s at the next start."
+msgstr "RetroDS 自己的文件（即时存档、设置、金手指、覆盖层）在 %s，下次启动会移到 %s。"
 
-msgid "SNES DS's own files (states, settings, cheats, overlays) are in %s."
-msgstr "SNES DS 自己的文件（即时存档、设置、金手指、覆盖层）在 %s。"
+msgid "RetroDS's own files (states, settings, cheats, overlays) are in %s."
+msgstr "RetroDS 自己的文件（即时存档、设置、金手指、覆盖层）在 %s。"
 
 msgid "SNES L"
 msgstr "SNES L"
@@ -944,8 +944,8 @@ msgstr "正在载入预览图…"
 msgid "Made for another version of the game: it can't be switched on for this ROM"
 msgstr "为另一个版本的游戏制作：不能给这个 ROM 开启"
 
-msgid "Makes SNES DS the emulator for Game Boy Advance games in ES-DE. For a game it doesn't support, choose another in ES-DE (the game's metadata > Alternative emulator)."
-msgstr "让 SNES DS 成为 ES-DE 中 Game Boy Advance 游戏的模拟器。遇到它不支持的游戏，在 ES-DE 里另选一个（游戏元数据 > 替代模拟器）。"
+msgid "Makes RetroDS the emulator for Game Boy Advance games in ES-DE. For a game it doesn't support, choose another in ES-DE (the game's metadata > Alternative emulator)."
+msgstr "让 RetroDS 成为 ES-DE 中 Game Boy Advance 游戏的模拟器。遇到它不支持的游戏，在 ES-DE 里另选一个（游戏元数据 > 替代模拟器）。"
 
 msgid "Map"
 msgstr "地图"
@@ -1092,8 +1092,8 @@ msgstr "关"
 msgid "off"
 msgstr "关"
 
-msgid "Off for slower devices: the table on one screen. Close and restart SNES DS to apply."
-msgstr "慢的机器可以关掉：球台只显示在一屏。关闭并重新启动 SNES DS 后生效。"
+msgid "Off for slower devices: the table on one screen. Close and restart RetroDS to apply."
+msgstr "慢的机器可以关掉：球台只显示在一屏。关闭并重新启动 RetroDS 后生效。"
 
 msgid "Off while a patch is on"
 msgstr "启用补丁时关闭"
@@ -1381,8 +1381,8 @@ msgstr "RetroAchievements：正在登录…"
 msgid "RetroArch's settings weren't found here: choose the folder where it keeps its save states."
 msgstr "这里没找到 RetroArch 的设置：请选择它保存即时存档的文件夹。"
 
-msgid "RetroArch's settings weren't found, so slots 0-9 and the automatic state are SNES DS's own again."
-msgstr "没找到 RetroArch 的设置，0-9 号位和自动状态又归 SNES DS 自己。"
+msgid "RetroArch's settings weren't found, so slots 0-9 and the automatic state are RetroDS's own again."
+msgstr "没找到 RetroArch 的设置，0-9 号位和自动状态又归 RetroDS 自己。"
 
 msgid "RetroArch's State Folder"
 msgstr "RetroArch 的状态文件夹"
@@ -1459,8 +1459,8 @@ msgstr "保存状态"
 msgid "Save State %d"
 msgstr "保存状态 %d"
 
-msgid "Save States: SNES DS's Own"
-msgstr "即时存档：SNES DS 自己的"
+msgid "Save States: RetroDS's Own"
+msgstr "即时存档：RetroDS 自己的"
 
 msgid "Save States: Shared with RetroArch"
 msgstr "即时存档：与 RetroArch 共享"
@@ -1642,20 +1642,20 @@ msgstr "存档位 %d：%s%d日 %d:%02d %s%s"
 msgid "Slot %d: Empty"
 msgstr "存档位 %d：空"
 
-msgid "Slots 0-9 and the automatic state are SNES DS's own again. The states saved in RetroArch's folder stay there."
-msgstr "0-9 号位和自动状态又归 SNES DS 自己。存在 RetroArch 文件夹里的状态仍然留在那里。"
+msgid "Slots 0-9 and the automatic state are RetroDS's own again. The states saved in RetroArch's folder stay there."
+msgstr "0-9 号位和自动状态又归 RetroDS 自己。存在 RetroArch 文件夹里的状态仍然留在那里。"
 
-msgid "Slots 0-9 and the automatic state are now RetroArch's. SNES DS's own states stay in its folder, for when this is switched back."
-msgstr "0-9 号位和自动状态现在归 RetroArch。SNES DS 自己的状态留在它的文件夹里，切回来时用。"
+msgid "Slots 0-9 and the automatic state are now RetroArch's. RetroDS's own states stay in its folder, for when this is switched back."
+msgstr "0-9 号位和自动状态现在归 RetroArch。RetroDS 自己的状态留在它的文件夹里，切回来时用。"
 
 msgid "Slots 0-9 and the automatic state are now shared with RetroArch, in %s."
 msgstr "0-9 号位和自动状态现在与 RetroArch 共享，在 %s。"
 
-msgid "Slots 0-9 and the resume point are SNES DS's own. Shared, they're RetroArch's: %s."
-msgstr "0-9 号位和继续点是 SNES DS 自己的。共享时用 RetroArch 的：%s。"
+msgid "Slots 0-9 and the resume point are RetroDS's own. Shared, they're RetroArch's: %s."
+msgstr "0-9 号位和继续点是 RetroDS 自己的。共享时用 RetroArch 的：%s。"
 
-msgid "Slots 0-9 and the resume point are SNES DS's own. To share them, choose RetroArch's state folder."
-msgstr "0-9 号位和继续点都是 SNES DS 自己的。要共享它们，请选择 RetroArch 的即时存档文件夹。"
+msgid "Slots 0-9 and the resume point are RetroDS's own. To share them, choose RetroArch's state folder."
+msgstr "0-9 号位和继续点都是 RetroDS 自己的。要共享它们，请选择 RetroArch 的即时存档文件夹。"
 
 msgid "Slots 0-9 and the resume point are RetroArch's (its SNES core set to bsnes): %s."
 msgstr "0-9 号位和继续点是 RetroArch 的（它的 SNES 核心设为 bsnes）：%s。"
@@ -1756,11 +1756,11 @@ msgstr "ROM 文件名里的标签，例如 (USA) 或 (En,Fr,De)。"
 msgid "Take Screenshot"
 msgstr "截图"
 
-msgid "Takes effect after you close and restart SNES DS"
-msgstr "关闭并重新启动 SNES DS 后生效"
+msgid "Takes effect after you close and restart RetroDS"
+msgstr "关闭并重新启动 RetroDS 后生效"
 
-msgid "Tap again to close SNES DS."
-msgstr "再点一次退出 SNES DS。"
+msgid "Tap again to close RetroDS."
+msgstr "再点一次退出 RetroDS。"
 
 msgid "Tap the screen or press HOME for the menu"
 msgstr "点屏幕或按 HOME 打开菜单"
@@ -1786,8 +1786,8 @@ msgstr "这个按键在此是键盘按键，无法映射。点按可跳过。"
 msgid "That one is already %s. Press another, or tap to skip."
 msgstr "那个已经是 %s 了。请按另一个，或点击跳过。"
 
-msgid "That's inside SNES DS's own folder: choose one outside it."
-msgstr "那在 SNES DS 自己的文件夹里面：请选一个外面的。"
+msgid "That's inside RetroDS's own folder: choose one outside it."
+msgstr "那在 RetroDS 自己的文件夹里面：请选一个外面的。"
 
 msgid "That's the hotkey button: press another"
 msgstr "那就是热键键：请按另一个"
@@ -1795,8 +1795,8 @@ msgstr "那就是热键键：请按另一个"
 msgid "the bottom face button"
 msgstr "下面的主按键"
 
-msgid "the button that opens SNES DS's menu (Home, Menu or Function)"
-msgstr "打开 SNES DS 菜单的键（Home、Menu 或 Function）"
+msgid "the button that opens RetroDS's menu (Home, Menu or Function)"
+msgstr "打开 RetroDS 菜单的键（Home、Menu 或 Function）"
 
 msgid "the game"
 msgstr "游戏"
@@ -1804,8 +1804,8 @@ msgstr "游戏"
 msgid "The game's pixels as they are"
 msgstr "游戏画面原样显示"
 
-msgid "The SNES DS logo in the generated bezel."
-msgstr "生成的边框里的 SNES DS 徽标。"
+msgid "The RetroDS logo in the generated bezel."
+msgstr "生成的边框里的 RetroDS 徽标。"
 
 msgid "The hotkey button can be %s, Select, Start or L3"
 msgstr "热键键可以是 %s、Select、Start 或 L3"
@@ -1831,8 +1831,8 @@ msgstr "ROM 旁边的补丁"
 msgid "The patches aren't as the game started: restart it to play with them (or they're used from the next start)"
 msgstr "补丁与游戏开始时不同：重新开始才会用上它们（否则从下次启动开始生效）"
 
-msgid "The processor, memory and graphics run at full speed while SNES DS is open: the smoothest play, but the battery runs down faster and the device gets warmer."
-msgstr "SNES DS 打开时处理器、内存和图形都全速运行：最流畅，但更费电、机器更热。"
+msgid "The processor, memory and graphics run at full speed while RetroDS is open: the smoothest play, but the battery runs down faster and the device gets warmer."
+msgstr "RetroDS 打开时处理器、内存和图形都全速运行：最流畅，但更费电、机器更热。"
 
 msgid "the right face button"
 msgstr "右边的主按键"
@@ -1864,8 +1864,8 @@ msgstr "本游戏有自己的值。按 X 或越过最后一个选项：与所有
 msgid "This game has no achievements yet"
 msgstr "这个游戏还没有成就"
 
-msgid "This is SNES DS v%s."
-msgstr "这是 SNES DS v%s。"
+msgid "This is RetroDS v%s."
+msgstr "这是 RetroDS v%s。"
 
 msgid "This is v%s. Look for a new version, and download and install it."
 msgstr "这是 v%s。可以查找新版本，然后下载并安装。"
@@ -2026,8 +2026,8 @@ msgstr "这个游戏的另一个 dump（%s）"
 msgid "with another version of the game (other patches, or another ROM)"
 msgstr "另一个版本的游戏（其他补丁，或另一个 ROM）"
 
-msgid "With automatic checks on, SNES DS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds."
-msgstr "开启自动检查后，SNES DS 每天在打开游戏列表时查找一次新版本，下载前会先询问。更新来自 github.com/iosue-iulianus/retro-ds 的发布页。"
+msgid "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds."
+msgstr "开启自动检查后，RetroDS 每天在打开游戏列表时查找一次新版本，下载前会先询问。更新来自 github.com/iosue-iulianus/retro-ds 的发布页。"
 
 msgid "With Four buttons picked under Controls in the quick bar, the four-button layout replaces these."
 msgstr "在快捷栏的“控制”中选择“四键”后，四键布局会取代这些设置。"

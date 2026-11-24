@@ -19,7 +19,7 @@
     <!-- RetroAchievements and updates (granted without asking) -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Settings > Updates hands the new APK to Android's installer (which asks
-         the player to allow SNES DS to install apps the first time) -->
+         the player to allow RetroDS to install apps the first time) -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application

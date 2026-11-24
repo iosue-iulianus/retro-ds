@@ -7,7 +7,7 @@ See "Progress" at the end.
 
 ## Goal
 
-An APK of SNES DS for Android-based firmware on dual-screen handhelds (first
+An APK of RetroDS for Android-based firmware on dual-screen handhelds (first
 target: GammaOS on the owner's device; see "Facts from the owner" below),
 with the same behaviour as the ROCKNIX build: game on one screen, map or
 logo (and the Tony Hawk goal sheet and Controls picker) on the other, the
@@ -50,7 +50,7 @@ SDL.
 5. **ROCKNIX-only parts** become no-ops on Android: sway window placement,
    `esinteg.c` (EmulationStation), the `launch.sh` wrapper.
 6. **Launching from frontends** (optional, later): an intent filter so
-   frontends like Daijisho / ES-DE can start SNES DS with a ROM path.
+   frontends like Daijisho / ES-DE can start RetroDS with a ROM path.
 
 
 - **Map Buttons (from the main session, Oct 22, 2026):** the game list's
@@ -324,7 +324,7 @@ After the first milestone:
 
 ### Third milestone (released in v1.1; frontend launching and pause-on-return experimental)
 
-Tested on the device: the SNES DS data folder, cheats, screenshots, resume
+Tested on the device: the RetroDS data folder, cheats, screenshots, resume
 points. Not testable on the owner's RG DS Plus (GammaOS doesn't handle app
 switching well enough): starting games from frontends, switching games while
 running, the pause menu on returning. Marked experimental in the README and
@@ -337,24 +337,24 @@ CHANGELOG until someone tests them on a more capable device.
   content URI from Android's external storage provider becomes a plain
   path (All files access); anything else is copied into the app's
   `launched/` folder. With a game given, the game list is skipped and
-  "Close SNES DS" goes back to the frontend. If SNES DS is already running
+  "Close RetroDS" goes back to the frontend. If RetroDS is already running
   with another game (or the game list), RetroDsActivity.onNewIntent sends
   SDL a quit (the game saves its resume point), and onDestroy starts the
   launcher again with the new game before exiting the process.
-  ES-DE: Settings > "SNES DS in ES-DE" (src/esde.c, the row only when
+  ES-DE: Settings > "RetroDS in ES-DE" (src/esde.c, the row only when
     ES-DE's folder is found: /storage/emulated/0/ES-DE, else
     /storage/<volume>/ES-DE, with settings/es_settings.xml;
     RETRODS_ESDE_DIR overrides for the desktop test kit) writes into
     ES-DE/custom_systems: the SNES-DS find rule (androidpackage
     io.github.iosue_iulianus.retrods/.LauncherActivity) in es_find_rules.xml, and
-    `<command label="SNES DS (Standalone)">%EMULATOR_SNES-DS%
+    `<command label="RetroDS (Standalone)">%EMULATOR_SNES-DS%
     %ACTIVITY_CLEAR_TASK% %ACTIVITY_CLEAR_TOP% %EXTRA_rom%=%ROM%</command>`
     first in es_systems.xml's gba system (the default emulator): into the
     player's own gba system, else a copy of ES-DE's (esde.c GBA_BODY, from
     ES-DE's resources/systems/android/es_systems.xml; its RetroArch lines
     end in %ROMSAF% when es_settings.xml has RetroArchSAFMode on, as
     es_systems_saf.xml does), marked with a "retrods:" comment. main.c
-    refreshes it at start; Off takes out only SNES DS's parts (a file left
+    refreshes it at start; Off takes out only RetroDS's parts (a file left
     with no system / emulator is deleted). %EXTRA_rom%=%ROM% (a path, not
     %ROMSAF%) so patches beside the game apply. When ES-DE changes its own
     gba system, update GBA_BODY (the copy is rewritten at the next start).
@@ -362,7 +362,7 @@ CHANGELOG until someone tests them on a more capable device.
   Daijisho player: package io.github.iosue_iulianus.retrods, activity
   .LauncherActivity, `-a android.intent.action.VIEW -d {file.uri}` (or
   `-e rom {file.path}`).
-- Data folder (RETRODS_HOME): "SNES DS" on the internal storage when All
+- Data folder (RETRODS_HOME): "RetroDS" on the internal storage when All
   files access is granted (else the app's folder), laid out like the
   ROCKNIX install folder: states/ (with .nomedia), cheats/ (cheat_dir),
   overlays/ and logos/ (asset_dir), screenshots/ (screenshot_dir),
@@ -395,7 +395,7 @@ frontend launch intents.
   cause: the launcher read every extra, and a Parcelable extra of a class
   only GammaOS has throws on reading (BadParcelableException), uncaught.
   Now each extra is read on its own inside try/catch, the ROM is resolved
-  (and copied if it must be) on a worker thread, and `SNES DS/launch.log`
+  (and copied if it must be) on a worker thread, and `RetroDS/launch.log`
   records every launch request, the game found, and any Java crash
   (default uncaught-exception handler), so failures are visible without adb.
 - Achievement popups: ra_draw fitted its text every frame (tf_width per
@@ -427,7 +427,7 @@ frontend launch intents.
 - Result: the device crashed a second or two after a game started, right
   after "presenting the top screen in step with its display" (the game on
   the second display, interval 1). Cause not known yet (the logcat sent was
-  filtered to RETRODS). Now off by default; `vsync = 1` in SNES DS/retrods.cfg
+  filtered to RETRODS). Now off by default; `vsync = 1` in RetroDS/retrods.cfg
   turns it on, for getting `adb logcat -b crash` from the crash.
 - That log: not a crash but a hang. `adb logcat -b crash` was empty; the
   log repeated `BufferQueueConsumer: [SurfaceView[]#2(BLAST Consumer)]
@@ -482,7 +482,7 @@ frontend launch intents.
   highest-numbered of equals; android_pin_game_thread) and the worker
   threads (map capture, logo extraction, RetroAchievements, save writer,
   software second screen) to the others, since threads start on their
-  creator's cores. `pin_cores = 0` in SNES DS/retrods.cfg turns it off, for
+  creator's cores. `pin_cores = 0` in RetroDS/retrods.cfg turns it off, for
   comparing. The log lists the cores the app may use (with max MHz), and
   each slow frame and 5 s report says how often the game thread was
   preempted (getrusage RUSAGE_THREAD ru_nivcsw) and which cpu it was on.
@@ -593,7 +593,7 @@ sha256.c are in CMakeLists):
 ## ARMv8.0 devices (issue #4, Oct 28, 2026)
 
 The Retroid Pocket Duo Lite (Qualcomm QCS6125: Cortex-A73 + A53, ARMv8.0,
-Android 15) closed SNES DS at once, with launch.log showing only the
+Android 15) closed RetroDS at once, with launch.log showing only the
 launches and no retrods.log: the native code was built with
 `-mcpu=cortex-a55`, which lets the compiler use ARMv8.2 instructions, so
 it died on the first one (an illegal instruction, before any log). Now
@@ -627,7 +627,7 @@ before. The software fallback already used the display's own size.
 
 A Presentation stays up while its activity is in the background, so after
 Home (or the app switcher, or another app on top) the second display kept
-SNES DS's last picture, took its touches and stayed awake (FLAG_KEEP_SCREEN_ON)
+RetroDS's last picture, took its touches and stayed awake (FLAG_KEEP_SCREEN_ON)
 until the app closed (AYN Thor report). RetroDsActivity now hides it in
 onStop and shows it in onStart (`secondHidden`; Dialog.hide keeps the
 window, so show can't fail while the display is there). Hiding destroys the
@@ -663,21 +663,21 @@ line as on Linux (left/right between them). hotkeys.c calls B_HOME "Back"
 on Android (HOME_TITLE): BACK is HOME there (ui.c), so the default hotkey
 is BACK.
 
-## SNES DS's folder, chosen (issue #34, Nov 11, 2026)
+## RetroDS's folder, chosen (issue #34, Nov 11, 2026)
 
-Settings > Folders > Choose SNES DS folder (FB_DATA, PICK_DATA in
-library.c): the picked folder is SNES DS's folder if it's empty or already
-has `states/`, else `<picked>/SNES DS`. Written as `data_dir` into
+Settings > Folders > Choose RetroDS folder (FB_DATA, PICK_DATA in
+library.c): the picked folder is RetroDS's folder if it's empty or already
+has `states/`, else `<picked>/RetroDS`. Written as `data_dir` into
 `data-folder.cfg` in the app's own storage (getFilesDir(), passed to native
 as RETRODS_APP_FILES; kept through updates, gone on uninstall). At the next
 start, before the log, android_data_setup runs paths.c data_dir_setup with
 `all`: everything in the old folder moves (rename, or copy then delete
 across storages; states/ first, all or nothing) and the old folder goes;
 `data_dir_now` records where it is, RETRODS_HOME is set to it. Java's
-dataFolder() doesn't make "SNES DS" at the top of the storage while
+dataFolder() doesn't make "RetroDS" at the top of the storage while
 data_dir_now is elsewhere, and launch.log follows data_dir_now
 (LauncherActivity.dataFolderSetting). Linux uses the same code with
-`data_dir` in `<app>/data-folder.cfg` (moving only SNES DS's own folders).
+`data_dir` in `<app>/data-folder.cfg` (moving only RetroDS's own folders).
 Not tried on the device yet.
 
 ## One display: phones and the Surface Duo (issue #48, Nov 14, 2026)
@@ -767,9 +767,9 @@ Facts (RetroArch's frontend/drivers/platform_unix.c, checked Nov 16):
   (likely the Play Store build), else its private data folder. Its config:
   `Android/data/com.retroarch.../files/retroarch.cfg` (savestate_directory
   says which, unless the player changed it).
-- `<storage>/RetroArch/...` is readable with SNES DS's All files access, or
+- `<storage>/RetroArch/...` is readable with RetroDS's All files access, or
   can be granted through ACTION_OPEN_DOCUMENT_TREE (as Settings > Folders >
-  Choose SNES DS folder does, issue #34).
+  Choose RetroDS folder does, issue #34).
 - `Android/data/<other app>`: not readable on Android 11+, All files access
   or not. Android 11-12: ACTION_OPEN_DOCUMENT_TREE with EXTRA_INITIAL_URI
   set to `content://com.android.externalstorage.documents/document/primary%3AAndroid%2Fdata%2Fcom.retroarch...`
@@ -778,7 +778,7 @@ Facts (RetroArch's frontend/drivers/platform_unix.c, checked Nov 16):
   under Android/data; no prompt grants it (only Shizuku or root: not to
   build on). Then: tell the player to set RetroArch's Settings > Directory >
   Save States to a shared folder (such as `/storage/emulated/0/RetroArch/states`)
-  and choose that folder in SNES DS.
+  and choose that folder in RetroDS.
 - A granted tree is a content URI, not a path: the states would go through
   SAF (read / write by document URI) or a copy, not fopen; game_paths'
   slot paths and emu.c's file functions take paths today.
@@ -792,7 +792,7 @@ Pieces: retroarch.cfg's whereabouts and the state folder (paths.c, under
 `#ifdef __ANDROID__`), Settings rows on Android (Folders, or a row of its
 own, with the system picker instead of folderpick.c), SAF access if the
 folder is a granted tree, the Android-13 message. The quick state stays
-SNES DS's; RetroAchievements progress isn't shared (owner, Nov 14).
+RetroDS's; RetroAchievements progress isn't shared (owner, Nov 14).
 
 ## For the next release
 
@@ -822,7 +822,7 @@ one session"). Empty after each release.
 - **Performance setting on Android.** Settings > Speed and sound > Performance:
   **Let the System Decide** (the default) or **Set to Max**, the same setting
   as on ROCKNIX. Android doesn't let an app set the processor's speed, so Max
-  asks for it: it keeps the processor at a high clock while SNES DS runs, for
+  asks for it: it keeps the processor at a high clock while RetroDS runs, for
   a smoother game and steadier sound, at the cost of a warmer device and a
   shorter battery. Try it if games stutter. (The system can still hold it back
   if the device gets hot.)

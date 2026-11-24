@@ -1,4 +1,4 @@
-/* The second screens SNES DS draws itself, split out of the play session
+/* The second screens RetroDS draws itself, split out of the play session
  * (game.c): Super Metroid's (game_sm.c) and A Link to the Past's
  * (game_alttp.c). What they and game.c share; internal to the three. */
 #ifndef GAME_SCREENS_H
@@ -27,7 +27,7 @@ extern int picW, picH;       /* the game's picture as shown (256 x 224 or 239) *
 #define SHADER_ON (cfg->shader != SH_OFF)
 int game_screen(void);       /* the screen the game is on */
 
-/* save states' SNES DS block (game.c) */
+/* save states' RetroDS block (game.c) */
 typedef struct { uint8_t* p; size_t n, cap; } Blob;
 void blob_add(Blob* b, const void* d, size_t n);
 void blob_u32(Blob* b, uint32_t v);

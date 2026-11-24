@@ -30,7 +30,7 @@ android {
     }
 
     defaultConfig {
-        // SNES DS's own ID, so it installs beside GBA DS instead of replacing it.
+        // RetroDS's own ID, so it installs beside GBA DS instead of replacing it.
         applicationId "io.github.iosue_iulianus.retrods"
         minSdk 26
         targetSdk 34
@@ -77,7 +77,7 @@ android {
     }
 
     // The native libraries as files in the app's folder (nativeLibraryDir),
-    // not only inside the APK: SNES DS loads its core copies by path
+    // not only inside the APK: RetroDS loads its core copies by path
     // (src/emu.c, RETRODS_CORE_DIR).
     packaging {
         jniLibs {

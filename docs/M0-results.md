@@ -72,7 +72,7 @@ The non-synchronizing path couldn't be used anyway: its state holds the
 libco thread stacks, return addresses into the .so that saved it. Our two
 instances are two copies of the .so at different addresses, so such a
 state can't move from A to B. The synchronizing path is the right one for
-SNES DS.
+RetroDS.
 
 **What it does to the live game**, and the fix. While `runToSave` runs, the
 game may read the controller, and it gets the keys the core was last given

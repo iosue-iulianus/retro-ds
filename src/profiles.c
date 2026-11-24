@@ -1,4 +1,4 @@
-/* SNES DS's game profiles (MapProfile, profiles.h) and what's known about
+/* RetroDS's game profiles (MapProfile, profiles.h) and what's known about
  * each release's dumps.
  *
  * GBA DS's 64 GBA profiles were removed with the GBA emulator; they're in
@@ -86,7 +86,7 @@ static const MapProfile profiles[] = {
 		.animFrames = 12, .animStep = 1, .mapStill = true, .animCycle = 54,
 	},
 	/* A Link to the Past (docs/games/a-link-to-the-past.md): the items
-	 * screen and the world map made by SNES DS (src/alttp.c), X switching
+	 * screen and the world map made by RetroDS (src/alttp.c), X switching
 	 * between them */
 	{
 		.codes = { "777AAC2F" }, /* USA */

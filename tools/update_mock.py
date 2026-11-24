@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Stand-in for GitHub's latest-release API, for testing SNES DS's updater
+"""Stand-in for GitHub's latest-release API, for testing RetroDS's updater
 offline (docs/TESTING.md, "Updates"):
 
   python3 tools/update_mock.py --zip RELEASE.zip | --apk APP.apk
                                [--version 9.9.9] [--port 8098]
                                [--bad-digest] [--slow] [--status 200]
 
-then run SNES DS with
+then run RetroDS with
   --update-url=http://127.0.0.1:8098/repos/iosue-iulianus/retro-ds/releases/latest
 
 GET /repos/iosue-iulianus/retro-ds/releases/latest answers like GitHub (tag_name,

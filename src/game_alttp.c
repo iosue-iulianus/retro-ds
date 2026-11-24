@@ -1,5 +1,5 @@
 /* A Link to the Past's second screen in a play session (game.c): the
- * items screen, the world map and the dungeon maps drawn by SNES DS
+ * items screen, the world map and the dungeon maps drawn by RetroDS
  * (src/alttp.c, src/alttp_dungeon.c), zoomed, dragged and tapped. Moved
  * out of game.c as it was (Nov 24, 2026). */
 #include "game_screens.h"
@@ -13,7 +13,7 @@
 #include <string.h>
 #include <zlib.h>
 
-/* ---- A Link to the Past's second screen, made by SNES DS (src/alttp.c;
+/* ---- A Link to the Past's second screen, made by RetroDS (src/alttp.c;
  * docs/games/a-link-to-the-past.md, ALTTP-1 and on): the items screen,
  * or the world map (X switches); taps select items, a drag moves the map
  * and a tap on it changes its zoom. Nothing is captured on a hidden copy. */
@@ -379,7 +379,7 @@ void alt_open(const char* rom) {
 	size_t n = 0;
 	uint8_t* data = emu_rom_read_played(rom, &n, NULL, NULL, NULL);
 	alt = alttp_new(data, n);
-	fprintf(stderr, "second screen: %s\n", alt ? "drawn by SNES DS (A Link to the Past's items and map)" : "can't draw A Link to the Past's screens");
+	fprintf(stderr, "second screen: %s\n", alt ? "drawn by RetroDS (A Link to the Past's items and map)" : "can't draw A Link to the Past's screens");
 }
 
 void alt_textures(void) {

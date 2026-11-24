@@ -1,4 +1,4 @@
-/* Super Metroid's second screen, drawn by SNES DS (docs/games/super-metroid.md,
+/* Super Metroid's second screen, drawn by RetroDS (docs/games/super-metroid.md,
  * SM-8 and on): the pause screen's map as the game draws it, from the
  * cartridge and the game's RAM, without running the game for it.
  *

@@ -17,7 +17,7 @@ static const SDL_Color C_TEXT = { 236, 236, 244, 255 };
 static const SDL_Color C_DIM = { 140, 140, 172, 255 };
 static const SDL_Color C_GOLD = { 232, 200, 120, 255 };
 
-/* What SNES DS asks for, in order. stick: an analog stick direction (only
+/* What RetroDS asks for, in order. stick: an analog stick direction (only
  * an axis will do); otherwise a button, a hat direction or half an axis. */
 typedef struct {
 	const char* key; /* SDL's name for it in a mapping */
@@ -41,7 +41,7 @@ static const Step steps[] = {
 	{ "righttrigger", "R2", N_("the second right shoulder button"), false },
 	{ "back", "Select", "", false },
 	{ "start", "Start", "", false },
-	{ "guide", N_("Home"), N_("the button that opens SNES DS's menu (Home, Menu or Function)"), false },
+	{ "guide", N_("Home"), N_("the button that opens RetroDS's menu (Home, Menu or Function)"), false },
 	{ "leftstick", "L3", N_("press the left stick in"), false },
 	{ "lefty", N_("Left stick: up"), N_("push the left stick up"), true },
 	{ "leftx", N_("Left stick: left"), N_("push the left stick left"), true },
@@ -418,7 +418,7 @@ void mapper_run(const Config* cfg) {
 				time_t t = time(NULL);
 				char date[16];
 				strftime(date, sizeof(date), "%Y-%m-%d", localtime(&t));
-				snprintf(comment, sizeof(comment), "%s on %s; SNES DS %s button mapper, %s", name, device, RETRODS_VERSION, date);
+				snprintf(comment, sizeof(comment), "%s on %s; RetroDS %s button mapper, %s", name, device, RETRODS_VERSION, date);
 				ui_mapping_file(path, sizeof(path));
 				if (SDL_GameControllerAddMapping(line) < 0) fprintf(stderr, "button mapper: SDL refused the mapping: %s\n", SDL_GetError());
 				ui_mapped_by_user(guid);
@@ -427,8 +427,8 @@ void mapper_run(const Config* cfg) {
 				fprintf(stderr, "button mapping (%s):\n%s\n", comment, line);
 				if (v.saved) {
 					snprintf(v.doneText, sizeof(v.doneText),
-					         tr("%d of %d set for %s, kept in controllers.txt beside SNES DS's save states. "
-					         "The line for it is in retrods.log too: send it in to have it built into SNES DS for this device."),
+					         tr("%d of %d set for %s, kept in controllers.txt beside RetroDS's save states. "
+					         "The line for it is in retrods.log too: send it in to have it built into RetroDS for this device."),
 					         n, N_STEPS, name);
 				} else {
 					snprintf(v.doneText, sizeof(v.doneText), tr("Set for now, but %s couldn't be written."), path);
