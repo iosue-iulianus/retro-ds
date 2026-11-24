@@ -429,6 +429,7 @@ static struct {
 	int uploads, made, dropped, dungeon, mostDrawn, drawn;
 } mapWork;
 
+/* A redraw of the map begins: the last one's count of pieces kept if the most */
 static void map_work_frame(void) {
 	if (mapWork.drawn > mapWork.mostDrawn) mapWork.mostDrawn = mapWork.drawn;
 	mapWork.drawn = 0;
@@ -5312,7 +5313,6 @@ static void alt_file_events(void) {
 /* After the frames of a pass of the loop: the game read again */
 static void alt_tick(void) {
 	mapWork.on = true;
-	map_work_frame();
 	size_t n = 0, vn = 0, sn = 0;
 	const uint8_t* w = emu_memory(&emu, EMU_MEM_WRAM, &n);
 	const uint8_t* v = emu_memory(&emu, EMU_MEM_VRAM, &vn);
@@ -5617,6 +5617,7 @@ static void draw_alt_map(int s) {
 	int v = screens[s].view;
 	float z = ALT_Z;
 	++altFrame;
+	map_work_frame(); /* (the pieces counted per redraw) */
 	alt_piece_collect(v);
 	SDL_Rect clip = { a.x + screens[s].rect.x, a.y + screens[s].rect.y, a.w, a.h };
 	ui_clip(s, &clip);
