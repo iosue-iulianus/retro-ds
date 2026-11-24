@@ -76,7 +76,7 @@ msgid_plural "%d RetroArch states here"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/game.c:4075 src/game.c:5890 src/game.c:6198
+#: src/game.c:4076 src/game.c:5891 src/game.c:6199
 #, c-format
 msgid "%s"
 msgstr ""
@@ -293,7 +293,7 @@ msgstr ""
 msgid "All games"
 msgstr ""
 
-#: src/game.c:5191
+#: src/game.c:5192
 msgid "Already the value for all games"
 msgstr ""
 
@@ -425,7 +425,7 @@ msgstr ""
 msgid "Back to %s and the buttons it started with"
 msgstr ""
 
-#: src/game.c:3472
+#: src/game.c:3473
 msgid "Back to where you were before loading"
 msgstr ""
 
@@ -453,11 +453,11 @@ msgstr ""
 msgid "Bug Report"
 msgstr ""
 
-#: src/game.c:4077
+#: src/game.c:4078
 msgid "Bug report saved in bug-reports"
 msgstr ""
 
-#: src/game.c:4075
+#: src/game.c:4076
 msgid "Bug report saved in bug-reports."
 msgstr ""
 
@@ -524,12 +524,12 @@ msgstr ""
 msgid "Choose a folder in Android's file picker..."
 msgstr ""
 
-#: src/game.c:5264
+#: src/game.c:5265
 #, c-format
 msgid "Choose it again to close %s: %s"
 msgstr ""
 
-#: src/game.c:5263
+#: src/game.c:5264
 msgid "Choose it again to restart: unsaved progress is lost"
 msgstr ""
 
@@ -631,7 +631,7 @@ msgstr ""
 msgid "Couldn't load the achievements"
 msgstr ""
 
-#: src/game.c:5533
+#: src/game.c:5534
 msgid "Couldn't load the game"
 msgstr ""
 
@@ -652,7 +652,7 @@ msgstr ""
 msgid "Couldn't save"
 msgstr ""
 
-#: src/game.c:3999 src/game.c:4019 src/game.c:4054
+#: src/game.c:4000 src/game.c:4020 src/game.c:4055
 msgid "Couldn't save the bug report."
 msgstr ""
 
@@ -859,7 +859,7 @@ msgstr ""
 msgid "Game names"
 msgstr ""
 
-#: src/game.c:5345
+#: src/game.c:5346
 msgid "Game restarted"
 msgstr ""
 
@@ -1109,11 +1109,11 @@ msgstr ""
 msgid "Lines between the pixels, like a handheld's LCD"
 msgstr ""
 
-#: src/game.c:5328
+#: src/game.c:5329
 msgid "Load failed"
 msgstr ""
 
-#: src/game.c:5882 src/game.c:6192
+#: src/game.c:5883 src/game.c:6193
 msgid "Load failed."
 msgstr ""
 
@@ -1227,7 +1227,7 @@ msgstr ""
 msgid "No achievements for this ROM (MD5 %s)"
 msgstr ""
 
-#: src/game.c:5282
+#: src/game.c:5283
 msgid "No cheats found (see Cheats in the wiki)"
 msgstr ""
 
@@ -1255,7 +1255,7 @@ msgstr ""
 msgid "No patches here yet"
 msgstr ""
 
-#: src/game.c:5880 src/game.c:6190
+#: src/game.c:5881 src/game.c:6191
 msgid "No quick state saved yet."
 msgstr ""
 
@@ -1275,7 +1275,7 @@ msgstr ""
 msgid "Not in the folder any more: it's left out"
 msgstr ""
 
-#: src/game.c:5646
+#: src/game.c:5647
 msgid "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes."
 msgstr ""
 
@@ -1291,12 +1291,12 @@ msgstr ""
 msgid "Nothing mapped"
 msgstr ""
 
-#: src/game.c:5314
+#: src/game.c:5315
 #, c-format
 msgid "Nothing saved in slot %d yet"
 msgstr ""
 
-#: src/game.c:3881
+#: src/game.c:3882
 msgid "Nothing to report yet."
 msgstr ""
 
@@ -1430,7 +1430,7 @@ msgstr ""
 msgid "Patches"
 msgstr ""
 
-#: src/game.c:5640
+#: src/game.c:5641
 msgid "Patches changed"
 msgstr ""
 
@@ -1438,7 +1438,7 @@ msgstr ""
 msgid "Patches changed since the game started"
 msgstr ""
 
-#: src/game.c:5640
+#: src/game.c:5641
 msgid "Patches changed: carrying on from where you were"
 msgstr ""
 
@@ -1466,7 +1466,7 @@ msgstr ""
 msgid "Pink"
 msgstr ""
 
-#: src/game.c:5907
+#: src/game.c:5908
 msgid "Pinned: the bar stays up."
 msgstr ""
 
@@ -1620,7 +1620,7 @@ msgstr ""
 msgid "Resume"
 msgstr ""
 
-#: src/game.c:5643
+#: src/game.c:5644
 msgid "Resumed. Tap or HOME for the menu"
 msgstr ""
 
@@ -1792,15 +1792,15 @@ msgstr ""
 msgid "Run at the display's rate: no small regular stutter."
 msgstr ""
 
-#: src/game.c:5202
+#: src/game.c:5203
 msgid "Same as all games again"
 msgstr ""
 
-#: src/game.c:5298
+#: src/game.c:5299
 msgid "Save failed"
 msgstr ""
 
-#: src/game.c:5877 src/game.c:6188
+#: src/game.c:5878 src/game.c:6189
 msgid "Save failed."
 msgstr ""
 
@@ -1841,15 +1841,15 @@ msgstr ""
 msgid "Save States: Shared with RetroArch"
 msgstr ""
 
-#: src/game.c:5324
+#: src/game.c:5325
 msgid "Saved by another emulator: can't load it"
 msgstr ""
 
-#: src/game.c:5128
+#: src/game.c:5129
 msgid "Saved for all games"
 msgstr ""
 
-#: src/game.c:5128
+#: src/game.c:5129
 msgid "Saved for this game"
 msgstr ""
 
@@ -1877,11 +1877,11 @@ msgstr ""
 msgid "Scanlines"
 msgstr ""
 
-#: src/game.c:5375
+#: src/game.c:5376
 msgid "Screenshot failed"
 msgstr ""
 
-#: src/game.c:5375
+#: src/game.c:5376
 msgid "Screenshot saved"
 msgstr ""
 
@@ -2025,7 +2025,7 @@ msgstr ""
 msgid "Skipped in %d s if nothing is pressed"
 msgstr ""
 
-#: src/game.c:5317
+#: src/game.c:5318
 #, c-format
 msgid "Slot %d loaded"
 msgstr ""
@@ -2150,7 +2150,7 @@ msgstr ""
 msgid "Sound delay"
 msgstr ""
 
-#: src/game.c:6456
+#: src/game.c:6457
 #, c-format
 msgid "Sound delay raised to %d ms: the sound kept breaking up"
 msgstr ""
@@ -2171,16 +2171,16 @@ msgstr ""
 msgid "Starting a game picks up where you closed it."
 msgstr ""
 
-#: src/game.c:5881 src/game.c:6191
+#: src/game.c:5882 src/game.c:6192
 msgid "State loaded."
 msgstr ""
 
-#: src/game.c:5294
+#: src/game.c:5295
 #, c-format
 msgid "State saved to slot %d"
 msgstr ""
 
-#: src/game.c:5877 src/game.c:6188
+#: src/game.c:5878 src/game.c:6189
 msgid "State saved."
 msgstr ""
 
@@ -2244,11 +2244,11 @@ msgstr ""
 msgid "Take Screenshot"
 msgstr ""
 
-#: src/game.c:5894
+#: src/game.c:5895
 msgid "Tap again to close RetroDS."
 msgstr ""
 
-#: src/game.c:5649
+#: src/game.c:5650
 msgid "Tap the screen or press HOME for the menu"
 msgstr ""
 
@@ -2306,7 +2306,7 @@ msgstr ""
 msgid "the button that opens RetroDS's menu (Home, Menu or Function)"
 msgstr ""
 
-#: src/game.c:5264
+#: src/game.c:5265
 msgid "the game"
 msgstr ""
 
@@ -2371,7 +2371,7 @@ msgstr ""
 msgid "the second right shoulder button"
 msgstr ""
 
-#: src/game.c:3475
+#: src/game.c:3476
 msgid "The state saved over is back"
 msgstr ""
 
@@ -2409,11 +2409,11 @@ msgstr ""
 msgid "This is v%s. Look for a new version, and download and install it."
 msgstr ""
 
-#: src/game.c:5326
+#: src/game.c:5327
 msgid "This state can't be read"
 msgstr ""
 
-#: src/game.c:3503
+#: src/game.c:3504
 #, c-format
 msgid "This state was saved %s: it may not work"
 msgstr ""
@@ -2456,7 +2456,7 @@ msgstr ""
 msgid "Undo"
 msgstr ""
 
-#: src/game.c:3472 src/game.c:3475
+#: src/game.c:3473 src/game.c:3476
 msgid "Undo failed"
 msgstr ""
 
@@ -2484,11 +2484,11 @@ msgstr ""
 msgid "Unlocks will be sent when the connection is back"
 msgstr ""
 
-#: src/game.c:5907
+#: src/game.c:5908
 msgid "Unpinned: the bar hides after 5 seconds."
 msgstr ""
 
-#: src/game.c:5262
+#: src/game.c:5263
 msgid "unsaved progress is lost"
 msgstr ""
 
@@ -2595,7 +2595,7 @@ msgstr ""
 msgid "with"
 msgstr ""
 
-#: src/game.c:3494
+#: src/game.c:3495
 #, c-format
 msgid "with %s"
 msgstr ""
@@ -2608,12 +2608,12 @@ msgstr ""
 msgid "With a patch on, the game keeps its own save states: off, it uses the original's (a state can come out garbled in the other)"
 msgstr ""
 
-#: src/game.c:3499
+#: src/game.c:3500
 #, c-format
 msgid "with another dump of the game (%s)"
 msgstr ""
 
-#: src/game.c:3501
+#: src/game.c:3502
 msgid "with another version of the game (other patches, or another ROM)"
 msgstr ""
 
@@ -2625,7 +2625,7 @@ msgstr ""
 msgid "With tags, like (USA)"
 msgstr ""
 
-#: src/game.c:3499
+#: src/game.c:3500
 #, c-format
 msgid "with the unchanged game (%s)"
 msgstr ""
@@ -2634,7 +2634,7 @@ msgstr ""
 msgid "without"
 msgstr ""
 
-#: src/game.c:3493
+#: src/game.c:3494
 msgid "without the patches on"
 msgstr ""
 
@@ -2654,7 +2654,7 @@ msgstr ""
 msgid "Your own PNGs in retrods/overlays/. A screen without one gets the generated bezel in its default colors."
 msgstr ""
 
-#: src/game.c:5262
+#: src/game.c:5263
 msgid "your place is saved"
 msgstr ""
 

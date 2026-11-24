@@ -3185,7 +3185,8 @@ static void draw_menu(void) {
 		item_row_geom(scr, SDL_min(nMenuRows, ROW_VIS) - 1, &last.y, &last.h);
 		int nc = SDL_min(mg.noteCap, mg.noteCap * mg.w / SDL_max(1, ui_font_width(TF_BOLD, mg.noteCap, menuNote)));
 		/* (the last item is always a whole row: Close RetroDS, Show FPS...) */
-		ui_font_text(scr, TF_BOLD, screens[scr].rect.w / 2, last.y + last.h + mg.h * 7 / 20, nc, menuNote, C_GOLD, 0);
+		/* (centred in the gap between the last button and the screen's bottom) */
+		ui_font_text(scr, TF_BOLD, screens[scr].rect.w / 2, (last.y + last.h + screens[scr].rect.h) / 2, nc, menuNote, C_GOLD, 0);
 	}
 	if (nScreens > 1) {
 		int o = ui_other_screen();
