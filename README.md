@@ -101,8 +101,8 @@ Any other Super Nintendo or PlayStation game plays on one screen, with its title
 
 ## Getting started (Android)
 
-1. Install the APK. There are no releases yet: each change is built by GitHub Actions, and the APK is the **Android** workflow run's artifact. Allow RetroDS **All files access** when it asks, so your saves and states live in shared storage.
-2. Put your own games, and for the PlayStation your own BIOS, here:
+1. Download `retrods-vX.Y.Z-android.apk` from the [latest release](../../releases/latest) and open it on the handheld (Android asks once to allow installing apps from your browser or file manager). Allow RetroDS **All files access** when it asks, so your saves and states live in shared storage.
+2. Put your own games, and for the PlayStation your own BIOS, here (other folders can be chosen in Settings > System > Folders):
 
 ```text
 /storage/emulated/0/
@@ -118,6 +118,7 @@ Any other Super Nintendo or PlayStation game plays on one screen, with its title
 ```
 
 3. Open RetroDS, pick a game. Tap the game screen or press HOME for RetroDS's menu: save and load states (with Undo), screens and scaling (4:3 or Pixel Perfect), shaders, controls, and the rest.
+4. Updates: once a day, when the game list opens, RetroDS checks this page for a new release and offers to install it (Settings > System > Updates to check now or switch it off). Your games, saves and states stay where they are.
 
 <p align="center">
   <img src="docs/media/game-list.webp" width="45%" alt="RetroDS's game list: the last game's picture on the top screen, the games' logos on the bottom">
