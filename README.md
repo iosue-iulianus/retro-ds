@@ -9,8 +9,8 @@
 <p align="center"><strong>Your favourite classics, with the second screen they never had.</strong><br>Not a Nintendo DS emulator.</p>
 
 <p align="center">
-  <img src="docs/media/zelda-title-sword.webp" width="420" alt="A Link to the Past's title on a Retroid Pocket Duo: the Master Sword falls from the top screen, across the gap, into the game on the bottom screen">
-  <br><sub>A Link to the Past's title on a Retroid Pocket Duo: the sword falls from the second screen into the game's.</sub>
+  <img src="docs/media/zelda-title-sword.webp" width="420" alt="A Link to the Past's title on both screens: the Master Sword falls from the top screen, across the gap, into the game on the bottom screen">
+  <br><sub>A Link to the Past's title: the sword falls from the second screen into the game's.</sub>
 </p>
 
 RetroDS plays Super Nintendo and PlayStation games on dual-screen Android handhelds. The game runs on one screen exactly as the console drew it. The other screen shows what the game would have put on a second screen if it had one: its map, its items, its menu, in the game's own style, live as you play.
