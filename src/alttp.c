@@ -1949,14 +1949,6 @@ bool alttp_in_grove(const Alttp* a) {
 	return alttp_in_special(a) && r8(a, R_AREA) == 0x80;
 }
 
-int alttp_sword_level(const Alttp* a) {
-	return a->have ? r8(a, 0xF359) : 0;
-}
-
-void alttp_link_here(const Alttp* a, int* x, int* y) {
-	*x = r16(a, 0x0022), *y = r16(a, 0x0020); /* (where he is, in special areas too) */
-}
-
 int alttp_camera_x(const Alttp* a) {
 	return r16(a, R_BG2_X);
 }

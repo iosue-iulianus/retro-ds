@@ -108,13 +108,10 @@ bool alt_no_map(void) {
 }
 /* ALTTP-17: the Master Sword's grove on the top screen, carrying on above
  * the game's screen across the gap (as the title's sword: draw_alt_title's
- * sums), and the title's sword rising when Link draws the Master Sword */
+ * sums) */
 #define ALT_GROVE_ROWS 512
 static SDL_Texture* altGroveTex[2];
 static uint32_t altGroveKey;
-static int altSwordWas = -1;   /* the sword level last seen */
-static Uint64 altSwordRiseT;   /* when the rise started (0: none) */
-static int altSwordRiseX, altSwordRiseY; /* where Link was on the game's screen (its pixels) */
 static void alt_grove_geometry(int s, SDL_Rect* img, float* k, float* kt, float* ratio, float* gapPx) {
 	int g = game_screen();
 	*img = ui_image_rect(g, picW, picH, cfg->scale);
@@ -159,39 +156,6 @@ static void draw_grove(int s) {
 	int ty = r.h + (int) lroundf(gapPx + img.y * ratio + (y0 - cy) * kt), th = (int) lroundf(n * kt);
 	ui_image_part(s, altGroveTex, (SDL_Rect) { 0, 0, 256, n }, (SDL_Rect) { tx, ty, tw, th });
 }
-/* the title's sword rising from Link up the top screen and off it, at the
- * title's speed (16 game pixels a frame of the game's) */
-static void draw_grove_sword(int s) {
-	int lv = alttp_sword_level(alt);
-	if (altSwordWas >= 0 && altSwordWas < 2 && lv >= 2 && alttp_in_grove(alt)) {
-		int lx, ly;
-		alttp_link_here(alt, &lx, &ly);
-		altSwordRiseT = SDL_GetPerformanceCounter();
-		altSwordRiseX = lx + 8 - alttp_camera_x(alt), altSwordRiseY = ly - alttp_camera_y(alt); /* (his middle: he's 16 wide) */
-		fprintf(stderr, "grove: the Master Sword drawn, the title's sword rises\n");
-	}
-	altSwordWas = lv;
-	if (!altSwordRiseT) return;
-	alt_sword_load();
-	int v = screens[s].view;
-	if (!altSwordTex[v]) return;
-	SDL_Rect r = screens[s].rect, img;
-	float k, kt, ratio, gapPx;
-	alt_grove_geometry(s, &img, &k, &kt, &ratio, &gapPx);
-	double t = (double) (SDL_GetPerformanceCounter() - altSwordRiseT) / SDL_GetPerformanceFrequency();
-	float y = altSwordRiseY - altSwordH - (float) (t * 60.0988 * 16); /* the sword's top, game pixels on the game screen */
-	int w = (int) lroundf(altSwordW * kt), h = (int) lroundf(altSwordH * kt);
-	int ty = r.h + (int) lroundf(gapPx + img.y * ratio + y * kt);
-	float kx = img.w / 256.0f;
-	int gw = screens[game_screen()].rect.w;
-	int tx = r.w / 2 + (int) lroundf((img.x + altSwordRiseX * kx - gw / 2.0f) * ratio) - w / 2;
-	if (ty + h <= 0) {
-		altSwordRiseT = 0; /* (gone off the top) */
-		return;
-	}
-	ui_image_part(s, altSwordTex, (SDL_Rect) { 0, 0, altSwordW, altSwordH }, (SDL_Rect) { tx, ty, w, h });
-}
-
 /* where what's above the items is drawn, pixels down from its place
  * (draw_alt: the markers' pane, the dungeon map, the logo move with them) */
 static int altAboveDy;
@@ -547,7 +511,7 @@ void alt_free(void) {
 		if (altGroveTex[i]) SDL_DestroyTexture(altGroveTex[i]);
 		altGroveTex[i] = NULL;
 	}
-	altGroveKey = 0, altSwordWas = -1, altSwordRiseT = 0;
+	altGroveKey = 0;
 	alt_cache_clear();
 	alt_worker_stop();
 }
@@ -1208,7 +1172,6 @@ void draw_alt(int s) {
 	}
 	else draw_alt_map(s);
 	if (altItemsUp > 0) ui_image_pixels_at(s, altItemsTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON, itemsDy);
-	draw_grove_sword(s); /* ALTTP-17 */
 }
 
 static void alt_sound(uint8_t id);
