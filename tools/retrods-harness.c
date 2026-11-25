@@ -764,7 +764,7 @@ int main(int argc, char** argv) {
 				bool keep = wide && spreadStep >= 0 && sotn_same_page(spreadStep, step) && sotn_page_lines(out, ow, e->h, pox, step);
 				bool ok = keep || (wide && sotn_settled(out, ow, e->h, pox, step));
 				spreadStep = ok ? step : -1;
-				putchar(ok ? '1' : '0');
+				putchar(ok ? '1' : wide ? '0' : '.'); /* (. no window filling the picture yet) */
 				frame(e, 0);
 			}
 			putchar('\n');
