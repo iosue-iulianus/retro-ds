@@ -8,6 +8,7 @@
 #include "logo.h"
 #include "brand.h"
 #include "emu.h"
+#include "system.h"
 #include "esde.h"
 #include "hotkeys.h"
 #include "folderpick.h"
@@ -511,7 +512,8 @@ static void rom_crc_save(const Config* cfg) {
 /* The game's ROM checksum if it's known; if not, asks for it (only supported
  * games: the others have no list of dumps to check it against). */
 static bool game_crc(const GameEntry* g, uint32_t* crc, int* patch) {
-	if (!g->supported) return false;
+	const System* sys = system_for_path(g->path);
+	if (!g->supported || !sys || sys->fullPath) return false; /* (a disc: its code is its serial) */
 	pthread_mutex_lock(&crcLock);
 	RomCrc* c = rom_crc_find(g->path, g->size, g->mtime);
 	bool have = c != NULL;
@@ -578,6 +580,28 @@ static void scan_progress(void) {
 	ui_present();
 }
 
+/* A ROM folder named after a system (ROMs/snes) brings the other
+ * systems' folders beside it (ROMs/psx), when they're there. */
+static void scan_siblings(Config* cfg, const char* d) {
+	char dir[1024];
+	snprintf(dir, sizeof(dir), "%s", d);
+	size_t len = strlen(dir);
+	while (len > 1 && dir[len - 1] == '/') dir[--len] = 0;
+	char* slash = strrchr(dir, '/');
+	if (!slash) return;
+	bool named = false;
+	for (int i = 0; i < SYS_COUNT && !named; ++i) named = !strcasecmp(slash + 1, system_get(i)->key);
+	if (!named) return;
+	for (int i = 0; i < SYS_COUNT; ++i) {
+		const char* key = system_get(i)->key;
+		if (!strcasecmp(slash + 1, key)) continue;
+		char other[1100];
+		snprintf(other, sizeof(other), "%.*s/%s", (int) (slash - dir), dir, key);
+		struct stat st;
+		if (!stat(other, &st) && S_ISDIR(st.st_mode)) scan_dir(cfg, other, 0);
+	}
+}
+
 static void scan(Config* cfg) {
 	free(games);
 	games = NULL;
@@ -593,7 +617,10 @@ static void scan(Config* cfg) {
 	code_cache_load(cfg);
 	rom_crc_load(cfg);
 	crcCfg = cfg;
-	for (char* d = strtok_r(dirs, ":", &save); d; d = strtok_r(NULL, ":", &save)) scan_dir(cfg, d, 0);
+	for (char* d = strtok_r(dirs, ":", &save); d; d = strtok_r(NULL, ":", &save)) {
+		scan_dir(cfg, d, 0);
+		scan_siblings(cfg, d);
+	}
 	code_cache_save(cfg);
 	qsort(games, nGames, sizeof(*games), cmp_games);
 	/* (no region flags yet: SNES game codes are checksums, with no region
