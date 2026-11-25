@@ -125,6 +125,9 @@ enum { P_ITEMS, P_NAME, P_PROGRESS, P_ABILITY, P_EQUIPMENT, P_COUNT };
  * the Y items at the bottom right, every pane moved whole) */
 static const int8_t paneGame[P_COUNT][2] = { { 1, 5 }, { 21, 5 }, { 21, 11 }, { 1, 21 }, { 21, 21 } };
 static const int8_t paneTouch[P_COUNT][2] = { { 12, 15 }, { 1, 24 }, { 1, 15 }, { 12, 5 }, { 1, 5 } };
+/* each pane's frame on the game's screen, in tiles (first and last column, row) */
+static const int8_t paneBox[P_COUNT][4] = { { 1, 5, 19, 19 }, { 21, 5, 30, 10 }, { 21, 11, 30, 19 }, { 1, 21, 19, 29 }, { 21, 21, 30, 29 } };
+
 
 struct Alttp {
 	uint8_t* rom;
@@ -671,25 +674,23 @@ static void draw_tile2(const Alttp* a, const uint8_t* vram, uint16_t e, uint32_t
 	}
 }
 
-/* the zoom indicator's pane: a frame of the items screen's (the Y items',
- * green), black inside, from the same tiles in video RAM */
-static void render_zoom_pane(Alttp* a, const uint8_t* vram) {
-	enum { C = ALTTP_ZOOM_PANE_W / 8, R = ALTTP_ZOOM_PANE_H / 8 };
+/* A pane of the items screen's: a frame of the Y items' (green), black
+ * inside, clear outside it (the map shows there, up to the tiles' own
+ * one-pixel black outline, kept: the owner's choice), from the same tiles
+ * in video RAM; W x H pixels, multiples of 8, at most 128 x 128 */
+static void frame_pane(const Alttp* a, const uint8_t* vram, int W, int H, uint32_t* px) {
+	int C = W / 8, R = H / 8;
 	static uint16_t m[32 * 32];
 	Pane p = { m, 0, 0 };
 	box(&p, 0, 0, C - 1, R - 1, 7);
-	enum { W = ALTTP_ZOOM_PANE_W, H = ALTTP_ZOOM_PANE_H };
-	uint32_t* px = a->zoomPane;
 	for (int i = 0; i < W * H; ++i) px[i] = 0;
 	for (int r = 0; r < R; ++r) {
 		for (int c = 0; c < C; ++c) draw_tile2(a, vram, m[r * 32 + c], &px[r * 8 * W + c * 8], W);
 	}
-	/* outside the frame clear (the map shows there, up to the tiles' own
-	 * one-pixel black outline, kept: the owner's choice); inside, black:
-	 * what can't be reached from the edge without crossing the frame */
-	static uint8_t out[W * H];
-	static int stack[W * H];
-	memset(out, 0, sizeof out);
+	/* inside, black: what can't be reached from the edge without crossing the frame */
+	static uint8_t out[128 * 128];
+	static int stack[128 * 128];
+	memset(out, 0, (size_t) W * H);
 	int n = 0;
 	for (int i = 0; i < W * H; ++i) {
 		int x = i % W, y = i / W;
@@ -705,6 +706,11 @@ static void render_zoom_pane(Alttp* a, const uint8_t* vram) {
 	for (int i = 0; i < W * H; ++i) {
 		if (!px[i] && !out[i]) px[i] = 0xFF000000u;
 	}
+}
+
+/* the zoom indicator's pane */
+static void render_zoom_pane(Alttp* a, const uint8_t* vram) {
+	frame_pane(a, vram, ALTTP_ZOOM_PANE_W, ALTTP_ZOOM_PANE_H, a->zoomPane);
 }
 
 const uint32_t* alttp_zoom_pane(const Alttp* a) {
@@ -781,6 +787,7 @@ static const WriteRange altWrites[] = {
 	{ 0x7EF34F, 1, "the bottle selected" },
 	{ 0x7EC74A, 4, "the HUD's item box, top" },
 	{ 0x7EC78A, 4, "the HUD's item box, bottom" },
+	{ 0x7E012F, 1, "the sound request (ALTTP-16)" },
 };
 
 const WriteRange* alttp_write_ranges(int* n) {
@@ -1564,12 +1571,19 @@ bool alttp_game_over(const Alttp* a) {
 }
 
 bool alttp_in_special(const Alttp* a) {
+	/* (the overworld's modules, and the interface's: a text box there, the
+	 * Master Sword's pedestal read with A, is module $0E; the map showed
+	 * through it: the owner, Nov 25, 2026) */
 	uint8_t m = r8(a, R_MODULE);
-	return a->have && (m == 0x09 || m == 0x0B) && !r8(a, R_INDOORS) && r8(a, R_AREA) >= 0x80;
+	return a->have && (m == 0x09 || m == 0x0B || m == 0x0E) && !r8(a, R_INDOORS) && r8(a, R_AREA) >= 0x80;
 }
 
 bool alttp_in_dungeon(const Alttp* a) {
 	return a->have && r8(a, R_INDOORS) && r8(a, R_DUNGEON) != 0xFF;
+}
+
+bool alttp_in_house_or_cave(const Alttp* a) {
+	return a->have && r8(a, R_INDOORS) && r8(a, R_DUNGEON) == 0xFF;
 }
 
 const uint32_t* alttp_dungeon_map(Alttp* a, const uint8_t* vram, int view) {
@@ -1856,4 +1870,75 @@ bool alttp_seen_merge(Alttp* a, const void* data, size_t n) {
 	}
 	if (added) a->dirty = true;
 	return ok;
+}
+
+/* ALTTP-1: the panes' places on the items picture (alttp.h) */
+int alttp_items_panes(int rects[][4], int max) {
+	int n = 0;
+	for (int p = 0; p < P_COUNT && n < max; ++p, ++n) {
+		int dx = paneTouch[p][0] - paneGame[p][0], dy = paneTouch[p][1] - paneGame[p][1];
+		rects[n][0] = (paneBox[p][0] + dx) * 8, rects[n][1] = (paneBox[p][1] + dy - MENU_ROW0) * 8; /* (the picture starts at MENU_ROW0) */
+		rects[n][2] = (paneBox[p][2] - paneBox[p][0] + 1) * 8, rects[n][3] = (paneBox[p][3] - paneBox[p][1] + 1) * 8;
+	}
+	return n;
+}
+
+/* ALTTP-15: the markers' pictures, the items screen's own icons (16 x 16,
+ * clear round them): bombs, the hammer, the power glove, the hookshot, the
+ * flippers, the Pegasus boots, a bottled fairy, a piece of heart */
+int alttp_mark_icon(const Alttp* a, const uint8_t* vram, int kind, uint32_t out[16 * 16]) {
+	static const struct { int k, level; } items[ALTTP_MARK_KINDS - 1] = {
+		{ 4, 1 }, { 12, 1 }, { 21, 1 }, { 3, 1 }, { 23, 1 }, { 22, 1 }, { 16, 6 },
+	};
+	if (kind < 0 || kind >= ALTTP_MARK_KINDS || !vram) return 0;
+	uint32_t addr = kind < ALTTP_MARK_KINDS - 1 ? icon_table(a, items[kind].k) + items[kind].level * 8 : HEART_PIECES + 3 * 8;
+	for (int i = 0; i < 16 * 16; ++i) out[i] = 0;
+	for (int i = 0; i < 4; ++i) draw_tile2(a, vram, rom16(a, addr + i * 2), &out[(i / 2) * 8 * 16 + (i % 2) * 8], 16);
+	/* (the tiles' black reached from the icon's edges cleared, but for a
+	 * pixel of outline round the picture: on the map it stands on its own) */
+	uint8_t clear[16 * 16] = { 0 };
+	int stack[16 * 16], n = 0;
+#define DARK(i) (!(out[i] & 0xFFFFFFu))
+	for (int i = 0; i < 16 * 16; ++i) {
+		int x = i % 16, y = i / 16;
+		if ((x == 0 || y == 0 || x == 15 || y == 15) && DARK(i)) clear[i] = 1, stack[n++] = i;
+	}
+	while (n) {
+		int i = stack[--n], x = i % 16, y = i / 16;
+		const int nb[4] = { x > 0 ? i - 1 : -1, x < 15 ? i + 1 : -1, y > 0 ? i - 16 : -1, y < 15 ? i + 16 : -1 };
+		for (int k = 0; k < 4; ++k) {
+			if (nb[k] >= 0 && !clear[nb[k]] && DARK(nb[k])) clear[nb[k]] = 1, stack[n++] = nb[k];
+		}
+	}
+#undef DARK
+	for (int y = 0; y < 16; ++y) {
+		for (int x = 0; x < 16; ++x) {
+			if (!clear[y * 16 + x]) continue;
+			bool edge = false;
+			for (int dy = -1; dy <= 1 && !edge; ++dy) {
+				for (int dx = -1; dx <= 1 && !edge; ++dx) {
+					int xx = x + dx, yy = y + dy;
+					if (xx >= 0 && yy >= 0 && xx < 16 && yy < 16 && !clear[yy * 16 + xx]) edge = true;
+				}
+			}
+			out[y * 16 + x] = edge ? 0xFF000000u : 0;
+		}
+	}
+	return 1;
+}
+
+/* ALTTP-15: their pane, a frame as the zoom indicator's */
+void alttp_frame_pane(const Alttp* a, const uint8_t* vram, int w, int h, uint32_t* out) {
+	if (vram && w <= 128 && h <= 128) frame_pane(a, vram, w, h, out);
+}
+
+/* ALTTP-15: a word in the items screen's letters (the DO pane's: LIFT,
+ * READ...; one 8 x 8 tile a letter, A at $150 and on in order, its
+ * palette), A to Z and spaces, at out (stride pixels a row) */
+void alttp_text(const Alttp* a, const uint8_t* vram, const char* text, uint32_t* out, int stride) {
+	if (!vram) return;
+	for (int i = 0; text[i]; ++i) {
+		char c = text[i];
+		if (c >= 'A' && c <= 'Z') draw_tile2(a, vram, (uint16_t) (0x2C00 | (0x150 + c - 'A')), out + i * 8, stride);
+	}
 }

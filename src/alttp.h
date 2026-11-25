@@ -99,6 +99,19 @@ const uint32_t* alttp_sky(const Alttp* a, int world);
 #define ALTTP_ZOOM_PANE_W 32
 #define ALTTP_ZOOM_PANE_H 80
 const uint32_t* alttp_zoom_pane(const Alttp* a);
+/* The items screen's panes on its picture (alttp_items), in its pixels: x, y,
+ * w, h each; returns how many (ALTTP-1: what's over the map) */
+int alttp_items_panes(int rects[][4], int max);
+/* ALTTP-15: the player's markers' pictures, 16 x 16 (kind 0 to
+ * ALTTP_MARK_KINDS - 1: bombs, hammer, glove, hookshot, flippers, boots,
+ * fairy, heart piece), from the items screen's icons and video RAM; 0 if
+ * it can't be drawn */
+#define ALTTP_MARK_KINDS 8
+int alttp_mark_icon(const Alttp* a, const uint8_t* vram, int kind, uint32_t out[16 * 16]);
+/* a pane of the items screen's, w x h (multiples of 8; at most 128 x 128) */
+void alttp_frame_pane(const Alttp* a, const uint8_t* vram, int w, int h, uint32_t* out);
+/* a word in the items screen's letters (A to Z, spaces), 8 pixels a letter */
+void alttp_text(const Alttp* a, const uint8_t* vram, const char* text, uint32_t* out, int stride);
 
 /* The world map's goal markers (ALTTP-11), as the game's own map would
  * show them now in the world Link is in (blinking as there): each at
@@ -171,6 +184,8 @@ bool alttp_seen_merge(Alttp* a, const void* data, size_t n);
  * until the next call. */
 #define ALTTP_FLOOR_AS_GAME (-128)
 bool alttp_in_dungeon(const Alttp* a);
+/* indoors outside dungeons: houses and caves ($040C = $FF) */
+bool alttp_in_house_or_cave(const Alttp* a);
 /* Link is in a special area of the overworld (area $80 and up: the Master
  * Sword's grove, Zora's waterfall...), which the world map doesn't show */
 bool alttp_in_special(const Alttp* a);
