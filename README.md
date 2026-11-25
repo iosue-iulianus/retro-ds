@@ -23,10 +23,10 @@ Built for and tested on the **Retroid Pocket Duo**; other dual-screen Android ha
 
 There are other ways to give these games a second screen. RetroDS takes a different one:
 
-- **Your game, unchanged.** RetroDS runs your own cartridge or disc in an accurate emulator (bsnes, SwanStation). It isn't a port or a ROM hack: the game is the one you know, its saves are ordinary saves, and save states and cheats work as they do for any game (RetroAchievements too, on the Super Nintendo). Ports and hacks that add a second screen rebuild or change the game itself, one game at a time.
+- **Your game, unchanged.** RetroDS runs your own cartridge or disc in an accurate emulator (bsnes, SwanStation). It isn't a port or a ROM hack: the game is the one you know, its saves are ordinary saves, and save states and cheats work as they do for any game (RetroAchievements too, on the Super Nintendo). Ports and hacks that add a second screen rebuild or change the game itself.
 - **Drawn live, not captured.** GBA DS, which RetroDS grew from, fills most of its second screens by running a hidden second copy of the game and taking pictures of its screens. RetroDS reads the running game and draws the second screen itself after every frame: the map scrolls under your finger at the screen's refresh rate, with no wait for a picture and no second copy running down the battery.
-- **The game's own look.** Every second screen is made from the game's own graphics (its map, its items screen, its menu), rearranged for touch at most. No RetroDS panels or icons, nothing the game didn't have.
-- **One app for your library.** Super Nintendo and PlayStation games in one game list. The games RetroDS knows get their second screen; every other game plays on one screen with its logo on the other.
+- **The game's own look.** Every second screen is made from the game's own graphics (its map, its items screen, its menu), rearranged for touch at most. Nothing the game didn't already have.
+- **One app for your library.** Super Nintendo and PlayStation games in one game list (with more to come!). The games RetroDS knows get their second screen.
 
 # Games with a second screen
 
@@ -40,7 +40,7 @@ Each supported game gets a second screen of its own, worked out from how that ga
   <img src="docs/media/alttp-dungeon-map.webp" width="30%" alt="A Link to the Past: a dungeon's map on the top screen">
 </p>
 
-- The world map, built from the ground the game has actually shown you, with the world map's own clouds over what you haven't seen, Link walking on it, and the game's markers for where to go next. Pinch or tap to zoom.
+- The world map, built from the ground the game has actually shown you, with the world map's own clouds over what you haven't seen,and the game's markers for where to go next. Pinch or tap to zoom.
 - The items screen slides up over the map (X): tap an item to give it to Y.
 - Drop your own markers on the map to remember a secret for later.
 - In dungeons, the dungeon's own map, floor by floor.
@@ -72,7 +72,7 @@ Each supported game gets a second screen of its own, worked out from how that ga
 
 Press Start, or swipe across the second screen, and the game pauses and its own menu moves to the second screen. It is widened to fill modern devices' screens. The game screen shows the game's logo. Play the menu with the pad as usual; Start, triangle or a swipe back returns to the map.
 
-L2 and R2 as rewind and fast forward are disabled in Symphony of the Night.
+L2 and R2 as rewind and fast forward are disabled in Symphony of the Night, due to the game itself using those buttons.
 
 [Rules](docs/games/symphony-of-the-night.md) · USA release (SLUS-00067)
 
