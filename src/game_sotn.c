@@ -302,9 +302,16 @@ void sot_tick(void) {
 		 * sliding apart over a tenth of a second; while the game's windows
 		 * move (opening, a page coming or going), its picture as it is */
 		static float spreadT;
+		static int spreadStep = -1; /* the step whose page is spread now, -1 none */
 		int step = sotn_menu_step(&emu);
-		if (!wideOk || !sotn_settled(widePx, ow, emu.h, pox, step)) spreadT = 0;
-		else {
+		bool keep = wideOk && spreadStep >= 0 && sotn_same_page(spreadStep, step) && sotn_page_lines(widePx, ow, emu.h, pox, step);
+		if (!keep && !(wideOk && sotn_settled(widePx, ow, emu.h, pox, step))) {
+			spreadT = 0, spreadStep = -1;
+		} else {
+			/* (spread once up and still; then it stays so while the game is on
+			 * the page and its windows are where they rest, a blinking cursor
+			 * box and the like notwithstanding: the owner, Nov 25, 2026) */
+			spreadStep = step;
 			spreadT = SDL_min(1.0f, spreadT + 1.0f / 6);
 			sotn_spread(widePx, ow, emu.h, pox, step, spreadT);
 		}

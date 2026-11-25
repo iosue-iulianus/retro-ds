@@ -98,6 +98,11 @@ bool sotn_spread(uint32_t* px, int ow, int h, int ox, int step, float t);
 /* SOTN-8: the page (step) is up and still, ready to be spread: its
  * windows where they rest, none of the menu's moving over it */
 bool sotn_settled(const uint32_t* px, int ow, int h, int ox, int step);
+/* the page's own window lines are there (whatever else is: a blinking
+ * cursor box), for a page already spread to stay so */
+bool sotn_page_lines(const uint32_t* px, int ow, int h, int ox, int step);
+/* the two steps show the same page (Equip choosing a slot or an item) */
+bool sotn_same_page(int stepA, int stepB);
 /* the status screen's lettering: text at (x, y) of px (stride wide) */
 void sotn_text(const SotnView* v, uint32_t* px, int stride, int x, int y, const char* s);
 /* SOTN-7: a small window of the status screen's kind, w x h at (x, y)

@@ -512,12 +512,22 @@ static bool white_run(const uint32_t* px, int ow, int ox, int y, int x0, int x1)
 	return true;
 }
 
-bool sotn_settled(const uint32_t* px, int ow, int h, int ox, int step) {
+bool sotn_same_page(int stepA, int stepB) {
+	return page_of(stepA) && page_of(stepA) == page_of(stepB);
+}
+
+bool sotn_page_lines(const uint32_t* px, int ow, int h, int ox, int step) {
 	const Page* p = page_of(step);
 	if (!p || h < 216) return false;
 	for (int i = 0; i < p->nLines; ++i) {
 		if (!white_run(px, ow, ox, p->lines[i].y, p->lines[i].x0, p->lines[i].x1)) return false;
 	}
+	return true;
+}
+
+bool sotn_settled(const uint32_t* px, int ow, int h, int ox, int step) {
+	const Page* p = page_of(step);
+	if (!sotn_page_lines(px, ow, h, ox, step)) return false;
 	/* no other window's edge across the page */
 	for (int y = 17; y < 215; ++y) {
 		bool listed = false;
