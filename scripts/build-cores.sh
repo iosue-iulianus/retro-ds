@@ -18,9 +18,12 @@
 # screens (A Link to the Past). It also takes states for the same instance (rewind) without
 # synchronizing, so they never move the emulation forward.
 #
-# SwanStation (GPLv3, its sources GPLv2 or later) is built as it is, with
-# CMake: RetroDS asks for its software renderer through the core options
-# (src/emu.c), so its GL and Vulkan code is never used.
+# SwanStation (GPLv3, its sources GPLv2 or later) is built with CMake and
+# scripts/cores/swanstation-vram.patch: its libretro port exposes no video
+# RAM, and RetroDS reads the PlayStation's (1 MB) for what the game itself
+# has drawn there (Symphony of the Night's logo and map). RetroDS asks for
+# its software renderer through the core options (src/emu.c), so its GL
+# and Vulkan code is never used.
 set -eu
 
 BSNES_URL=https://github.com/libretro/bsnes.git
@@ -47,6 +50,8 @@ fetch bsnes "$BSNES_URL" "$BSNES_REV"
 git -C "$CORES/bsnes" checkout -q -- .
 git -C "$CORES/bsnes" apply "$HERE/scripts/cores/bsnes-memory.patch"
 fetch swanstation "$SWANSTATION_URL" "$SWANSTATION_REV"
+git -C "$CORES/swanstation" checkout -q -- .
+git -C "$CORES/swanstation" apply "$HERE/scripts/cores/swanstation-vram.patch"
 if [ "${1:-}" = android ]; then
 	NDK="${ANDROID_NDK_HOME:?set ANDROID_NDK_HOME to an Android NDK}"
 	J="$CORES/bsnes/bsnes/target-libretro"

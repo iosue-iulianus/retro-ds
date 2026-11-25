@@ -205,8 +205,10 @@ uint8_t* emu_rom_read_patched(const char* path, char files[][1024], int n, size_
 
 /* Memory. Work RAM (SNES $7E0000-$7FFFFF, 128 KB; PlayStation 2 MB), the
  * cartridge's battery RAM (the PlayStation's memory card 1) and video RAM
- * (SNES only: 64 KB, words little-endian; bsnes gives it only with its
- * fast PPU, the default), or NULL. Read-only for RetroDS. */
+ * (SNES: 64 KB, words little-endian, bsnes gives it only with its fast
+ * PPU, the default; PlayStation: 1 MB, 1024 x 512 halfwords, with
+ * RetroDS's SwanStation patch, the drawing caught up first), or NULL.
+ * Read-only for RetroDS. */
 enum { EMU_MEM_WRAM, EMU_MEM_SRAM, EMU_MEM_VRAM };
 uint8_t* emu_memory(Emu* e, int region, size_t* size);
 /* By address as the CPU sees it. SNES: banks $7E/$7F, and the low 8 KB
