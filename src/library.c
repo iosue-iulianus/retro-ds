@@ -903,11 +903,14 @@ static void free_tiles(void) {
 	}
 }
 
+/* The header: Supported Games and Settings at the left, the theme and the
+ * list / grid buttons at the right. */
+static SDL_Rect games_button(int scr);
 static SDL_Rect settings_button(int scr) {
-	SDL_Rect r = screens[scr].rect;
+	SDL_Rect gb = games_button(scr);
 	float px = ui_px(scr);
-	int h = px * HEADER_BTN, w = px * 44;
-	return (SDL_Rect) { r.w - w - px * 4, (px * HEADER_H - h) / 2, w, h };
+	int w = px * 44;
+	return (SDL_Rect) { gb.x + gb.w + px * 3, gb.y, w, gb.h };
 }
 
 /* A centred label that fits maxW x maxH: shrunk first; when that would be much smaller than cap and the text has a space, on two lines (as large as fits). Longer translations (French's "Touch or use the D-Pad", "Supported") need it. */
@@ -938,19 +941,19 @@ static void label_fit(int scr, int cx, int cy, int cap, int maxW, int maxH, cons
 	ui_label(scr, cx, cy + two * 9 / 10, two, b, C_TEXT);
 }
 
-/* left of Settings: Supported Games, the list of games with a second screen */
+/* at the left: Supported Games, the list of games with a second screen */
 static SDL_Rect games_button(int scr) {
-	SDL_Rect sb = settings_button(scr);
 	float px = ui_px(scr);
-	int w = px * 60;
-	return (SDL_Rect) { sb.x - px * 3 - w, sb.y, w, sb.h };
+	int h = px * HEADER_BTN, w = px * 60;
+	return (SDL_Rect) { px * 4, (px * HEADER_H - h) / 2, w, h };
 }
 
-/* square button left of that: switches between list and grid */
+/* square button at the right: switches between list and grid */
 static SDL_Rect view_button(int scr) {
-	SDL_Rect gb = games_button(scr);
+	SDL_Rect r = screens[scr].rect;
 	float px = ui_px(scr);
-	return (SDL_Rect) { gb.x - px * 3 - gb.h, gb.y, gb.h, gb.h };
+	int h = px * HEADER_BTN;
+	return (SDL_Rect) { r.w - px * 4 - h, (px * HEADER_H - h) / 2, h, h };
 }
 
 /* square button left of the list / grid one: the dark or light theme */
@@ -990,8 +993,9 @@ static void draw_games_button(const Config* cfg, int scr) {
 	label_fit(scr, b.x + b.w / 2, b.y + b.h / 2, px * 5, b.w - px * 2, b.h, tr("Supported Games"));
 }
 
-/* Four squares (in the list: switch to the grid) or three lines (in the
- * grid: switch to the list). */
+/* Four squares (in the list: switch to the grid) or a list, a dot and a
+ * line on each of three rows (in the grid: switch to the list; three lines
+ * alone would be a menu's). */
 static void draw_view_button(int scr) {
 	SDL_Rect b = view_button(scr);
 	float px = ui_px(scr);
@@ -1007,10 +1011,12 @@ static void draw_view_button(int scr) {
 			}
 		}
 	} else {
-		int lw = b.h * 28 / 56, lh = SDL_max(2, b.h * 5 / 56), gap = b.h * 7 / 56;
+		int dot = SDL_max(3, b.h * 7 / 56), lw = b.h * 19 / 56, lh = SDL_max(2, b.h * 5 / 56), gap = b.h * 6 / 56;
+		int x0 = cx - (dot + gap + lw) / 2;
 		for (int j = -1; j <= 1; ++j) {
-			SDL_Rect l = { cx - lw / 2, cy + j * (lh + gap) - lh / 2, lw, lh };
-			ui_fill_round(scr, l, ink, lh / 2);
+			int y = cy + j * (dot + gap);
+			ui_fill_round(scr, (SDL_Rect) { x0, y - dot / 2, dot, dot }, ink, dot / 2);
+			ui_fill_round(scr, (SDL_Rect) { x0 + dot + gap, y - lh / 2, lw, lh }, ink, lh / 2);
 		}
 	}
 }
@@ -1159,8 +1165,9 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 	SDL_Rect sb = settings_button(scr);
 	if (storageMsg[0]) {
 		char line[300];
-		fit_text(line, sizeof(line), TF_BOLD, px * 4, storageMsg, theme_button(scr).x - px * 8);
-		ui_font_text(scr, TF_BOLD, theme_button(scr).x / 2, g.headerH / 2, px * 4, line, C_GOLD, 0);
+		int l = sb.x + sb.w + px * 4, rr = theme_button(scr).x - px * 4; /* (between Settings and the theme button) */
+		fit_text(line, sizeof(line), TF_BOLD, px * 4, storageMsg, rr - l);
+		ui_font_text(scr, TF_BOLD, (l + rr) / 2, g.headerH / 2, px * 4, line, C_GOLD, 0);
 	}
 	draw_theme_button(scr);
 	draw_view_button(scr);
