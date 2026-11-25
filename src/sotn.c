@@ -474,27 +474,12 @@ static const Part statusParts[] = {
 	 * 2026: clear of the Back button below it) */
 	{ 206, 182, 320, 192, SPREAD_R + 16, -4 },
 };
-/* Relics (MENU_STEP_RELIC): two columns of switches, the relic's
- * description below */
-static const Line relicLines[] = { FULL(16), FULL(185), FULL(215) };
-static const Part relicParts[] = {
-	{ 2, 17, 165, 184, SPREAD_L, 0 },  /* the left column */
-	{ 170, 17, 355, 184, SPREAD_R, 0 }, /* the right column */
-};
-/* Equip (choosing a slot, sorting, choosing a hand's or an accessory's
- * item): the slots, the inventory's two columns, the description */
-static const Line equipLines[] = { FULL(16), FULL(112), FULL(185), FULL(215) };
-static const Part equipParts[] = {
-	{ 2, 17, 88, 111, SPREAD_L, 0 },    /* the slot's name, STR to LCK */
-	{ 229, 17, 352, 111, SPREAD_R, 0 }, /* ATT, DEF (and the stats an item would give) */
-	{ 2, 113, 180, 184, SPREAD_L, 0 },  /* the inventory's left column */
-	{ 186, 113, 352, 184, SPREAD_R, 0 }, /* its right column */
-};
+/* The menu's other pages (Relics, Equip, Spells, System, Familiars) stay
+ * as the game lays them out, widened only (the owner, Nov 25, 2026: spread,
+ * their blinking cursors kept them jumping, and Relics' looked wrong). */
 #define N(a) (int) (sizeof(a) / sizeof(a[0]))
 static const Page pages[] = {
 	{ 0x10, 0x10, statusLines, N(statusLines), statusParts, N(statusParts) },
-	{ 0x22, 0x22, relicLines, N(relicLines), relicParts, N(relicParts) },
-	{ 0x40, 0x6F, equipLines, N(equipLines), equipParts, N(equipParts) },
 };
 
 static const Page* page_of(int step) {
