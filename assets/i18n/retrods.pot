@@ -323,7 +323,7 @@ msgstr ""
 msgid "An xdelta made with compression, which RetroDS can't read: patch the ROM with it beforehand, or make it again without (xdelta3 -S none)"
 msgstr ""
 
-#: src/android.c:438
+#: src/android.c:444
 msgid "Android's installer couldn't be reached"
 msgstr ""
 

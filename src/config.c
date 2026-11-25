@@ -25,7 +25,7 @@ void config_defaults(Config* c) {
 	for (int i = 0; i < HK_COUNT; ++i) strcpy(c->hotkeyBtn[i], hotkeyDefaults[i]);
 	c->shaderLast = SH_GRID;
 	strcpy(c->menuCombo, "none");
-	strcpy(c->romDir, "/storage/roms/gba");
+	strcpy(c->romDir, "/storage/roms/snes");
 	strcpy(c->screenshotDir, "/storage/roms/screenshots");
 	strcpy(c->cheatDir, "/config/retroarch/cheats:/storage/.config/retroarch/cheats");
 	strcpy(c->esConfigDir, "/storage/.config/emulationstation");
@@ -387,12 +387,12 @@ bool config_parse_args(Config* c, int argc, char** argv) {
 void config_usage(const char* argv0) {
 	fprintf(stderr,
 	        "RetroDS " RETRODS_VERSION "\n"
-	        "usage: %s [options] [game.gba]\n"
+	        "usage: %s [options] [game]\n"
 	        "\n"
 	        "Without a game, opens the game library (games found in --rom-dir).\n"
 	        "\n"
 	        "Options (also accepted as key=value lines in retrods.cfg):\n"
-	        "  --rom-dir=DIR[:DIR]    library folders (/storage/roms/gba)\n"
+	        "  --rom-dir=DIR[:DIR]    library folders (/storage/roms/snes)\n"
 	        "  --cheat-dir=DIR[:DIR]  RetroArch .cht folders (/config/retroarch/cheats:...)\n"
 	        "  --patch-dir=DIR        patches, a folder per game (default: patches beside the app)\n"
 	        "  --screenshot-dir=DIR   where Take Screenshot saves (/storage/roms/screenshots)\n"
