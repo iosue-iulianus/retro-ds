@@ -9,6 +9,7 @@
 #include "game_screens.h"
 #include <zlib.h>
 #include "smmap.h"
+#include "sotn.h"
 #include "hotkeys.h"
 #include "paths.h"
 #include "ui.h"
@@ -5525,6 +5526,25 @@ static void patches_setup(const char* rom) {
 	fprintf(stderr, "patches: %s, %d to apply%s\n", patchDir, n, on);
 }
 
+/* SOTN-1: Symphony of the Night's logo, taken from its video RAM while
+ * the title is up (no second core: the PlayStation has one), kept where
+ * an extracted logo goes, and shown. */
+static void logo_refresh(void);
+static void sotn_logo_take(void) {
+	int w = 0, h = 0;
+	uint8_t* px = sotn_title_logo(&emu, &w, &h);
+	if (!px) return;
+	char path[1200], tmp[1300];
+	snprintf(path, sizeof(path), "%s/logos", cfg->stateDir);
+	mkdirs(path);
+	snprintf(path, sizeof(path), "%s/logos/%s.png", cfg->stateDir, emu.gameCode);
+	snprintf(tmp, sizeof(tmp), "%s.tmp", path);
+	bool ok = stbi_write_png(tmp, w, h, 4, px, w * 4) && rename(tmp, path) == 0;
+	free(px);
+	fprintf(stderr, "logo: %s %dx%d from the title's video RAM -> %s\n", emu.gameCode, w, h, ok ? path : "write failed");
+	if (ok) logo_refresh();
+}
+
 /* The logo loaded again, and every picture it's in made again (extracted at
  * last, or a scraped / own logo's pixelate switched: GEN-11). */
 static void logo_refresh(void) {
@@ -5849,6 +5869,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			logoGen = logo_generation();
 			logo_refresh();
 		}
+		if (!logoTex[0] && !logoTex[1] && sotn_is(emu.gameCode) && frameCount % 30 == 0) sotn_logo_take();
 		{
 			/* back from sleep (frames stopped for over 2 seconds) or the
 			 * renderer reset: the textures again */

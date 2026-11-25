@@ -39,7 +39,7 @@ LDFLAGS    += -Wl,-rpath,$(abspath $(SDL_PREFIX)/lib)
 endif
 LIBS       := -lSDL2 -lz -ldl -lpthread -lm
 
-CORE_SRC   := src/emu.c src/system.c src/disc.c src/patch.c src/mapcap.c src/profiles.c src/smmap.c src/alttp.c src/alttp_dungeon.c
+CORE_SRC   := src/emu.c src/system.c src/disc.c src/sotn.c src/patch.c src/mapcap.c src/profiles.c src/smmap.c src/alttp.c src/alttp_dungeon.c
 # RetroAchievements: rcheevos (MIT), vendored in third_party/rcheevos
 RC_DIR     := third_party/rcheevos
 RC_SRC     := $(wildcard $(RC_DIR)/src/*.c $(RC_DIR)/src/rapi/*.c $(RC_DIR)/src/rcheevos/*.c) $(RC_DIR)/src/rhash/md5.c
