@@ -1241,8 +1241,8 @@ void ui_read_buttons(void) {
 		}
 	}
 	/* GBA-style: A is the right face button, B the bottom one */
-	btnNow[B_A] = cfg->abSwap ? phys[SDL_CONTROLLER_BUTTON_A] : phys[SDL_CONTROLLER_BUTTON_B];
-	btnNow[B_B] = cfg->abSwap ? phys[SDL_CONTROLLER_BUTTON_B] : phys[SDL_CONTROLLER_BUTTON_A];
+	btnNow[B_A] = phys[SDL_CONTROLLER_BUTTON_B];
+	btnNow[B_B] = phys[SDL_CONTROLLER_BUTTON_A];
 	btnNow[B_X] = phys[SDL_CONTROLLER_BUTTON_X];
 	btnNow[B_Y] = phys[SDL_CONTROLLER_BUTTON_Y];
 	btnNow[B_START] = phys[SDL_CONTROLLER_BUTTON_START];

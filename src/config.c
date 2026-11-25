@@ -34,7 +34,7 @@ void config_defaults(Config* c) {
 	strcpy(c->topScreen, "auto");
 	strcpy(c->touchMap, "window");
 	c->touchRotate = -1;
-	c->customLogos = CL_PIXELATED;
+	c->customLogos = CL_FULL; /* (no setting since Nov 25, 2026: the player's own and scraped logos, at full detail) */
 	c->rewind = true;
 	c->rewindSeconds = 30;
 	c->overlayMode = OVM_GENERATED;
@@ -112,12 +112,12 @@ static bool set_option(Config* c, const char* key, const char* val) {
 		for (int i = 0; i < SH_COUNT; ++i) {
 			if (!strcasecmp(val, shaderNames[i])) c->shader = i;
 		}
+		if (c->shader != SH_SCANLINES) c->shader = SH_OFF; /* (GBA DS's handheld patterns are gone) */
 		return true;
 	}
 	if (!strcmp(key, "lcd_grid")) {
 		/* (before v1.4.12: the grid on or off) */
-		if (parse_bool(val)) c->shader = SH_GRID;
-		else if (c->shader == SH_GRID) c->shader = SH_OFF;
+		(void) val; /* (the grid is gone) */
 		return true;
 	}
 	if (!strcmp(key, "overlays")) {
@@ -166,21 +166,14 @@ static bool set_option(Config* c, const char* key, const char* val) {
 	BOOL("pin_cores", pinCores)
 	BOOL("frame_buffer", frameBuffer)
 	STR("logo_folder", logoFolder)
-	if (!strcmp(key, "custom_logos")) {
-		c->customLogos = !strcmp(val, "off") ? CL_OFF : !strcmp(val, "full") ? CL_FULL : CL_PIXELATED;
-		return true;
-	}
-	if (!strcmp(key, "logo_pixelate")) { /* (the test builds before custom_logos) */
-		c->customLogos = parse_bool(val) ? CL_PIXELATED : CL_FULL;
-		return true;
-	}
+	if (!strcmp(key, "custom_logos") || !strcmp(key, "logo_pixelate")) return true; /* (gone: read and ignored) */
 	BOOL("match_display", matchDisplay)
 	BOOL("rewind", rewind)
 	BOOL("keep_sound", keepSound)
 	BOOL("audio_auto", audioAuto)
 	INT("rewind_seconds", rewindSeconds)
 	INT("screen_gap_mm", screenGapMm)
-	BOOL("ab_swap", abSwap)
+	if (!strcmp(key, "ab_swap")) return true; /* (gone: the handheld sets its own layout) */
 	STR("hotkey", hotkey)
 	if (!strcmp(key, "hotkey_fps")) return true; /* (a test build's: the quick menu has the FPS counter) */
 	if (!strncmp(key, "hotkey_", 7)) {
@@ -195,6 +188,7 @@ static bool set_option(Config* c, const char* key, const char* val) {
 		for (int i = 1; i < SH_COUNT; ++i) {
 			if (!strcasecmp(val, shaderNames[i])) c->shaderLast = i;
 		}
+		if (c->shaderLast != SH_SCANLINES) c->shaderLast = SH_SCANLINES;
 		return true;
 	}
 	STR("menu_combo", menuCombo)
@@ -250,8 +244,8 @@ static bool set_option(Config* c, const char* key, const char* val) {
 	}
 	INT("turbo_rate", turboRate)
 	if (!strncmp(key, "button_", 7)) {
-		static const char* const faces[10] = { "right", "bottom", "top", "left", "l", "r", "dpad_up", "dpad_down", "dpad_left", "dpad_right" };
-		for (int i = 0; i < 10; ++i) {
+		static const char* const faces[FACE_BUTTONS] = { "right", "bottom", "top", "left", "l", "r", "dpad_up", "dpad_down", "dpad_left", "dpad_right", "l2", "r2" };
+		for (int i = 0; i < FACE_BUTTONS; ++i) {
 			if (strcmp(key + 7, faces[i])) continue;
 			snprintf(c->faceBtn[i], sizeof(c->faceBtn[i]), "%s", val);
 			for (char* q = c->faceBtn[i]; *q; ++q) *q = (char) tolower((unsigned char) *q);
@@ -288,10 +282,10 @@ static int nCliKeys;
 static const char* const perGameKeys[] = {
 	"swap", "scale", "map_scale", "border_color", "overlays", "overlay_style", "bezel_logo", "bezel_inner",
 	"bezel_outer", "shader", "lcd_strength", "frame_buffer", "match_display",
-	"custom_logos", "rewind", "rewind_seconds",
-	"fast_forward", "ff_speed", "ab_swap", "show_fps", "audio_latency", "screen_gap_mm",
+	"rewind", "rewind_seconds",
+	"fast_forward", "ff_speed", "show_fps", "audio_latency", "screen_gap_mm",
 	"save_on_quit", "auto_load", "left_stick_dpad", "turbo_rate", "button_right", "button_bottom", "button_top", "button_left",
-	"button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right",
+	"button_l", "button_r", "button_l2", "button_r2", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right",
 };
 
 bool config_key_per_game(const char* key) {
@@ -447,23 +441,23 @@ static const SettingChoice chAccent[] = {
 static const SettingChoice chOnOff[] = { { "0", "Off", 0 }, { "1", "On", 1 } };
 static const SettingChoice chShown[] = { { "0", "Supported games only", 0 }, { "1", "All games", 1 } };
 static const SettingChoice chTags[] = { { "0", "Plain", 0 }, { "1", "With tags, like (USA)", 1 } };
-static const SettingChoice chLogos[] = { { "pixelated", "Pixelated", CL_PIXELATED }, { "full", "Full detail", CL_FULL }, { N_("off"), "Not used", CL_OFF } };
 static const SettingChoice chScale[] = { { "4:3", "4:3", 0 }, { "integer", "Pixel Perfect", 0 } };
 static const SettingChoice chMapScale[] = { { "integer", "Pixel Perfect", 0 }, { "fit", "Fit", 0 } };
 static const SettingChoice chShader[] = {
-	{ N_("off"), "Off", SH_OFF }, { "grid", "LCD Grid", SH_GRID }, { "scanlines", "Scanlines", SH_SCANLINES }, { "soft", "Soft Cells", SH_SOFT },
-	{ "subpixels-light", "Subpixels (Light)", SH_SUB_LIGHT }, { "subpixels", "Subpixels", SH_SUB }, { "subpixels-strong", "Subpixels (Strong)", SH_SUB_STRONG },
+	{ N_("off"), "Off", SH_OFF }, { "scanlines", "Scanlines", SH_SCANLINES },
 };
 static const SettingChoice chSwap[] = { { "0", "Top screen", 0 }, { "1", "Bottom screen", 1 } };
 static const SettingChoice chGap[] = { { "auto", "Automatic", -1 }, { "0", "None", 0 }, { "5", "5 mm", 5 }, { "10", "10 mm", 10 }, { "15", "15 mm", 15 },
 	                                     { "20", "20 mm", 20 }, { "25", "25 mm", 25 }, { "30", "30 mm", 30 }, { "35", "35 mm", 35 }, { "40", "40 mm", 40 } };
 static const SettingChoice chOverlays[] = { { N_("off"), "Off", OVL_OFF }, { "both", "Both screens", OVL_BOTH }, { "top", "Top screen", OVL_TOP }, { "bottom", "Bottom screen", OVL_BOTTOM } };
 static const SettingChoice chOvlStyle[] = { { "generated", "Generated", OVM_GENERATED }, { "custom", "Custom", OVM_CUSTOM } };
-static const SettingChoice chAB[] = { { "0", "Like an SNES", 0 }, { "1", "Swapped", 1 } };
 static const SettingChoice chFace[] = {
-	{ "a", "SNES A", 0 }, { "b", "SNES B", 0 }, { "x", "SNES X", 0 }, { "y", "SNES Y", 0 }, { "l", "SNES L", 0 }, { "r", "SNES R", 0 },
-	{ "up", "SNES Up", 0 }, { "down", "SNES Down", 0 }, { "left", "SNES Left", 0 }, { "right", "SNES Right", 0 }, { "start", "Start", 0 },
-	{ "select", "Select", 0 }, { "turbo_a", "Turbo A", 0 }, { "turbo_b", "Turbo B", 0 }, { "none", "Nothing", 0 },
+	/* (the RetroPad's buttons: a Super Nintendo's by name, a PlayStation's by
+	 * the same place, its symbols drawn by textfont.c) */
+	{ "a", "SNES A / PSX \u25CB", 0 }, { "b", "SNES B / PSX \u2715", 0 }, { "x", "SNES X / PSX \u25B3", 0 }, { "y", "SNES Y / PSX \u25A1", 0 },
+	{ "l", "SNES L / PSX L1", 0 }, { "r", "SNES R / PSX R1", 0 }, { "l2", "PSX L2", 0 }, { "r2", "PSX R2", 0 },
+	{ "up", "Up", 0 }, { "down", "Down", 0 }, { "left", "Left", 0 }, { "right", "Right", 0 }, { "start", "Start", 0 },
+	{ "select", "Select", 0 }, { "turbo_a", "Turbo SNES A / PSX \u25CB", 0 }, { "turbo_b", "Turbo SNES B / PSX \u2715", 0 }, { "none", "Nothing", 0 },
 };
 static const SettingChoice chTurbo[] = { { "10", "Slow (10 a second)", 10 }, { "15", "Medium (15 a second)", 15 }, { "20", "Fast (20 a second)", 20 } };
 static const SettingChoice chFF[] = { { N_("off"), "Off", 0 }, { "2", "2x", 2 }, { "3", "3x", 3 }, { "4", "4x", 4 }, { "5", "5x", 5 }, { "max", "As fast as it goes", 0 } };
@@ -479,13 +473,12 @@ static const Setting settingsTable[] = {
 	{ "name_tags", "Game names", SF_BOOL, OFFB(nameTags), ARR(chTags), 0, 0, 0, NULL, "Tags in a ROM's file name, like (USA) or (En,Fr,De)." },
 	{ "save_on_quit", "Save on quit", SF_BOOL, OFFB(autoSave), ARR(chOnOff), 0, 0, 0, NULL, "Closing a game saves where you are." },
 	{ "auto_load", "Auto-load", SF_BOOL, OFFB(autoLoad), ARR(chOnOff), 0, 0, 0, NULL, "Starting a game picks up where you closed it." },
-	{ "custom_logos", "Custom logos", SF_INT, OFFB(customLogos), ARR(chLogos), 0, 0, 0, NULL, "Your own and scraped logos on the second screen." },
 	{ "quick_bar_hint", "Menu hint", SF_BOOL, OFFB(barHint), ARR(chOnOff), 0, 0, 0, NULL, "\"Tap the screen to open the menu\" at a game's start." },
 
 	{ "scale", "Game screen scale", SF_STR, OFFB(scale), ARR(chScale), 0, 0, 0, NULL, "4:3: as on a TV. Pixel Perfect: square pixels at a whole size, the sharpest." },
 	{ "map_scale", "Second screen scale", SF_STR, OFFB(mapScale), ARR(chMapScale), 0, 0, 0, NULL, "How the map or logo fills its screen." },
 	{ "shader", "Shader", SF_INT, OFFB(shader), ARR(chShader), 0, 0, 0, NULL, "A pattern over every pixel, on both screens." },
-	{ "lcd_strength", "Pattern strength", SF_INT, OFFB(lcdStrength), NULL, 0, 0, 100, 5, "%", "How dark the grid, scanlines and soft cells are." },
+	{ "lcd_strength", "Pattern strength", SF_INT, OFFB(lcdStrength), NULL, 0, 0, 100, 5, "%", "How dark the scanlines are." },
 
 	{ "swap", "Game screen", SF_BOOL, OFFB(swap), ARR(chSwap), 0, 0, 0, NULL, "Which screen the game is on." },
 	{ "screen_gap_mm", "Gap between screens", SF_INT, OFFB(screenGapMm), ARR(chGap), 0, 0, 0, NULL, "For what crosses from one screen to the other. Automatic: the device's, if known." },
@@ -497,13 +490,14 @@ static const Setting settingsTable[] = {
 	{ "theme", "Light/dark mode", SF_BOOL, OFFB(lightTheme), ARR(chTheme), 0, 0, 0, NULL, "The menus' buttons: dark grey, or light grey like the web player's." },
 	{ "accent", "Color", SF_STR, OFFB(accent), ARR(chAccent), 0, 0, 0, NULL, "The menus' color for what's selected, with a dark and a light version of each." },
 	{ "left_stick_dpad", "Left stick as D-pad", SF_BOOL, OFFB(leftStickDpad), ARR(chOnOff), 0, 0, 0, NULL, "Off: the left stick does nothing in games." },
-	{ "ab_swap", "A and B buttons", SF_BOOL, OFFB(abSwap), ARR(chAB), 0, 0, 0, NULL, "SNES A on the right button, or on the bottom one." },
-	{ "button_right", "A (right) button", SF_STR, OFFB(faceBtn[0]), ARR(chFace), 0, 0, 0, NULL, "What the right face button gives the game." },
-	{ "button_bottom", "B (bottom) button", SF_STR, OFFB(faceBtn[1]), ARR(chFace), 0, 0, 0, NULL, "What the bottom face button gives the game." },
-	{ "button_top", "X (top) button", SF_STR, OFFB(faceBtn[2]), ARR(chFace), 0, 0, 0, NULL, "What the top face button gives the game." },
-	{ "button_left", "Y (left) button", SF_STR, OFFB(faceBtn[3]), ARR(chFace), 0, 0, 0, NULL, "What the left face button gives the game." },
-	{ "button_l", "L button", SF_STR, OFFB(faceBtn[4]), ARR(chFace), 0, 0, 0, NULL, "What the L shoulder button gives the game." },
-	{ "button_r", "R button", SF_STR, OFFB(faceBtn[5]), ARR(chFace), 0, 0, 0, NULL, "What the R shoulder button gives the game." },
+	{ "button_right", "Right button", SF_STR, OFFB(faceBtn[0]), ARR(chFace), 0, 0, 0, NULL, "What the right face button gives the game." },
+	{ "button_bottom", "Bottom button", SF_STR, OFFB(faceBtn[1]), ARR(chFace), 0, 0, 0, NULL, "What the bottom face button gives the game." },
+	{ "button_top", "Top button", SF_STR, OFFB(faceBtn[2]), ARR(chFace), 0, 0, 0, NULL, "What the top face button gives the game." },
+	{ "button_left", "Left button", SF_STR, OFFB(faceBtn[3]), ARR(chFace), 0, 0, 0, NULL, "What the left face button gives the game." },
+	{ "button_l", "L1 button", SF_STR, OFFB(faceBtn[4]), ARR(chFace), 0, 0, 0, NULL, "What the L1 shoulder button gives the game." },
+	{ "button_r", "R1 button", SF_STR, OFFB(faceBtn[5]), ARR(chFace), 0, 0, 0, NULL, "What the R1 shoulder button gives the game." },
+	{ "button_l2", "L2 button", SF_STR, OFFB(faceBtn[10]), ARR(chFace), 0, 0, 0, NULL, "What L2 gives the game. In Super Nintendo games it rewinds." },
+	{ "button_r2", "R2 button", SF_STR, OFFB(faceBtn[11]), ARR(chFace), 0, 0, 0, NULL, "What R2 gives the game. In Super Nintendo games it fast-forwards." },
 	{ "button_dpad_up", "D-pad up", SF_STR, OFFB(faceBtn[6]), ARR(chFace), 0, 0, 0, NULL, "What D-pad up gives the game." },
 	{ "button_dpad_down", "D-pad down", SF_STR, OFFB(faceBtn[7]), ARR(chFace), 0, 0, 0, NULL, "What D-pad down gives the game." },
 	{ "button_dpad_left", "D-pad left", SF_STR, OFFB(faceBtn[8]), ARR(chFace), 0, 0, 0, NULL, "What D-pad left gives the game." },
@@ -526,13 +520,12 @@ const Setting* config_setting(const char* key) {
 	return NULL;
 }
 
-/* what a face button gives the game with nothing chosen: ab_swap's layout,
- * as game.c's fb_default (the SNES pad by position: A right, B bottom, X top,
- * Y left; swapped, A and B and X and Y) */
+/* what a face button gives the game with nothing chosen: the pad's own
+ * layout, as game.c's fb_default */
 static const char* face_default(const Config* c, int i) {
-	static const char* const own[10] = { "a", "b", "x", "y", "l", "r", "up", "down", "left", "right" };
-	static const char* const swapped[4] = { "b", "a", "y", "x" };
-	return i < 4 && c->abSwap ? swapped[i] : own[i];
+	(void) c;
+	static const char* const own[FACE_BUTTONS] = { "a", "b", "x", "y", "l", "r", "up", "down", "left", "right", "l2", "r2" };
+	return own[i];
 }
 
 int config_setting_index(const Config* c, const Setting* s) {

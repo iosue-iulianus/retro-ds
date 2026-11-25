@@ -33,6 +33,8 @@ extern const char* const hotkeyNames[HK_COUNT]; /* quit, save_state, ... */
  * pixels, at full detail (the same size), or not used. */
 enum { CL_PIXELATED, CL_FULL, CL_OFF };
 
+#define FACE_BUTTONS 12 /* the buttons Controls maps (faceBtn) */
+
 typedef struct Config {
 	char layout[16];   /* auto | span-h | span-v | dual | single */
 	bool swap;         /* map on the first (left/top) screen instead of the second */
@@ -57,7 +59,6 @@ typedef struct Config {
 	bool fastForward;  /* hold R2 to fast-forward */
 	bool matchDisplay; /* run at the display's refresh rate (if close to the GBA's) instead of 59.73 Hz */
 	int mapInterval;   /* frames between periodic map captures (no setting: the capture engine is unused for now) */
-	bool abSwap;       /* GBA A on the bottom face button instead of the right one */
 	char hotkey[16];   /* home | select | start | l3 (older names: guide = home, back = select) */
 	char hotkeyBtn[HK_COUNT][8]; /* each hotkey action's button (hotkey_quit ...), or none */
 	int shaderLast;    /* the shader the shader hotkey turns back on (shader_last) */
@@ -109,7 +110,7 @@ typedef struct Config {
 	bool lightTheme;      /* the light theme for the menus' buttons (theme = light) */
 	bool leftStickDpad;   /* the left stick also presses the D-pad in games (left_stick_dpad, issue #57) */
 	int turboRate;        /* Turbo A / Turbo B: presses a second, 10, 15 or 20 (turbo_rate, issue #55) */
-	char faceBtn[10][12]; /* what each button gives the game (button_right, _bottom, _top, _left, _l, _r, _dpad_up, _dpad_down, _dpad_left, _dpad_right: a, b, l, r, up, down, left, right, start, select, turbo_a, turbo_b, none); empty: the GBA's own (ab_swap's for A and B) */
+	char faceBtn[FACE_BUTTONS][12]; /* what each button gives the game (button_right, _bottom, _top, _left, _l, _r, _dpad_up, _dpad_down, _dpad_left, _dpad_right, _l2, _r2: a, b, x, y, l, r, l2, r2, up, down, left, right, start, select, turbo_a, turbo_b, none); empty: the pad's own */
 	/* RetroAchievements (casual mode): auto = on when ROCKNIX has an account
 	 * signed in (EmulationStation's RetroAchievements settings), 1, 0 */
 	char raMode[8];

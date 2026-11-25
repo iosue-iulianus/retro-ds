@@ -16,15 +16,15 @@ msgstr ""
 msgid " It's the newest version."
 msgstr ""
 
-#: src/config.c:518
+#: src/config.c:512
 msgid " ms"
 msgstr ""
 
-#: src/config.c:516
+#: src/config.c:510
 msgid " s"
 msgstr ""
 
-#: src/config.c:483
+#: src/config.c:476
 msgid "\"Tap the screen to open the menu\" at a game's start."
 msgstr ""
 
@@ -155,119 +155,111 @@ msgstr ""
 msgid ", RetroArch"
 msgstr ""
 
-#: src/config.c:470
+#: src/config.c:464
 msgid "1 minute"
 msgstr ""
 
-#: src/config.c:458
+#: src/config.c:450
 msgid "10 mm"
 msgstr ""
 
-#: src/config.c:470
+#: src/config.c:464
 msgid "10 s"
 msgstr ""
 
-#: src/config.c:471
+#: src/config.c:465
 msgid "128 ms"
 msgstr ""
 
-#: src/config.c:458
+#: src/config.c:450
 msgid "15 mm"
 msgstr ""
 
-#: src/config.c:470
+#: src/config.c:464
 msgid "15 s"
 msgstr ""
 
-#: src/config.c:471
+#: src/config.c:465
 msgid "192 ms"
 msgstr ""
 
-#: src/config.c:470
+#: src/config.c:464
 msgid "2 minutes"
 msgstr ""
 
-#: src/config.c:459
+#: src/config.c:451
 msgid "20 mm"
 msgstr ""
 
-#: src/config.c:459
+#: src/config.c:451
 msgid "25 mm"
 msgstr ""
 
-#: src/config.c:469
+#: src/config.c:463
 msgid "2x"
 msgstr ""
 
-#: src/config.c:459
+#: src/config.c:451
 msgid "30 mm"
 msgstr ""
 
-#: src/config.c:470
+#: src/config.c:464
 msgid "30 s"
 msgstr ""
 
-#: src/config.c:471
+#: src/config.c:465
 msgid "32 ms"
 msgstr ""
 
-#: src/config.c:459
+#: src/config.c:451
 msgid "35 mm"
 msgstr ""
 
-#: src/config.c:469
+#: src/config.c:463
 msgid "3x"
 msgstr ""
 
-#: src/config.c:459
+#: src/config.c:451
 msgid "40 mm"
 msgstr ""
 
-#: src/config.c:451
+#: src/config.c:444
 msgid "4:3"
 msgstr ""
 
-#: src/config.c:485
+#: src/config.c:478
 msgid "4:3: as on a TV. Pixel Perfect: square pixels at a whole size, the sharpest."
 msgstr ""
 
-#: src/config.c:469
+#: src/config.c:463
 msgid "4x"
 msgstr ""
 
-#: src/config.c:470
+#: src/config.c:464
 msgid "5 minutes"
 msgstr ""
 
-#: src/config.c:458
+#: src/config.c:450
 msgid "5 mm"
 msgstr ""
 
-#: src/config.c:469
+#: src/config.c:463
 msgid "5x"
 msgstr ""
 
-#: src/config.c:471
+#: src/config.c:465
 msgid "64 ms"
 msgstr ""
 
-#: src/config.c:471
+#: src/config.c:465
 msgid "96 ms"
-msgstr ""
-
-#: src/config.c:501
-msgid "A (right) button"
-msgstr ""
-
-#: src/config.c:500
-msgid "A and B buttons"
 msgstr ""
 
 #: src/game.c:2288
 msgid "A dark line under each row of pixels"
 msgstr ""
 
-#: src/config.c:492
+#: src/config.c:485
 msgid "A frame round the picture, and on which screens."
 msgstr ""
 
@@ -279,7 +271,7 @@ msgstr ""
 msgid "A new version of RetroDS"
 msgstr ""
 
-#: src/config.c:487
+#: src/config.c:480
 msgid "A pattern over every pixel, on both screens."
 msgstr ""
 
@@ -308,7 +300,7 @@ msgstr ""
 msgid "All %u achievements unlocked"
 msgstr ""
 
-#: src/config.c:448 src/game.c:2886
+#: src/config.c:442 src/game.c:2886
 msgid "All games"
 msgstr ""
 
@@ -387,7 +379,7 @@ msgstr ""
 msgid "Are you sure? Touch it again to put every setting back to its default. Anything else cancels."
 msgstr ""
 
-#: src/config.c:469
+#: src/config.c:463
 msgid "As fast as it goes"
 msgstr ""
 
@@ -399,7 +391,7 @@ msgstr ""
 msgid "Aug"
 msgstr ""
 
-#: src/config.c:481
+#: src/config.c:475
 msgid "Auto-load"
 msgstr ""
 
@@ -411,7 +403,7 @@ msgstr ""
 msgid "Auto-Load: On"
 msgstr ""
 
-#: src/config.c:458 src/config.c:474 src/library.c:2175
+#: src/config.c:450 src/config.c:468 src/library.c:2175
 msgid "Automatic"
 msgstr ""
 
@@ -423,12 +415,8 @@ msgstr ""
 msgid "Automatic checks: On"
 msgstr ""
 
-#: src/config.c:477 src/library.c:1809 src/library.c:2241
+#: src/config.c:471 src/library.c:1809 src/library.c:2241
 msgid "Automatic follows the system. Text that isn't translated yet stays in English."
-msgstr ""
-
-#: src/config.c:502
-msgid "B (bottom) button"
 msgstr ""
 
 #: src/game.c:849 src/game.c:1496 src/game.c:2585 src/game.c:2676 ...
@@ -448,19 +436,23 @@ msgstr ""
 msgid "Back to where you were before loading"
 msgstr ""
 
-#: src/config.c:494
+#: src/config.c:487
 msgid "Bezel logo"
 msgstr ""
 
-#: src/config.c:445
+#: src/config.c:439
 msgid "Blue"
 msgstr ""
 
-#: src/config.c:460
+#: src/config.c:452
 msgid "Both screens"
 msgstr ""
 
-#: src/config.c:457 src/config.c:460
+#: src/config.c:494
+msgid "Bottom button"
+msgstr ""
+
+#: src/config.c:449 src/config.c:452
 msgid "Bottom screen"
 msgstr ""
 
@@ -578,11 +570,11 @@ msgstr ""
 msgid "Close RetroDS"
 msgstr ""
 
-#: src/config.c:480
+#: src/config.c:474
 msgid "Closing a game saves where you are."
 msgstr ""
 
-#: src/config.c:498
+#: src/config.c:491
 msgid "Color"
 msgstr ""
 
@@ -664,12 +656,8 @@ msgstr ""
 msgid "Couldn't sign in as %s%s%s. Sign in to try again."
 msgstr ""
 
-#: src/config.c:461
+#: src/config.c:453
 msgid "Custom"
-msgstr ""
-
-#: src/config.c:482
-msgid "Custom logos"
 msgstr ""
 
 #: src/game.c:3161
@@ -688,23 +676,23 @@ msgstr ""
 msgid "D-pad"
 msgstr ""
 
-#: src/config.c:508
+#: src/config.c:502
 msgid "D-pad down"
 msgstr ""
 
-#: src/config.c:509
+#: src/config.c:503
 msgid "D-pad left"
 msgstr ""
 
-#: src/config.c:510
+#: src/config.c:504
 msgid "D-pad right"
 msgstr ""
 
-#: src/config.c:507
+#: src/config.c:501
 msgid "D-pad up"
 msgstr ""
 
-#: src/config.c:443
+#: src/config.c:437
 msgid "Dark"
 msgstr ""
 
@@ -737,7 +725,7 @@ msgstr ""
 msgid "Done (No Note)"
 msgstr ""
 
-#: src/hotkeys.c:20 src/mapper.c:31
+#: src/config.c:459 src/hotkeys.c:20 src/mapper.c:31
 msgid "Down"
 msgstr ""
 
@@ -753,7 +741,7 @@ msgstr ""
 msgid "Earn achievements in casual mode with your retroachievements.org account. RetroDS keeps a sign-in token, not your password."
 msgstr ""
 
-#: src/config.c:474
+#: src/config.c:468
 msgid "English"
 msgstr ""
 
@@ -777,11 +765,11 @@ msgstr ""
 msgid "Fails"
 msgstr ""
 
-#: src/config.c:468
+#: src/config.c:462
 msgid "Fast (20 a second)"
 msgstr ""
 
-#: src/config.c:517
+#: src/config.c:511
 msgid "Fast forward"
 msgstr ""
 
@@ -810,7 +798,7 @@ msgstr ""
 msgid "First run only. B: back"
 msgstr ""
 
-#: src/config.c:452
+#: src/config.c:445
 msgid "Fit"
 msgstr ""
 
@@ -826,11 +814,11 @@ msgstr ""
 msgid "Follows how you hold the phone, and Android's own rotation lock."
 msgstr ""
 
-#: src/config.c:491
+#: src/config.c:484
 msgid "For what crosses from one screen to the other. Automatic: the device's, if known."
 msgstr ""
 
-#: src/config.c:514
+#: src/config.c:508
 msgid "Frame buffer"
 msgstr ""
 
@@ -842,7 +830,7 @@ msgstr ""
 msgid "Frame Buffer: On"
 msgstr ""
 
-#: src/config.c:495
+#: src/config.c:488
 msgid "Frames a second above the game, all the time."
 msgstr ""
 
@@ -850,15 +838,11 @@ msgstr ""
 msgid "From RetroArch's settings:"
 msgstr ""
 
-#: src/config.c:450
-msgid "Full detail"
-msgstr ""
-
 #: src/game.c:2924 src/game.c:2927
 msgid "Game"
 msgstr ""
 
-#: src/config.c:479
+#: src/config.c:473
 msgid "Game names"
 msgstr ""
 
@@ -866,11 +850,11 @@ msgstr ""
 msgid "Game restarted"
 msgstr ""
 
-#: src/config.c:490
+#: src/config.c:483
 msgid "Game screen"
 msgstr ""
 
-#: src/config.c:485
+#: src/config.c:478
 msgid "Game screen scale"
 msgstr ""
 
@@ -878,27 +862,27 @@ msgstr ""
 msgid "Games"
 msgstr ""
 
-#: src/config.c:478
+#: src/config.c:472
 msgid "Games shown"
 msgstr ""
 
-#: src/config.c:478
+#: src/config.c:472
 msgid "Games without second-screen support play on one screen."
 msgstr ""
 
-#: src/config.c:491
+#: src/config.c:484
 msgid "Gap between screens"
 msgstr ""
 
-#: src/config.c:461
+#: src/config.c:453
 msgid "Generated"
 msgstr ""
 
-#: src/config.c:493
+#: src/config.c:486
 msgid "Generated: RetroDS's bezel in your colors. Custom: your own PNGs in the overlays folder."
 msgstr ""
 
-#: src/config.c:445
+#: src/config.c:439
 msgid "Green"
 msgstr ""
 
@@ -918,11 +902,11 @@ msgstr ""
 msgid "Hex Color"
 msgstr ""
 
-#: src/config.c:515
+#: src/config.c:509
 msgid "Hold L2 to go back in time."
 msgstr ""
 
-#: src/config.c:517
+#: src/config.c:511
 msgid "Hold R2 to play faster."
 msgstr ""
 
@@ -938,19 +922,19 @@ msgstr ""
 msgid "Hotkeys"
 msgstr ""
 
-#: src/config.c:488
-msgid "How dark the grid, scanlines and soft cells are."
+#: src/config.c:481
+msgid "How dark the scanlines are."
 msgstr ""
 
-#: src/config.c:516
+#: src/config.c:510
 msgid "How far back it goes."
 msgstr ""
 
-#: src/config.c:511
+#: src/config.c:505
 msgid "How fast Turbo A and Turbo B press."
 msgstr ""
 
-#: src/config.c:486
+#: src/config.c:479
 msgid "How the map or logo fills its screen."
 msgstr ""
 
@@ -1029,11 +1013,15 @@ msgstr ""
 msgid "Known romhack: %s, untested"
 msgstr ""
 
-#: src/config.c:505
-msgid "L button"
+#: src/config.c:497
+msgid "L1 button"
 msgstr ""
 
-#: src/config.c:477 src/library.c:1193
+#: src/config.c:499
+msgid "L2 button"
+msgstr ""
+
+#: src/config.c:471 src/library.c:1193
 msgid "Language"
 msgstr ""
 
@@ -1054,19 +1042,19 @@ msgstr ""
 msgid "LCD Ghosting: On"
 msgstr ""
 
-#: src/config.c:454
-msgid "LCD Grid"
+#: src/config.c:459 src/hotkeys.c:20 src/mapper.c:32
+msgid "Left"
 msgstr ""
 
-#: src/hotkeys.c:20 src/mapper.c:32
-msgid "Left"
+#: src/config.c:496
+msgid "Left button"
 msgstr ""
 
 #: src/game.c:1220
 msgid "Left out where it is: it's made for the unchanged ROM, so it has to be first (only one such patch can be on). Move it up with X"
 msgstr ""
 
-#: src/config.c:499
+#: src/config.c:492
 msgid "Left stick as D-pad"
 msgstr ""
 
@@ -1078,20 +1066,16 @@ msgstr ""
 msgid "Left stick: up"
 msgstr ""
 
-#: src/config.c:472
+#: src/config.c:466
 msgid "Let the System Decide"
 msgstr ""
 
-#: src/config.c:443
+#: src/config.c:437
 msgid "Light"
 msgstr ""
 
-#: src/config.c:497
+#: src/config.c:490
 msgid "Light/dark mode"
-msgstr ""
-
-#: src/config.c:462
-msgid "Like an SNES"
 msgstr ""
 
 #: src/game.c:2287
@@ -1131,7 +1115,7 @@ msgstr ""
 msgid "Look"
 msgstr ""
 
-#: src/config.c:568
+#: src/config.c:561
 msgid "machine translated"
 msgstr ""
 
@@ -1155,7 +1139,7 @@ msgstr ""
 msgid "Mar"
 msgstr ""
 
-#: src/config.c:513
+#: src/config.c:507
 msgid "Match display rate"
 msgstr ""
 
@@ -1171,7 +1155,7 @@ msgstr ""
 msgid "Match Display Rate: On"
 msgstr ""
 
-#: src/config.c:519
+#: src/config.c:513
 msgid "Max: full speed, a warmer device and a shorter battery."
 msgstr ""
 
@@ -1179,11 +1163,11 @@ msgstr ""
 msgid "May"
 msgstr ""
 
-#: src/config.c:468
+#: src/config.c:462
 msgid "Medium (15 a second)"
 msgstr ""
 
-#: src/config.c:483
+#: src/config.c:476
 msgid "Menu hint"
 msgstr ""
 
@@ -1252,7 +1236,7 @@ msgstr ""
 msgid "no save state yet!"
 msgstr ""
 
-#: src/config.c:458 src/hotkeys.c:116
+#: src/config.c:450 src/hotkeys.c:116
 msgid "None"
 msgstr ""
 
@@ -1264,11 +1248,7 @@ msgstr ""
 msgid "Not resumed: RetroArch's automatic state is from another of its SNES cores. To share states, set RetroArch's SNES core to bsnes."
 msgstr ""
 
-#: src/config.c:450
-msgid "Not used"
-msgstr ""
-
-#: src/config.c:466
+#: src/config.c:460
 msgid "Nothing"
 msgstr ""
 
@@ -1297,11 +1277,11 @@ msgstr ""
 msgid "Oct"
 msgstr ""
 
-#: src/config.c:447 src/config.c:454 src/config.c:460 src/config.c:469 ...
+#: src/config.c:441 src/config.c:447 src/config.c:452 src/config.c:463 ...
 msgid "Off"
 msgstr ""
 
-#: src/config.c:12 src/config.c:450 src/config.c:454 src/config.c:460 ...
+#: src/config.c:12 src/config.c:447 src/config.c:452 src/config.c:463 ...
 msgid "off"
 msgstr ""
 
@@ -1309,7 +1289,7 @@ msgstr ""
 msgid "Off while a patch is on"
 msgstr ""
 
-#: src/config.c:499
+#: src/config.c:492
 msgid "Off: the left stick does nothing in games."
 msgstr ""
 
@@ -1321,7 +1301,7 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: src/config.c:447 src/game.c:875
+#: src/config.c:441 src/game.c:875
 msgid "On"
 msgstr ""
 
@@ -1341,7 +1321,7 @@ msgstr ""
 msgid "Opens the bezel's own page, for whichever the game or all games have"
 msgstr ""
 
-#: src/config.c:445
+#: src/config.c:439
 msgid "Orange"
 msgstr ""
 
@@ -1353,7 +1333,7 @@ msgstr ""
 msgid "Overlay colors and logo"
 msgstr ""
 
-#: src/config.c:493
+#: src/config.c:486
 msgid "Overlay style"
 msgstr ""
 
@@ -1365,7 +1345,7 @@ msgstr ""
 msgid "Overlay Style: Generated"
 msgstr ""
 
-#: src/config.c:492 src/game.c:2587
+#: src/config.c:485 src/game.c:2587
 msgid "Overlays"
 msgstr ""
 
@@ -1423,7 +1403,7 @@ msgstr ""
 msgid "Patches changed: carrying on from where you were"
 msgstr ""
 
-#: src/config.c:488
+#: src/config.c:481
 msgid "Pattern strength"
 msgstr ""
 
@@ -1431,7 +1411,7 @@ msgstr ""
 msgid "Paused"
 msgstr ""
 
-#: src/config.c:519
+#: src/config.c:513
 msgid "Performance"
 msgstr ""
 
@@ -1443,7 +1423,7 @@ msgstr ""
 msgid "Performance: Set to Max"
 msgstr ""
 
-#: src/config.c:445
+#: src/config.c:439
 msgid "Pink"
 msgstr ""
 
@@ -1451,15 +1431,11 @@ msgstr ""
 msgid "Pinned: the bar stays up."
 msgstr ""
 
-#: src/config.c:451 src/config.c:452
+#: src/config.c:444 src/config.c:445
 msgid "Pixel Perfect"
 msgstr ""
 
-#: src/config.c:450
-msgid "Pixelated"
-msgstr ""
-
-#: src/config.c:449
+#: src/config.c:443
 msgid "Plain"
 msgstr ""
 
@@ -1516,7 +1492,15 @@ msgstr ""
 msgid "press the left stick in"
 msgstr ""
 
-#: src/config.c:445
+#: src/config.c:458
+msgid "PSX L2"
+msgstr ""
+
+#: src/config.c:458
+msgid "PSX R2"
+msgstr ""
+
+#: src/config.c:439
 msgid "Purple"
 msgstr ""
 
@@ -1549,15 +1533,19 @@ msgstr ""
 msgid "Quit"
 msgstr ""
 
-#: src/config.c:506
-msgid "R button"
+#: src/config.c:498
+msgid "R1 button"
 msgstr ""
 
-#: src/config.c:518
+#: src/config.c:500
+msgid "R2 button"
+msgstr ""
+
+#: src/config.c:512
 msgid "Raise it if the sound crackles."
 msgstr ""
 
-#: src/config.c:445
+#: src/config.c:439
 msgid "Red"
 msgstr ""
 
@@ -1723,11 +1711,11 @@ msgstr ""
 msgid "RetroDS's own files (states, settings, cheats, overlays) are in %s."
 msgstr ""
 
-#: src/config.c:515
+#: src/config.c:509
 msgid "Rewind"
 msgstr ""
 
-#: src/config.c:516
+#: src/config.c:510
 msgid "Rewind length"
 msgstr ""
 
@@ -1747,8 +1735,12 @@ msgstr ""
 msgid "Rewinding..."
 msgstr ""
 
-#: src/hotkeys.c:20 src/mapper.c:33
+#: src/config.c:459 src/hotkeys.c:20 src/mapper.c:33
 msgid "Right"
+msgstr ""
+
+#: src/config.c:493
+msgid "Right button"
 msgstr ""
 
 #: src/library.c:812
@@ -1773,7 +1765,7 @@ msgstr ""
 msgid "Rotation: Portrait"
 msgstr ""
 
-#: src/config.c:513
+#: src/config.c:507
 msgid "Run at the display's rate: no small regular stutter."
 msgstr ""
 
@@ -1797,7 +1789,7 @@ msgstr ""
 msgid "Save files: .srm (RetroArch's)"
 msgstr ""
 
-#: src/config.c:480
+#: src/config.c:474
 msgid "Save on quit"
 msgstr ""
 
@@ -1858,7 +1850,7 @@ msgstr ""
 msgid "Scale: Pixel Perfect"
 msgstr ""
 
-#: src/config.c:454
+#: src/config.c:447
 msgid "Scanlines"
 msgstr ""
 
@@ -1870,11 +1862,11 @@ msgstr ""
 msgid "Screenshot saved"
 msgstr ""
 
-#: src/config.c:486
+#: src/config.c:479
 msgid "Second screen scale"
 msgstr ""
 
-#: src/config.c:466
+#: src/config.c:460
 msgid "Select"
 msgstr ""
 
@@ -1899,7 +1891,7 @@ msgstr ""
 msgid "Set for now, but %s couldn't be written."
 msgstr ""
 
-#: src/config.c:472
+#: src/config.c:466
 msgid "Set to Max"
 msgstr ""
 
@@ -1919,7 +1911,7 @@ msgstr ""
 msgid "Settings are back to their defaults."
 msgstr ""
 
-#: src/config.c:487
+#: src/config.c:480
 msgid "Shader"
 msgstr ""
 
@@ -1955,7 +1947,7 @@ msgstr ""
 msgid "Shader: Subpixels (Strong)"
 msgstr ""
 
-#: src/config.c:495
+#: src/config.c:488
 msgid "Show FPS"
 msgstr ""
 
@@ -2062,11 +2054,11 @@ msgstr ""
 msgid "Slots 0-9 and the resume point are RetroDS's own. To share them, choose RetroArch's state folder."
 msgstr ""
 
-#: src/config.c:468
+#: src/config.c:462
 msgid "Slow (10 a second)"
 msgstr ""
 
-#: src/config.c:514
+#: src/config.c:508
 msgid "Smoother, one frame more input delay."
 msgstr ""
 
@@ -2074,52 +2066,28 @@ msgstr ""
 msgid "SNES"
 msgstr ""
 
-#: src/config.c:464
-msgid "SNES A"
+#: src/config.c:457
+msgid "SNES A / PSX ○"
 msgstr ""
 
-#: src/config.c:500
-msgid "SNES A on the right button, or on the bottom one."
+#: src/config.c:457
+msgid "SNES B / PSX ✕"
 msgstr ""
 
-#: src/config.c:464
-msgid "SNES B"
+#: src/config.c:458
+msgid "SNES L / PSX L1"
 msgstr ""
 
-#: src/config.c:465
-msgid "SNES Down"
+#: src/config.c:458
+msgid "SNES R / PSX R1"
 msgstr ""
 
-#: src/config.c:464
-msgid "SNES L"
+#: src/config.c:457
+msgid "SNES X / PSX △"
 msgstr ""
 
-#: src/config.c:465
-msgid "SNES Left"
-msgstr ""
-
-#: src/config.c:464
-msgid "SNES R"
-msgstr ""
-
-#: src/config.c:465
-msgid "SNES Right"
-msgstr ""
-
-#: src/config.c:465
-msgid "SNES Up"
-msgstr ""
-
-#: src/config.c:464
-msgid "SNES X"
-msgstr ""
-
-#: src/config.c:464
-msgid "SNES Y"
-msgstr ""
-
-#: src/config.c:454
-msgid "Soft Cells"
+#: src/config.c:457
+msgid "SNES Y / PSX □"
 msgstr ""
 
 #: src/paths.c:746
@@ -2127,11 +2095,11 @@ msgstr ""
 msgid "Some files couldn't be moved, they're still in %s"
 msgstr ""
 
-#: src/config.c:518
+#: src/config.c:512
 msgid "Sound delay"
 msgstr ""
 
-#: src/game.c:6555
+#: src/game.c:6551
 #, c-format
 msgid "Sound delay raised to %d ms: the sound kept breaking up"
 msgstr ""
@@ -2144,11 +2112,11 @@ msgstr ""
 msgid "Speed and sound"
 msgstr ""
 
-#: src/config.c:465
+#: src/config.c:459
 msgid "Start"
 msgstr ""
 
-#: src/config.c:481
+#: src/config.c:475
 msgid "Starting a game picks up where you closed it."
 msgstr ""
 
@@ -2173,18 +2141,6 @@ msgstr ""
 msgid "Submit a Bug Report"
 msgstr ""
 
-#: src/config.c:455
-msgid "Subpixels"
-msgstr ""
-
-#: src/config.c:455
-msgid "Subpixels (Light)"
-msgstr ""
-
-#: src/config.c:455
-msgid "Subpixels (Strong)"
-msgstr ""
-
 #: src/library.c:2048
 msgid "Super Nintendo folder"
 msgstr ""
@@ -2198,7 +2154,7 @@ msgstr ""
 msgid "Supported Games"
 msgstr ""
 
-#: src/config.c:448
+#: src/config.c:442
 msgid "Supported games only"
 msgstr ""
 
@@ -2214,10 +2170,6 @@ msgstr ""
 msgid "Swap screens"
 msgstr ""
 
-#: src/config.c:462
-msgid "Swapped"
-msgstr ""
-
 #: src/library.c:1838
 msgid "Switched off in retrods.cfg (retroachievements = 0)."
 msgstr ""
@@ -2226,7 +2178,7 @@ msgstr ""
 msgid "System"
 msgstr ""
 
-#: src/config.c:479
+#: src/config.c:473
 msgid "Tags in a ROM's file name, like (USA) or (En,Fr,De)."
 msgstr ""
 
@@ -2258,7 +2210,7 @@ msgstr ""
 msgid "Tap to skip a button this device doesn't have"
 msgstr ""
 
-#: src/config.c:445
+#: src/config.c:439
 msgid "Teal"
 msgstr ""
 
@@ -2325,11 +2277,11 @@ msgstr ""
 msgid "the left shoulder button"
 msgstr ""
 
-#: src/config.c:497
+#: src/config.c:490
 msgid "The menus' buttons: dark grey, or light grey like the web player's."
 msgstr ""
 
-#: src/config.c:498
+#: src/config.c:491
 msgid "The menus' color for what's selected, with a dark and a light version of each."
 msgstr ""
 
@@ -2345,7 +2297,7 @@ msgstr ""
 msgid "The processor, memory and graphics run at full speed while RetroDS is open: the smoothest play, but the battery runs down faster and the device gets warmer."
 msgstr ""
 
-#: src/config.c:494
+#: src/config.c:487
 msgid "The RetroDS logo in the generated bezel."
 msgstr ""
 
@@ -2421,7 +2373,11 @@ msgstr ""
 msgid "Toggle selected shader"
 msgstr ""
 
-#: src/config.c:457 src/config.c:460
+#: src/config.c:495
+msgid "Top button"
+msgstr ""
+
+#: src/config.c:449 src/config.c:452
 msgid "Top screen"
 msgstr ""
 
@@ -2429,15 +2385,15 @@ msgstr ""
 msgid "Touch or use the D-Pad"
 msgstr ""
 
-#: src/config.c:466
-msgid "Turbo A"
+#: src/config.c:460
+msgid "Turbo SNES A / PSX ○"
 msgstr ""
 
-#: src/config.c:466
-msgid "Turbo B"
+#: src/config.c:460
+msgid "Turbo SNES B / PSX ✕"
 msgstr ""
 
-#: src/config.c:511
+#: src/config.c:505
 msgid "Turbo speed"
 msgstr ""
 
@@ -2490,7 +2446,7 @@ msgstr ""
 msgid "Untested: the second screen may not work with it"
 msgstr ""
 
-#: src/hotkeys.c:20 src/mapper.c:30
+#: src/config.c:459 src/hotkeys.c:20 src/mapper.c:30
 msgid "Up"
 msgstr ""
 
@@ -2529,43 +2485,51 @@ msgstr ""
 msgid "Volume %d%%"
 msgstr ""
 
-#: src/config.c:508
+#: src/config.c:502
 msgid "What D-pad down gives the game."
 msgstr ""
 
-#: src/config.c:509
+#: src/config.c:503
 msgid "What D-pad left gives the game."
 msgstr ""
 
-#: src/config.c:510
+#: src/config.c:504
 msgid "What D-pad right gives the game."
 msgstr ""
 
-#: src/config.c:507
+#: src/config.c:501
 msgid "What D-pad up gives the game."
 msgstr ""
 
-#: src/config.c:502
+#: src/config.c:499
+msgid "What L2 gives the game. In Super Nintendo games it rewinds."
+msgstr ""
+
+#: src/config.c:500
+msgid "What R2 gives the game. In Super Nintendo games it fast-forwards."
+msgstr ""
+
+#: src/config.c:494
 msgid "What the bottom face button gives the game."
 msgstr ""
 
-#: src/config.c:505
-msgid "What the L shoulder button gives the game."
+#: src/config.c:497
+msgid "What the L1 shoulder button gives the game."
 msgstr ""
 
-#: src/config.c:504
+#: src/config.c:496
 msgid "What the left face button gives the game."
 msgstr ""
 
-#: src/config.c:506
-msgid "What the R shoulder button gives the game."
+#: src/config.c:498
+msgid "What the R1 shoulder button gives the game."
 msgstr ""
 
-#: src/config.c:501
+#: src/config.c:493
 msgid "What the right face button gives the game."
 msgstr ""
 
-#: src/config.c:503
+#: src/config.c:495
 msgid "What the top face button gives the game."
 msgstr ""
 
@@ -2577,7 +2541,7 @@ msgstr ""
 msgid "Where games are read from. Their saves are kept next to them."
 msgstr ""
 
-#: src/config.c:490
+#: src/config.c:483
 msgid "Which screen the game is on."
 msgstr ""
 
@@ -2615,7 +2579,7 @@ msgstr ""
 msgid "With automatic checks on, RetroDS looks for a new version once a day when the game list opens, and asks before downloading anything. Updates come from the releases on github.com/iosue-iulianus/retro-ds."
 msgstr ""
 
-#: src/config.c:449
+#: src/config.c:443
 msgid "With tags, like (USA)"
 msgstr ""
 
@@ -2630,18 +2594,6 @@ msgstr ""
 
 #: src/game.c:3505
 msgid "without the patches on"
-msgstr ""
-
-#: src/config.c:503
-msgid "X (top) button"
-msgstr ""
-
-#: src/config.c:504
-msgid "Y (left) button"
-msgstr ""
-
-#: src/config.c:482
-msgid "Your own and scraped logos on the second screen."
 msgstr ""
 
 #: src/game.c:2617

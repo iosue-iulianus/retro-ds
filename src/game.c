@@ -2734,33 +2734,32 @@ static void ovl_close_all(void) {
 
 /* ---------------------------------------------------------------- face buttons
  *
- * GEN-10: which GBA button each face button gives the game, by position
- * (right, bottom, top, left): GBA A / B / L / R, Start, Select, Turbo A /
- * Turbo B or nothing. Controls > the four button rows (button_right ... in
- * retrods.cfg, for this game or for all games); with none chosen, ab_swap's
- * layout. Before v1.5.4 a game's choices were kept in <game>.buttons: read
- * once into the game's own settings (fb_load). Only the game's keys change
- * (run loop, the GBA layout's branch): RetroDS's own screens keep B_A / B_B.
- * In games with a layout picker (profile `controls`), the SNES / four-button
- * layout decides the face buttons wherever it's in use. */
-enum { FB_RIGHT, FB_BOTTOM, FB_TOP, FB_LEFT, FB_FACES, FB_L = FB_FACES, FB_R, FB_UP, FB_DOWN, FB_PADLEFT, FB_PADRIGHT, FB_COUNT };
-enum { FG_A, FG_B, FG_X, FG_Y, FG_L, FG_R, FG_UP, FG_DOWN, FG_LEFT, FG_RIGHT, FG_START, FG_SELECT, FG_TURBO_A, FG_TURBO_B, FG_NONE, FG_COUNT };
-static const char* const fbNames[FB_COUNT] = { "right", "bottom", "top", "left", "l", "r", "dpad_up", "dpad_down", "dpad_left", "dpad_right" };
-static const char* const fgNames[FG_COUNT] = { "a", "b", "x", "y", "l", "r", "up", "down", "left", "right", "start", "select", "turbo_a", "turbo_b", "none" };
-static const char* const fgLabels[FG_COUNT] = { "SNES A", "SNES B", "SNES X", "SNES Y", "SNES L", "SNES R", "SNES Up", "SNES Down", "SNES Left", "SNES Right", "Start", "Select", "Turbo A", "Turbo B", "Nothing" };
-static int fbMap[FB_COUNT]; /* each face button's FG_ */
-static bool fbSet;          /* a choice in force (else ab_swap's) */
+ * GEN-10: what each button gives the game, by its place on the pad (right,
+ * bottom, top, left, the shoulders, the D-pad): one of the RetroPad's
+ * buttons (a Super Nintendo's A, B, X, Y, L, R; a PlayStation's circle,
+ * cross, triangle, square, L1, R1, L2, R2), Start, Select, Turbo or
+ * nothing. Controls > the button rows (button_right ... in retrods.cfg, for
+ * this game or for all games); with none chosen, the pad's own layout.
+ * Before v1.5.4 a game's choices were kept in <game>.buttons: read once into
+ * the game's own settings (fb_load). Only the game's keys change: RetroDS's
+ * own screens keep B_A / B_B. L2 and R2 are the game's only where they
+ * aren't rewind and fast forward (the PlayStation's). */
+enum { FB_RIGHT, FB_BOTTOM, FB_TOP, FB_LEFT, FB_FACES, FB_L = FB_FACES, FB_R, FB_UP, FB_DOWN, FB_PADLEFT, FB_PADRIGHT, FB_L2, FB_R2, FB_COUNT };
+enum { FG_A, FG_B, FG_X, FG_Y, FG_L, FG_R, FG_L2, FG_R2, FG_UP, FG_DOWN, FG_LEFT, FG_RIGHT, FG_START, FG_SELECT, FG_TURBO_A, FG_TURBO_B, FG_NONE, FG_COUNT };
+static const char* const fbNames[FB_COUNT] = { "right", "bottom", "top", "left", "l", "r", "dpad_up", "dpad_down", "dpad_left", "dpad_right", "l2", "r2" };
+static const char* const fgNames[FG_COUNT] = { "a", "b", "x", "y", "l", "r", "l2", "r2", "up", "down", "left", "right", "start", "select", "turbo_a", "turbo_b", "none" };
+static const char* const fgLabels[FG_COUNT] = { "A", "B", "X", "Y", "L", "R", "L2", "R2", "Up", "Down", "Left", "Right", "Start", "Select", "Turbo A", "Turbo B", "Nothing" };
+static int fbMap[FB_COUNT]; /* each button's FG_ */
+static bool fbSet;          /* a choice in force (else the pad's own) */
 
 /* from the settings in force (called again whenever one changes) */
 static void fb_default(void) {
-	/* the SNES pad's layout by position: A right, B bottom, X top, Y left
-	 * (ab_swap: A and B swapped, and X and Y) */
-	fbMap[FB_RIGHT] = cfg->abSwap ? FG_B : FG_A;
-	fbMap[FB_BOTTOM] = cfg->abSwap ? FG_A : FG_B;
-	fbMap[FB_TOP] = cfg->abSwap ? FG_Y : FG_X;
-	fbMap[FB_LEFT] = cfg->abSwap ? FG_X : FG_Y;
+	/* the pad's own layout by place: A right, B bottom, X top, Y left */
+	fbMap[FB_RIGHT] = FG_A, fbMap[FB_BOTTOM] = FG_B, fbMap[FB_TOP] = FG_X, fbMap[FB_LEFT] = FG_Y;
 	fbMap[FB_L] = FG_L, fbMap[FB_R] = FG_R, fbMap[FB_UP] = FG_UP, fbMap[FB_DOWN] = FG_DOWN, fbMap[FB_PADLEFT] = FG_LEFT, fbMap[FB_PADRIGHT] = FG_RIGHT;
+	fbMap[FB_L2] = FG_L2, fbMap[FB_R2] = FG_R2;
 	fbSet = false;
+	_Static_assert(FB_COUNT == FACE_BUTTONS, "faceBtn holds one choice per button");
 	for (int i = 0; i < FB_COUNT; ++i)
 		for (int j = 0; j < FG_COUNT && cfg->faceBtn[i][0]; ++j)
 			if (!strcmp(cfg->faceBtn[i], fgNames[j])) fbMap[i] = j, fbSet = true;
@@ -2809,16 +2808,17 @@ static void fb_load(void) {
 
 /* the SNES keys the buttons give the game */
 static uint32_t fb_keys(bool faces) {
-	static const uint32_t key[FG_COUNT] = { K_A, K_B, K_X, K_Y, K_L, K_R, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_START, K_SELECT, K_A, K_B, 0 };
+	static const uint32_t key[FG_COUNT] = { K_A, K_B, K_X, K_Y, K_L, K_R, K_L2, K_R2, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_START, K_SELECT, K_A, K_B, 0 };
 	/* Turbo A / B (#55): the key goes down and up turbo_rate times a second (60 frames a second) */
 	int period = SDL_clamp(60 / SDL_max(1, cfg->turboRate), 2, 12);
 	bool turboOn = (frameCount % (uint64_t) period) < (uint64_t) (period / 2);
-	/* (ui.c puts the bottom button on B_A with ab_swap: by position again) */
-	int phys[FB_COUNT] = { cfg->abSwap ? B_B : B_A, cfg->abSwap ? B_A : B_B, B_X, B_Y, B_L, B_R, B_UP, B_DOWN, B_LEFT, B_RIGHT };
+	static const int phys[FB_COUNT] = { B_A, B_B, B_X, B_Y, B_L, B_R, B_UP, B_DOWN, B_LEFT, B_RIGHT, B_L2, B_R2 };
 	uint32_t keys = 0;
 	/* faces only, or the shoulders and the D-pad (only = false) */
-	for (int i = faces ? 0 : FB_FACES; i < (faces ? FB_FACES : FB_COUNT); ++i)
+	for (int i = faces ? 0 : FB_FACES; i < (faces ? FB_FACES : FB_COUNT); ++i) {
+		if ((i == FB_L2 || i == FB_R2) && emu.sys->rewindKeys) continue; /* (rewind and fast forward's) */
 		if (HELD(phys[i]) && (fbMap[i] != FG_TURBO_A && fbMap[i] != FG_TURBO_B ? true : turboOn)) keys |= key[fbMap[i]];
+	}
 	return keys;
 }
 
@@ -2986,13 +2986,13 @@ static void draw_tab_icon(int scr, int page, SDL_Rect box, SDL_Color fg, SDL_Col
 	SDL_Rect b = box;
 #define F(x, y, w, h, r, c) icon_fill(scr, b, size, x, y, w, h, r, c)
 	switch (page) {
-	case PG_GAME: /* a handheld: screen, D-pad, two buttons */
-		F(5, 2, 14, 20, 3, fg);
-		F(7, 4, 10, 8, 1, bg);
-		F(7.5f, 16.8f, 4, 1.4f, 0.5f, bg);
-		F(8.8f, 15.5f, 1.4f, 4, 0.5f, bg);
-		F(14, 15.2f, 2.4f, 2.4f, 1.2f, bg);
-		F(16.4f, 17.4f, 2.4f, 2.4f, 1.2f, bg);
+	case PG_GAME: /* a game cartridge: grip ridges along the top, a label */
+		F(3, 2.5f, 18, 19, 2, fg);
+		F(6, 4, 1.4f, 3.5f, 0.5f, bg);
+		F(9, 4, 1.4f, 3.5f, 0.5f, bg);
+		F(13.6f, 4, 1.4f, 3.5f, 0.5f, bg);
+		F(16.6f, 4, 1.4f, 3.5f, 0.5f, bg);
+		F(6, 10, 12, 9, 1, bg);
 		break;
 	case ICON_SYSTEM: /* a toolbox: Settings > System, and the System page */
 	case PG_SYSTEM:
@@ -3838,8 +3838,8 @@ static void bug_info(Text* t, const char* date, uint64_t back) {
 	         cfg->customLogos == CL_OFF ? "off" : cfg->customLogos == CL_FULL ? "full" : "pixelated", ui_logo_note());
 	text_add(t, "frame_buffer %d, match_display %d, vsync %d, audio_latency %d, rewind %d (%d s), fast_forward %d, ff_speed %d\n", cfg->frameBuffer,
 	         cfg->matchDisplay, cfg->vsync, cfg->audioLatency, cfg->rewind, cfg->rewindSeconds, cfg->fastForward, cfg->ffSpeed);
-	text_add(t, "hotkey %s, menu_combo %s, home_button %d, ab_swap %d, touch_map %s, touch_screen %s\n", cfg->hotkey, cfg->menuCombo,
-	         cfg->homeButton, cfg->abSwap, cfg->touchMap, cfg->touchScreen);
+	text_add(t, "hotkey %s, menu_combo %s, home_button %d, touch_map %s, touch_screen %s\n", cfg->hotkey, cfg->menuCombo,
+	         cfg->homeButton, cfg->touchMap, cfg->touchScreen);
 	text_add(t, "hotkeys: %s +", hotkeyBtnNames[hkMod]);
 	for (int i = 0; i < HK_COUNT; ++i) text_add(t, " %s %s%s", hotkeyNames[i], hkBtn[i] >= 0 ? hotkeyBtnNames[hkBtn[i]] : "none", i + 1 < HK_COUNT ? "," : "\n");
 	text_add(t, "save_on_quit %d, auto_load %d, quick_bar_pinned %d\n", cfg->autoSave, cfg->autoLoad, cfg->barPinned);
@@ -5168,7 +5168,7 @@ static void setting_applied(const Setting* st) {
 		rewind_setup();
 	} else if (!strcmp(k, "custom_logos")) {
 		logo_refresh();
-	} else if (!strcmp(k, "ab_swap") || !strncmp(k, "button_", 7)) {
+	} else if (!strncmp(k, "button_", 7)) {
 		fb_default();
 	}
 }
@@ -5675,15 +5675,15 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	ROW(PG_LOOK, "overlays");
 	ROW(PG_LOOK, "overlay_style");
 	ROW(PG_LOOK, "@overlay");
-	if (ui_logo_custom(cfg, romPath, emu.gameCode)) ROW(PG_LOOK, "custom_logos"); /* the game has the player's own or a scraped logo (GEN-11) */
 	ROW(PG_CONTROLS, "left_stick_dpad");
-	ROW(PG_CONTROLS, "ab_swap");
 	ROW(PG_CONTROLS, "button_right");
 	ROW(PG_CONTROLS, "button_bottom");
 	ROW(PG_CONTROLS, "button_top");
 	ROW(PG_CONTROLS, "button_left");
 	ROW(PG_CONTROLS, "button_l");
 	ROW(PG_CONTROLS, "button_r");
+	ROW(PG_CONTROLS, "button_l2");
+	ROW(PG_CONTROLS, "button_r2");
 	ROW(PG_CONTROLS, "button_dpad_up");
 	ROW(PG_CONTROLS, "button_dpad_down");
 	ROW(PG_CONTROLS, "button_dpad_left");
@@ -6463,14 +6463,10 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			}
 		}
 		if (!btnNow[modBtn] || modIsGame || ffMod) {
-			keys |= fb_keys(true); /* the player's choices (GEN-10), else ab_swap's */
+			keys |= fb_keys(true); /* the player's choices (GEN-10), else the pad's own */
 			if (HELD(B_START) && modBtn != B_START && comboHold != B_START) keys |= K_START;
 			if (HELD(B_SELECT) && modBtn != B_SELECT && comboHold != B_SELECT) keys |= K_SELECT;
-			keys |= fb_keys(false); /* L, R and the D-pad, as chosen (GEN-10) */
-			if (!emu.sys->rewindKeys) { /* (a PlayStation game's own L2 and R2) */
-				if (HELD(B_L2)) keys |= K_L2;
-				if (HELD(B_R2)) keys |= K_R2;
-			}
+			keys |= fb_keys(false); /* the shoulders and the D-pad, as chosen (GEN-10; L2 and R2 where they're the game's) */
 		}
 		if (modPulse > 0) keys |= modBtn == B_START ? K_START : K_SELECT, --modPulse;
 		if (comboPulse[0] > 0) keys |= K_SELECT, --comboPulse[0];

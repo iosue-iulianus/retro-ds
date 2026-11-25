@@ -1394,10 +1394,10 @@ typedef struct {
 	const char* keys[20];
 } SetPage;
 static const SetPage setPages[SP_SYSTEM] = {
-	{ N_("Games"), N_("Names, saving, logos"), { "name_tags", "save_on_quit", "auto_load", "custom_logos", "quick_bar_hint" } },
+	{ N_("Games"), N_("Names, saving, logos"), { "name_tags", "save_on_quit", "auto_load", "quick_bar_hint" } },
 	{ "Screens", N_("Which screen, scale, gap"), { "swap", "scale", "map_scale", "screen_gap_mm", "match_display" } },
 	{ N_("Look"), N_("Shader, overlays, theme, color"), { "shader", "lcd_strength", "overlays", "overlay_style", "bezel_logo", "theme", "accent" } },
-	{ "Controls", N_("Stick, buttons, hotkeys"), { "left_stick_dpad", "ab_swap", "button_right", "button_bottom", "button_top", "button_left", "button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right", "turbo_rate", "@map", "@hotkeys" } },
+	{ "Controls", N_("Stick, buttons, hotkeys"), { "left_stick_dpad", "button_right", "button_bottom", "button_top", "button_left", "button_l", "button_r", "button_l2", "button_r2", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right", "turbo_rate", "@map", "@hotkeys" } },
 	{ N_("Speed and sound"), N_("Rewind, fast forward"), { "show_fps", "frame_buffer", "rewind", "rewind_seconds", "fast_forward", "audio_latency", "performance" } },
 };
 static int setPage = SP_HOME; /* SP_HOME, a category, or SP_SYSTEM (the older panel) */
