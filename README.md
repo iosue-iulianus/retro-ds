@@ -115,7 +115,7 @@ Any other Super Nintendo or PlayStation game plays on one screen, with its title
   <img src="docs/media/pause-menu.webp" width="45%" alt="RetroDS's menu on the game screen: Resume, Restart Game, Save State, Load State, Undo, Close RetroDS; the game paused on the other screen">
 </p>
 
-Also there: rewind (L2) and fast forward (R2) on the Super Nintendo, patches applied as the game loads (IPS, UPS, BPS, xdelta), cheats, RetroAchievements (casual mode), and ten languages.
+Also there: cheats; and on the Super Nintendo, rewind (L2), fast forward (R2), patches applied as the game loads (IPS, UPS, BPS, xdelta) and RetroAchievements (casual mode); ten languages.
 
 # How it works
 

@@ -1,61 +1,47 @@
 # Changelog
 
-SNES DS's history. It starts as a fork of GBA DS v1.5.6; GBA DS's own
-changelog up to then is `git show 3b452dc:CHANGELOG.md` (and on
-[GBA DS's GitHub](https://github.com/kyannon/gba-ds)).
+RetroDS's history. It started as a fork of GBA DS v1.5.6, then SNES DS;
+GBA DS's own changelog up to then is `git show 3b452dc:CHANGELOG.md` (and
+on [GBA DS's GitHub](https://github.com/kyannon/gba-ds)).
 
-## v0.1.0 (not yet released)
+## v0.1.0, the first beta (not yet released)
 
-- **SNES DS is now RetroDS**, widening to other consoles (the PlayStation
-  next). A new app on Android (`io.github.iosue_iulianus.retrods`), so it
-  installs beside SNES DS. On its first start it copies the "SNES DS"
-  folder's states, cheats, logos, screenshots, overlays and settings into
-  its own "RetroDS" folder; SNES DS's folder is left as it was, so keep
-  SNES DS until RetroDS shows your states. Battery saves stay beside the
-  ROMs. `retrods.cfg` on Linux (it reads `~/.config/snes-ds/snes-ds.cfg`
-  until there is one). A new logo and icon, by the owner.
-- The menus are RetroDS's own: Barlow instead of Jost italic, red as the
-  default colour. The game list's other screen shows the picture you'll
-  continue from large, with when it was taken. In the pause menu, Save
-  State and Load State are big and well apart, and a load or a save over a
-  state can be undone (Undo Load, Undo Save). Map refresh only shows for
-  games whose map is captured.
-- The game list's header is taller, with bigger buttons, and the list
-  shows every game; Supported Games (where Supported / All was) lists the
-  games with a second screen and what's on it.
-- The quick bar (a swipe up from the bottom edge) is gone: a tap opens the
-  pause menu, and the hint at a game's start says so. The pause menu's Game
-  page fills the screen, with big Save, Load and Close buttons; Patches and
-  Submit a Bug Report are off it.
-- The menus are regrouped: Screens (where the game goes and how big),
-  Look (shader and overlays), Controls, Fast forward and System. Overlays
-  is now the on/off with the screens, Overlay style picks the bezel or your
-  own PNGs. Gone: the Second screen page (always on), Screen shapes, Screen
-  placement and the brightness rows. Stepping through a setting for one
-  game now goes round its whole list both ways (Pixel Perfect was
-  unreachable going right).
-- Game screen scale is 4:3 (as on a TV; fills the Duo's bottom screen) or
-  Pixel Perfect. Full Width and Zoom were the same picture, narrower than
-  a TV's; they and Stretch become 4:3. Until the player picks, the game goes
-  on the screen where a 4:3 picture is physically biggest: the Duo's bottom
-  screen, the AYN Thor's 6" top one.
-- A Link to the Past: the items screen floats over the world map and slides
-  up and away with X at the game's own speed, with the game's own opening
-  and closing sounds (in dungeons over black, the dungeon map once it's
-  away); a tap zooms the map in; the zoom indicator is the game's size; and
-  markers: drag the item you'll need (bombs, hammer, glove, hookshot,
-  flippers, boots, a fairy, a heart piece) onto the map to remember a place.
+RetroDS plays Super Nintendo and PlayStation games on dual-screen Android
+handhelds, the game on one screen and, for the games below, the second
+screen the game never had on the other. Built for and tested on the
+Retroid Pocket Duo only.
 
-Nothing playable yet: SNES DS still runs GBA games until the emulator is
-swapped. What has changed from GBA DS v1.5.6 so far:
+- **Super Metroid:** the area map as the pause screen draws it, explored
+  rooms and all, dragged and flung at the screen's refresh rate; the SAMUS
+  page, where a tap switches a beam, suit or item on or off. The game's
+  mini-map is covered: the full map is on the second screen.
+- **The Legend of Zelda: A Link to the Past:** the world map built from the
+  ground the game has shown you, the game's clouds over the rest, Link
+  walking on it and the game's markers; tap and pinch zoom; the items
+  screen sliding over the map with X, a tap giving an item to Y; your own
+  markers; the dungeon's map, floor by floor. At the title the Master
+  Sword falls from the second screen into the game's.
+- **Castlevania: Symphony of the Night:** the castle map as the game's map
+  screen draws it, in a window of the game's (its colour from the System
+  menu), with the logo, the rooms explored and the castle's percentage;
+  tap and pinch zoom. Start or a swipe pauses the game and moves its own
+  menu to the second screen, widened, with the logo on the game screen.
+  Nothing in the game is written: RetroDS only presses its buttons.
+- **Every other game** plays on one screen, with its logo or name on the
+  other.
+- **Super Nintendo** with bsnes; **PlayStation** with SwanStation, `.cue`
+  and `.bin` discs, your own BIOS (`scph5501.bin` for US games) in
+  `RetroDS/bios/`.
+- The game list (each game's logo, the picture you'll continue from on the
+  other screen, Supported Games); RetroDS's menu (a tap on the game
+  screen): big Save State and Load State with Undo, the game at 4:3 or
+  Pixel Perfect, shaders, overlays (off by default), controls; cheats;
+  on the Super Nintendo, rewind (L2), fast forward (R2), patches applied
+  as the game loads (IPS, UPS, BPS, xdelta) and RetroAchievements (casual
+  mode); ten languages.
 
-- The app is SNES DS: its name, its Android app (it installs beside GBA DS
-  instead of replacing it), its "SNES DS" folder on Android, and
-  `snes-ds.cfg` on Linux. Updates come from SNES DS's own releases (there
-  are none yet).
-- Android is the target (the Retroid Pocket Duo). The ROCKNIX, BananaOS and
-  Stock Linux OS packages, the web player and State Saver are gone, and so
-  is GBA DS's EmulationStation and BananaOS integration.
-- GBA DS's per-game pages, test cases and wiki guides are gone.
-- A new SNES DS logo, at the top of the game list and printed on the
-  generated bezel.
+Known limits: only the releases each game's rules page lists get its
+second screen (USA; Super Metroid's Japan / USA cartridge); no
+RetroAchievements hardcore mode, and none yet for the PlayStation; tested
+on the Retroid Pocket Duo only; at 120 Hz a dragged map can judder.
+
