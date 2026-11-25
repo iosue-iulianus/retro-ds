@@ -17,9 +17,7 @@ RetroDS plays Super Nintendo and PlayStation games on dual-screen Android handhe
 
 You play with the buttons. The second screen is for looking: drag and zoom the map, tap an item to switch to it.
 
-It's built for and tested on the **Retroid Pocket Duo**. Other dual-screen Android handhelds should work but haven't been tried: the game goes on whichever screen fits a 4:3 picture best, and the other gets the second screen.
-
-> RetroDS doesn't play Nintendo DS games.
+Built for and tested on the **Retroid Pocket Duo**; other dual-screen Android handhelds should work but haven't been tried.
 
 ## Games with a second screen
 
@@ -34,20 +32,20 @@ Each supported game gets a second screen of its own, worked out from how that ga
 
 - The area map as the pause screen draws it, explored rooms and all, drawn by RetroDS from the cartridge and the game's memory. Drag it and fling it; it scrolls at the screen's refresh rate.
 - Tap SAMUS for the equipment page, and tap a beam, suit or item there to switch it on or off without pausing.
-- The mini-map on the game screen is covered while the full map is on the other screen.
 
 [Rules](docs/games/super-metroid.md) · USA / Japan release
 
 ### The Legend of Zelda: A Link to the Past
 
 <p align="center">
-  <img src="docs/media/alttp-world-map.webp" width="30%" alt="A Link to the Past: the Light World map built from what Link has seen, clouds over the rest">
+  <img src="docs/media/alttp-world-map.webp" width="30%" alt="A Link to the Past: the Light World map built from what Link has seen, clouds over the rest, the player's markers on it and the MARKERS pane">
   <img src="docs/media/alttp-items.webp" width="30%" alt="A Link to the Past: the items screen over the map, in the Ice Palace">
   <img src="docs/media/alttp-dungeon-map.webp" width="30%" alt="A Link to the Past: a dungeon's map on the top screen">
 </p>
 
 - The world map, built from the ground the game has actually shown you, with the world map's own clouds over what you haven't seen, Link walking on it, and the game's markers for where to go next. Pinch or tap to zoom.
-- The items screen slides up over the map (X): tap an item to give it to Y. Drop your own markers on the map to remember a secret for later.
+- The items screen slides up over the map (X): tap an item to give it to Y.
+- Drop your own markers on the map to remember a secret for later.
 - In dungeons, the dungeon's own map, floor by floor.
 
 [Rules](docs/games/a-link-to-the-past.md) · USA release
@@ -59,9 +57,13 @@ Each supported game gets a second screen of its own, worked out from how that ga
   <img src="docs/media/sotn-menu.webp" width="45%" alt="Symphony of the Night: the game's own menu on the top screen, widened; the logo on the bottom screen">
 </p>
 
-- The castle map exactly as the game's map screen draws it, read from the game's video memory, in its status-screen window (your window colour from the game's System menu), with the game's own cursor on Alucard's room, the rooms explored and the percentage. Tap or pinch to zoom in.
-- Press Start, or swipe across the second screen, and the game pauses and its own menu moves to the second screen, widened to fill it, while the game screen shows the logo. Play the menu with the pad as usual; Start or a swipe back carries on.
-- L2 and R2 go to the game (rewind and fast forward are the Super Nintendo's).
+- The castle map exactly as the game's map screen draws it, read from the game's video memory. Rooms explored and the percentage of the castle are displayed.
+- Windows get their colour from the game's System menu.
+- Tap or pinch to zoom in on the map.
+
+Press Start, or swipe across the second screen, and the game pauses and its own menu moves to the second screen. It is widened to fill modern devices' screens. The game screen shows the game's logo. Play the menu with the pad as usual; Start, triangle or a swipe back returns to the map.
+
+L2 and R2 as rewind and fast forward are disabled in Symphony of the Night.
 
 [Rules](docs/games/symphony-of-the-night.md) · USA release (SLUS-00067)
 
@@ -97,13 +99,11 @@ Any other Super Nintendo or PlayStation game plays on one screen, with its title
 3. Open RetroDS, pick a game. Tap the game screen or press HOME for RetroDS's menu: save and load states (with Undo), screens and scaling (4:3 or Pixel Perfect), shaders, controls, and the rest.
 
 <p align="center">
-  <img src="docs/media/game-list.webp" width="45%" alt="RetroDS's game list: the last game's picture on the top screen, the games on the bottom">
-  <img src="docs/media/pause-menu.webp" width="45%" alt="RetroDS's menu on the game screen: Resume, Save State, Load State, Undo, Close RetroDS">
+  <img src="docs/media/game-list.webp" width="45%" alt="RetroDS's game list: the last game's picture on the top screen, the games' logos on the bottom">
+  <img src="docs/media/pause-menu.webp" width="45%" alt="RetroDS's menu on the game screen: Resume, Restart Game, Save State, Load State, Undo, Close RetroDS; the game paused on the other screen">
 </p>
 
 Also there: rewind (L2) and fast forward (R2) on the Super Nintendo, patches applied as the game loads (IPS, UPS, BPS, xdelta), cheats, RetroAchievements (casual mode), and ten languages.
-
-**Coming from SNES DS?** RetroDS is a new app beside it. On its first start it copies your `SNES DS/` states, settings, cheats, logos and overlays into `RetroDS/`, leaving the originals; keep SNES DS until you've seen your states in RetroDS.
 
 ## How it works
 
