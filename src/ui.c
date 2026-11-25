@@ -770,10 +770,18 @@ uint64_t ui_ticks(void) {
 	return ticks;
 }
 
+static bool touchFollows = true;
+void ui_touch_follow(bool on) {
+	touchFollows = on;
+#ifdef __ANDROID__
+	if (!on) lastTouchScreen = -1;
+#endif
+}
+
 int ui_touch_screen(void) {
 	if (nScreens < 2) return 0;
 #ifdef __ANDROID__
-	if (lastTouchScreen >= 0 && lastTouchScreen < nScreens) return lastTouchScreen;
+	if (touchFollows && lastTouchScreen >= 0 && lastTouchScreen < nScreens) return lastTouchScreen;
 #endif
 	return !strcmp(cfg->touchScreen, "first") ? 0 : 1;
 }

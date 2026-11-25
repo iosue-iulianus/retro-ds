@@ -756,7 +756,8 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 	 * behind the button hints */
 	int topStrip = m * 2 + gameH;
 	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, topStrip }, C_HEADER);
-	int ourW = draw_brand(scr, ui_theme_light() ? BRAND_LOGO_LIGHT : BRAND_LOGO, m, m, headH);
+	int ourH = gameH * 4 / 5; /* (a little under the game's logo, centred on the strip) */
+	int ourW = draw_brand(scr, ui_theme_light() ? BRAND_LOGO_LIGHT : BRAND_LOGO, m, m + (gameH - ourH) / 2, ourH);
 
 	/* button hints along the bottom */
 	int ty = r.h - px * 11, d = px * 10, bx = m;
@@ -2528,6 +2529,7 @@ static int keep_visible(int scr, int sel, int scroll) {
 
 bool library_run(Config* cfg, char* outPath, size_t outSize) {
 	storage_check(cfg);
+	ui_touch_follow(false); /* (the list stays on its screen, whichever is tapped) */
 
 	/* the last game played (reselected) */
 	char lastFile[1100], last[1024] = "";
@@ -2880,6 +2882,7 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 		ui_present();
 		SDL_Delay(15);
 	}
+	ui_touch_follow(true);
 	free_thumbs();
 	free_brand();
 	free_tiles();

@@ -87,6 +87,9 @@ void ui_stick_dpad(bool on);
 /* The pixels per inch of each screen, if known (0 if not). */
 float ui_screen_ppi(int screen);
 int ui_touch_screen(void); /* index into screens[] */
+/* Whether the touch screen follows the last screen touched (Android; on by
+ * default). The game list turns it off: a tap on its other screen moved the list there. */
+void ui_touch_follow(bool on);
 int ui_other_screen(void); /* the non-touch screen, or the touch screen if there's only one */
 
 /* Pump SDL events. Returns false when the app should quit. Pointer events are
