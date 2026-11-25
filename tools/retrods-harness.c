@@ -78,6 +78,7 @@
 #include "../src/emu.h"
 #include "../src/alttp.h"
 #include "../src/smmap.h"
+#include "../src/sotn.h"
 
 #include <pthread.h>
 #include <stdio.h>
@@ -597,6 +598,43 @@ static void bench(int frames) {
 	free(tmp2);
 }
 
+/* ---- Symphony of the Night (src/sotn.c): the second screen as composed,
+ * W x H of the game's pixels (384 x 216: the Duo's top screen at 5), with
+ * the map cursor at its frame 40; the logo's place outlined */
+static void sotn_cmd(Emu* e, const char* name, int w, int h) {
+	static SotnView v;
+	if (w <= 0) w = 384;
+	if (h <= 0) h = 216;
+	if (!sotn_read(e, &v)) {
+		printf("sotn: no video RAM\n");
+		return;
+	}
+	uint32_t* px = calloc((size_t) w * h, 4);
+	SotnLayout l;
+	sotn_compose(&v, px, w, h, &l);
+	uint32_t cur[32 * 32];
+	sotn_cursor_pixels(&v, cur);
+	int cx, cy, cs;
+	sotn_cursor_rect(&v, &l, 40, &cx, &cy, &cs);
+	for (int y = 0; y < cs; ++y) {
+		for (int x = 0; x < cs; ++x) {
+			int X = cx + x, Y = cy + y;
+			uint32_t c = cur[(y * 32 / cs) * 32 + x * 32 / cs];
+			if (!c || X < 0 || Y < 0 || X >= w || Y >= h) continue;
+			uint32_t d = px[Y * w + X], o = 0xFF000000u; /* (half and half, as the game's) */
+			for (int k = 0; k < 24; k += 8) o |= ((((c >> k) & 255) + ((d >> k) & 255)) / 2) << k;
+			px[Y * w + X] = o;
+		}
+	}
+	for (int x = (int) l.logoX; x < (int) (l.logoX + l.logoW); ++x) px[(int) l.logoY * w + x] = px[(int) (l.logoY + l.logoH) * w + x] = 0xFF00FFFFu;
+	char path[1200];
+	out_path(path, sizeof path, name, ".png");
+	write_png(path, px, w, h, w);
+	printf("sotn %s: state %d, rooms %d, %s castle, square %d,%d, window %d,%d,%d, logo %.0fx%.0f at %.0f,%.0f\n", path, v.state, v.rooms,
+	       v.inverted ? "inverted" : "first", v.sqX, v.sqY, v.window[0], v.window[1], v.window[2], l.logoW, l.logoH, l.logoX, l.logoY);
+	free(px);
+}
+
 /* ---- script ---- */
 
 int main(int argc, char** argv) {
@@ -678,6 +716,8 @@ int main(int argc, char** argv) {
 			}
 		} else if (!strcmp(cmd, "alttp")) {
 			alttp_cmd(e, rom, p);
+		} else if (!strcmp(cmd, "sotn")) {
+			sotn_cmd(e, s1, atoi(s2), atoi(s3));
 		} else if (!strcmp(cmd, "smtoggle")) {
 			smtoggle_cmd(e, rom, atoi(s1), atoi(s2));
 		} else if (!strcmp(cmd, "smmap")) {

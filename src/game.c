@@ -5006,6 +5006,16 @@ void draw_logo_at(int s, int dy) {
 	}
 }
 
+/* The game's logo filling `area` (Symphony of the Night's map, SOTN-4):
+ * the one taken from its title at its own shape (square pixels), the
+ * player's own or a scraped one fitted */
+void draw_logo_in(int s, SDL_Rect area) {
+	if (!logoTex[0] && !logoTex[1]) return;
+	char path[1200];
+	bool extracted = ui_logo_source(cfg, romPath, emu.gameCode, path, sizeof(path)) == LOGO_EXTRACTED;
+	ui_image(s, logoTex, logoW, logoH, extracted ? "stretch" : "fit", &area);
+}
+
 static void draw_game(void) {
 	bool mapOn = mc || nat || alt || logoOnly; /* logo-only games: the logo stands in for the map */
 	if (nat && natShown) native_step();
@@ -5047,6 +5057,9 @@ static void draw_game(void) {
 			/* (ALTTP-7, ALTTP-12: where there's no map, draw_alt shows the logo) */
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			draw_alt(s);
+		} else if (sot && sot_map_shown()) {
+			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, (SDL_Color) { 0, 0, 0, 255 });
+			draw_sot(s);
 		} else if (mapShownIdx >= 0 && !logoForced) {
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			ui_image_pixels(s, mapTex, mapW, mapH, cfg->mapScale, SHADER_ON);
@@ -5433,6 +5446,7 @@ static void ss_setup(const char* rom, const char* code) {
 #endif
 		const MapProfile* lp = profile_find(code);
 		native_open(rom, lp);
+		sot_open(rom);
 		mc = nat || alt ? NULL : mapcap_create(rom, code, true);
 		if (nat) mapW = SMMAP_W, mapH = SMMAP_H;
 		if (alt) mapW = ALTTP_W, mapH = ALTTP_H;
@@ -5462,6 +5476,7 @@ static void ss_textures(void) {
 	}
 	native_textures();
 	alt_textures();
+	sot_textures();
 }
 
 /* After the device sleeps (or the renderer is reset), the GPU's copies of
@@ -6801,6 +6816,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 
 		if (nat) native_tick();
 		if (alt) alt_tick();
+		if (sot) sot_tick();
 		if (snapProf) update_snapshot();
 
 		Uint64 drawT0 = SDL_GetPerformanceCounter();
@@ -6971,6 +6987,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	mc = NULL;
 	native_free();
 	alt_free(); /* (saves what each file has seen) */
+	sot_free();
 	emu_rewind_deinit();
 	emu_close(&emu); /* flushes the battery save */
 	for (int i = 0; i < MAP_MAX_FRAMES; ++i) {

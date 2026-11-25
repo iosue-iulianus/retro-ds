@@ -20,4 +20,52 @@ bool sotn_is(const char* gameCode);
  * shows as the game's picture does). malloc'd; NULL if the title isn't up. */
 uint8_t* sotn_title_logo(Emu* e, int* w, int* h);
 
+/* ---- SOTN-2 to 4: the castle map on the second screen */
+
+#define SOTN_PIC_W 256 /* the game's map screen (Select), in its pixels */
+#define SOTN_PIC_H 240
+#define SOTN_MAP_W 242 /* the castle's part of it */
+#define SOTN_MAP_H 190
+
+/* What the second screen is drawn from, read between frames. */
+typedef struct {
+	int state;         /* the game's: 1 title, 2 playing, 8 file screens ... */
+	int rooms;         /* rooms explored */
+	bool inverted;     /* the inverted castle */
+	int window[3];     /* the player's window colour (System), 0 to 31 each */
+	int sqX, sqY;      /* Alucard's square on the map */
+	/* the map as Select shows it: palette indices, 0 clear */
+	uint8_t pic[SOTN_PIC_H][SOTN_PIC_W];
+	uint32_t mapPal[16]; /* RGBA (0xAABBGGRR) */
+	/* the status screen's 8 x 8 font (16 x 16 characters from ' ') */
+	uint8_t font[128][128];
+	uint32_t fontPal[16];
+	/* the map cursor's picture */
+	uint8_t cursor[32][32];
+	uint32_t cursorPal[16];
+} SotnView;
+
+/* Reads it; false without the game's video RAM. */
+bool sotn_read(Emu* e, SotnView* v);
+/* The map's to be shown (else the logo, SOTN-1): Alucard is playing in
+ * the castle (the prologue has no map). */
+bool sotn_has_map(const SotnView* v);
+/* A checksum of everything the composed picture depends on. */
+uint32_t sotn_view_crc(const SotnView* v);
+
+/* Where things went on the composed picture (its pixels: the game's) */
+typedef struct {
+	int mapX, mapY;          /* the castle's top left */
+	float logoX, logoY, logoW, logoH; /* the logo's place (SOTN-4) */
+} SotnLayout;
+#define SOTN_LOGO_ASPECT 2.376f /* the title logo's width / height, square pixels */
+
+/* SOTN-4: the window, the map, and the ROOMS pane, cw x ch (RGBA). */
+void sotn_compose(const SotnView* v, uint32_t* px, int cw, int ch, SotnLayout* out);
+/* The map cursor's picture (32 x 32 RGBA) */
+void sotn_cursor_pixels(const SotnView* v, uint32_t px[32 * 32]);
+/* SOTN-3: the cursor's square on the composed picture at animation frame
+ * t (0 to 63, as the game's: it closes onto Alucard's square) */
+void sotn_cursor_rect(const SotnView* v, const SotnLayout* l, int t, int* x, int* y, int* size);
+
 #endif

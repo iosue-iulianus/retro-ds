@@ -49,7 +49,7 @@ WEBP_DIR   := third_party/libwebp
 WEBP_SRC   := $(wildcard $(WEBP_DIR)/src/dec/*.c $(WEBP_DIR)/src/dsp/*.c $(WEBP_DIR)/src/utils/*.c)
 WEBP_OBJ   := $(patsubst $(WEBP_DIR)/src/%.c,$(OUT)/libwebp/%.o,$(WEBP_SRC))
 
-APP_SRC    := src/main.c src/config.c src/i18n.c src/i18n_data.c src/font.c src/ui.c src/library.c src/mapper.c src/hotkeys.c src/folderpick.c src/game.c src/game_sm.c src/game_alttp.c src/paths.c src/image.c src/brand_data.c src/bezel.c src/bezel_logo.c src/logo.c src/cheats.c src/textfont.c src/fonts_data.c src/ra.c src/http.c src/sha256.c src/update.c src/clocks.c $(CORE_SRC)
+APP_SRC    := src/main.c src/config.c src/i18n.c src/i18n_data.c src/font.c src/ui.c src/library.c src/mapper.c src/hotkeys.c src/folderpick.c src/game.c src/game_sm.c src/game_alttp.c src/game_sotn.c src/paths.c src/image.c src/brand_data.c src/bezel.c src/bezel_logo.c src/logo.c src/cheats.c src/textfont.c src/fonts_data.c src/ra.c src/http.c src/sha256.c src/update.c src/clocks.c $(CORE_SRC)
 
 all: $(OUT)/retrods
 
@@ -70,9 +70,9 @@ tools: build/host/retrods-harness
 
 # The harness (tools/retrods-harness.c): two copies of the core driven by a
 # script, for finding a game's addresses and timing captures. Needs libpng.
-build/host/retrods-harness: tools/retrods-harness.c tools/png.c src/emu.c src/emu.h src/system.c src/system.h src/disc.c src/disc.h src/libretro.h src/patch.c src/smmap.c src/smmap.h src/alttp.c src/alttp.h src/alttp_dungeon.c src/alttp_dungeon.h
+build/host/retrods-harness: tools/retrods-harness.c tools/png.c src/emu.c src/emu.h src/system.c src/system.h src/disc.c src/disc.h src/sotn.c src/sotn.h src/libretro.h src/patch.c src/smmap.c src/smmap.h src/alttp.c src/alttp.h src/alttp_dungeon.c src/alttp_dungeon.h
 	@mkdir -p build/host
-	$(CC) $(CFLAGS) -o $@ tools/retrods-harness.c tools/png.c src/emu.c src/system.c src/disc.c src/patch.c src/smmap.c src/alttp.c src/alttp_dungeon.c -lpng -lz -ldl -lpthread -lm
+	$(CC) $(CFLAGS) -o $@ tools/retrods-harness.c tools/png.c src/emu.c src/system.c src/disc.c src/sotn.c src/patch.c src/smmap.c src/alttp.c src/alttp_dungeon.c -lpng -lz -ldl -lpthread -lm
 
 m0: build/host/retrods-harness
 

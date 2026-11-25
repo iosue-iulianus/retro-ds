@@ -75,4 +75,14 @@ void draw_alt_title(int s);
 int alt_touch(const Pointer* p);
 uint32_t alt_keys(uint32_t keys); /* the game's keys, X taken for the map */
 
+/* ---- Symphony of the Night (game_sotn.c; src/sotn.c, SOTN-2 to 4) */
+extern bool sot;      /* the game is Symphony of the Night */
+void sot_open(const char* rom);
+void sot_free(void);
+void sot_textures(void);
+void sot_tick(void);
+bool sot_map_shown(void); /* the map is up (else the logo, SOTN-1) */
+void draw_sot(int s);
+void draw_logo_in(int s, SDL_Rect area); /* the game's logo filling area (game.c) */
+
 #endif
