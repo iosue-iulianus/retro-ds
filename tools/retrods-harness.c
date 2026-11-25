@@ -740,7 +740,6 @@ int main(int argc, char** argv) {
 			uint32_t* out = calloc((size_t) ow * e->h, 4);
 			int pox = 0;
 			bool ok = sotn_widen(e->fb, e->w, e->h, out, ow, &pox);
-			if (ok && *s2 && sotn_settled(out, ow, e->h, pox, sotn_menu_step(e))) sotn_spread(out, ow, e->h, pox, sotn_menu_step(e), 1.0f);
 			if (ok && sotn_read(e, &v)) {
 				sotn_window(&v, out, ow, 6, 24, 52, 20, 6, 24);
 				sotn_button(&v, out, ow, 14, 30, 3);
@@ -750,24 +749,6 @@ int main(int argc, char** argv) {
 			out_path(path, sizeof path, s1, ".png");
 			if (ok) write_png(path, out, ow, e->h, ow);
 			printf("sotnwide %s: %s, %dx%d -> %d wide, engine %d, menu step %X\n", path, ok ? "widened" : "no window", e->w, e->h, ow, sotn_engine(e), sotn_menu_step(e));
-			free(out);
-		} else if (!strcmp(cmd, "sotnsettle")) {
-			/* SOTN-8: whether the page is taken as up and still, frame by
-			 * frame for N frames (a line of 1 and 0) */
-			int n = atoi(s1) > 0 ? atoi(s1) : 60, ow = 442;
-			uint32_t* out = calloc((size_t) ow * 512, 4);
-			printf("sotnsettle step %X: ", sotn_menu_step(e));
-			int spreadStep = -1;
-			for (int i = 0; i < n; ++i) {
-				int pox = 0, step = sotn_menu_step(e);
-				bool wide = sotn_widen(e->fb, e->w, e->h, out, ow, &pox);
-				bool keep = wide && spreadStep >= 0 && sotn_same_page(spreadStep, step) && sotn_page_lines(out, ow, e->h, pox, step);
-				bool ok = keep || (wide && sotn_settled(out, ow, e->h, pox, step));
-				spreadStep = ok ? step : -1;
-				putchar(ok ? '1' : wide ? '0' : '.'); /* (. no window filling the picture yet) */
-				frame(e, 0);
-			}
-			putchar('\n');
 			free(out);
 		} else if (!strcmp(cmd, "sotn")) {
 			sotn_cmd(e, s1, atoi(s2), atoi(s3));

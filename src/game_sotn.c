@@ -2,8 +2,8 @@
  * docs/games/symphony-of-the-night.md): the castle map as the game draws
  * it, in the status screen's window, with the logo and a ROOMS pane,
  * zoomed by touch as A Link to the Past's map is; and, a page across, the
- * game's own menu, widened, the game paused for it; src/sotn.c reads and
- * composes them. */
+ * game's own menu (its own picture of it), widened, the game paused for
+ * it; src/sotn.c reads and composes them. */
 #include "game_screens.h"
 #include "sotn.h"
 
@@ -298,21 +298,6 @@ void sot_tick(void) {
 		}
 		int pox = 0;
 		wideOk = widePx && emu.fb && sotn_widen(emu.fb, emu.w, emu.h, widePx, ow, &pox);
-		/* SOTN-8: the page's parts spread out once it's up and still, at
-		 * once; while the game's windows move (opening, a page coming or
-		 * going), its picture as it is */
-		static int spreadStep = -1; /* the step whose page is spread now, -1 none */
-		int step = sotn_menu_step(&emu);
-		bool keep = wideOk && spreadStep >= 0 && sotn_same_page(spreadStep, step) && sotn_page_lines(widePx, ow, emu.h, pox, step);
-		if (!keep && !(wideOk && sotn_settled(widePx, ow, emu.h, pox, step))) {
-			spreadStep = -1;
-		} else {
-			/* (spread once up and still; then it stays so while the game is on
-			 * the page and its windows are where they rest, a blinking cursor
-			 * box and the like notwithstanding: the owner, Nov 25, 2026) */
-			spreadStep = step;
-			sotn_spread(widePx, ow, emu.h, pox, step, 1.0f); /* (at once: the owner, Nov 25, 2026) */
-		}
 		wideDirty = wideOk;
 	} else {
 		wideOk = false;

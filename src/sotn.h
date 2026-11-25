@@ -91,18 +91,6 @@ bool sotn_menu_openable(Emu* e);
  * the widened picture's first and last columns). False
  * (out untouched) unless a window fills the picture from edge to edge. */
 bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow, int* ox);
-/* SOTN-8: the menu page's parts spread across the widened picture (ox:
- * where sotn_widen put the game's), t of the way (0 to 1), when the page
- * (the menu's step) has its parts measured; false if it hasn't */
-bool sotn_spread(uint32_t* px, int ow, int h, int ox, int step, float t);
-/* SOTN-8: the page (step) is up and still, ready to be spread: its
- * windows where they rest, none of the menu's moving over it */
-bool sotn_settled(const uint32_t* px, int ow, int h, int ox, int step);
-/* the page's own window lines are there (whatever else is: a blinking
- * cursor box), for a page already spread to stay so */
-bool sotn_page_lines(const uint32_t* px, int ow, int h, int ox, int step);
-/* the two steps show the same page (Equip choosing a slot or an item) */
-bool sotn_same_page(int stepA, int stepB);
 /* the status screen's lettering: text at (x, y) of px (stride wide) */
 void sotn_text(const SotnView* v, uint32_t* px, int stride, int x, int y, const char* s);
 /* SOTN-7: a small window of the status screen's kind, w x h at (x, y)
