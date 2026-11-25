@@ -77,4 +77,24 @@ void sotn_cursor_pixels(const SotnView* v, uint32_t px[32 * 32]);
  * (0 to 63, as the game's: it closes onto Alucard's square) */
 void sotn_cursor_rect(const SotnView* v, int t, int* x, int* y, int* size);
 
+/* ---- SOTN-6, 7: the menu on the second screen */
+#define SOTN_ENGINE_PLAYING 1
+#define SOTN_ENGINE_MENU 2
+#define SOTN_MENU_TOP 0x10
+int sotn_engine(Emu* e);      /* the game's engine step */
+int sotn_menu_step(Emu* e);   /* its menu's step (SOTN_MENU_TOP at the menu's top) */
+/* Start would open the game's menu now */
+bool sotn_menu_openable(Emu* e);
+/* SOTN-7: the game's picture fb (w x h, RGBA) widened to ow x h (ow > w):
+ * the picture in the middle, its windows carried out to the edges. False
+ * (out untouched) unless a window fills the picture from edge to edge. */
+bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow);
+/* the status screen's lettering: text at (x, y) of px (stride wide) */
+void sotn_text(const SotnView* v, uint32_t* px, int stride, int x, int y, const char* s);
+/* SOTN-7: a small window of the status screen's kind, w x h at (x, y)
+ * (dx, dy: its place on the screen, for the dither) */
+void sotn_window(const SotnView* v, uint32_t* px, int stride, int x, int y, int w, int h, int dx, int dy);
+/* the game's button pictures in its font: 0 ○, 1 ✕, 2 □, 3 △ (8 x 8 at x, y) */
+void sotn_button(const SotnView* v, uint32_t* px, int stride, int x, int y, int which);
+
 #endif

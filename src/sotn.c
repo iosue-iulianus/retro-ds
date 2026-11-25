@@ -299,3 +299,85 @@ void sotn_cursor_rect(const SotnView* v, int t, int* x, int* y, int* size) {
 	*y = gy + tick;
 	*size = 32 - tick * 2;
 }
+
+/* ---------------------------------------------------------------- the menu (SOTN-6, 7) */
+
+#define ENGINE_STEP 0x8003C9A4u   /* g_GameEngineStep */
+#define MENU_STEP 0x800978F8u     /* g_MenuStep */
+#define PAUSE_ALLOWED 0x8003C8B8u /* g_PauseAllowed */
+
+int sotn_engine(Emu* e) {
+	return (int) emu_read32(e, ENGINE_STEP);
+}
+
+int sotn_menu_step(Emu* e) {
+	return (int) emu_read32(e, MENU_STEP);
+}
+
+bool sotn_menu_openable(Emu* e) {
+	return sotn_is(e->gameCode) && emu_read32(e, GAME_STATE) == 2 && sotn_engine(e) == SOTN_ENGINE_PLAYING && emu_read32(e, PAUSE_ALLOWED) &&
+	       emu_read32(e, ROOM_COUNT) > 0; /* (the prologue: Richter's pause, not the menu) */
+}
+
+static bool white(uint32_t c) {
+	return (c & 0xFF) > 240 && ((c >> 8) & 0xFF) > 240 && ((c >> 16) & 0xFF) > 240;
+}
+
+bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow) {
+	if (w < 64 || h < 64 || ow <= w) return false;
+	/* the window's left and right edges: the outermost columns white on
+	 * most of the picture's rows */
+	int L = -1, R = -1;
+	for (int x = 0; x < w / 4 && L < 0; ++x) {
+		int n = 0;
+		for (int y = 0; y < h; ++y) n += white(fb[y * w + x]);
+		if (n > h / 2) L = x;
+	}
+	for (int x = w - 1; x > w * 3 / 4 && R < 0; --x) {
+		int n = 0;
+		for (int y = 0; y < h; ++y) n += white(fb[y * w + x]);
+		if (n > h / 2) R = x;
+	}
+	if (L < 0 || R < 0 || R - L < w / 2) return false;
+	int ox = ((ow - w) / 2) & ~3; /* (the picture placed on whole dither steps) */
+	int nL = L, nR = ow - 1 - (w - 1 - R); /* (its edges as far from the screen's as from the picture's) */
+	for (int y = 0; y < h; ++y) {
+		const uint32_t* row = fb + y * w;
+		uint32_t* o = out + y * ow;
+		for (int x = 0; x < ow; ++x) o[x] = 0xFF000000u;
+		for (int x = 0; x < w; ++x) o[ox + x] = row[x];
+		bool edges = white(row[L]) && white(row[R]);
+		int whites = 0;
+		for (int x = L; x <= R; ++x) whites += white(row[x]);
+		if (edges && whites > (R - L) * 9 / 10) {
+			/* a top or bottom edge: across */
+			for (int x = nL; x <= nR; ++x) o[x] = row[L + 1];
+		} else if (edges) {
+			/* a window's row: its colours continued, in the dither's
+			 * 4-pixel steps, from just inside its edges */
+			for (int x = nL + 1; x <= ox + L; ++x) o[x] = row[L + 4 + ((x - ox - L - 4) % 4 + 4) % 4];
+			for (int x = ox + R; x < nR; ++x) o[x] = row[R - 4 - ((ox + R - 4 - x) % 4 + 4) % 4];
+			o[nL] = row[L], o[nR] = row[R];
+		}
+	}
+	return true;
+}
+
+void sotn_text(const SotnView* v, uint32_t* px, int stride, int x, int y, const char* s) {
+	text(v, px, stride, x, y, s);
+}
+
+void sotn_window(const SotnView* v, uint32_t* px, int stride, int x, int y, int w, int h, int dx, int dy) {
+	window(v, px, stride, x, y, w, h, dx, dy);
+}
+
+void sotn_button(const SotnView* v, uint32_t* px, int stride, int x, int y, int which) {
+	/* the font's row 14: arrows, then ○ ✕ □ △ from its 9th place */
+	int u = (8 + which) * 8, vv = 14 * 8;
+	for (int r = 0; r < 8; ++r) {
+		for (int c = 0; c < 8; ++c) {
+			uint8_t i = v->font[vv + r][u + c];
+			if (i && v->fontPal[i]) px[(y + r) * stride + x + c] = v->fontPal[i];
+		}
+	}
+}

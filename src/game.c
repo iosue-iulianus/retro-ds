@@ -5026,6 +5026,11 @@ static void draw_game(void) {
 				if (overlay_on(s)) draw_overlay(s, 1);
 				continue;
 			}
+			if (sot && nScreens == 2 && sot_cover_game()) {
+				/* SOTN-6: the game's menu is the second screen's: here, the logo */
+				draw_logo_at(s, 0);
+				continue;
+			}
 			ui_image_pixels(s, gameTex, picW, picH, cfg->scale, SHADER_ON);
 			draw_hud_hide(s);
 			if (overlay_on(s)) draw_overlay(s, 0);
@@ -5054,7 +5059,7 @@ static void draw_game(void) {
 			/* (ALTTP-7, ALTTP-12: where there's no map, draw_alt shows the logo) */
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			draw_alt(s);
-		} else if (sot && sot_map_shown()) {
+		} else if (sot && sot_screen_shown()) {
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, (SDL_Color) { 0, 0, 0, 255 });
 			draw_sot(s);
 		} else if (mapShownIdx >= 0 && !logoForced) {
@@ -6473,6 +6478,28 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		if (comboPulse[0] > 0) keys |= K_SELECT, --comboPulse[0];
 		if (comboPulse[1] > 0) keys |= K_START, --comboPulse[1];
 		keys = alt_keys(keys); /* ALTTP-1: X is the second screen's */
+		if (sot && nScreens == 2) keys = sot_keys(keys); /* SOTN-6: Start is the pages' */
+		{
+			/* SOTN-6: the game stopped for the menu page: no frames, no sound */
+			static bool frozen;
+			bool now = sot && sot_frozen();
+			if (now != frozen && audio) {
+				SDL_PauseAudioDevice(audio, now);
+				if (now) SDL_ClearQueuedAudio(audio);
+				else audioQuietUntil = frameCount + 150;
+			}
+			if (frozen && !now) next = SDL_GetPerformanceCounter() / freq;
+			frozen = now;
+			if (now) {
+				ra_idle();
+				ui_clear();
+				draw_game();
+				ui_present();
+				SDL_Delay(16);
+				next = SDL_GetPerformanceCounter() / freq;
+				continue;
+			}
+		}
 		{
 			static uint32_t lastKeys;
 			if (debug && keys != lastKeys) fprintf(stderr, "frame %llu: game keys %03x\n", (unsigned long long) frameCount, keys);
