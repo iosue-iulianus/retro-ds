@@ -4721,6 +4721,7 @@ static void map_reshow(void) {
 static int map_touch(const Pointer* p) {
 	if (nat) return native_touch(p);
 	if (alt) return alt_touch(p);
+	if (sot) return sot_touch(p);
 	const MapProfile* tp = touch_prof();
 	if (!tp || (p->screen == game_screen() && !(mapDrag && p->kind != 1))) return 0;
 	if (p->kind == 1) {
@@ -5006,14 +5007,10 @@ void draw_logo_at(int s, int dy) {
 	}
 }
 
-/* The game's logo filling `area` (Symphony of the Night's map, SOTN-4):
- * the one taken from its title at its own shape (square pixels), the
- * player's own or a scraped one fitted */
+/* The game's logo fitted into `area` (Symphony of the Night's map, SOTN-4) */
 void draw_logo_in(int s, SDL_Rect area) {
 	if (!logoTex[0] && !logoTex[1]) return;
-	char path[1200];
-	bool extracted = ui_logo_source(cfg, romPath, emu.gameCode, path, sizeof(path)) == LOGO_EXTRACTED;
-	ui_image(s, logoTex, logoW, logoH, extracted ? "stretch" : "fit", &area);
+	ui_image(s, logoTex, logoW, logoH, "fit", &area);
 }
 
 static void draw_game(void) {
@@ -5541,25 +5538,6 @@ static void patches_setup(const char* rom) {
 	fprintf(stderr, "patches: %s, %d to apply%s\n", patchDir, n, on);
 }
 
-/* SOTN-1: Symphony of the Night's logo, taken from its video RAM while
- * the title is up (no second core: the PlayStation has one), kept where
- * an extracted logo goes, and shown. */
-static void logo_refresh(void);
-static void sotn_logo_take(void) {
-	int w = 0, h = 0;
-	uint8_t* px = sotn_title_logo(&emu, &w, &h);
-	if (!px) return;
-	char path[1200], tmp[1300];
-	snprintf(path, sizeof(path), "%s/logos", cfg->stateDir);
-	mkdirs(path);
-	snprintf(path, sizeof(path), "%s/logos/%s.png", cfg->stateDir, emu.gameCode);
-	snprintf(tmp, sizeof(tmp), "%s.tmp", path);
-	bool ok = stbi_write_png(tmp, w, h, 4, px, w * 4) && rename(tmp, path) == 0;
-	free(px);
-	fprintf(stderr, "logo: %s %dx%d from the title's video RAM -> %s\n", emu.gameCode, w, h, ok ? path : "write failed");
-	if (ok) logo_refresh();
-}
-
 /* The logo loaded again, and every picture it's in made again (extracted at
  * last, or a scraped / own logo's pixelate switched: GEN-11). */
 static void logo_refresh(void) {
@@ -5884,7 +5862,6 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			logoGen = logo_generation();
 			logo_refresh();
 		}
-		if (!logoTex[0] && !logoTex[1] && sotn_is(emu.gameCode) && frameCount % 30 == 0) sotn_logo_take();
 		{
 			/* back from sleep (frames stopped for over 2 seconds) or the
 			 * renderer reset: the textures again */
@@ -5904,7 +5881,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		}
 		ui_tick();
 		ui_read_buttons();
-		ui_set_pinch(alt && altPage == 1 && altShown && !menuOpen && nScreens == 2);
+		ui_set_pinch(((alt && altPage == 1 && altShown) || (sot && sot_map_shown())) && !menuOpen && nScreens == 2);
 		{
 			const char* ld = ui_script_load();
 			if (ld && !state_load(ld)) fprintf(stderr, "could not load %s\n", ld);

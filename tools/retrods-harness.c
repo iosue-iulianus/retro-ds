@@ -603,6 +603,7 @@ static void bench(int frames) {
  * the map cursor at its frame 40; the logo's place outlined */
 static void sotn_cmd(Emu* e, const char* name, int w, int h) {
 	static SotnView v;
+	static uint32_t map[SOTN_PIC_W * SOTN_PIC_H];
 	if (w <= 0) w = 384;
 	if (h <= 0) h = 216;
 	if (!sotn_read(e, &v)) {
@@ -612,19 +613,35 @@ static void sotn_cmd(Emu* e, const char* name, int w, int h) {
 	uint32_t* px = calloc((size_t) w * h, 4);
 	SotnLayout l;
 	sotn_compose(&v, px, w, h, &l);
+	/* the map at rest, inside the window */
+	sotn_map_pixels(&v, map);
+	for (int y = 0; y < SOTN_PIC_H; ++y) {
+		for (int x = 0; x < SOTN_PIC_W; ++x) {
+			int X = l.mapX + x, Y = l.mapY + y;
+			if (map[y * SOTN_PIC_W + x] && X >= l.winX && Y >= l.winY && X < l.winX + l.winW && Y < l.winY + l.winH) px[Y * w + X] = map[y * SOTN_PIC_W + x];
+		}
+	}
+	/* the cursor, half and half as the game's */
 	uint32_t cur[32 * 32];
 	sotn_cursor_pixels(&v, cur);
 	int cx, cy, cs;
-	sotn_cursor_rect(&v, &l, 40, &cx, &cy, &cs);
+	sotn_cursor_rect(&v, 40, &cx, &cy, &cs);
 	for (int y = 0; y < cs; ++y) {
 		for (int x = 0; x < cs; ++x) {
-			int X = cx + x, Y = cy + y;
+			int X = l.mapX + cx + x, Y = l.mapY + cy + y;
 			uint32_t c = cur[(y * 32 / cs) * 32 + x * 32 / cs];
 			if (!c || X < 0 || Y < 0 || X >= w || Y >= h) continue;
-			uint32_t d = px[Y * w + X], o = 0xFF000000u; /* (half and half, as the game's) */
+			uint32_t d = px[Y * w + X], o = 0xFF000000u;
 			for (int k = 0; k < 24; k += 8) o |= ((((c >> k) & 255) + ((d >> k) & 255)) / 2) << k;
 			px[Y * w + X] = o;
 		}
+	}
+	/* the pane over it, the logo's place outlined */
+	if (l.paneW) {
+		uint32_t* pane = calloc((size_t) l.paneW * l.paneH, 4);
+		sotn_pane_pixels(&v, &l, pane);
+		for (int y = 0; y < l.paneH; ++y) memcpy(px + (size_t) (l.paneY + y) * w + l.paneX, pane + (size_t) y * l.paneW, (size_t) l.paneW * 4);
+		free(pane);
 	}
 	for (int x = (int) l.logoX; x < (int) (l.logoX + l.logoW); ++x) px[(int) l.logoY * w + x] = px[(int) (l.logoY + l.logoH) * w + x] = 0xFF00FFFFu;
 	char path[1200];

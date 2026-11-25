@@ -83,6 +83,7 @@ void sot_textures(void);
 void sot_tick(void);
 bool sot_map_shown(void); /* the map is up (else the logo, SOTN-1) */
 void draw_sot(int s);
+int sot_touch(const Pointer* p); /* SOTN-5: tap and pinch zoom, drag */
 void draw_logo_in(int s, SDL_Rect area); /* the game's logo filling area (game.c) */
 
 #endif
