@@ -29,6 +29,20 @@ What the game itself shows: Select brings up the castle map over the darkened ga
 
 **SOTN-5. Zoom by touch.** As A Link to the Past's map (ALTTP-3, the owner's ask, Nov 25, 2026): a tap on the map zooms it in a level, the place tapped gliding to the middle of the window, each tap closer and from the closest back out to the whole castle at its place; two fingers pinch the zoom round the point between them (which stays under the fingers), and when they lift it glides to the nearest level; a drag moves the map, smoothly, with a fling. The levels: 1, 2, 3 and 4 times the size at rest (5, 10, 15 and 20 screen pixels to one of the game's on the Duo's top screen). Only the map zooms, inside the big window; the logo and the ROOMS pane stay where they are, over it. The castle is kept in the window (bigger than it, its edges never come inside; smaller, all of it stays in). Zoomed in and left alone, the map keeps Alucard's square in the middle of the window, as he moves; moved by the player, it stays where it was put until Alucard enters another room, then glides back to him. No zoom indicator, no sounds (A Link to the Past's are its own; not asked for).
 
+## The menu on the second screen
+
+*The owner, Nov 25, 2026: the game's own menu (Start's) on the second screen, made for touch while keeping the gamepad; the map and the menu as two pages of the second screen; swiping away from the map pauses the game, the game screen shows the logo, and the game's own menu never shows on the game screen. The window widened to the screen, then its parts spread out (the menu was always a bit cramped). Of a rebuilt menu (writes to the game) or the game's own moved over, the game's own (no writes: RetroDS only presses the game's buttons).*
+
+**SOTN-6. The map and the menu, two pages.** The second screen has two pages: the map (SOTN-2 to 5) and the menu. Start goes to the menu page, and Start again back to the map: RetroDS takes Start, and the game is never given the player's Start (an exception: listed). A swipe across the second screen goes from one page to the other, the pages following the finger (on the map, while the whole castle fits the window across; zoomed in, a drag moves the map, and a swipe from the window's black edge turns the page); two small squares under the window say which page is up. Going to the menu page pauses the game, always:
+- When the game would open its menu (it's being played: engine step 1, pausing allowed, `0x8003C8B8`), RetroDS presses Start for it, and the game opens its own menu as it does for the player (pausing itself, its sounds and its fade). The menu page shows that menu (SOTN-7); the gamepad works it as in the game (Start excepted), and touch has the Back button: △, the game's own back, as many times as it takes (at the menu's top it closes the menu and goes back to the map page).
+- When it wouldn't (a cutscene, a door, loading, the prologue, Alucard dead), RetroDS stops the game where it is, sound and all, and the menu page shows the window alone; going back to the map lets it carry on.
+- While the menu page is up, and while the game's menu is opening or closing, the game screen shows the logo (SOTN-1) instead of the game; the game's menu is never seen there.
+Back on the map page (a swipe, Start, or △ at the menu's top), RetroDS presses △ for the game until its menu has closed, and the game carries on. Touches on the menu's rows: a later step. *(Writes: none. RetroDS presses the game's own buttons.)*
+
+**SOTN-7. The menu, widened.** On the menu page the game's picture of its menu is shown at its 4:3 shape in the middle of the screen, and the window it's drawn in is carried out to the screen's edges: each row of a window is continued with that row's own colours (its gradient and dither, whatever the window colour or castle), its white edge moved out to the screen's edges, its top and bottom edges drawn across; rows between windows stay black. The Back button sits in the left band so widened: a small window of the same kind with the game's △ and BACK in the status screen's lettering. While no window fills the picture from edge to edge (the menu fading in or out), the window alone.
+
+**SOTN-8. The menu spread out (planned).** Each page of the menu cut into its parts (on the status page: the portrait and attributes, EXP to GOLD, the name with HP to HEART, the commands, LEVEL to DEF, ROOMS and KILLS, TIME) and the parts moved apart across the widened window, sideways only, by whole steps of the dither (the gradient changes only from row to row, so they move without a seam). The parts measured per page; a page without its parts, or not still yet, shown as SOTN-7. Mock-up: `sotn-map-mockups/E-menu-spread.png`.
+
 ## How it's found (measured in the harness, Nov 25, 2026)
 
 | What | Where | Notes |
@@ -48,3 +62,6 @@ What the game itself shows: Select brings up the castle map over the darkened ga
 | The map cursor | video RAM (640, 256), 32 x 32, 4 bits; palette entry `0x170` | |
 
 Checked: the map picture with that palette, placed 1:1, matches the game's Select screen pixel for pixel (but where Alucard's cursor blends over it).
+| Engine step | `0x8003C9A4` | 1 playing, 2 the menu (Start's), 20 Select's map (`g_GameEngineStep`) |
+| Menu step | `0x800978F8` | `0x10` the menu's top page, `0x40` Equip (`g_MenuStep`); △ steps back, and at `0x10` closes the menu |
+| Pausing allowed | `0x8003C8B8` | (`g_PauseAllowed`): with engine step 1, Start opens the menu |
