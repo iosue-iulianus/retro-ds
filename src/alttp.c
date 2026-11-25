@@ -1957,17 +1957,43 @@ int alttp_camera_y(const Alttp* a) {
 	return r16(a, R_BG2_Y) + 1; /* (line 0 shows row scroll + 1) */
 }
 
+/* The Master Sword in its pedestal: a sprite, so the game draws it only
+ * while it's on its screen; here from its tiles in video memory (the
+ * second sprite table's $C3 $C4 / $D3 $D4 / $E0 $F0, palette 4: read from
+ * the game's sprites by the pedestal on the owner's state, Nov 25, 2026),
+ * 16 x 24 from the grove's (110, 128). Indices into the palette, 0 clear. */
+#define GROVE_SWORD_X 110
+#define GROVE_SWORD_Y 128
+static void grove_sword(const uint8_t* vram, uint8_t out[24][16]) {
+	static const uint8_t tiles[3][2] = { { 0xC3, 0xC4 }, { 0xD3, 0xD4 }, { 0xE0, 0xF0 } };
+	for (int ty = 0; ty < 3; ++ty) {
+		for (int tx = 0; tx < 2; ++tx) {
+			uint32_t base = V_OBJ_CHR + 0x1000 + tiles[ty][tx] * 16;
+			for (int y = 0; y < 8; ++y) {
+				uint16_t p0 = vword(vram, base + y), p1 = vword(vram, base + 8 + y);
+				for (int x = 0; x < 8; ++x) {
+					int b = 7 - x, c = (p0 >> b & 1) | (p0 >> (8 + b) & 1) << 1 | (p1 >> b & 1) << 2 | (p1 >> (8 + b) & 1) << 3;
+					out[ty * 8 + y][tx * 8 + x] = (uint8_t) (c ? 128 + 4 * 16 + c : 0);
+				}
+			}
+		}
+	}
+}
+
 /* the grove's rows y0 to y0 + n - 1 (its own pixels from its top), the 256
- * columns the camera shows, as the screen shows them: BG2, its haze (BG1
- * on the sub screen at its own scroll) added or taken off by the colour
- * maths, the screen's brightness; black above and below the grove */
+ * columns the camera shows, as the screen shows them: BG2, the Master Sword
+ * in its pedestal until it's drawn, the haze (BG1 on the sub screen at its
+ * own scroll) added or taken off by the colour maths, the screen's
+ * brightness; black above and below the grove */
 void alttp_grove_rows(const Alttp* a, const uint8_t* vram, int y0, int n, uint32_t* out) {
 	enum { W = 256 };
 	int cx = r16(a, R_BG2_X), cy = alttp_camera_y(a), sx = r16(a, R_BG1_X), sy = r16(a, R_BG1_Y) + 1;
 	uint8_t ws = r8(a, R_CGWSEL), as = r8(a, R_CGADSUB), ini = r8(a, R_INIDISP), ts = r8(a, R_TS);
 	uint16_t fixed = (uint16_t) ((r8(a, R_COLDATA) & 31) | (r8(a, R_COLDATA + 1) & 31) << 5 | (r8(a, R_COLDATA + 2) & 31) << 10);
 	int bright = ini & 0x80 ? 0 : ini & 15;
-	uint8_t m[W], sub[W];
+	uint8_t m[W], sub[W], sword[24][16];
+	bool hasSword = vram && r8(a, 0xF359) < 2; /* (until Link draws it) */
+	if (hasSword) grove_sword(vram, sword);
 	for (int r = 0; r < n; ++r) {
 		int y = y0 + r;
 		uint32_t* o = out + r * W;
@@ -1976,11 +2002,20 @@ void alttp_grove_rows(const Alttp* a, const uint8_t* vram, int y0, int n, uint32
 			continue;
 		}
 		bg_row(vram, V_BG2_MAP, cx, y, W, m);
+		bool obj[W] = { false };
+		if (hasSword && y >= GROVE_SWORD_Y && y < GROVE_SWORD_Y + 24) {
+			for (int x = 0; x < 16; ++x) {
+				int sx2 = GROVE_SWORD_X + x - cx;
+				uint8_t c = sword[y - GROVE_SWORD_Y][x];
+				if (c && sx2 >= 0 && sx2 < W) m[sx2] = c, obj[sx2] = true;
+			}
+		}
 		bool haze = (ts & 1) != 0;
 		if (haze) bg_row(vram, V_BG1_MAP, sx, sy + (y - cy), W, sub);
 		for (int x = 0; x < W; ++x) {
 			uint16_t c = r16(a, R_PALETTE + m[x] * 2);
-			if (m[x] ? (as & 0x02) : (as & 0x20)) {
+			/* (sprites in palettes 4 to 7 take the colour maths when it's on for them) */
+			if (obj[x] ? (as & 0x10) : m[x] ? (as & 0x02) : (as & 0x20)) {
 				int si = haze ? sub[x] : 0;
 				uint16_t sc = si && (ws & 2) ? r16(a, R_PALETTE + si * 2) : fixed;
 				int ch[3];

@@ -112,13 +112,18 @@ bool alt_no_map(void) {
 #define ALT_GROVE_ROWS 512
 static SDL_Texture* altGroveTex[2];
 static uint32_t altGroveKey;
+static SDL_Texture* altGroveLogoTex[2]; /* the extracted logo, clear round it */
+static int altGroveLogoW, altGroveLogoH;
+static bool altGroveLogoTried;
 static void alt_grove_geometry(int s, SDL_Rect* img, float* k, float* kt, float* ratio, float* gapPx) {
 	int g = game_screen();
 	*img = ui_image_rect(g, picW, picH, cfg->scale);
 	*k = picH > 0 ? img->h / (float) picH : 1;
-	float pt = 0, pb = 0, gap = cfg->screenGapMm >= 0 ? (float) cfg->screenGapMm : 0;
+	/* (the screens' sizes as RetroDS knows them: the known devices' table
+	 * before what Android reports, which put the top screen's grove at
+	 * another size than the game's 4:3 below: the owner, Nov 25, 2026) */
+	float pt = ui_screen_ppi(s), pb = ui_screen_ppi(g), gap = cfg->screenGapMm >= 0 ? (float) cfg->screenGapMm : 0;
 #ifdef __ANDROID__
-	pt = android_display_ppi(screens[s].view), pb = android_display_ppi(screens[g].view);
 	if (cfg->screenGapMm < 0) gap = (float) android_screen_gap_mm();
 #endif
 	*ratio = pt > 0 && pb > 0 ? pt / pb : 1, *kt = *k * *ratio;
@@ -155,6 +160,24 @@ static void draw_grove(int s) {
 	int tx = r.w / 2 + (int) lroundf((img.x - gw / 2.0f) * ratio), tw = (int) lroundf(256 * kx * ratio);
 	int ty = r.h + (int) lroundf(gapPx + img.y * ratio + (y0 - cy) * kt), th = (int) lroundf(n * kt);
 	ui_image_part(s, altGroveTex, (SDL_Rect) { 0, 0, 256, n }, (SDL_Rect) { tx, ty, tw, th });
+	/* the game's logo above the grove, coming down with it as Link walks
+	 * up: centred on the top screen once the sword in its pedestal has gone
+	 * off it (its top row at the screen's bottom), and staying there (the
+	 * owner, Nov 25, 2026); at the grove's pixel size, its picture alone
+	 * (the extracted logo, clear round it), so the trees show under it */
+	if (!altGroveLogoTex[v] && !altGroveLogoTried) {
+		altGroveLogoTried = true;
+		char lp[1200];
+		if (ui_logo_source(cfg, romPath, emu.gameCode, lp, sizeof lp) == LOGO_EXTRACTED)
+			ui_load_image(lp, altGroveLogoTex, &altGroveLogoW, &altGroveLogoH, false);
+	}
+	if (altGroveLogoTex[v]) {
+		float swordRowY = r.h + gapPx + img.y * ratio + (128 - cy) * kt; /* the sword's top row on the top screen */
+		float cyLogo = SDL_min(swordRowY - r.h / 2.0f, r.h / 2.0f);
+		float lw = altGroveLogoW * kx * ratio, lh = altGroveLogoH * kt;
+		ui_image_part(s, altGroveLogoTex, (SDL_Rect) { 0, 0, altGroveLogoW, altGroveLogoH },
+		              (SDL_Rect) { tx + (int) lroundf((tw - lw) / 2), (int) lroundf(cyLogo - lh / 2), (int) lroundf(lw), (int) lroundf(lh) });
+	}
 }
 /* where what's above the items is drawn, pixels down from its place
  * (draw_alt: the markers' pane, the dungeon map, the logo move with them) */
@@ -509,8 +532,10 @@ void alt_free(void) {
 	altMarkN = 0, altMarksFor = -1, altMarkDrag = altMarkIdx = -1;
 	for (int i = 0; i < 2; ++i) {
 		if (altGroveTex[i]) SDL_DestroyTexture(altGroveTex[i]);
-		altGroveTex[i] = NULL;
+		if (altGroveLogoTex[i]) SDL_DestroyTexture(altGroveLogoTex[i]);
+		altGroveTex[i] = altGroveLogoTex[i] = NULL;
 	}
+	altGroveLogoTried = false;
 	altGroveKey = 0;
 	alt_cache_clear();
 	alt_worker_stop();
