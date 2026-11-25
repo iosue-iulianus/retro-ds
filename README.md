@@ -19,23 +19,11 @@ You play with the buttons. The second screen is for looking: drag and zoom the m
 
 Built for and tested on the **Retroid Pocket Duo**; other dual-screen Android handhelds should work but haven't been tried.
 
-## Games with a second screen
+# Games with a second screen
 
 Each supported game gets a second screen of its own, worked out from how that game stores its data. What each one shows, and every place it changes the game, is written down in its rules page in [`docs/games/`](docs/games/).
 
-### Super Metroid
-
-<p align="center">
-  <img src="docs/media/super-metroid-map.webp" width="45%" alt="Super Metroid: Brinstar's map on the top screen, Samus in a corridor on the bottom screen">
-  <img src="docs/media/super-metroid-samus.webp" width="45%" alt="Super Metroid: the SAMUS equipment page on the top screen">
-</p>
-
-- The area map as the pause screen draws it, explored rooms and all, drawn by RetroDS from the cartridge and the game's memory. Drag it and fling it; it scrolls at the screen's refresh rate.
-- Tap SAMUS for the equipment page, and tap a beam, suit or item there to switch it on or off without pausing.
-
-[Rules](docs/games/super-metroid.md) · USA / Japan release
-
-### The Legend of Zelda: A Link to the Past
+## The Legend of Zelda: A Link to the Past
 
 <p align="center">
   <img src="docs/media/alttp-world-map.webp" width="30%" alt="A Link to the Past: the Light World map built from what Link has seen, clouds over the rest, the player's markers on it and the MARKERS pane">
@@ -50,7 +38,19 @@ Each supported game gets a second screen of its own, worked out from how that ga
 
 [Rules](docs/games/a-link-to-the-past.md) · USA release
 
-### Castlevania: Symphony of the Night
+## Super Metroid
+
+<p align="center">
+  <img src="docs/media/super-metroid-map.webp" width="45%" alt="Super Metroid: Brinstar's map on the top screen, Samus in a corridor on the bottom screen">
+  <img src="docs/media/super-metroid-samus.webp" width="45%" alt="Super Metroid: the SAMUS equipment page on the top screen">
+</p>
+
+- The area map as the pause screen draws it, explored rooms and all, drawn by RetroDS from the cartridge and the game's memory. Drag it and fling it; it scrolls at the screen's refresh rate.
+- Tap SAMUS for the equipment page, and tap a beam, suit or item there to switch it on or off without pausing.
+
+[Rules](docs/games/super-metroid.md) · USA / Japan release
+
+## Castlevania: Symphony of the Night
 
 <p align="center">
   <img src="docs/media/sotn-map.webp" width="45%" alt="Symphony of the Night: the castle map in the status screen's window, the logo and the rooms explored on the top screen; Alucard in a save room on the bottom screen">
@@ -67,11 +67,23 @@ L2 and R2 as rewind and fast forward are disabled in Symphony of the Night.
 
 [Rules](docs/games/symphony-of-the-night.md) · USA release (SLUS-00067)
 
-### Every other game
+# Origins
 
-Any other Super Nintendo or PlayStation game plays on one screen, with its title logo or name on the other. So do other regional releases of the games above, for now: each rules page lists the exact releases it knows.
+RetroDS started as a fork of [GBA DS](https://github.com/kyannon/gba-ds), to explore what could be done with other systems. Once the Super Nintendo was running, it was clear that other systems were within easy reach, and RetroDS became its own project.
 
-## Systems
+## Credits
+
+- **[GBA DS](https://github.com/kyannon/gba-ds)** by kyannon, the Android base RetroDS is built on: the game list, the menus and settings, the two-screen Android app.
+- **The emulators' developers:** [bsnes](https://github.com/bsnes-emu/bsnes) by Near (byuu) and its contributors, and its [libretro port](https://github.com/libretro/bsnes); [SwanStation](https://github.com/libretro/swanstation), libretro's fork of Stenzek's [DuckStation](https://github.com/stenzek/duckstation), and its contributors; [libretro](https://www.libretro.com), whose API lets RetroDS load them.
+- **The people who took these games apart,** whose work told RetroDS where to look: P.JBoy's Super Metroid bank logs ([sm_disassembly](https://github.com/insanefirebat/sm_disassembly)), spannerisms' A Link to the Past disassembly ([usdasm](https://github.com/spannerisms/usdasm)), snesrev's [zelda3](https://github.com/snesrev/zelda3), and the [sotn-decomp](https://github.com/Xeeynamo/sotn-decomp) project (Xeeynamo and contributors). Used as references for addresses and formats only: no code from them.
+- **[RetroAchievements](https://retroachievements.org)** and its rcheevos library.
+
+
+## Every other game
+
+Any other Super Nintendo or PlayStation game plays on one screen, with its title logo or name on the other. So do other regional releases of the games above. You can play other SNES or PSX games in BSNES or Swanstation here but it is single-screen only.
+
+# Systems
 
 | System | Emulator | Games | ROM folder | BIOS |
 |---|---|---|---|---|
@@ -105,7 +117,7 @@ Any other Super Nintendo or PlayStation game plays on one screen, with its title
 
 Also there: rewind (L2) and fast forward (R2) on the Super Nintendo, patches applied as the game loads (IPS, UPS, BPS, xdelta), cheats, RetroAchievements (casual mode), and ten languages.
 
-## How it works
+# How it works
 
 The emulators are [libretro](https://www.libretro.com) cores, loaded as libraries, with small patches that let RetroDS read the game's memory and video memory ([`scripts/cores/`](scripts/cores/)).
 
@@ -129,17 +141,6 @@ scripts/check-games.sh --alttp ZELDA.sfc --sm METROID.smc   # the second screens
 ```
 
 The Android APK is built by `scripts/build-android.sh` on GitHub Actions ([`.github/workflows/android.yml`](.github/workflows/android.yml)). The harness (`tools/retrods-harness.c`) drives the cores from a script: button presses, states, memory, pictures. [`CLAUDE.md`](CLAUDE.md) has the development notes.
-
-## Origins
-
-RetroDS started as a fork of [GBA DS](https://github.com/kyannon/gba-ds), to explore what could be done with other systems. Once the Super Nintendo was running, it was clear that other systems were within easy reach, and RetroDS became its own project.
-
-## Credits
-
-- **[GBA DS](https://github.com/kyannon/gba-ds)** by kyannon, the Android base RetroDS is built on: the game list, the menus and settings, the two-screen Android app.
-- **The emulators' developers:** [bsnes](https://github.com/bsnes-emu/bsnes) by Near (byuu) and its contributors, and its [libretro port](https://github.com/libretro/bsnes); [SwanStation](https://github.com/libretro/swanstation), libretro's fork of Stenzek's [DuckStation](https://github.com/stenzek/duckstation), and its contributors; [libretro](https://www.libretro.com), whose API lets RetroDS load them.
-- **The people who took these games apart,** whose work told RetroDS where to look: P.JBoy's Super Metroid bank logs ([sm_disassembly](https://github.com/insanefirebat/sm_disassembly)), spannerisms' A Link to the Past disassembly ([usdasm](https://github.com/spannerisms/usdasm)), snesrev's [zelda3](https://github.com/snesrev/zelda3), and the [sotn-decomp](https://github.com/Xeeynamo/sotn-decomp) project (Xeeynamo and contributors). Used as references for addresses and formats only: no code from them.
-- **[RetroAchievements](https://retroachievements.org)** and its rcheevos library.
 
 ## Not affiliated
 
