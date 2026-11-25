@@ -105,9 +105,62 @@ void tf_fallback_for_script(int script) {
 		tf_fallback_add(TF_BODY, embeddedFonts[order[i]].ttf);
 }
 
+/* The PlayStation's button symbols (cross, circle, triangle, square: U+2715,
+ * U+25CB, U+25B3, U+25A1), which none of the fonts has: drawn here as
+ * outlines the cap height tall, a stroke about as thick as Barlow Bold's,
+ * so a label like "PSX \u25CB" reads as text. */
+static bool is_symbol(int cp) {
+	return cp == 0x2715 || cp == 0x25CB || cp == 0x25B3 || cp == 0x25A1;
+}
+static float symbol_advance(int capPx) {
+	return capPx * 1.3f;
+}
+/* inside the symbol at (x, y), in cap heights from its box's top left (the box 1 x 1) */
+static bool symbol_in(int cp, float x, float y) {
+	const float t = 0.17f; /* the stroke */
+	float dx = x - 0.5f, dy = y - 0.5f;
+	if (cp == 0x25CB) {
+		float d = sqrtf(dx * dx + dy * dy);
+		return d <= 0.5f && d >= 0.5f - t;
+	}
+	if (cp == 0x25A1) {
+		float m = fmaxf(fabsf(dx), fabsf(dy));
+		return m <= 0.45f && m >= 0.45f - t;
+	}
+	if (cp == 0x2715) {
+		if (fabsf(dx) > 0.45f || fabsf(dy) > 0.45f) return false;
+		return fabsf(dx - dy) <= t * 0.75f || fabsf(dx + dy) <= t * 0.75f;
+	}
+	/* the triangle, pointing up: inside all three edges, within the stroke of one */
+	const float top = 0.02f, bot = 0.92f, half = 0.54f;
+	float k = (bot - top) / half, n = sqrtf(1 + k * k); /* the sides' slope */
+	float inL = (k * (x - (0.5f - half)) - (bot - y)) / n; /* how far inside the left side */
+	float inR = (k * ((0.5f + half) - x) - (bot - y)) / n;
+	float inB = bot - y;
+	if (inL < 0 || inR < 0 || inB < 0) return false;
+	return inL < t || inR < t || inB < t;
+}
+static void symbol_draw(uint8_t* a, int w, int h, int ox, int base, int capPx, int cp) {
+	int x0 = ox + (int) (capPx * 0.15f), y0 = base - capPx;
+	for (int yy = 0; yy < capPx; ++yy) {
+		int ty = y0 + yy;
+		if (ty < 0 || ty >= h) continue;
+		for (int xx = 0; xx < capPx; ++xx) {
+			int tx = x0 + xx;
+			if (tx < 0 || tx >= w) continue;
+			int n = 0;
+			for (int sy = 0; sy < 4; ++sy)
+				for (int sx = 0; sx < 4; ++sx) n += symbol_in(cp, (xx + (sx + 0.5f) / 4) / capPx, (yy + (sy + 0.5f) / 4) / capPx);
+			int v = a[ty * w + tx] + n * 255 / 16;
+			a[ty * w + tx] = (uint8_t) (v > 255 ? 255 : v);
+		}
+	}
+}
+
 bool tf_has_codepoint(int font, unsigned cp) {
 	pthread_once(&once, init);
 	if (font < 0 || font >= TF_COUNT || !ready[font]) return false;
+	if (is_symbol((int) cp)) return true;
 	int g;
 	pick(font, (int) cp, &g);
 	return g != 0;
@@ -137,6 +190,10 @@ int tf_width(int font, int capPx, const char* text) {
 	int prev = 0, prevFace = -1;
 	for (const char* p = text; *p;) {
 		int cp = next_cp(&p), g;
+		if (is_symbol(cp)) {
+			x += symbol_advance(capPx), prev = 0, prevFace = -1;
+			continue;
+		}
 		int k = pick(font, cp, &g);
 		const Face* f = &chain[font][k];
 		float sc = scale_for(f, capPx);
@@ -181,6 +238,11 @@ bool tf_render(int font, int capPx, const char* text, TfBitmap* out) {
 	int prev = 0, prevFace = -1;
 	for (const char* p = text; *p;) {
 		int cp = next_cp(&p), g;
+		if (is_symbol(cp)) {
+			symbol_draw(a, w, h, (int) floorf(x), base, capPx, cp);
+			x += symbol_advance(capPx), prev = 0, prevFace = -1;
+			continue;
+		}
 		int k = pick(font, cp, &g);
 		const Face* f = &chain[font][k];
 		const stbtt_fontinfo* fi = &f->fi;

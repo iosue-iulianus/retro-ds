@@ -116,6 +116,7 @@ void android_data_setup(void) {
 void android_config_defaults(Config* c) {
 	/* shared storage ignores case: this is also a folder called SNES */
 	snprintf(c->romDir, sizeof(c->romDir), "/storage/emulated/0/ROMs/snes");
+	snprintf(c->psxDir, sizeof(c->psxDir), "/storage/emulated/0/ROMs/psx");
 	/* RETRODS_HOME is "RetroDS" on the internal storage (or, without All files
 	 * access, the app's folder), laid out like the ROCKNIX install folder:
 	 * states/ (the default state_dir), logos/ and overlays/ (asset_dir),
@@ -130,18 +131,15 @@ void android_config_defaults(Config* c) {
 			const char* text;
 		} folders[] = {
 			{ "cheats", "Put RetroArch cheat files (.cht) here, subfolders are fine.\n"
-			            "A file goes with the ROM of the same name: Metroid Fusion (World) (Code Breaker).cht\n"
-			            "with Metroid Fusion (USA).gba. Switch cheats on in the pause menu: Extras > Cheats.\n"
-			            "More in the wiki: https://github.com/iosue-iulianus/retro-ds/wiki/Playing#cheats\n" },
+			            "A file goes with the game of the same name: Super Metroid (USA) (Game Genie).cht\n"
+			            "with Super Metroid (USA).sfc. Switch cheats on in RetroDS's menu: Game > Cheats.\n" },
 			{ "overlays", "Your own overlay PNGs go in this folder. Make each one the screen's size, transparent where\n"
 			              "the picture shows.\n\n"
 			              "top.png is drawn on the top screen and bottom.png on the bottom screen, for every game.\n"
 			              "<CODE>-top.png and <CODE>-bottom.png are for one game.\n"
-			              "To use them, set Display > Overlays in the pause menu to Custom (in /overlays). Which Screen\n"
-			              "there picks the screens: Both, Top Only or Bottom Only. Swapping screens doesn't move them.\n"
-			              "A screen with no file of its own gets RetroDS's generated bezel in its default colors.\n\n"
-			              "Names for one scaling or screen shape, and more, in the wiki:\n"
-			              "https://github.com/iosue-iulianus/retro-ds/wiki/Overlays\n" },
+			              "To use them, in RetroDS's menu under Look, set Overlays to the screens you want and\n"
+			              "Overlay Style to Custom (in /overlays). Swapping screens doesn't move them.\n"
+			              "A screen with no file of its own gets RetroDS's generated bezel in its default colors.\n" },
 			{ "logos", "Optional: your own logo images (<CODE>.png or .bmp) override the ones extracted from the games.\n" },
 			{ "screenshots", NULL },
 		};
@@ -151,8 +149,17 @@ void android_config_defaults(Config* c) {
 			mkdirs(path);
 			if (!folders[i].text) continue;
 			snprintf(path, sizeof(path), "%s/%s/README.txt", home, folders[i].dir);
-			FILE* f = fopen(path, "wx"); /* only if it isn't there yet */
+			/* written when it isn't there yet, or is an older RetroDS's (it's
+			 * RetroDS's own note, not the player's) */
+			char was[2048];
+			size_t n = 0;
+			FILE* f = fopen(path, "rb");
 			if (f) {
+				n = fread(was, 1, sizeof(was) - 1, f);
+				fclose(f);
+			}
+			was[n] = 0;
+			if (strcmp(was, folders[i].text) && (f = fopen(path, "wb"))) {
 				fputs(folders[i].text, f);
 				fclose(f);
 			}

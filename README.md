@@ -19,6 +19,15 @@ You play with the buttons. The second screen is for looking: drag and zoom the m
 
 Built for and tested on the **Retroid Pocket Duo**; other dual-screen Android handhelds should work but haven't been tried.
 
+# Why RetroDS
+
+There are other ways to give these games a second screen. RetroDS takes a different one:
+
+- **Your game, unchanged.** RetroDS runs your own cartridge or disc in an accurate emulator (bsnes, SwanStation). It isn't a port or a ROM hack: the game is the one you know, its saves are ordinary saves, and save states and cheats work as they do for any game (RetroAchievements too, on the Super Nintendo). Ports and hacks that add a second screen rebuild or change the game itself.
+- **Drawn live, not captured.** GBA DS, which RetroDS grew from, fills most of its second screens by running a hidden second copy of the game and taking pictures of its screens. RetroDS reads the running game and draws the second screen itself after every frame: the map scrolls under your finger at the screen's refresh rate, with no wait for a picture and no second copy running down the battery.
+- **The game's own look.** Every second screen is made from the game's own graphics (its map, its items screen, its menu), rearranged for touch at most. Nothing the game didn't already have.
+- **One app for your library.** Super Nintendo and PlayStation games in one game list (with more to come!). The games RetroDS knows get their second screen.
+
 # Games with a second screen
 
 Each supported game gets a second screen of its own, worked out from how that game stores its data. What each one shows, and every place it changes the game, is written down in its rules page in [`docs/games/`](docs/games/).
@@ -31,7 +40,7 @@ Each supported game gets a second screen of its own, worked out from how that ga
   <img src="docs/media/alttp-dungeon-map.webp" width="30%" alt="A Link to the Past: a dungeon's map on the top screen">
 </p>
 
-- The world map, built from the ground the game has actually shown you, with the world map's own clouds over what you haven't seen, Link walking on it, and the game's markers for where to go next. Pinch or tap to zoom.
+- The world map, built from the ground the game has actually shown you, with the world map's own clouds over what you haven't seen,and the game's markers for where to go next. Pinch or tap to zoom.
 - The items screen slides up over the map (X): tap an item to give it to Y.
 - Drop your own markers on the map to remember a secret for later.
 - In dungeons, the dungeon's own map, floor by floor.
@@ -63,7 +72,7 @@ Each supported game gets a second screen of its own, worked out from how that ga
 
 Press Start, or swipe across the second screen, and the game pauses and its own menu moves to the second screen. It is widened to fill modern devices' screens. The game screen shows the game's logo. Play the menu with the pad as usual; Start, triangle or a swipe back returns to the map.
 
-L2 and R2 as rewind and fast forward are disabled in Symphony of the Night.
+L2 and R2 as rewind and fast forward are disabled in Symphony of the Night, due to the game itself using those buttons.
 
 [Rules](docs/games/symphony-of-the-night.md) · USA release (SLUS-00067)
 
@@ -92,8 +101,8 @@ Any other Super Nintendo or PlayStation game plays on one screen, with its title
 
 ## Getting started (Android)
 
-1. Install the APK. There are no releases yet: each change is built by GitHub Actions, and the APK is the **Android** workflow run's artifact. Allow RetroDS **All files access** when it asks, so your saves and states live in shared storage.
-2. Put your own games, and for the PlayStation your own BIOS, here:
+1. Download `retrods-vX.Y.Z-android.apk` from the [latest release](../../releases/latest) and open it on the handheld (Android asks once to allow installing apps from your browser or file manager). Allow RetroDS **All files access** when it asks, so your saves and states live in shared storage.
+2. Put your own games, and for the PlayStation your own BIOS, here (other folders can be chosen in Settings > System > Folders):
 
 ```text
 /storage/emulated/0/
@@ -109,13 +118,14 @@ Any other Super Nintendo or PlayStation game plays on one screen, with its title
 ```
 
 3. Open RetroDS, pick a game. Tap the game screen or press HOME for RetroDS's menu: save and load states (with Undo), screens and scaling (4:3 or Pixel Perfect), shaders, controls, and the rest.
+4. Updates: once a day, when the game list opens, RetroDS checks this page for a new release and offers to install it (Settings > System > Updates to check now or switch it off). Your games, saves and states stay where they are.
 
 <p align="center">
   <img src="docs/media/game-list.webp" width="45%" alt="RetroDS's game list: the last game's picture on the top screen, the games' logos on the bottom">
   <img src="docs/media/pause-menu.webp" width="45%" alt="RetroDS's menu on the game screen: Resume, Restart Game, Save State, Load State, Undo, Close RetroDS; the game paused on the other screen">
 </p>
 
-Also there: rewind (L2) and fast forward (R2) on the Super Nintendo, patches applied as the game loads (IPS, UPS, BPS, xdelta), cheats, RetroAchievements (casual mode), and ten languages.
+Also there: cheats; and on the Super Nintendo, rewind (L2), fast forward (R2), patches applied as the game loads (IPS, UPS, BPS, xdelta) and RetroAchievements (casual mode); ten languages.
 
 # How it works
 

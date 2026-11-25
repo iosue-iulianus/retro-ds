@@ -210,7 +210,7 @@ static void save(Config* cfg, const View_* v) {
 	for (int i = 0; i < HK_COUNT; ++i) fprintf(stderr, " %s %s%s", hotkeyNames[i], cfg->hotkeyBtn[i], i + 1 < HK_COUNT ? "," : "\n");
 }
 
-void hotkeys_run(Config* cfg) {
+void hotkeys_run(Config* cfg, void (*other)(int scr)) {
 	View_ v = { 0 };
 	hotkeys_resolve(cfg, &v.mod, v.btn, false);
 	int startMod = v.mod, startBtn[HK_COUNT];
@@ -300,7 +300,11 @@ void hotkeys_run(Config* cfg) {
 		}
 
 		ui_clear();
-		for (int s = 0; s < nScreens; ++s) draw(s, &v);
+		/* on the game list's screen; the other one keeps what it shows */
+		for (int s = 0; s < nScreens; ++s) {
+			if (nScreens == 1 || s == ui_touch_screen()) draw(s, &v);
+			else if (other) other(s);
+		}
 		ui_present();
 		SDL_Delay(15);
 	}

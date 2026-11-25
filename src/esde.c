@@ -446,7 +446,10 @@ bool esde_integration_set(bool on, char* msg, size_t msgSize) {
 
 void esde_integration_refresh(void) {
 	if (!esde_integration_on()) return;
-	const char* dir = esde_dir();
-	edit(dir, "es_find_rules.xml", rules_add, false);
-	edit(dir, "es_systems.xml", sys_add, saf_mode(dir));
+	/* For now RetroDS knows only ES-DE's gba system, which isn't its own:
+	 * what an earlier version put in ES-DE is taken out, and the setting
+	 * isn't offered (library.c) until snes and psx are done. */
+	char msg[256];
+	esde_integration_set(false, msg, sizeof(msg));
+	fprintf(stderr, "esde: RetroDS taken out of ES-DE's gba system\n");
 }

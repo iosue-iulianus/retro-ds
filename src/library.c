@@ -234,12 +234,12 @@ static bool dir_seen(const char* d, const struct stat* st) {
 
 /* What the last full scan listed with (anything else: scan again) */
 static bool scanned;
-static char scannedRomDir[sizeof(((Config*) 0)->romDir)];
+static char scannedRomDir[sizeof(((Config*) 0)->romDir)], scannedPsxDir[sizeof(((Config*) 0)->psxDir)];
 static bool scannedShowAll, scannedNameTags;
 
 /* Has anything the list was made from changed since the last scan? */
 static bool library_changed(const Config* cfg) {
-	if (!scanned || seenOverflow || strcmp(scannedRomDir, cfg->romDir) || scannedShowAll != cfg->showAll ||
+	if (!scanned || seenOverflow || strcmp(scannedRomDir, cfg->romDir) || strcmp(scannedPsxDir, cfg->psxDir) || scannedShowAll != cfg->showAll ||
 	    scannedNameTags != cfg->nameTags)
 		return true;
 	for (int i = 0; i < nSeenDirs; ++i) {
@@ -620,8 +620,9 @@ static void scan(Config* cfg) {
 	crcCfg = cfg;
 	for (char* d = strtok_r(dirs, ":", &save); d; d = strtok_r(NULL, ":", &save)) {
 		scan_dir(cfg, d, 0);
-		scan_siblings(cfg, d);
+		if (!cfg->psxDir[0]) scan_siblings(cfg, d); /* (no PlayStation folder chosen: the one beside) */
 	}
+	if (cfg->psxDir[0]) scan_dir(cfg, cfg->psxDir, 0);
 	code_cache_save(cfg);
 	qsort(games, nGames, sizeof(*games), cmp_games);
 	/* (no region flags yet: SNES game codes are checksums, with no region
@@ -630,6 +631,7 @@ static void scan(Config* cfg) {
 	for (int i = 0; i < nGames; ++i) ui_logo_queue(cfg, games[i].path, games[i].code);
 	scanned = true;
 	snprintf(scannedRomDir, sizeof(scannedRomDir), "%s", cfg->romDir);
+	snprintf(scannedPsxDir, sizeof(scannedPsxDir), "%s", cfg->psxDir);
 	scannedShowAll = cfg->showAll;
 	scannedNameTags = cfg->nameTags;
 	fprintf(stderr, "library: %d game(s), %d file(s) in %d folder(s), %llu ms\n", nGames, scanFiles, nSeenDirs,
@@ -650,8 +652,21 @@ static SDL_Texture* brandTex[BRAND_COUNT][2];
 static int brandW[BRAND_COUNT], brandH[BRAND_COUNT];
 
 static void load_brand(void) {
+	/* A and B: their letters in the menus' colour, on a white disc (on a
+	 * light grey one in the light theme): made again when either changes */
+	static SDL_Color inkFor;
+	static int lightFor = -1;
+	SDL_Color ink = ui_accent_color(AC_SEL_MID);
+	if (lightFor != (int) ui_theme_light() || memcmp(&ink, &inkFor, sizeof(ink))) {
+		ui_free_image(brandTex[BRAND_BTN_A]);
+		ui_free_image(brandTex[BRAND_BTN_B]);
+		lightFor = ui_theme_light(), inkFor = ink;
+	}
+	SDL_Color disc = ui_theme_light() ? ui_key_mid(KEY_PLAIN) : (SDL_Color) { 255, 255, 255, 255 };
 	for (int i = 0; i < BRAND_COUNT; ++i) {
-		if (!brandTex[i][0] && !brandTex[i][1]) ui_load_brand(i, brandTex[i], &brandW[i], &brandH[i]);
+		if (brandTex[i][0] || brandTex[i][1]) continue;
+		if (i == BRAND_BTN_A || i == BRAND_BTN_B) ui_load_brand_inked(i, disc, ink, brandTex[i], &brandW[i], &brandH[i]);
+		else ui_load_brand(i, brandTex[i], &brandW[i], &brandH[i]);
 	}
 }
 
@@ -723,28 +738,40 @@ static bool continue_label(const GamePaths* gp, char* out, size_t size) {
 /* The game list's other screen: our logo top left, the game's own logo top
  * right, the picture of where the game carries on from large in the middle
  * with when it was taken under it, the buttons along the bottom. */
+static Config* previewCfg;
+static int previewSel = -1;
 static void draw_preview(Config* cfg, int scr, int sel) {
+	previewCfg = cfg, previewSel = sel;
 	SDL_Rect r = screens[scr].rect;
 	float px = ui_px(scr);
-	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, r.h }, (SDL_Color) { 0, 0, 0, 255 }); /* black, like the logos */
+	/* black, or white in the light theme, as the list's screen */
+	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, r.h }, C_BG);
 	load_brand();
+	SDL_Color text = ui_theme_light() ? ui_key_ink() : C_TEXT;
 
 	int m = px * 6;
 	int headH = px * 18;
-	int ourW = draw_brand(scr, BRAND_LOGO, m, m, headH);
+	int gameH = headH * 3 / 2;
+	/* strips in the game list header's colour: one behind the logos, one
+	 * behind the button hints */
+	int topStrip = m * 2 + gameH;
+	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, topStrip }, C_HEADER);
+	int ourH = gameH * 4 / 5; /* (a little under the game's logo, centred on the strip) */
+	int ourW = draw_brand(scr, ui_theme_light() ? BRAND_LOGO_LIGHT : BRAND_LOGO, m, m + (gameH - ourH) / 2, ourH);
 
 	/* button hints along the bottom */
 	int ty = r.h - px * 11, d = px * 10, bx = m;
 	int gy = ty + px * 7 / 2 - d / 2;
 	int cap = px * 5, cy = gy + d / 2, wordW = px * 18;
+	ui_fill(scr, (SDL_Rect) { 0, cy - (r.h - cy), r.w, (r.h - cy) * 2 }, C_HEADER);
 	bx += draw_brand(scr, BRAND_BTN_A, bx, gy, d) + px * 2;
 	{ /* (a word wider than its slot, as in German, makes the slot wider) */
 		int ww = SDL_max(wordW, ui_label_width(scr, cap, "Play"));
-		ui_label(scr, bx + ww / 2, cy, cap, "Play", C_TEXT);
+		ui_label(scr, bx + ww / 2, cy, cap, "Play", text);
 		bx += ww + px * 8;
 	}
 	bx += draw_brand(scr, BRAND_BTN_B, bx, gy, d) + px * 2;
-	ui_label(scr, bx + SDL_max(wordW, ui_label_width(scr, cap, "Quit")) / 2, cy, cap, "Quit", C_TEXT);
+	ui_label(scr, bx + SDL_max(wordW, ui_label_width(scr, cap, "Quit")) / 2, cy, cap, "Quit", text);
 
 	{
 		int vpx = SDL_max(1, px / 2);
@@ -752,12 +779,11 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 		ui_text(scr, r.w - m - ui_text_width(v, vpx), cy - vpx * 7 / 2, vpx, v, C_DIM);
 	}
 	if (nGames == 0 || sel < 0) {
-		ui_label(scr, r.w / 2, r.h / 2, px * 6, "No games found", C_TEXT);
+		ui_label(scr, r.w / 2, r.h / 2, px * 6, "No games found", text);
 		return;
 	}
 	GameEntry* g = &games[sel];
 	load_thumbs(cfg, sel);
-	int gameH = headH * 3 / 2;
 	if (logoTex[0] || logoTex[1]) {
 		int maxW = r.w - ourW - m * 3;
 		int w = logoW * gameH / logoH, h = gameH;
@@ -768,7 +794,7 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 		/* no logo for it yet (or none extracted for this game): its name in its place */
 		const MapProfile* prof = profile_find(g->code);
 		int maxW = r.w - ourW - m * 3;
-		if (prof && prof->title) ui_title_block(scr, (SDL_Rect) { r.w - m - maxW, m, maxW, gameH }, prof->title, px * 8, C_TEXT);
+		if (prof && prof->title) ui_title_block(scr, (SDL_Rect) { r.w - m - maxW, m, maxW, gameH }, prof->title, px * 8, text);
 	}
 	/* (a game with no profile has no logo either: the note goes where a
 	 * game's logo would, at the top right, beside ours) */
@@ -798,13 +824,13 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 			default: break;
 			}
 		}
-		if (line[0]) ui_font_text(scr, TF_BODY, r.w - m, m + gameH + px * 3, px * 4, line, C_DIM, 1);
+		if (line[0]) ui_font_text(scr, TF_BODY, r.w - m, topStrip + px * 4, px * 4, line, C_DIM, 1);
 	}
 
 	/* the picture of where the game carries on from (the game screen only),
 	 * as large as fits between the logos and the hints, its date under it */
 	int capH = px * 5;
-	int top = m + gameH + px * 7, bottom = gy - px * 6 - capH - px * 4;
+	int top = topStrip + px * 9, bottom = cy - (r.h - cy) - px * 4 - capH - px * 4;
 	if (thumbTex[0] || thumbTex[1]) {
 		int aw = r.w - m * 2, ah = bottom - top;
 		int w = aw, h = aw * SNES_H / SNES_W;
@@ -819,7 +845,7 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 		game_paths(cfg, g->path, &gp);
 		if (continue_label(&gp, when, sizeof(when))) ui_font_text(scr, TF_BODY, r.w / 2, a.y + a.h + px * 6, capH, when, C_DIM, 0);
 	} else {
-		ui_label(scr, r.w / 2, (top + bottom) / 2, px * 7, "no save state yet!", C_TEXT);
+		ui_label(scr, r.w / 2, (top + bottom) / 2, px * 7, "no save state yet!", text);
 	}
 }
 
@@ -878,6 +904,8 @@ static void free_tiles(void) {
 	}
 }
 
+/* The header: the theme and the list / grid buttons at the left, Supported
+ * Games and Settings at the right. */
 static SDL_Rect settings_button(int scr) {
 	SDL_Rect r = screens[scr].rect;
 	float px = ui_px(scr);
@@ -921,18 +949,18 @@ static SDL_Rect games_button(int scr) {
 	return (SDL_Rect) { sb.x - px * 3 - w, sb.y, w, sb.h };
 }
 
-/* square button left of that: switches between list and grid */
-static SDL_Rect view_button(int scr) {
-	SDL_Rect gb = games_button(scr);
+/* square button at the left: the dark or light theme */
+static SDL_Rect theme_button(int scr) {
 	float px = ui_px(scr);
-	return (SDL_Rect) { gb.x - px * 3 - gb.h, gb.y, gb.h, gb.h };
+	int h = px * HEADER_BTN;
+	return (SDL_Rect) { px * 4, (px * HEADER_H - h) / 2, h, h };
 }
 
-/* square button left of the list / grid one: the dark or light theme */
-static SDL_Rect theme_button(int scr) {
-	SDL_Rect vb = view_button(scr);
+/* square button right of that: switches between list and grid */
+static SDL_Rect view_button(int scr) {
+	SDL_Rect tb = theme_button(scr);
 	float px = ui_px(scr);
-	return (SDL_Rect) { vb.x - px * 3 - vb.w, vb.y, vb.w, vb.h };
+	return (SDL_Rect) { tb.x + tb.w + px * 3, tb.y, tb.w, tb.h };
 }
 
 /* a moon (the dark theme is on) or a sun (the light one) */
@@ -965,8 +993,9 @@ static void draw_games_button(const Config* cfg, int scr) {
 	label_fit(scr, b.x + b.w / 2, b.y + b.h / 2, px * 5, b.w - px * 2, b.h, tr("Supported Games"));
 }
 
-/* Four squares (in the list: switch to the grid) or three lines (in the
- * grid: switch to the list). */
+/* Four squares (in the list: switch to the grid) or a list, a dot and a
+ * line on each of three rows (in the grid: switch to the list; three lines
+ * alone would be a menu's). */
 static void draw_view_button(int scr) {
 	SDL_Rect b = view_button(scr);
 	float px = ui_px(scr);
@@ -982,10 +1011,12 @@ static void draw_view_button(int scr) {
 			}
 		}
 	} else {
-		int lw = b.h * 28 / 56, lh = SDL_max(2, b.h * 5 / 56), gap = b.h * 7 / 56;
+		int dot = SDL_max(3, b.h * 7 / 56), lw = b.h * 19 / 56, lh = SDL_max(2, b.h * 5 / 56), gap = b.h * 6 / 56;
+		int x0 = cx - (dot + gap + lw) / 2;
 		for (int j = -1; j <= 1; ++j) {
-			SDL_Rect l = { cx - lw / 2, cy + j * (lh + gap) - lh / 2, lw, lh };
-			ui_fill_round(scr, l, ink, lh / 2);
+			int y = cy + j * (dot + gap);
+			ui_fill_round(scr, (SDL_Rect) { x0, y - dot / 2, dot, dot }, ink, dot / 2);
+			ui_fill_round(scr, (SDL_Rect) { x0 + dot + gap, y - lh / 2, lw, lh }, ink, lh / 2);
 		}
 	}
 }
@@ -1003,7 +1034,7 @@ static void save_library_cfg(const Config* cfg) {
 	/* (Settings > RetroArch's Folder: one chosen by hand, or empty: found from RetroArch's settings) */
 	fprintf(f, "retroarch_state_dir = %s\n", cfg->raStateDir);
 #ifdef __ANDROID__
-	fprintf(f, "rom_dir = %s\n", cfg->romDir);
+	fprintf(f, "rom_dir = %s\nrom_dir_psx = %s\n", cfg->romDir, cfg->psxDir);
 	/* (Settings > Folders; empty: next to the games) */
 	fprintf(f, "save_dir = %s\nsave_ext = %s\n", cfg->saveDir, cfg->saveExt[0] ? cfg->saveExt : "sav");
 #endif
@@ -1057,6 +1088,10 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 		char dir[300];
 		fit_text(dir, sizeof(dir), TF_BODY, px * 5, cfg->romDir, r.w - px * 16);
 		ui_font_text(scr, TF_BODY, r.w / 2, r.h / 2, px * 5, dir, C_GOLD, 0);
+		if (cfg->psxDir[0]) {
+			fit_text(dir, sizeof(dir), TF_BODY, px * 5, cfg->psxDir, r.w - px * 16);
+			ui_font_text(scr, TF_BODY, r.w / 2, r.h / 2 + px * 12, px * 5, dir, C_GOLD, 0);
+		}
 	}
 	int done, total;
 	logo_progress(&done, &total);
@@ -1130,10 +1165,10 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 	SDL_Rect sb = settings_button(scr);
 	if (storageMsg[0]) {
 		char line[300];
-		fit_text(line, sizeof(line), TF_BOLD, px * 4, storageMsg, theme_button(scr).x - px * 8);
-		ui_font_text(scr, TF_BOLD, theme_button(scr).x / 2, g.headerH / 2, px * 4, line, C_GOLD, 0);
-	} else {
-		label_fit(scr, theme_button(scr).x / 2, g.headerH / 2, px * 5, theme_button(scr).x - px * 8, g.headerH, tr("Touch or use the D-Pad"));
+		SDL_Rect vb = view_button(scr);
+		int l = vb.x + vb.w + px * 4, rr = games_button(scr).x - px * 4; /* (between the list / grid button and Supported Games) */
+		fit_text(line, sizeof(line), TF_BOLD, px * 4, storageMsg, rr - l);
+		ui_font_text(scr, TF_BOLD, (l + rr) / 2, g.headerH / 2, px * 4, line, C_GOLD, 0);
 	}
 	draw_theme_button(scr);
 	draw_view_button(scr);
@@ -1187,8 +1222,8 @@ static void settings_rows(const Config* cfg) {
 	nRows = 0;
 	rowKind[nRows++] = ROW_LANGUAGE;
 	rowKind[nRows++] = ROW_UPDATES;
-	/* ES-DE's folder found: RetroDS in its emulator list (esde.c) */
-	if (esde_present()) rowKind[nRows++] = ROW_ESDE;
+	/* RetroDS in ES-DE's emulator list (esde.c): not offered until it adds
+	 * itself to ES-DE's snes and psx systems (it still knows only gba) */
 	for (size_t i = 0; i < sizeof(android) / sizeof(android[0]); ++i) {
 		rowKind[nRows++] = android[i];
 		/* one display (a phone, a Surface Duo): hold the window portrait or landscape (issue #60) */
@@ -1282,8 +1317,8 @@ static int draw_wrapped(int scr, int x, int y, int width, float px, const char* 
  * screen, its title logo on the other. */
 static const struct { const char* title; const char* what; } supportedGames[] = {
 	{ "Super Metroid", N_("The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it.") },
-	{ "The Legend of Zelda: A Link to the Past", N_("The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps.") },
-	{ "Castlevania: Symphony of the Night", N_("The castle map as far as you've explored it, where Alucard is, and the rooms and percentage explored.") },
+	{ "The Legend of Zelda: A Link to the Past", N_("The items screen (tap to choose), the world map as far as you've explored it, your own markers on it, and the dungeon maps.") },
+	{ "Castlevania: Symphony of the Night", N_("The castle map as far as you've explored it, where Alucard is, and the rooms and percentage explored. Start moves the game's own menu to the second screen.") },
 };
 static void draw_supported(int scr) {
 	float px = ui_px(scr);
@@ -1296,7 +1331,6 @@ static void draw_supported(int scr) {
 		ui_font_text(scr, TF_BOLD, x, y + px * 3, fit_cap(TF_BOLD, px * 6, w, supportedGames[i].title), supportedGames[i].title, C_TEXT, -1);
 		y = draw_wrapped(scr, x, y + px * 9, w, px, tr(supportedGames[i].what), C_DIM) + px * 8;
 	}
-	draw_wrapped(scr, x, y, w, px, tr("Other Super Nintendo games play on one screen, with their title logo on the other."), C_DIM);
 	SDL_Rect b = { p.x + px * 6, p.y + p.h - px * 6 - px * HEADER_BTN, p.w - px * 12, px * HEADER_BTN };
 	ui_key(scr, b, px * 3, KEY_SEL);
 	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, px * 5, "Back", C_TEXT);
@@ -1371,10 +1405,10 @@ typedef struct {
 	const char* keys[20];
 } SetPage;
 static const SetPage setPages[SP_SYSTEM] = {
-	{ N_("Games"), N_("Names, saving, logos"), { "name_tags", "save_on_quit", "auto_load", "custom_logos", "quick_bar_hint" } },
+	{ N_("Games"), N_("Names, saving, logos"), { "name_tags", "save_on_quit", "auto_load", "quick_bar_hint" } },
 	{ "Screens", N_("Which screen, scale, gap"), { "swap", "scale", "map_scale", "screen_gap_mm", "match_display" } },
-	{ N_("Look"), N_("Shader, overlays, theme, color"), { "shader", "lcd_strength", "color_correction", "lcd_ghosting", "smooth", "overlays", "overlay_style", "bezel_logo", "theme", "accent" } },
-	{ "Controls", N_("Stick, buttons, hotkeys"), { "left_stick_dpad", "ab_swap", "button_right", "button_bottom", "button_top", "button_left", "button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right", "turbo_rate", "@map", "@hotkeys" } },
+	{ N_("Look"), N_("Shader, overlays, theme, color"), { "shader", "lcd_strength", "overlays", "overlay_style", "bezel_logo", "theme", "accent" } },
+	{ "Controls", N_("Stick, buttons, hotkeys"), { "left_stick_dpad", "button_right", "button_bottom", "button_top", "button_left", "button_l", "button_r", "button_l2", "button_r2", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right", "turbo_rate", "@map", "@hotkeys" } },
 	{ N_("Speed and sound"), N_("Rewind, fast forward"), { "show_fps", "frame_buffer", "rewind", "rewind_seconds", "fast_forward", "audio_latency", "performance" } },
 };
 static int setPage = SP_HOME; /* SP_HOME, a category, or SP_SYSTEM (the older panel) */
@@ -1405,9 +1439,14 @@ static int page_settings(int page, const Setting** out, const char** ids) {
 	return n;
 }
 
+/* the game list's other screen as it was, under a screen of its own */
+static void preview_again(int scr) {
+	if (previewCfg) draw_preview(previewCfg, scr, previewSel);
+}
+
 static void page_action(Config* cfg, const char* id) {
 	if (!strcmp(id, "@map")) mapper_run(cfg);
-	else if (!strcmp(id, "@hotkeys")) hotkeys_run(cfg);
+	else if (!strcmp(id, "@hotkeys")) hotkeys_run(cfg, preview_again);
 }
 
 /* the panel, as the older Settings has it */
@@ -1725,8 +1764,8 @@ static bool settings_pages_input(Config* cfg, int ls) {
  * the RetroAchievements account, signed in with a dialog (android.c,
  * RetroDsActivity) and kept as a token by ra.c. */
 static bool pickPending, raDialogPending;
-static int pickFor; /* PICK_ROMS, PICK_SAVES or PICK_DATA: what the picker's folder is for */
-enum { PICK_ROMS, PICK_SAVES, PICK_DATA };
+static int pickFor; /* PICK_ROMS, PICK_PSX, PICK_SAVES or PICK_DATA: what the picker's folder is for */
+enum { PICK_ROMS, PICK_PSX, PICK_SAVES, PICK_DATA };
 static int settingsMsgRow; /* the row settingsMsg is about: shown in place of its text */
 static bool foldersOpen;
 static int foldersSel;
@@ -1742,9 +1781,12 @@ static void folders_text(const Config* cfg, char* line, size_t n) {
 	for (char* p = dirs; *p; ++p) {
 		if (*p == ':') *p = ' ';
 	}
+	const char* psx = cfg->psxDir[0] ? cfg->psxDir : tr("a psx folder beside it");
 	const char* type = srm_saves(cfg) ? ".srm" : ".sav";
-	if (cfg->saveDir[0]) snprintf(line, n, tr("Games are read from %s (subfolders too). Saves (%s) are kept in %s."), dirs, type, cfg->saveDir);
-	else snprintf(line, n, tr("Games are read from %s (subfolders too). Saves (%s) are kept next to the games."), dirs, type);
+	char games[2400];
+	snprintf(games, sizeof(games), tr("Super Nintendo games are read from %s, PlayStation games from %s (subfolders too)."), dirs, psx);
+	if (cfg->saveDir[0]) snprintf(line, n, tr("%s Saves (%s) are kept in %s."), games, type, cfg->saveDir);
+	else snprintf(line, n, tr("%s Saves (%s) are kept next to the games."), games, type);
 }
 
 static void draw_settings(const Config* cfg, int scr, int sel) {
@@ -1956,25 +1998,26 @@ static bool settings_poll(Config* cfg) {
 		fprintf(stderr, "library: saves in %s\n", path);
 		return false;
 	}
-	snprintf(cfg->romDir, sizeof(cfg->romDir), "%s", path);
+	if (pickFor == PICK_PSX) snprintf(cfg->psxDir, sizeof(cfg->psxDir), "%s", path);
+	else snprintf(cfg->romDir, sizeof(cfg->romDir), "%s", path);
 	save_library_cfg(cfg);
 	return true;
 }
 
 /* ------------------------------------------------------------ Settings > Folders (Android) */
 
-enum { FB_ROMS, FB_SAVES, FB_BESIDE, FB_TYPE, FB_DATA, FB_BACK };
+enum { FB_ROMS, FB_PSX, FB_SAVES, FB_BESIDE, FB_TYPE, FB_DATA, FB_BACK };
 
 static int folders_buttons(const Config* cfg, int* ids) {
 	int n = 0;
-	ids[n++] = FB_ROMS, ids[n++] = FB_SAVES;
+	ids[n++] = FB_ROMS, ids[n++] = FB_PSX, ids[n++] = FB_SAVES;
 	if (cfg->saveDir[0]) ids[n++] = FB_BESIDE;
 	ids[n++] = FB_TYPE, ids[n++] = FB_DATA, ids[n++] = FB_BACK;
 	return n;
 }
 
 typedef struct {
-	SDL_Rect panel, text, btn[6];
+	SDL_Rect panel, text, btn[7];
 	float px;
 } FoldersGeom;
 
@@ -1983,12 +2026,19 @@ static FoldersGeom folders_geom(int scr, int nb) {
 	SDL_Rect r = screens[scr].rect;
 	float px = ui_px(scr);
 	g.px = px;
-	int m = px * 6, rowH = nb > 5 ? px * 12 : px * 14, gap = px * 3;
+	/* (the first two, the Super Nintendo's and the PlayStation's folders, side by side on one row) */
+	int rows = nb - 1;
+	int m = px * 6, rowH = rows > 5 ? px * 12 : px * 14, gap = px * 3;
 	g.panel = (SDL_Rect) { m, m, r.w - m * 2, r.h - m * 2 };
 	int y = g.panel.y + g.panel.h - px * 6;
-	for (int i = nb - 1; i >= 0; --i) {
+	for (int i = nb - 1; i >= 1; --i) {
 		y -= rowH;
 		g.btn[i] = (SDL_Rect) { g.panel.x + px * 6, y, g.panel.w - px * 12, rowH };
+		if (i == 1) {
+			int half = (g.btn[1].w - gap) / 2;
+			g.btn[0] = (SDL_Rect) { g.btn[1].x, y, half, rowH };
+			g.btn[1].x += half + gap, g.btn[1].w -= half + gap;
+		}
 		y -= gap;
 	}
 	int top = g.panel.y + px * 22;
@@ -1997,7 +2047,7 @@ static FoldersGeom folders_geom(int scr, int nb) {
 }
 
 static void draw_folders(const Config* cfg, int scr, int sel) {
-	int ids[6];
+	int ids[7];
 	int nb = folders_buttons(cfg, ids);
 	FoldersGeom g = folders_geom(scr, nb);
 	float px = g.px;
@@ -2006,7 +2056,7 @@ static void draw_folders(const Config* cfg, int scr, int sel) {
 	ui_label(scr, g.panel.x + g.panel.w / 2, g.panel.y + px * 12, px * 6, "Folders", C_TEXT);
 	for (int i = 0; i < nb; ++i) {
 		SDL_Rect b = g.btn[i];
-		const char* label = ids[i] == FB_ROMS   ? N_("Choose ROM folder"): ids[i] == FB_SAVES  ? N_("Choose save folder"): ids[i] == FB_BESIDE ? N_("Keep saves next to the games"): ids[i] == FB_TYPE   ? (srm_saves(cfg) ? N_("Save files: .srm (RetroArch's)"): N_("Save files: .sav"))
+		const char* label = ids[i] == FB_ROMS   ? N_("Super Nintendo folder"): ids[i] == FB_PSX ? N_("PlayStation folder"): ids[i] == FB_SAVES  ? N_("Choose save folder"): ids[i] == FB_BESIDE ? N_("Keep saves next to the games"): ids[i] == FB_TYPE   ? (srm_saves(cfg) ? N_("Save files: .srm (RetroArch's)"): N_("Save files: .sav"))
 		                  : ids[i] == FB_DATA   ? N_("Choose RetroDS folder"): "Back";
 		ui_key(scr, b, px * 3, i == sel ? KEY_SEL : KEY_PLAIN);
 		ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, px * 5, label, C_TEXT);
@@ -2038,12 +2088,13 @@ static void draw_folders(const Config* cfg, int scr, int sel) {
 
 /* One step of the Folders panel; false once it's closed. */
 static bool folders_input(Config* cfg, int ls) {
-	int ids[6];
+	int ids[7];
 	int nb = folders_buttons(cfg, ids);
 	if (foldersSel >= nb) foldersSel = nb - 1;
 	int act = -1;
 	if (btn_pressed(B_DOWN)) foldersSel = (foldersSel + 1) % nb;
 	if (btn_pressed(B_UP)) foldersSel = (foldersSel + nb - 1) % nb;
+	if ((btn_pressed(B_LEFT) || btn_pressed(B_RIGHT)) && foldersSel <= 1) foldersSel = !foldersSel; /* (the two side by side) */
 	if (btn_pressed(B_A) || btn_pressed(B_START)) act = ids[foldersSel];
 	if (btn_pressed(B_B) || btn_released(B_HOME)) act = FB_BACK;
 	Pointer p;
@@ -2059,10 +2110,11 @@ static bool folders_input(Config* cfg, int ls) {
 	if (act >= 0 && act != FB_BACK) settingsMsg[0] = 0;
 	switch (act) {
 	case FB_ROMS:
+	case FB_PSX:
 	case FB_SAVES:
 	case FB_DATA:
 		if (pickPending) break;
-		pickFor = act == FB_ROMS ? PICK_ROMS : act == FB_SAVES ? PICK_SAVES : PICK_DATA;
+		pickFor = act == FB_ROMS ? PICK_ROMS : act == FB_PSX ? PICK_PSX : act == FB_SAVES ? PICK_SAVES : PICK_DATA;
 		if (android_pick_folder()) pickPending = true;
 		else snprintf(settingsMsg, sizeof(settingsMsg), tr("Couldn't open the file picker."));
 		break;
@@ -2477,6 +2529,7 @@ static int keep_visible(int scr, int sel, int scroll) {
 
 bool library_run(Config* cfg, char* outPath, size_t outSize) {
 	storage_check(cfg);
+	ui_touch_follow(false); /* (the list stays on its screen, whichever is tapped) */
 
 	/* the last game played (reselected) */
 	char lastFile[1100], last[1024] = "";
@@ -2829,6 +2882,7 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 		ui_present();
 		SDL_Delay(15);
 	}
+	ui_touch_follow(true);
 	free_thumbs();
 	free_brand();
 	free_tiles();
