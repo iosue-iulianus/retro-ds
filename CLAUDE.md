@@ -37,9 +37,18 @@ whole top screen; in dungeons the dungeon map as the game draws it
 special areas, at game over and the menus; at the title the sword falls
 from the top screen into the game's across the gap between the screens
 (`screen_gap_mm`). `game.c`'s two drawn second screens are in
-`game_sm.c` and `game_alttp.c` (PR #5). The rename to RetroDS is on
-the `retrods` branch (SCOPE.md 4). Next: the PlayStation with Symphony
-of the Night (SCOPE.md step 1), instead of Chrono Trigger.
+`game_sm.c` and `game_alttp.c` (PR #5). Merged into `retrods` since:
+the rename to RetroDS (SCOPE.md 4), the owner's UI pass (`ui-own`: the
+menus regrouped into Game / Screens / Look / Controls / Fast forward /
+System, 4:3 or Pixel Perfect, big Save / Load with Undo, no quick bar)
+and A Link to the Past's second round (`alttp-map-2`: the items sliding
+over the map with the game's own sounds, the player's markers, the logo
+where there's no map; ALTTP-15 to 17). **Next: the PlayStation with
+Symphony of the Night** (SCOPE.md step 1): the handoff beside the repo,
+`/home/joshua/projects/snes-ds/handoff-sotn.md`, has the plan, the
+owner's decisions and the questions to settle first. Second screens stay
+within the game's own design (the owner took out ALttP's grove panorama:
+ALTTP-17, retired).
 Parked: the 120 Hz map judder (the bottom screen's present
 blocks 6 to 8 ms at 120 Hz). Both games' checks run with
 `scripts/check-games.sh`. Much of `src/` is
