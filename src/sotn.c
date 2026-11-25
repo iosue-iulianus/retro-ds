@@ -339,8 +339,10 @@ bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow) {
 		if (n > h / 2) R = x;
 	}
 	if (L < 0 || R < 0 || R - L < w / 2) return false;
-	int ox = ((ow - w) / 2) & ~3; /* (the picture placed on whole dither steps) */
-	int nL = L, nR = ow - 1 - (w - 1 - R); /* (its edges as far from the screen's as from the picture's) */
+	/* the window centred, its edges at the widened picture's own (the
+	 * picture placed on whole dither steps) */
+	int ox = ((ow - (R - L + 1)) / 2 - L) & ~3;
+	int nL = 0, nR = ow - 1;
 	for (int y = 0; y < h; ++y) {
 		const uint32_t* row = fb + y * w;
 		uint32_t* o = out + y * ow;

@@ -86,7 +86,8 @@ int sotn_menu_step(Emu* e);   /* its menu's step (SOTN_MENU_TOP at the menu's to
 /* Start would open the game's menu now */
 bool sotn_menu_openable(Emu* e);
 /* SOTN-7: the game's picture fb (w x h, RGBA) widened to ow x h (ow > w):
- * the picture in the middle, its windows carried out to the edges. False
+ * its window in the middle, carried out to the edges (its white edge at
+ * the widened picture's first and last columns). False
  * (out untouched) unless a window fills the picture from edge to edge. */
 bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow);
 /* the status screen's lettering: text at (x, y) of px (stride wide) */

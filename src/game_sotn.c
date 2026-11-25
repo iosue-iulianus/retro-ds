@@ -30,11 +30,14 @@ static bool bgDirty, mapDirty, paneDirty, curDirty;
  * origin at (ax, ay) of the second screen, z screen pixels to one of its
  * pixels; at rest, z is `scale` and the map where the layout puts it. */
 #define ZOOMS 4
-/* the Back button (SOTN-7), in the widened picture's pixels */
-#define BACK_X 6
-#define BACK_Y 24
-#define BACK_W 52
+/* the Back button (SOTN-7): its size in the widened picture's pixels, at
+ * the bottom right inside the window */
+#define BACK_W 60
 #define BACK_H 20
+/* the game's menu window: its top and bottom edges' lines in the game's
+ * picture (measured on the status page), put on the map's window's */
+#define MENU_TOP 16
+#define MENU_BOTTOM 215
 static float z, ax, ay;
 static int zoomI;          /* the level: z is scale x (zoomI + 1) */
 static bool viewSet;
@@ -172,6 +175,8 @@ static void home(float* x, float* y, float atZ) {
 
 /* After a frame, the core idle: read the game, compose again if anything
  * shown has changed. */
+static void menu_fit(int w, int h, float* kx, float* ky, int* ow, SDL_FRect* at);
+
 static void press(uint32_t key, int frames) {
 	injectKey = key, injectFrames = frames, injectGap = frames + 6;
 }
@@ -265,7 +270,12 @@ void sot_tick(void) {
 	menu_tick();
 	if (phase == M_OPEN || phase == M_CLOSING || phase == M_OPENING) {
 		/* SOTN-7: the game's picture widened, from the frame just run */
-		int ow = emu.w * 4 / 3;
+		float kx, ky;
+		int ow;
+		SDL_FRect at;
+		menu_fit(emu.w, emu.h, &kx, &ky, &ow, &at);
+		(void) kx, (void) ky, (void) at;
+		if (ow <= emu.w) ow = emu.w + 4;
 		if (ow != wideW || emu.h != wideH) {
 			free(widePx);
 			widePx = malloc((size_t) ow * emu.h * 4);
@@ -289,7 +299,7 @@ void sot_tick(void) {
 		c = emu_crc32(c, view.fontPal, sizeof(view.fontPal));
 		if (c != lastCrc || backDirty) {
 			memset(backPx, 0, sizeof(backPx));
-			sotn_window(&view, backPx, BACK_W, 0, 0, BACK_W, BACK_H, BACK_X, BACK_Y);
+			sotn_window(&view, backPx, BACK_W, 0, 0, BACK_W, BACK_H, 0, 0);
 			sotn_button(&view, backPx, BACK_W, 8, 6, 3);
 			sotn_text(&view, backPx, BACK_W, 20, 6, "BACK");
 			lastCrc = c, backDirty = true;
@@ -406,25 +416,40 @@ static void be_user(void) {
  * back out to the whole castle), the place tapped gliding to the middle;
  * two fingers pinch the zoom round the point between them; a drag moves
  * the map. 0: not this screen's; 1: taken. */
-/* the widened menu picture's place on the screen (16:9 in the middle) */
-static SDL_FRect wide_rect(int s) {
-	SDL_Rect r = screens[s].rect;
-	float w = (float) r.w, h = w * 9 / 16;
-	if (h > r.h) h = (float) r.h, w = h * 16 / 9;
-	return (SDL_FRect) { (r.w - w) / 2, (r.h - h) / 2, w, h };
+/* the map's window on the screen, its white edge included: the menu's
+ * goes on it */
+static SDL_FRect frame(void) {
+	SDL_FRect w = inside();
+	return (SDL_FRect) { w.x - scale, w.y - scale, w.w + 2 * scale, w.h + 2 * scale };
 }
 
-/* the Back button on the screen */
+/* SOTN-7: screen pixels to one of the game's picture's (w x h, shown 4:3)
+ * with its menu window's edges on the map's window's; the widened
+ * picture's width; and where it goes */
+static void menu_fit(int w, int h, float* kx, float* ky, int* ow, SDL_FRect* at) {
+	SDL_FRect f = frame();
+	*ky = f.h / (MENU_BOTTOM - MENU_TOP + 1);
+	*kx = *ky * 4 / 3 * h / (w > 0 ? w : 1);
+	*ow = (int) lroundf(f.w / *kx);
+	*at = (SDL_FRect) { f.x, f.y - MENU_TOP * *ky, *ow * *kx, h * *ky };
+}
+
+/* the Back button on the screen: the bottom right inside the window */
 static SDL_Rect back_rect(int s) {
-	SDL_FRect a = wide_rect(s);
-	float kx = a.w / (wideW ? wideW : 486), ky = a.h / (wideH ? wideH : 224);
-	return (SDL_Rect) { (int) (a.x + BACK_X * kx), (int) (a.y + BACK_Y * ky), (int) (BACK_W * kx), (int) (BACK_H * ky) };
+	float kx, ky;
+	int ow;
+	SDL_FRect a;
+	menu_fit(wideW ? wideW * 3 / 4 : 365, wideH ? wideH : 224, &kx, &ky, &ow, &a);
+	SDL_FRect f = frame();
+	int w = (int) (BACK_W * kx), h = (int) (BACK_H * ky);
+	return (SDL_Rect) { (int) (f.x + f.w - 6 * kx) - w, (int) (f.y + f.h - 3 * ky) - h, w, h };
 }
 
-/* the two page squares under the window */
+/* the two page squares: inside the window, just above its bottom edge */
 static SDL_Rect dots_rect(int s) {
 	SDL_Rect r = screens[s].rect;
-	int d = scale > 0 ? scale * 3 : 12, gap = d * 2, y = r.h - (r.h - (int) inside().y - (int) inside().h) / 2 - d / 2;
+	SDL_FRect f = frame();
+	int d = scale > 0 ? scale * 4 : 16, gap = d * 2, y = (int) (f.y + f.h) - scale * 4 - d;
 	return (SDL_Rect) { r.w / 2 - d - gap / 2, y, d * 2 + gap, d };
 }
 
@@ -618,11 +643,25 @@ static void draw_map_page(int s, int dx) {
 /* SOTN-6, 7: the menu page: the game's menu widened, or the window alone
  * (the game stopped, or its menu opening or closing); the Back button */
 static void draw_menu_page(int s, int dx) {
-	SDL_FRect a = wide_rect(s);
 	if (wideOk && widePx) {
+		float kx, ky;
+		int ow;
+		SDL_FRect a;
+		menu_fit(emu.w, wideH, &kx, &ky, &ow, &a);
+		SDL_FRect f = frame();
 		texture(wideTex, wideW, wideH, SDL_BLENDMODE_NONE, &wideDirty);
 		upload(wideTex, widePx, wideW, &wideDirty);
-		ui_image_part(s, wideTex, (SDL_Rect) { 0, 0, wideW, wideH }, (SDL_Rect) { (int) a.x + dx, (int) a.y, (int) a.w, (int) a.h });
+		/* (its window's edges on the map's: the picture's black above and below cut off) */
+		SDL_Rect r = screens[s].rect;
+		SDL_Rect clip = { r.x + (int) f.x + dx, r.y + (int) f.y, (int) f.w, (int) f.h };
+		if (clip.x < r.x) clip.w -= r.x - clip.x, clip.x = r.x;
+		if (clip.x + clip.w > r.x + r.w) clip.w = r.x + r.w - clip.x;
+		if (clip.w > 0) {
+			ui_clip(s, &clip);
+			ui_image_part(s, wideTex, (SDL_Rect) { 0, 0, wideW, wideH },
+			              (SDL_Rect) { (int) lroundf(f.x) + dx, (int) lroundf(a.y), (int) lroundf(f.w), (int) lroundf(a.h) });
+			ui_clip(s, NULL);
+		}
 	} else if (bgPx && composed) {
 		texture(bgTex, cw, ch, SDL_BLENDMODE_NONE, &bgDirty);
 		upload(bgTex, bgPx, cw, &bgDirty);
