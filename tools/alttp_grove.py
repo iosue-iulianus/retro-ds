@@ -1,7 +1,15 @@
-import sys, struct
+#!/usr/bin/env python3
+"""A Link to the Past's Master Sword grove (ALTTP-17) from a harness dump:
+the whole grove from video memory, its haze added as the screen adds it,
+compared with the game's own screen at the camera's place.
+
+    tools/alttp_grove.py GROVE.ram GROVE.vram GAME.png OUT.png
+
+(the harness: load a state in the grove, then dumpram / dumpvram / shot)
+Needs Pillow."""
+import sys
 from PIL import Image
-S=sys.argv[1]
-ram=open(S+"/gv/grove.ram","rb").read(); vram=open(S+"/gv/grove.vram","rb").read()
+ram=open(sys.argv[1],"rb").read(); vram=open(sys.argv[2],"rb").read()
 def r8(a): return ram[a]
 def r16(a): return ram[a]|ram[a+1]<<8
 def vword(w): return vram[w*2]|vram[w*2+1]<<8
@@ -25,7 +33,9 @@ for y in range(512):
     for x in range(512):
         m=pix(V_BG2_MAP,x,y); main=col(m)
         # sub: BG1 at its own scroll, as far from it as BG2's
-        s=pix(V_BG1_MAP,sx+(x-cx),sy+(y-cy)); sub=col(s) if s else col(0)
+        s=pix(V_BG1_MAP,sx+(x-cx),sy+(y-cy))
+        fixed=(r8(0x9C)&31)|(r8(0x9D)&31)<<5|(r8(0x9E)&31)<<10
+        sub=col(s) if (s and ws&2) else fixed
         layerOn = (asub&0x02) if m else (asub&0x20)
         if layerOn:
             out=[]
@@ -36,9 +46,8 @@ for y in range(512):
                 out.append(max(0,min(31,v)))
             main=out[0]|out[1]<<5|out[2]<<10
         P[x,y]=rgb(main)
-img.save(S+"/gv/full.png")
-shot=Image.open(S+"/gv/grove.png").convert('RGB')
+shot=Image.open(sys.argv[3]).convert('RGB')
 crop=img.crop((cx,cy,cx+256,cy+224))
 diff=sum(1 for yy in range(224) for xx in range(256) if max(abs(a-b) for a,b in zip(shot.getpixel((xx,yy)),crop.getpixel((xx,yy))))>16)
 print("pixels differing from the game's screen:",diff,"of",256*224)
-o=Image.new('RGB',(512+20+256,512),(40,40,40)); o.paste(img,(0,0)); o.paste(shot,(532,cy)); o.save(S+"/gv/compare.png")
+o=Image.new('RGB',(512+20+256,512),(40,40,40)); o.paste(img,(0,0)); o.paste(shot,(532,cy)); o.save(sys.argv[4])

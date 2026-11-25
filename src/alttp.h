@@ -186,6 +186,15 @@ bool alttp_seen_merge(Alttp* a, const void* data, size_t n);
 bool alttp_in_dungeon(const Alttp* a);
 /* indoors outside dungeons: houses and caves ($040C = $FF) */
 bool alttp_in_house_or_cave(const Alttp* a);
+/* ALTTP-17: the Master Sword's grove (special area $80) */
+bool alttp_in_grove(const Alttp* a);
+int alttp_sword_level(const Alttp* a); /* 0 none, 1 the fighter's, 2 the Master Sword... */
+void alttp_link_here(const Alttp* a, int* x, int* y); /* Link's place as the game has it (alttp_link: the map's) */
+int alttp_camera_x(const Alttp* a);    /* the game's camera: the column on the screen's left edge */
+int alttp_camera_y(const Alttp* a);    /* the game's camera, the grove's row on the screen's line 0 */
+/* the grove's rows y0 to y0 + n - 1, the 256 columns the camera shows, as
+ * the screen shows them (black outside the grove); out 256 x n */
+void alttp_grove_rows(const Alttp* a, const uint8_t* vram, int y0, int n, uint32_t* out);
 /* Link is in a special area of the overworld (area $80 and up: the Master
  * Sword's grove, Zora's waterfall...), which the world map doesn't show */
 bool alttp_in_special(const Alttp* a);

@@ -106,6 +106,92 @@ static Uint64 altSlideT;
 bool alt_no_map(void) {
 	return alt && (alttp_in_special(alt) || alttp_in_house_or_cave(alt));
 }
+/* ALTTP-17: the Master Sword's grove on the top screen, carrying on above
+ * the game's screen across the gap (as the title's sword: draw_alt_title's
+ * sums), and the title's sword rising when Link draws the Master Sword */
+#define ALT_GROVE_ROWS 512
+static SDL_Texture* altGroveTex[2];
+static uint32_t altGroveKey;
+static int altSwordWas = -1;   /* the sword level last seen */
+static Uint64 altSwordRiseT;   /* when the rise started (0: none) */
+static int altSwordRiseX, altSwordRiseY; /* where Link was on the game's screen (its pixels) */
+static void alt_grove_geometry(int s, SDL_Rect* img, float* k, float* kt, float* ratio, float* gapPx) {
+	int g = game_screen();
+	*img = ui_image_rect(g, picW, picH, cfg->scale);
+	*k = picH > 0 ? img->h / (float) picH : 1;
+	float pt = 0, pb = 0, gap = cfg->screenGapMm >= 0 ? (float) cfg->screenGapMm : 0;
+#ifdef __ANDROID__
+	pt = android_display_ppi(screens[s].view), pb = android_display_ppi(screens[g].view);
+	if (cfg->screenGapMm < 0) gap = (float) android_screen_gap_mm();
+#endif
+	*ratio = pt > 0 && pb > 0 ? pt / pb : 1, *kt = *k * *ratio;
+	*gapPx = pt > 0 ? gap / 25.4f * pt : 0;
+}
+static void draw_grove(int s) {
+	int v = screens[s].view;
+	SDL_Rect r = screens[s].rect, img;
+	float k, kt, ratio, gapPx;
+	alt_grove_geometry(s, &img, &k, &kt, &ratio, &gapPx);
+	if (kt <= 0) return;
+	/* the top screen's row 0 is this far above the game screen's line 0, in game pixels */
+	float above = (r.h + gapPx + img.y * ratio) / kt;
+	int cy = alttp_camera_y(alt), y0 = (int) floorf(cy - above), n = SDL_min(ALT_GROVE_ROWS, (int) ceilf(r.h / kt) + 2);
+	if (!altGroveTex[v]) altGroveTex[v] = native_texture(v, 256, ALT_GROVE_ROWS, SDL_BLENDMODE_NONE);
+	size_t vn = 0;
+	const uint8_t* vram = emu_memory(&emu, EMU_MEM_VRAM, &vn);
+	if (!altGroveTex[v] || !vram || vn < 0x10000) return;
+	/* made again when what's shown can have changed: the camera, the haze's
+	 * drift, the colours, the brightness (a cheap key: the rows are cheap) */
+	size_t wn = 0;
+	const uint8_t* w = emu_memory(&emu, EMU_MEM_WRAM, &wn);
+	uint32_t key = (uint32_t) y0 * 2654435761u ^ (uint32_t) n;
+	if (w && wn >= 0x20000) key ^= emu_crc32(0, w + 0xC500, 512) ^ emu_crc32(0, w + 0xE0, 12) ^ (uint32_t) w[0x13] << 24 ^ (uint32_t) w[0x9A] << 16;
+	if (key != altGroveKey) {
+		static uint32_t px[256 * ALT_GROVE_ROWS];
+		alttp_grove_rows(alt, vram, y0, n, px);
+		ui_update_texture(altGroveTex[v], px, 256 * 4);
+		altGroveKey = key;
+	}
+	/* the game screen's 256 columns, where they'd be on the top screen */
+	float kx = img.w / 256.0f;
+	int gw = screens[game_screen()].rect.w;
+	int tx = r.w / 2 + (int) lroundf((img.x - gw / 2.0f) * ratio), tw = (int) lroundf(256 * kx * ratio);
+	int ty = r.h + (int) lroundf(gapPx + img.y * ratio + (y0 - cy) * kt), th = (int) lroundf(n * kt);
+	ui_image_part(s, altGroveTex, (SDL_Rect) { 0, 0, 256, n }, (SDL_Rect) { tx, ty, tw, th });
+}
+/* the title's sword rising from Link up the top screen and off it, at the
+ * title's speed (16 game pixels a frame of the game's) */
+static void draw_grove_sword(int s) {
+	int lv = alttp_sword_level(alt);
+	if (altSwordWas >= 0 && altSwordWas < 2 && lv >= 2 && alttp_in_grove(alt)) {
+		int lx, ly;
+		alttp_link_here(alt, &lx, &ly);
+		altSwordRiseT = SDL_GetPerformanceCounter();
+		altSwordRiseX = lx + 8 - alttp_camera_x(alt), altSwordRiseY = ly - alttp_camera_y(alt); /* (his middle: he's 16 wide) */
+		fprintf(stderr, "grove: the Master Sword drawn, the title's sword rises\n");
+	}
+	altSwordWas = lv;
+	if (!altSwordRiseT) return;
+	alt_sword_load();
+	int v = screens[s].view;
+	if (!altSwordTex[v]) return;
+	SDL_Rect r = screens[s].rect, img;
+	float k, kt, ratio, gapPx;
+	alt_grove_geometry(s, &img, &k, &kt, &ratio, &gapPx);
+	double t = (double) (SDL_GetPerformanceCounter() - altSwordRiseT) / SDL_GetPerformanceFrequency();
+	float y = altSwordRiseY - altSwordH - (float) (t * 60.0988 * 16); /* the sword's top, game pixels on the game screen */
+	int w = (int) lroundf(altSwordW * kt), h = (int) lroundf(altSwordH * kt);
+	int ty = r.h + (int) lroundf(gapPx + img.y * ratio + y * kt);
+	float kx = img.w / 256.0f;
+	int gw = screens[game_screen()].rect.w;
+	int tx = r.w / 2 + (int) lroundf((img.x + altSwordRiseX * kx - gw / 2.0f) * ratio) - w / 2;
+	if (ty + h <= 0) {
+		altSwordRiseT = 0; /* (gone off the top) */
+		return;
+	}
+	ui_image_part(s, altSwordTex, (SDL_Rect) { 0, 0, altSwordW, altSwordH }, (SDL_Rect) { tx, ty, w, h });
+}
+
 /* where what's above the items is drawn, pixels down from its place
  * (draw_alt: the markers' pane, the dungeon map, the logo move with them) */
 static int altAboveDy;
@@ -457,6 +543,11 @@ void alt_free(void) {
 		altMarkTex[i] = altMarkPaneTex[i] = NULL;
 	}
 	altMarkN = 0, altMarksFor = -1, altMarkDrag = altMarkIdx = -1;
+	for (int i = 0; i < 2; ++i) {
+		if (altGroveTex[i]) SDL_DestroyTexture(altGroveTex[i]);
+		altGroveTex[i] = NULL;
+	}
+	altGroveKey = 0, altSwordWas = -1, altSwordRiseT = 0;
 	alt_cache_clear();
 	alt_worker_stop();
 }
@@ -486,6 +577,8 @@ void alt_textures(void) {
 		if (altMarkTex[i]) SDL_DestroyTexture(altMarkTex[i]);
 		if (altMarkPaneTex[i]) SDL_DestroyTexture(altMarkPaneTex[i]);
 		altMarkTex[i] = native_texture(i, ALTTP_MARK_KINDS * 16, 16, SDL_BLENDMODE_BLEND);
+		if (altGroveTex[i]) SDL_DestroyTexture(altGroveTex[i]);
+		altGroveTex[i] = NULL, altGroveKey = 0; /* (ALTTP-17: made when first shown) */
 		altMarkPaneTex[i] = native_texture(i, ALT_MARK_PANE_W, ALT_MARK_PANE_H, SDL_BLENDMODE_BLEND);
 		altZoomAt = -1;
 		if (altGoalTex[i]) ui_update_texture(altGoalTex[i], alttp_goal_pictures(alt), ALTTP_GOAL_MAX * 16 * 4);
@@ -1048,7 +1141,9 @@ void draw_alt(int s) {
 	 * pushed up off the screen as they come up and back down after them
 	 * (the owner, Nov 25, 2026) */
 	bool dungeon = alttp_in_dungeon(alt), nomap = alt_no_map();
-	if (nomap) {
+	if (alttp_in_grove(alt)) {
+		draw_grove(s); /* ALTTP-17: the items slide over it, as over the map */
+	} else if (nomap) {
 		if (altItemsUp < 1) draw_logo_at(s, altAboveDy);
 	} else if (dungeon && altItemsUp >= 1) {
 		/* (black: the screen's fill) */
@@ -1113,6 +1208,7 @@ void draw_alt(int s) {
 	}
 	else draw_alt_map(s);
 	if (altItemsUp > 0) ui_image_pixels_at(s, altItemsTex, ALTTP_W, ALTTP_H, cfg->mapScale, SHADER_ON, itemsDy);
+	draw_grove_sword(s); /* ALTTP-17 */
 }
 
 static void alt_sound(uint8_t id);

@@ -1942,3 +1942,68 @@ void alttp_text(const Alttp* a, const uint8_t* vram, const char* text, uint32_t*
 		if (c >= 'A' && c <= 'Z') draw_tile2(a, vram, (uint16_t) (0x2C00 | (0x150 + c - 'A')), out + i * 8, stride);
 	}
 }
+
+/* ---- ALTTP-17: the Master Sword's grove (tools/alttp_grove.py) */
+
+bool alttp_in_grove(const Alttp* a) {
+	return alttp_in_special(a) && r8(a, R_AREA) == 0x80;
+}
+
+int alttp_sword_level(const Alttp* a) {
+	return a->have ? r8(a, 0xF359) : 0;
+}
+
+void alttp_link_here(const Alttp* a, int* x, int* y) {
+	*x = r16(a, 0x0022), *y = r16(a, 0x0020); /* (where he is, in special areas too) */
+}
+
+int alttp_camera_x(const Alttp* a) {
+	return r16(a, R_BG2_X);
+}
+
+int alttp_camera_y(const Alttp* a) {
+	return r16(a, R_BG2_Y) + 1; /* (line 0 shows row scroll + 1) */
+}
+
+/* the grove's rows y0 to y0 + n - 1 (its own pixels from its top), the 256
+ * columns the camera shows, as the screen shows them: BG2, its haze (BG1
+ * on the sub screen at its own scroll) added or taken off by the colour
+ * maths, the screen's brightness; black above and below the grove */
+void alttp_grove_rows(const Alttp* a, const uint8_t* vram, int y0, int n, uint32_t* out) {
+	enum { W = 256 };
+	int cx = r16(a, R_BG2_X), cy = alttp_camera_y(a), sx = r16(a, R_BG1_X), sy = r16(a, R_BG1_Y) + 1;
+	uint8_t ws = r8(a, R_CGWSEL), as = r8(a, R_CGADSUB), ini = r8(a, R_INIDISP), ts = r8(a, R_TS);
+	uint16_t fixed = (uint16_t) ((r8(a, R_COLDATA) & 31) | (r8(a, R_COLDATA + 1) & 31) << 5 | (r8(a, R_COLDATA + 2) & 31) << 10);
+	int bright = ini & 0x80 ? 0 : ini & 15;
+	uint8_t m[W], sub[W];
+	for (int r = 0; r < n; ++r) {
+		int y = y0 + r;
+		uint32_t* o = out + r * W;
+		if (!vram || y < 0 || y >= 512) {
+			for (int x = 0; x < W; ++x) o[x] = 0xFF000000u;
+			continue;
+		}
+		bg_row(vram, V_BG2_MAP, cx, y, W, m);
+		bool haze = (ts & 1) != 0;
+		if (haze) bg_row(vram, V_BG1_MAP, sx, sy + (y - cy), W, sub);
+		for (int x = 0; x < W; ++x) {
+			uint16_t c = r16(a, R_PALETTE + m[x] * 2);
+			if (m[x] ? (as & 0x02) : (as & 0x20)) {
+				int si = haze ? sub[x] : 0;
+				uint16_t sc = si && (ws & 2) ? r16(a, R_PALETTE + si * 2) : fixed;
+				int ch[3];
+				for (int k = 0; k < 3; ++k) {
+					int mm = c >> (5 * k) & 31, ss = sc >> (5 * k) & 31, v = as & 0x80 ? mm - ss : mm + ss;
+					if ((as & 0x40) && si) v >>= 1;
+					ch[k] = v < 0 ? 0 : v > 31 ? 31 : v;
+				}
+				c = (uint16_t) (ch[0] | ch[1] << 5 | ch[2] << 10);
+			}
+			if (bright < 15) {
+				int r5 = (c & 31) * (bright + 1) / 16, g5 = (c >> 5 & 31) * (bright + 1) / 16, b5 = (c >> 10 & 31) * (bright + 1) / 16;
+				c = (uint16_t) (r5 | g5 << 5 | b5 << 10);
+			}
+			o[x] = abgr(c);
+		}
+	}
+}
