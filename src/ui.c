@@ -2277,15 +2277,15 @@ static bool file_there(const char* p) {
 /* The extracted logo's file (whether it exists yet or not). */
 static void extracted_path(const Config* c, const char* code, char* path, size_t n) {
 	const MapProfile* prof = profile_find(code);
-	if (prof && prof->logo.rev) snprintf(path, n, "%s/logos/%.8s-r%d.png", c->stateDir, code, prof->logo.rev);
-	else snprintf(path, n, "%s/logos/%.8s.png", c->stateDir, code);
+	if (prof && prof->logo.rev) snprintf(path, n, "%s/logos/%s-r%d.png", c->stateDir, code, prof->logo.rev);
+	else snprintf(path, n, "%s/logos/%s.png", c->stateDir, code);
 }
 
 /* The player's own logo for the game: <asset_dir>/logos/<CODE>.png|.bmp|.jpg|.webp. */
 static bool own_logo(const Config* c, const char* code, char* path, size_t n) {
 	const char* exts[] = { "png", "bmp", "jpg", "jpeg", "webp" };
 	for (int i = 0; i < 5; ++i) {
-		snprintf(path, n, "%s/logos/%.8s.%s", c->assetDir, code, exts[i]);
+		snprintf(path, n, "%s/logos/%s.%s", c->assetDir, code, exts[i]);
 		if (file_there(path)) return true;
 	}
 	return false;
@@ -2551,9 +2551,9 @@ int ui_logo_source(const Config* c, const char* rom, const char* code, char* pat
 		if (stat(c->logoFolder, &st) != 0 || !S_ISDIR(st.st_mode))
 			logo_note("the game's own: logo_folder %s isn't a folder", c->logoFolder);
 		else
-			logo_note("the game's own: nothing in %s (%d images) named after %s, and no logos/%.8s.png", c->logoFolder,
+			logo_note("the game's own: nothing in %s (%d images) named after %s, and no logos/%s.png", c->logoFolder,
 			          logoDir.n, base ? base + 1 : rom ? rom : "?", code);
-	} else logo_note("the game's own (no logos/%.8s.png, logo_folder not set)", code);
+	} else logo_note("the game's own (no logos/%s.png, logo_folder not set)", code);
 	extracted_path(c, code, path, n);
 	return LOGO_EXTRACTED;
 }

@@ -364,7 +364,7 @@ void patch_folder(const Config* cfg, const char* rom, const char* code, char* ou
 	if (!profile_release_name(code, name, sizeof(name))) {
 		char title[32] = "";
 		emu_rom_title(rom, title, sizeof(title));
-		snprintf(name, sizeof(name), "%s (%.8s)", title[0] ? title : tr("SNES"), code);
+		snprintf(name, sizeof(name), "%s (%s)", title[0] ? title : tr("SNES"), code);
 	}
 	safe_name(name);
 	snprintf(out, size, "%s/%s", cfg->patchDir, name);

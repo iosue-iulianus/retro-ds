@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 		/* --supported ROM: exit 0 if RetroDS has second-screen support for the
 		 * game (a profile for its code), 1 if not, 2 if it can't be read */
 		if (!strcmp(argv[i], "--supported") && i + 1 < argc) {
-			char code[9];
+			char code[GAME_CODE_N];
 			if (!emu_rom_code(argv[i + 1], code)) return 2;
 			bool yes = profile_find(code) != NULL;
 			printf("%s: %s\n", code, yes ? "supported" : "not supported");
@@ -152,13 +152,20 @@ int main(int argc, char** argv) {
 	if (!cfg.stateDir[0]) snprintf(cfg.stateDir, sizeof(cfg.stateDir), "%s/states", dataDir);
 	mkdirs(cfg.stateDir);
 	{
-		/* The emulator's core copies (emu.h), and a cache for them and the
-		 * ROMs as played. Android: the core built under several sonames into
-		 * the app's native libraries (RETRODS_CORE_DIR, from the Java side).
-		 * The desktop: RETRODS_CORE, else bsnes_libretro.so beside the
-		 * program, copied into the cache once for each copy. */
+		/* The emulators' core copies (emu.h), and a cache for them and the
+		 * ROMs as played. Android: the cores built into the app's native
+		 * libraries (RETRODS_CORE_DIR, from the Java side): bsnes under
+		 * several sonames, libsnes_a.so..., SwanStation once,
+		 * libswanstation.so. The desktop: RETRODS_CORE, else
+		 * bsnes_libretro.so beside the program, and RETRODS_PSX_CORE, else
+		 * swanstation_libretro.so, copied into the cache once for each
+		 * copy. The player's BIOS files: bios/ in the data folder
+		 * (RetroDS/bios on Android). */
 		char cache[1100];
 		snprintf(cache, sizeof(cache), "%s/cache", cfg.stateDir);
+		char bios[1100];
+		snprintf(bios, sizeof(bios), "%s/bios", dataDir);
+		emu_set_bios_dir(bios);
 #ifdef __ANDROID__
 		const char* dir = getenv("RETRODS_CORE_DIR");
 		char paths[EMU_CORES][1100];
@@ -167,12 +174,17 @@ int main(int argc, char** argv) {
 			snprintf(paths[i], sizeof(paths[i]), "%s/libsnes_%c.so", dir ? dir : ".", 'a' + i);
 			list[i] = paths[i];
 		}
-		emu_set_cores(list, EMU_CORES, cache);
+		emu_set_cores(SYS_SNES, list, EMU_CORES, cache);
+		snprintf(paths[0], sizeof(paths[0]), "%s/libswanstation.so", dir ? dir : ".");
+		emu_set_cores(SYS_PSX, list, 1, cache);
 #else
 		char core[1100];
 		if (getenv("RETRODS_CORE") && getenv("RETRODS_CORE")[0]) snprintf(core, sizeof(core), "%s", getenv("RETRODS_CORE"));
 		else snprintf(core, sizeof(core), "%s/bsnes_libretro.so", binDir);
-		if (!emu_set_core_copies(core, cache)) fprintf(stderr, "no emulator core: games won't start (RETRODS_CORE, or %s/bsnes_libretro.so)\n", binDir);
+		if (!emu_set_core_copies(SYS_SNES, core, cache)) fprintf(stderr, "no emulator core: SNES games won't start (RETRODS_CORE, or %s/bsnes_libretro.so)\n", binDir);
+		if (getenv("RETRODS_PSX_CORE") && getenv("RETRODS_PSX_CORE")[0]) snprintf(core, sizeof(core), "%s", getenv("RETRODS_PSX_CORE"));
+		else snprintf(core, sizeof(core), "%s/swanstation_libretro.so", binDir);
+		if (!emu_set_core_copies(SYS_PSX, core, cache)) fprintf(stderr, "no PlayStation core: its games won't start (RETRODS_PSX_CORE, or %s/swanstation_libretro.so)\n", binDir);
 #endif
 	}
 	snprintf(path, sizeof(path), "%s/prefs.cfg", cfg.stateDir);

@@ -34,7 +34,7 @@
 typedef struct {
 	char path[1024];
 	char name[160];
-	char code[9];
+	char code[GAME_CODE_N];
 	bool supported;
 	int flag; /* BRAND_FLAG_* shown on the tile, or -1 (only one region of this game) */
 	long long size, mtime; /* the file's, from the scan (its ROM checksum's cache key; with a patch
@@ -67,7 +67,7 @@ static int cmp_games(const void* a, const void* b) {
  * v1.5.3: archives.cache, archives only, read when codes.cache isn't there). */
 typedef struct {
 	long long size, mtime;
-	char code[9];
+	char code[GAME_CODE_N];
 	char path[1024];
 	bool used;
 } CodeCache;
@@ -123,7 +123,7 @@ static bool code_cache_read(const char* path) {
 	while (fgets(line, sizeof(line), f)) {
 		CodeCache c = { 0 };
 		int off = 0;
-		if (sscanf(line, "%lld %lld %8s %n", &c.size, &c.mtime, c.code, &off) < 3 || !off || strlen(c.code) != 8) continue;
+		if (sscanf(line, "%lld %lld %15s %n", &c.size, &c.mtime, c.code, &off) < 3 || !off || strlen(c.code) < 8) continue;
 		line[strcspn(line, "\n")] = 0;
 		snprintf(c.path, sizeof(c.path), "%s", line + off);
 		if (!code_cache_find(c.path)) code_cache_add(&c);
@@ -162,11 +162,11 @@ static void code_cache_save(const Config* cfg) {
 }
 
 /* The game code (emu.h gameCode: the ROM's CRC32), read once per file. */
-static bool game_code(const char* path, const struct stat* st, char code[9]) {
+static bool game_code(const char* path, const struct stat* st, char code[GAME_CODE_N]) {
 	CodeCache* c = code_cache_find(path);
 	if (c && c->size == (long long) st->st_size && c->mtime == (long long) st->st_mtime) {
 		c->used = true;
-		memcpy(code, c->code, 9);
+		memcpy(code, c->code, GAME_CODE_N);
 		return true;
 	}
 	if (!emu_rom_code(path, code)) {
@@ -175,10 +175,10 @@ static bool game_code(const char* path, const struct stat* st, char code[9]) {
 	}
 	if (c) { /* (the file changed) */
 		c->size = st->st_size, c->mtime = st->st_mtime, c->used = true;
-		memcpy(c->code, code, 9);
+		memcpy(c->code, code, GAME_CODE_N);
 	} else {
 		CodeCache n = { st->st_size, st->st_mtime, "", "", true };
-		memcpy(n.code, code, 9);
+		memcpy(n.code, code, GAME_CODE_N);
 		snprintf(n.path, sizeof(n.path), "%s", path);
 		code_cache_add(&n);
 	}

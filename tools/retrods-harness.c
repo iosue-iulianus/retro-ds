@@ -2,6 +2,9 @@
  *
  *   retrods-harness CORE ROM OUTDIR SCRIPT
  *
+ * ROM may be a PlayStation disc (.cue) with its core (SwanStation): then
+ * only instance A runs, and RETRODS_BIOS_DIR names the BIOS folder.
+ *
  * CORE is copied to OUTDIR/core-a.so and OUTDIR/core-b.so so the two
  * instances (A: the live game, B: the hidden copy) get separate globals.
  * Each has its own data directory (OUTDIR/a, OUTDIR/b) for SRAM.
@@ -609,7 +612,15 @@ int main(int argc, char** argv) {
 	/* the core copied to OUTDIR/core-a.so and core-b.so: one copy per instance.
 	 * RETRODS_SAVE: a battery save for instance A, copied to OUTDIR/game.srm
 	 * first (the game writes to its save: the original is never touched) */
-	if (!emu_set_core_copies(core, outDir)) return 1;
+	const System* sys = system_for_path(rom);
+	if (!sys) {
+		fprintf(stderr, "%s isn't a game RetroDS plays\n", rom);
+		return 2;
+	}
+	if (!emu_set_core_copies(sys->id, core, outDir)) return 1;
+	/* RETRODS_BIOS_DIR: the folder with the player's BIOS files
+	 * (PlayStation: scph5501.bin) */
+	if (getenv("RETRODS_BIOS_DIR")) emu_set_bios_dir(getenv("RETRODS_BIOS_DIR"));
 	char save[1200] = "";
 	if (getenv("RETRODS_SAVE") && getenv("RETRODS_SAVE")[0]) {
 		snprintf(save, sizeof save, "%s/game.srm", outDir);
@@ -625,7 +636,8 @@ int main(int argc, char** argv) {
 			return 1;
 		}
 	}
-	for (int i = 0; i < 2; ++i) {
+	/* (one core copy for a system that has one: instance B stays closed) */
+	for (int i = 0; i < 2 && i < sys->coreCopies; ++i) {
 		if (!emu_open(&inst[i], rom, i == 0 && save[0] ? save : NULL, false)) return 1;
 	}
 	size_t wn = 0, sn = 0;

@@ -243,7 +243,7 @@ static void ahead_stop(void) {
 	ahead.started = false;
 }
 static MapCapture* mc;
-static char subCode[9];          /* the profile in use: the game's code */
+static char subCode[GAME_CODE_N];          /* the profile in use: the game's code */
 /* what the ROM is, by its CRC32 (the log, bug reports) */
 static const char* dump_text(char* buf, size_t n) {
 	const char* name;
@@ -253,10 +253,10 @@ static const char* dump_text(char* buf, size_t n) {
 	case DUMP_MOD_TESTED: snprintf(buf, n, "CRC32 %08x, a mod RetroDS is tested on (%s)", emu.romCrc, name); break;
 	case DUMP_MOD: snprintf(buf, n, "CRC32 %08x, a known mod RetroDS isn't tested on (%s)", emu.romCrc, name); break;
 	case DUMP_MODIFIED:
-		snprintf(buf, n, "CRC32 %08x, not a known dump of %.8s: modified (a patch or hack), trimmed or a bad dump", emu.romCrc,
+		snprintf(buf, n, "CRC32 %08x, not a known dump of %s: modified (a patch or hack), trimmed or a bad dump", emu.romCrc,
 		         emu.gameCode);
 		break;
-	default: snprintf(buf, n, "CRC32 %08x, not checked (no list of %.8s's dumps)", emu.romCrc, emu.gameCode); break;
+	default: snprintf(buf, n, "CRC32 %08x, not checked (no list of %s's dumps)", emu.romCrc, emu.gameCode); break;
 	}
 	/* a patch file beside the ROM (GEN-9): which, and what the file was before it */
 	size_t l = strlen(buf);
@@ -1057,7 +1057,7 @@ static void patch_describe(const uint8_t* rom, size_t romN, uint32_t romCrc, con
 	pi->baseOk = false;
 	const KnownPatch* k;
 	for (int i = 0; pn && (k = profile_patch(p, pn, i)); ++i) {
-		if (strncmp(k->code, emu.gameCode, 8) && k->code[0]) continue; /* (another game's, with the same file) */
+		if (strcmp(k->code, emu.gameCode) && k->code[0]) continue; /* (another game's, with the same file) */
 		if (!pi->known) pi->known = k;
 		if (!k->base || k->base == romCrc) pi->baseOk = true, pi->known = k;
 		else if (pi->nBases < 8) pi->bases[pi->nBases++] = k->base;
@@ -1350,7 +1350,7 @@ static void patch_pick_up(void) {
  * The patched ROM the same size as the one playing, and the battery save and
  * save states the same files. */
 static bool patch_live_ok(void) {
-	char code[9] = "????????";
+	char code[GAME_CODE_N] = "????????";
 	emu_rom_code(romPath, code);
 	size_t nowN = 0, newN = 0;
 	int nowR = PATCH_NONE, newR = PATCH_NONE;
@@ -4610,13 +4610,13 @@ static void load_overlay(int s, int which) {
 	char names[20][64];
 	int n = 0;
 	for (int g = 0; g < 2; ++g) { /* this game's, then every game's */
-		char code[8] = "";
-		if (!g) snprintf(code, sizeof(code), "%.8s-", emu.gameCode);
+		char code[GAME_CODE_N + 1] = "";
+		if (!g) snprintf(code, sizeof(code), "%s-", emu.gameCode);
 		for (int k = 0; k < 2; ++k) snprintf(names[n++], 64, "%s%s-%s", code, sides[k], scale);
 		for (int k = 0; k < 2; ++k) snprintf(names[n++], 64, "%s%s", code, sides[k]);
 		if (!g && which) {
-			snprintf(names[n++], 64, "%.8s-%s", emu.gameCode, scale); /* older names */
-			snprintf(names[n++], 64, "%.8s", emu.gameCode);
+			snprintf(names[n++], 64, "%s-%s", emu.gameCode, scale); /* older names */
+			snprintf(names[n++], 64, "%s", emu.gameCode);
 		}
 	}
 	char path[1200];
@@ -5567,7 +5567,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	frameCount = 0;
 	mapAnimStart = 0; /* (the last game's count was further on) */
 	menuOpen = false;
-	snprintf(subCode, sizeof(subCode), "%.8s", emu.gameCode);
+	snprintf(subCode, sizeof(subCode), "%s", emu.gameCode);
 	ss_setup(rom, subCode);
 	texW = texH = 0;
 	game_tex_fit(emu.w, emu.h);
