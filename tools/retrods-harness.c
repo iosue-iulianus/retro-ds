@@ -736,9 +736,11 @@ int main(int argc, char** argv) {
 		} else if (!strcmp(cmd, "sotnwide")) {
 			/* SOTN-7: the picture widened to 16:9, with the Back button */
 			static SotnView v;
-			int ow = e->w * 4 / 3;
+			int ow = *s3 ? atoi(s3) : e->w * 4 / 3;
 			uint32_t* out = calloc((size_t) ow * e->h, 4);
-			bool ok = sotn_widen(e->fb, e->w, e->h, out, ow);
+			int pox = 0;
+			bool ok = sotn_widen(e->fb, e->w, e->h, out, ow, &pox);
+			if (ok && *s2) sotn_spread(out, ow, e->h, pox, sotn_menu_step(e), 1.0f);
 			if (ok && sotn_read(e, &v)) {
 				sotn_window(&v, out, ow, 6, 24, 52, 20, 6, 24);
 				sotn_button(&v, out, ow, 14, 30, 3);

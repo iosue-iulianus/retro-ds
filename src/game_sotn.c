@@ -38,6 +38,8 @@ static bool bgDirty, mapDirty, paneDirty, curDirty;
  * picture (measured on the status page), put on the map's window's */
 #define MENU_TOP 16
 #define MENU_BOTTOM 215
+#define MENU_PIC_W 365 /* (the menu's picture, as the core gives it) */
+#define MENU_PIC_H 224
 static float z, ax, ay;
 static int zoomI;          /* the level: z is scale x (zoomI + 1) */
 static bool viewSet;
@@ -219,10 +221,14 @@ static void menu_tick(void) {
 			fprintf(stderr, "sotn: the game didn't open its menu: stopped instead\n");
 		}
 	} else if (phase == M_OPEN) {
+		int step = sotn_menu_step(&emu);
 		if (eng == SOTN_ENGINE_PLAYING) {
-			/* (the game closed its menu itself: △ at its top) */
 			phase = M_OFF, page = 0;
-		} else if (backPresses > 0 && !injectGap) {
+		} else if (step >= SOTN_MENU_EXIT && step < SOTN_MENU_TOP) {
+			/* (the game closing its menu itself, however it was asked:
+			 * the map page slides back now) */
+			to_map();
+		} else if (backPresses > 0 && !injectGap && step >= SOTN_MENU_TOP) {
 			press(K_X, 3); /* (△: the game's back) */
 			--backPresses;
 		}
@@ -233,8 +239,8 @@ static void menu_tick(void) {
 		} else if (phaseFrames > 600) {
 			phase = M_OPEN, page = 1; /* (it won't close: the menu page again) */
 			fprintf(stderr, "sotn: the game's menu wouldn't close\n");
-		} else if (!injectGap && eng == SOTN_ENGINE_MENU) {
-			press(K_X, 3);
+		} else if (!injectGap && eng == SOTN_ENGINE_MENU && sotn_menu_step(&emu) >= SOTN_MENU_TOP) {
+			press(K_X, 3); /* (only on one of its pages: never into its closing) */
 		}
 	}
 }
@@ -244,12 +250,20 @@ static void menu_tick(void) {
  * what RetroDS presses for the game */
 uint32_t sot_keys(uint32_t keys) {
 	if (!sot) return keys;
-	bool start = keys & K_START;
+	bool start = keys & K_START, tri = keys & K_X;
 	if (start && !startHeld) {
 		if (page == 0) to_menu();
 		else to_map();
 	}
 	startHeld = start;
+	static bool triHeld;
+	if (tri && !triHeld && phase == M_OPEN && sotn_menu_step(&emu) == SOTN_MENU_TOP) {
+		/* △ at the menu's top closes it: the map page slides back at once
+		 * (as for Start), the game closing its menu meanwhile */
+		to_map();
+		press(K_X, 3);
+	}
+	triHeld = tri;
 	keys &= ~(uint32_t) K_START;
 	if (phase == M_OPENING || phase == M_CLOSING || phase == M_FROZEN) keys = 0;
 	if (injectFrames > 0) keys |= injectKey, --injectFrames;
@@ -282,7 +296,19 @@ void sot_tick(void) {
 			wideW = ow, wideH = emu.h;
 			ui_free_image(wideTex);
 		}
-		wideOk = widePx && emu.fb && sotn_widen(emu.fb, emu.w, emu.h, widePx, ow);
+		int pox = 0;
+		wideOk = widePx && emu.fb && sotn_widen(emu.fb, emu.w, emu.h, widePx, ow, &pox);
+		/* SOTN-8: the page's parts spread out: sliding apart over a tenth
+		 * of a second as the menu opens, at once coming back from another
+		 * of its pages */
+		static int lastStep;
+		static float spreadT;
+		int step = sotn_menu_step(&emu);
+		if (step != SOTN_MENU_TOP) spreadT = 0;
+		else if (lastStep != SOTN_MENU_TOP) spreadT = lastStep < SOTN_MENU_TOP ? 0.0f : 1.0f;
+		else spreadT = SDL_min(1.0f, spreadT + 1.0f / 6);
+		lastStep = step;
+		if (wideOk) sotn_spread(widePx, ow, emu.h, pox, step, spreadT);
 		wideDirty = wideOk;
 	} else {
 		wideOk = false;
@@ -439,7 +465,9 @@ static SDL_Rect back_rect(int s) {
 	float kx, ky;
 	int ow;
 	SDL_FRect a;
-	menu_fit(wideW ? wideW * 3 / 4 : 365, wideH ? wideH : 224, &kx, &ky, &ow, &a);
+	/* (sized for the menu's own picture, 368 wide, whatever's on the screen
+	 * now: the game's 256-wide picture while the menu opens and closes) */
+	menu_fit(MENU_PIC_W, MENU_PIC_H, &kx, &ky, &ow, &a);
 	SDL_FRect f = frame();
 	int w = (int) (BACK_W * kx), h = (int) (BACK_H * ky);
 	return (SDL_Rect) { (int) (f.x + f.w - 6 * kx) - w, (int) (f.y + f.h - 3 * ky) - h, w, h };

@@ -4,6 +4,7 @@
 #include "sotn.h"
 #include "disc.h"
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -323,7 +324,7 @@ static bool white(uint32_t c) {
 	return (c & 0xFF) > 240 && ((c >> 8) & 0xFF) > 240 && ((c >> 16) & 0xFF) > 240;
 }
 
-bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow) {
+bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow, int* oxOut) {
 	if (w < 64 || h < 64 || ow <= w) return false;
 	/* the window's left and right edges: the outermost columns white on
 	 * most of the picture's rows */
@@ -343,6 +344,7 @@ bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow) {
 	 * picture placed on whole dither steps) */
 	int ox = ((ow - (R - L + 1)) / 2 - L) & ~3;
 	int nL = 0, nR = ow - 1;
+	if (oxOut) *oxOut = ox;
 	for (int y = 0; y < h; ++y) {
 		const uint32_t* row = fb + y * w;
 		uint32_t* o = out + y * ow;
@@ -382,4 +384,62 @@ void sotn_button(const SotnView* v, uint32_t* px, int stride, int x, int y, int 
 			if (i && v->fontPal[i]) px[(y + r) * stride + x + c] = v->fontPal[i];
 		}
 	}
+}
+
+/* ---------------------------------------------------------------- SOTN-8: the parts spread */
+
+/* A part of a menu page: its rectangle in the game's picture, and how far
+ * it moves (dx in whole dither steps of 4; dy rows, its letters alone) */
+typedef struct {
+	int x0, y0, x1, y1, dx, dy;
+} Part;
+
+#define SPREAD_L (-36)
+#define SPREAD_R 44
+/* the status page (the menu's first, MENU_STEP_OPENED), measured on the
+ * owner's save, Nov 25, 2026 */
+static const Part statusParts[] = {
+	{ 15, 28, 84, 158, SPREAD_L, 0 },   /* the portrait, STR to LCK */
+	{ 31, 166, 152, 200, SPREAD_L, 0 }, /* EXP, NEXT, GOLD */
+	{ 247, 28, 336, 118, SPREAD_R, 0 }, /* LEVEL, STATUS, ATT, DEF */
+	{ 239, 138, 336, 165, SPREAD_R, 0 }, /* ROOMS, KILLS */
+	/* TIME on NEXT's line, its numbers under KILLS' (the owner, Nov 25,
+	 * 2026: clear of the Back button below it) */
+	{ 206, 182, 320, 192, SPREAD_R + 16, -4 },
+};
+
+bool sotn_spread(uint32_t* px, int ow, int h, int ox, int step, float t) {
+	if (step != SOTN_MENU_TOP || h < 216) return false;
+	const Part* parts = statusParts;
+	int n = (int) (sizeof(statusParts) / sizeof(statusParts[0]));
+	size_t bytes = (size_t) ow * h * 4;
+	uint32_t* src = malloc(bytes);
+	if (!src) return false;
+	memcpy(src, px, bytes);
+	/* the row's background at x: the widened band's (its dither in step) */
+#define BG(x, y) src[(y) * ow + 4 + (((x) - 4) & 3)]
+	/* first every part taken away (the background in its place) */
+	for (int i = 0; i < n; ++i) {
+		const Part* p = &parts[i];
+		for (int y = p->y0; y <= p->y1; ++y) {
+			for (int x = ox + p->x0; x <= ox + p->x1; ++x) px[y * ow + x] = BG(x, y);
+		}
+	}
+	/* then each put where it goes */
+	for (int i = 0; i < n; ++i) {
+		const Part* p = &parts[i];
+		int dx = (int) lroundf(p->dx * t / 4) * 4, dy = (int) lroundf(p->dy * t);
+		for (int y = p->y0; y <= p->y1; ++y) {
+			for (int x = ox + p->x0; x <= ox + p->x1; ++x) {
+				int X = x + dx, Y = y + dy;
+				if (X < 1 || X >= ow - 1 || Y < 0 || Y >= h) continue;
+				uint32_t c = src[y * ow + x];
+				if (dy && c == BG(x, y)) continue; /* (moved up or down: its letters alone) */
+				px[Y * ow + X] = c;
+			}
+		}
+	}
+#undef BG
+	free(src);
+	return true;
 }

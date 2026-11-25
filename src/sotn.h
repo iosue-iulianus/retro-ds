@@ -80,7 +80,8 @@ void sotn_cursor_rect(const SotnView* v, int t, int* x, int* y, int* size);
 /* ---- SOTN-6, 7: the menu on the second screen */
 #define SOTN_ENGINE_PLAYING 1
 #define SOTN_ENGINE_MENU 2
-#define SOTN_MENU_TOP 0x10
+#define SOTN_MENU_TOP 0x10  /* the menu open on its first page (MENU_STEP_OPENED) */
+#define SOTN_MENU_EXIT 3    /* from here up to SOTN_MENU_TOP: the menu closing */
 int sotn_engine(Emu* e);      /* the game's engine step */
 int sotn_menu_step(Emu* e);   /* its menu's step (SOTN_MENU_TOP at the menu's top) */
 /* Start would open the game's menu now */
@@ -89,7 +90,11 @@ bool sotn_menu_openable(Emu* e);
  * its window in the middle, carried out to the edges (its white edge at
  * the widened picture's first and last columns). False
  * (out untouched) unless a window fills the picture from edge to edge. */
-bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow);
+bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow, int* ox);
+/* SOTN-8: the menu page's parts spread across the widened picture (ox:
+ * where sotn_widen put the game's), t of the way (0 to 1), when the page
+ * (the menu's step) has its parts measured; false if it hasn't */
+bool sotn_spread(uint32_t* px, int ow, int h, int ox, int step, float t);
 /* the status screen's lettering: text at (x, y) of px (stride wide) */
 void sotn_text(const SotnView* v, uint32_t* px, int stride, int x, int y, const char* s);
 /* SOTN-7: a small window of the status screen's kind, w x h at (x, y)
