@@ -1571,8 +1571,11 @@ bool alttp_game_over(const Alttp* a) {
 }
 
 bool alttp_in_special(const Alttp* a) {
+	/* (the overworld's modules, and the interface's: a text box there, the
+	 * Master Sword's pedestal read with A, is module $0E; the map showed
+	 * through it: the owner, Nov 25, 2026) */
 	uint8_t m = r8(a, R_MODULE);
-	return a->have && (m == 0x09 || m == 0x0B) && !r8(a, R_INDOORS) && r8(a, R_AREA) >= 0x80;
+	return a->have && (m == 0x09 || m == 0x0B || m == 0x0E) && !r8(a, R_INDOORS) && r8(a, R_AREA) >= 0x80;
 }
 
 bool alttp_in_dungeon(const Alttp* a) {
