@@ -2,6 +2,9 @@
  *
  *   retrods-harness CORE ROM OUTDIR SCRIPT
  *
+ * ROM may be a PlayStation disc (.cue) with its core (SwanStation): then
+ * only instance A runs, and RETRODS_BIOS_DIR names the BIOS folder.
+ *
  * CORE is copied to OUTDIR/core-a.so and OUTDIR/core-b.so so the two
  * instances (A: the live game, B: the hidden copy) get separate globals.
  * Each has its own data directory (OUTDIR/a, OUTDIR/b) for SRAM.
@@ -75,6 +78,7 @@
 #include "../src/emu.h"
 #include "../src/alttp.h"
 #include "../src/smmap.h"
+#include "../src/sotn.h"
 
 #include <pthread.h>
 #include <stdio.h>
@@ -594,6 +598,60 @@ static void bench(int frames) {
 	free(tmp2);
 }
 
+/* ---- Symphony of the Night (src/sotn.c): the second screen as composed,
+ * W x H of the game's pixels (384 x 216: the Duo's top screen at 5), with
+ * the map cursor at its frame 40; the logo's place outlined */
+static void sotn_cmd(Emu* e, const char* name, int w, int h) {
+	static SotnView v;
+	static uint32_t map[SOTN_PIC_W * SOTN_PIC_H];
+	if (w <= 0) w = 384;
+	if (h <= 0) h = 216;
+	if (!sotn_read(e, &v)) {
+		printf("sotn: no video RAM\n");
+		return;
+	}
+	uint32_t* px = calloc((size_t) w * h, 4);
+	SotnLayout l;
+	sotn_compose(&v, px, w, h, &l);
+	/* the map at rest, inside the window */
+	sotn_map_pixels(&v, map);
+	for (int y = 0; y < SOTN_PIC_H; ++y) {
+		for (int x = 0; x < SOTN_PIC_W; ++x) {
+			int X = l.mapX + x, Y = l.mapY + y;
+			if (map[y * SOTN_PIC_W + x] && X >= l.winX && Y >= l.winY && X < l.winX + l.winW && Y < l.winY + l.winH) px[Y * w + X] = map[y * SOTN_PIC_W + x];
+		}
+	}
+	/* the cursor, half and half as the game's */
+	uint32_t cur[32 * 32];
+	sotn_cursor_pixels(&v, cur);
+	int cx, cy, cs;
+	sotn_cursor_rect(&v, 40, &cx, &cy, &cs);
+	for (int y = 0; y < cs; ++y) {
+		for (int x = 0; x < cs; ++x) {
+			int X = l.mapX + cx + x, Y = l.mapY + cy + y;
+			uint32_t c = cur[(y * 32 / cs) * 32 + x * 32 / cs];
+			if (!c || X < 0 || Y < 0 || X >= w || Y >= h) continue;
+			uint32_t d = px[Y * w + X], o = 0xFF000000u;
+			for (int k = 0; k < 24; k += 8) o |= ((((c >> k) & 255) + ((d >> k) & 255)) / 2) << k;
+			px[Y * w + X] = o;
+		}
+	}
+	/* the pane over it, the logo's place outlined */
+	if (l.paneW) {
+		uint32_t* pane = calloc((size_t) l.paneW * l.paneH, 4);
+		sotn_pane_pixels(&v, &l, pane);
+		for (int y = 0; y < l.paneH; ++y) memcpy(px + (size_t) (l.paneY + y) * w + l.paneX, pane + (size_t) y * l.paneW, (size_t) l.paneW * 4);
+		free(pane);
+	}
+	for (int x = (int) l.logoX; x < (int) (l.logoX + l.logoW); ++x) px[(int) l.logoY * w + x] = px[(int) (l.logoY + l.logoH) * w + x] = 0xFF00FFFFu;
+	char path[1200];
+	out_path(path, sizeof path, name, ".png");
+	write_png(path, px, w, h, w);
+	printf("sotn %s: state %d, rooms %d, %s castle, square %d,%d, window %d,%d,%d, logo %.0fx%.0f at %.0f,%.0f\n", path, v.state, v.rooms,
+	       v.inverted ? "inverted" : "first", v.sqX, v.sqY, v.window[0], v.window[1], v.window[2], l.logoW, l.logoH, l.logoX, l.logoY);
+	free(px);
+}
+
 /* ---- script ---- */
 
 int main(int argc, char** argv) {
@@ -609,7 +667,15 @@ int main(int argc, char** argv) {
 	/* the core copied to OUTDIR/core-a.so and core-b.so: one copy per instance.
 	 * RETRODS_SAVE: a battery save for instance A, copied to OUTDIR/game.srm
 	 * first (the game writes to its save: the original is never touched) */
-	if (!emu_set_core_copies(core, outDir)) return 1;
+	const System* sys = system_for_path(rom);
+	if (!sys) {
+		fprintf(stderr, "%s isn't a game RetroDS plays\n", rom);
+		return 2;
+	}
+	if (!emu_set_core_copies(sys->id, core, outDir)) return 1;
+	/* RETRODS_BIOS_DIR: the folder with the player's BIOS files
+	 * (PlayStation: scph5501.bin) */
+	if (getenv("RETRODS_BIOS_DIR")) emu_set_bios_dir(getenv("RETRODS_BIOS_DIR"));
 	char save[1200] = "";
 	if (getenv("RETRODS_SAVE") && getenv("RETRODS_SAVE")[0]) {
 		snprintf(save, sizeof save, "%s/game.srm", outDir);
@@ -625,7 +691,8 @@ int main(int argc, char** argv) {
 			return 1;
 		}
 	}
-	for (int i = 0; i < 2; ++i) {
+	/* (one core copy for a system that has one: instance B stays closed) */
+	for (int i = 0; i < 2 && i < sys->coreCopies; ++i) {
 		if (!emu_open(&inst[i], rom, i == 0 && save[0] ? save : NULL, false)) return 1;
 	}
 	size_t wn = 0, sn = 0;
@@ -666,6 +733,19 @@ int main(int argc, char** argv) {
 			}
 		} else if (!strcmp(cmd, "alttp")) {
 			alttp_cmd(e, rom, p);
+		} else if (!strcmp(cmd, "sotnwide")) {
+			/* SOTN-7: the picture widened to 16:9 */
+			int ow = *s3 ? atoi(s3) : e->w * 4 / 3;
+			uint32_t* out = calloc((size_t) ow * e->h, 4);
+			int pox = 0;
+			bool ok = sotn_widen(e->fb, e->w, e->h, out, ow, &pox);
+			char path[1200];
+			out_path(path, sizeof path, s1, ".png");
+			if (ok) write_png(path, out, ow, e->h, ow);
+			printf("sotnwide %s: %s, %dx%d -> %d wide, engine %d, menu step %X\n", path, ok ? "widened" : "no window", e->w, e->h, ow, sotn_engine(e), sotn_menu_step(e));
+			free(out);
+		} else if (!strcmp(cmd, "sotn")) {
+			sotn_cmd(e, s1, atoi(s2), atoi(s3));
 		} else if (!strcmp(cmd, "smtoggle")) {
 			smtoggle_cmd(e, rom, atoi(s1), atoi(s2));
 		} else if (!strcmp(cmd, "smmap")) {

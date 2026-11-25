@@ -1,4 +1,5 @@
 #include "logo.h"
+#include "sotn.h"
 #include "emu.h"
 #include "profiles.h"
 #ifdef __ANDROID__
@@ -120,6 +121,17 @@ void logo_drop_path(const char* logoPng, char* out, size_t n) {
  * core and run to its title (the profile's logo.wait, pressStart and wait2,
  * or its steps); the picture inside the profile's box is kept as a PNG. */
 bool logo_extract(const char* romPath, const char* gameCode, const char* outPng) {
+	if (sotn_is(gameCode)) {
+		/* SOTN-1: from the disc, no core needed */
+		int w = 0, h = 0;
+		uint8_t* rgba = sotn_disc_logo(romPath, &w, &h);
+		char tmp[1100];
+		snprintf(tmp, sizeof(tmp), "%s.tmp", outPng);
+		bool ok = rgba && stbi_write_png(tmp, w, h, 4, rgba, w * 4) && rename(tmp, outPng) == 0;
+		free(rgba);
+		fprintf(stderr, "logo: %s %dx%d from the disc -> %s\n", gameCode, w, h, ok ? outPng : "not made");
+		return ok;
+	}
 	const MapProfile* p = profile_find(gameCode);
 	if (!p || (!p->logo.wait && !p->logo.steps[0].frames)) return false;
 	Emu e = { 0 };
@@ -172,7 +184,7 @@ bool logo_extract(const char* romPath, const char* gameCode, const char* outPng)
 /* ------------------------------------------------------------ queue */
 
 typedef struct Job {
-	char rom[1024], code[9], out[1024];
+	char rom[1024], code[GAME_CODE_N], out[1024];
 	bool urgent; /* runs while the queue's paused: the game being started or played */
 	struct Job* next;
 } Job;
@@ -185,7 +197,7 @@ static pthread_t thread;
 static volatile uint32_t generation;
 static int pending, finished; /* jobs queued or running / done since the queue last went idle */
 static bool paused; /* a game's playing: only urgent jobs run */
-static char current[9]; /* the code of the job running, "" if none */
+static char current[GAME_CODE_N]; /* the code of the job running, "" if none */
 
 static bool exists(const char* p) {
 	struct stat st;
@@ -268,7 +280,7 @@ static void enqueue(const char* romPath, const char* gameCode, const char* outPn
 	}
 	Job* j = calloc(1, sizeof(*j));
 	snprintf(j->rom, sizeof(j->rom), "%s", romPath);
-	snprintf(j->code, sizeof(j->code), "%.8s", gameCode);
+	snprintf(j->code, sizeof(j->code), "%s", gameCode);
 	snprintf(j->out, sizeof(j->out), "%s", outPng);
 	j->urgent = paused; /* (asked for by the game being played: its own logo) */
 	if (!pending) finished = 0;
@@ -302,7 +314,7 @@ static void enqueue(const char* romPath, const char* gameCode, const char* outPn
 void logo_request(const char* romPath, const char* gameCode, const char* outPng) {
 	if (exists(outPng)) return;
 	const MapProfile* p = profile_find(gameCode);
-	if (!p || (!p->logo.wait && !p->logo.steps[0].frames)) return;
+	if (!sotn_is(gameCode) && (!p || (!p->logo.wait && !p->logo.steps[0].frames))) return;
 	enqueue(romPath, gameCode, outPng);
 }
 
@@ -311,7 +323,7 @@ void logo_front(const char* gameCode, bool urgent) {
 	Job *mine = NULL, **mineTail = &mine;
 	for (Job** at = &queue; *at;) {
 		Job* j = *at;
-		if (!strncmp(j->code, gameCode, 8)) {
+		if (!strcmp(j->code, gameCode)) {
 			*at = j->next;
 			j->next = NULL;
 			j->urgent |= urgent;
@@ -330,8 +342,8 @@ void logo_front(const char* gameCode, bool urgent) {
 
 bool logo_busy(const char* gameCode) {
 	pthread_mutex_lock(&qlock);
-	bool busy = (gameCode && !strncmp(current, gameCode, 8)) || (!gameCode && current[0]);
-	for (Job* j = queue; j && gameCode && !busy; j = j->next) busy = !strncmp(j->code, gameCode, 8);
+	bool busy = (gameCode && !strcmp(current, gameCode)) || (!gameCode && current[0]);
+	for (Job* j = queue; j && gameCode && !busy; j = j->next) busy = !strcmp(j->code, gameCode);
 	pthread_mutex_unlock(&qlock);
 	return busy;
 }

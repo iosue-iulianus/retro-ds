@@ -1,12 +1,14 @@
-/* RetroDS's emulator: a libretro core (bsnes) loaded from a .so.
+/* RetroDS's emulator: a libretro core loaded from a .so, one per system
+ * (system.h): bsnes for the Super Nintendo, SwanStation for the
+ * PlayStation.
  *
  * Each open Emu has a core of its own: libretro cores keep their state in
  * globals, so every Emu open at once (the game, the hidden copy that takes
  * map pictures, the logo's) loads its own copy of the core library. The
- * copies are given once with emu_set_cores: on Android the core built under
- * several sonames (libsnes_a.so, ...), on the desktop the same .so copied
- * to several paths. An Emu runs on one thread at a time; two Emus can run
- * on two threads at once. */
+ * copies are given once per system with emu_set_cores: on Android the core
+ * built under several sonames (libsnes_a.so, ...), on the desktop the same
+ * .so copied to several paths. An Emu runs on one thread at a time; two
+ * Emus can run on two threads at once. */
 #ifndef RETRODS_EMU_H
 #define RETRODS_EMU_H
 
@@ -14,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "system.h"
 #include "writes.h"
 
 /* The SNES screen, as the player sees it: 256 x 224 (239 with overscan).
@@ -21,11 +24,16 @@
  * at the same size on screen. */
 #define SNES_W 256
 #define SNES_H 224
-/* The largest picture a core draws (hi-res and interlace: 512 x 478). */
-#define EMU_MAX_W 512
-#define EMU_MAX_H 480
-/* Emus open at once (core copies): the game, the map's hidden copy, the logo's. */
+/* The largest picture a core draws (SNES hi-res and interlace: 512 x 478;
+ * the PlayStation up to 640 x 480, more with its overscan shown). */
+#define EMU_MAX_W 1024
+#define EMU_MAX_H 576
+/* Emus open at once per system (core copies): the game, the map's hidden
+ * copy, the logo's (System.coreCopies: SNES 3, the others 1). */
 #define EMU_CORES 3
+/* A game's code (Emu.gameCode) as text, with its 0: an SNES ROM's CRC32
+ * ("777AAC2F"), a PlayStation disc's serial ("SLUS-00067"). */
+#define GAME_CODE_N 16
 
 /* SNES pad buttons: bit n is libretro's RETRO_DEVICE_ID_JOYPAD_n, so a key
  * mask is also the core's input bitmask. */
@@ -42,14 +50,17 @@ enum {
 	K_X = 1 << 9,
 	K_L = 1 << 10,
 	K_R = 1 << 11,
+	K_L2 = 1 << 12, /* (the PlayStation's: no SNES button) */
+	K_R2 = 1 << 13,
 };
-#define K_ALL 0xFFFu
+#define K_ALL 0x3FFFu
 
 struct EmuCore;
 struct EmuSave;
 
 typedef struct Emu {
 	struct EmuCore* core; /* NULL while closed */
+	const System* sys;    /* the game's system */
 
 	/* The last picture, w x h as the core drew it (256 x 224 in most games,
 	 * 512 wide in hi-res, 448 or 478 tall interlaced), w wide in memory.
@@ -58,11 +69,11 @@ typedef struct Emu {
 	int w, h;
 
 	/* The game: the CRC32 of its ROM file (the ROM inside a .zip), without
-	 * a 512-byte copier header, as 8 hex digits. Profiles, logos and the
-	 * game's own settings go by it. */
-	char gameCode[9];
-	uint32_t fileCrc; /* the same, as a number */
-	uint32_t romCrc;  /* CRC32 of the ROM as played: patched if it was (profile_dump) */
+	 * a 512-byte copier header, as 8 hex digits; a disc's serial
+	 * (disc.h). Profiles, logos and the game's own settings go by it. */
+	char gameCode[GAME_CODE_N];
+	uint32_t fileCrc; /* (SNES) the same, as a number; a disc: the CRC32 of its code */
+	uint32_t romCrc;  /* CRC32 of the ROM as played: patched if it was (profile_dump); a disc: fileCrc */
 	int patch; /* PatchResult (patch.h): the patches planned for it, and whether they went in (GEN-9) */
 	char patchName[256]; /* the applied patches' file names, " + " between (or the one that wasn't) */
 	char patchSkipped[256]; /* (PATCH_PARTIAL) the ones left out */
@@ -84,21 +95,31 @@ typedef struct Emu {
 	struct EmuSave* save;
 } Emu;
 
-/* The core copies (up to EMU_CORES paths, each a separate file) and a
- * folder for the ROMs as played and the cores' own files. Call once,
- * before any emu_open. */
-void emu_set_cores(const char* const* paths, int n, const char* cacheDir);
+/* A system's core copies (up to EMU_CORES paths, each a separate file)
+ * and a folder for the ROMs as played and the cores' own files. Call once
+ * per system, before any emu_open. */
+void emu_set_cores(SysId sys, const char* const* paths, int n, const char* cacheDir);
 /* The desktop's way: copies the core at `core` to cacheDir/core-a.so,
- * core-b.so... (unless they're there already, the same size and age) and
- * sets them up as above. */
-bool emu_set_core_copies(const char* core, const char* cacheDir);
+ * core-b.so... (core-psx-a.so for the PlayStation; unless they're there
+ * already, the same size and age), as many as the system takes, and sets
+ * them up as above. */
+bool emu_set_core_copies(SysId sys, const char* core, const char* cacheDir);
+/* The folder with the player's BIOS files (libretro's system folder for
+ * the cores that need one), made if it isn't there. */
+void emu_set_bios_dir(const char* dir);
+const char* emu_bios_dir(void);
+/* Is the system's BIOS in the BIOS folder? (Its path in `path`, if not
+ * NULL, n bytes; true for a system that needs none.) */
+bool emu_bios_present(const System* sys, char* path, size_t n);
 
 /* Loads the game: the ROM as played (patches applied, GEN-9) on a free
- * core copy. savePath (NULL: none): the battery save, loaded now and
+ * copy of its system's core; a disc by its path. savePath (NULL: none):
+ * the battery save (a PlayStation game's memory card 1), loaded now and
  * written as it changes; the hidden copies get none. */
 bool emu_open(Emu* e, const char* romPath, const char* savePath, bool audio);
 void emu_close(Emu* e);
-/* ROM files the game list takes: .sfc, .smc, .swc, .fig, and .zip */
+/* Files the game list takes: an SNES ROM (.sfc, .smc, .swc, .fig, a
+ * .zip) or a PlayStation disc (.cue) */
 bool emu_is_rom_name(const char* name);
 bool emu_is_archive_name(const char* name); /* .zip */
 
@@ -163,8 +184,9 @@ void* emu_state_file_get_extra(Emu* e, const char* path, size_t* n);
 /* ROMs. emu_rom_read_all: the ROM file (inside a .zip too) without a
  * copier header, malloc'd; NULL if it can't be read. */
 uint8_t* emu_rom_read_all(const char* path, size_t* size);
-/* The game's code (Emu.gameCode) for a ROM file; false if unreadable. */
-bool emu_rom_code(const char* path, char code[9]);
+/* The game's code (Emu.gameCode) for a ROM file or disc; false if
+ * unreadable. */
+bool emu_rom_code(const char* path, char code[GAME_CODE_N]);
 /* The title in the ROM's internal header (21 characters, trailing spaces
  * cut), or false. */
 bool emu_rom_title(const char* path, char* out, size_t n);
@@ -181,14 +203,18 @@ void emu_patch_plan(const char* rom, char files[][1024], int n);
  * checksum of each game as it would be played) */
 uint8_t* emu_rom_read_patched(const char* path, char files[][1024], int n, size_t* size, int* patch, char* patchName);
 
-/* Memory. Work RAM ($7E0000-$7FFFFF, 128 KB), the cartridge's battery
- * RAM and video RAM (64 KB, words little-endian; bsnes gives it only with
- * its fast PPU, the default), or NULL. Read-only for RetroDS. */
+/* Memory. Work RAM (SNES $7E0000-$7FFFFF, 128 KB; PlayStation 2 MB), the
+ * cartridge's battery RAM (the PlayStation's memory card 1) and video RAM
+ * (SNES: 64 KB, words little-endian, bsnes gives it only with its fast
+ * PPU, the default; PlayStation: 1 MB, 1024 x 512 halfwords, with
+ * RetroDS's SwanStation patch, the drawing caught up first), or NULL.
+ * Read-only for RetroDS. */
 enum { EMU_MEM_WRAM, EMU_MEM_SRAM, EMU_MEM_VRAM };
 uint8_t* emu_memory(Emu* e, int region, size_t* size);
-/* By SNES address as the CPU sees it: banks $7E/$7F, and the low 8 KB
- * mirror at $0000-$1FFF of banks $00-$3F and $80-$BF. Anything else reads
- * 0 and ignores writes. Little-endian. */
+/* By address as the CPU sees it. SNES: banks $7E/$7F, and the low 8 KB
+ * mirror at $0000-$1FFF of banks $00-$3F and $80-$BF. PlayStation: main
+ * RAM at 0x00000000, 0x80000000 or 0xA0000000 (and its mirrors up to 8
+ * MB). Anything else reads 0 and ignores writes. Little-endian. */
 uint8_t emu_read8(Emu* e, uint32_t addr);
 uint16_t emu_read16(Emu* e, uint32_t addr);
 uint32_t emu_read24(Emu* e, uint32_t addr);

@@ -130,7 +130,7 @@ public class RetroDsActivity extends SDLActivity {
             Os.setenv("RETRODS_HOME", home.getAbsolutePath(), true);
             /* data-folder.cfg there: the folder the player chose instead (android.c android_data_setup) */
             Os.setenv("RETRODS_APP_FILES", getFilesDir().getAbsolutePath(), true);
-            /* the emulator's core copies (libsnes_a.so ...: src/emu.h) */
+            /* the emulators' cores (libsnes_a.so ..., libswanstation.so: src/emu.h) */
             Os.setenv("RETRODS_CORE_DIR", getApplicationInfo().nativeLibraryDir, true);
         } catch (ErrnoException e) {
             Log.e(TAG, "setenv: " + e);

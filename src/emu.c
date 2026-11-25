@@ -1,5 +1,6 @@
 /* RetroDS's emulator: a libretro core loaded from a .so (see emu.h). */
 #include "emu.h"
+#include "disc.h"
 #include "libretro.h"
 #include "patch.h"
 
@@ -20,7 +21,8 @@
 
 typedef struct EmuCore {
 	void* handle;
-	int slot; /* which core copy */
+	const System* sys;
+	int slot; /* which of its system's core copies */
 	char dataDir[1200]; /* the core's own system and save folder */
 	unsigned pixelFormat;
 	uint8_t* rom; /* the ROM as played, kept while the game is loaded */
@@ -54,10 +56,11 @@ typedef struct EmuCore {
 } EmuCore;
 
 static pthread_mutex_t coresLock = PTHREAD_MUTEX_INITIALIZER;
-static char corePaths[EMU_CORES][1024];
-static int nCorePaths;
-static bool coreBusy[EMU_CORES];
+static char corePaths[SYS_COUNT][EMU_CORES][1024];
+static int nCorePaths[SYS_COUNT];
+static bool coreBusy[SYS_COUNT][EMU_CORES];
 static char cacheDir[1024];
+static char biosDir[1024];
 
 /* libretro's callbacks carry no context: each call into a core says which
  * Emu it's for, per thread (an Emu runs on one thread at a time). */
@@ -71,10 +74,11 @@ static bool debugLog(void) {
 	return on;
 }
 
-void emu_set_cores(const char* const* paths, int n, const char* cache) {
+void emu_set_cores(SysId sys, const char* const* paths, int n, const char* cache) {
+	if (sys < 0 || sys >= SYS_COUNT) return;
 	pthread_mutex_lock(&coresLock);
-	nCorePaths = 0;
-	for (int i = 0; i < n && i < EMU_CORES; ++i) snprintf(corePaths[nCorePaths++], sizeof(corePaths[0]), "%s", paths[i]);
+	nCorePaths[sys] = 0;
+	for (int i = 0; i < n && i < EMU_CORES; ++i) snprintf(corePaths[sys][nCorePaths[sys]++], sizeof(corePaths[0][0]), "%s", paths[i]);
 	snprintf(cacheDir, sizeof(cacheDir), "%s", cache ? cache : "");
 	if (cacheDir[0]) mkdir(cacheDir, 0755);
 	pthread_mutex_unlock(&coresLock);
@@ -97,20 +101,49 @@ static bool copy_if_changed(const char* from, const char* to) {
 	return ok && rename(tmp, to) == 0;
 }
 
-bool emu_set_core_copies(const char* core, const char* cache) {
+/* "core-a" (the SNES's, as before there were others), "core-psx-a" */
+static void core_name(const System* sys, int slot, char* out, size_t n) {
+	if (sys->id == SYS_SNES) snprintf(out, n, "core-%c", 'a' + slot);
+	else snprintf(out, n, "core-%s-%c", sys->key, 'a' + slot);
+}
+
+bool emu_set_core_copies(SysId id, const char* core, const char* cache) {
+	const System* sys = system_get(id);
+	if (!sys) return false;
 	mkdir(cache, 0755);
 	char paths[EMU_CORES][1200];
 	const char* list[EMU_CORES];
-	for (int i = 0; i < EMU_CORES; ++i) {
-		snprintf(paths[i], sizeof(paths[i]), "%s/core-%c.so", cache, 'a' + i);
+	int n = sys->coreCopies < EMU_CORES ? sys->coreCopies : EMU_CORES;
+	for (int i = 0; i < n; ++i) {
+		char name[32];
+		core_name(sys, i, name, sizeof name);
+		snprintf(paths[i], sizeof(paths[i]), "%s/%s.so", cache, name);
 		if (!copy_if_changed(core, paths[i])) {
-			fprintf(stderr, "emu: can't copy the core %s to %s\n", core, paths[i]);
+			fprintf(stderr, "emu: can't copy the %s core %s to %s\n", sys->name, core, paths[i]);
 			return false;
 		}
 		list[i] = paths[i];
 	}
-	emu_set_cores(list, EMU_CORES, cache);
+	emu_set_cores(id, list, n, cache);
 	return true;
+}
+
+void emu_set_bios_dir(const char* dir) {
+	snprintf(biosDir, sizeof(biosDir), "%s", dir ? dir : "");
+	if (biosDir[0]) mkdir(biosDir, 0755);
+}
+
+const char* emu_bios_dir(void) {
+	return biosDir;
+}
+
+bool emu_bios_present(const System* sys, char* path, size_t n) {
+	char p[1200];
+	if (!sys || !sys->bios) return true;
+	snprintf(p, sizeof p, "%s/%s", biosDir, sys->bios);
+	if (path) snprintf(path, n, "%s", p);
+	struct stat st;
+	return biosDir[0] && !stat(p, &st) && S_ISREG(st.st_mode) && st.st_size > 0;
 }
 
 /* ------------------------------------------------------------ files and ROMs */
@@ -151,15 +184,13 @@ static bool has_ext(const char* name, const char* const* exts) {
 	return false;
 }
 
-static const char* const romExts[] = { "sfc", "smc", "swc", "fig", NULL };
-
 bool emu_is_archive_name(const char* name) {
 	static const char* const exts[] = { "zip", NULL };
 	return has_ext(name, exts);
 }
 
 bool emu_is_rom_name(const char* name) {
-	return has_ext(name, romExts) || emu_is_archive_name(name);
+	return system_is_game_name(name);
 }
 
 static uint16_t le16(const uint8_t* p) {
@@ -189,7 +220,7 @@ static uint8_t* zip_first_rom(const uint8_t* z, size_t zn, size_t* outN) {
 		char name[260];
 		snprintf(name, sizeof(name), "%.*s", (int) (nameN < 259 ? nameN : 259), (const char*) z + at + 46);
 		at += 46 + nameN + extraN + commentN;
-		if (!has_ext(name, romExts) || usize == 0 || usize > 32u * 1024 * 1024) continue;
+		if (!has_ext(name, system_get(SYS_SNES)->exts) || usize == 0 || usize > 32u * 1024 * 1024) continue;
 		if (local + 30 > zn || le32(z + local) != 0x04034b50) return NULL;
 		size_t data = local + 30 + le16(z + local + 26) + le16(z + local + 28);
 		if (data + csize > zn) return NULL;
@@ -235,11 +266,13 @@ uint8_t* emu_rom_read_all(const char* path, size_t* size) {
 	return b;
 }
 
-bool emu_rom_code(const char* path, char code[9]) {
+bool emu_rom_code(const char* path, char code[GAME_CODE_N]) {
+	const System* sys = system_for_path(path);
+	if (sys && sys->fullPath) return disc_code(path, code, GAME_CODE_N);
 	size_t n = 0;
 	uint8_t* b = emu_rom_read_all(path, &n);
 	if (!b) return false;
-	snprintf(code, 9, "%08X", emu_crc32(0, b, n));
+	snprintf(code, GAME_CODE_N, "%08X", emu_crc32(0, b, n));
 	free(b);
 	return true;
 }
@@ -247,6 +280,8 @@ bool emu_rom_code(const char* path, char code[9]) {
 /* The internal header: LoROM at $7FC0, HiROM at $FFC0 (ExHiROM at $40FFC0),
  * the one whose checksum and complement add up, else whose title prints. */
 bool emu_rom_title(const char* path, char* out, size_t n) {
+	const System* sys = system_for_path(path);
+	if (!sys || sys->id != SYS_SNES) return false; /* (a disc's title: its file's name) */
 	size_t rn = 0;
 	uint8_t* b = emu_rom_read_all(path, &rn);
 	if (!b) return false;
@@ -422,6 +457,31 @@ static void log_cb(enum retro_log_level level, const char* fmt, ...) {
 	va_end(ap);
 }
 
+/* The core options RetroDS sets; the rest keep the core's defaults. */
+static const struct {
+	const char* key;
+	const char* value;
+} coreOptions[] = {
+	/* SwanStation: the software renderer (RetroDS gives no GPU context),
+	 * memory card 1 as the frontend's save RAM (written beside the disc as
+	 * the game's .srm), no card 2, the digital pad's D-pad only (analog
+	 * off: owner, Nov 25, 2026) */
+	{ "swanstation_GPU_Renderer", "Software" },
+	{ "swanstation_MemoryCards_Card1Type", "Libretro" },
+	{ "swanstation_MemoryCards_Card2Type", "None" },
+	{ "swanstation_Console_Region", "Auto" },
+	{ "swanstation_BIOS_PatchFastBoot", "false" },
+	{ "swanstation_Display_ShowOSDMessages", "false" },
+};
+
+static const char* core_option(const char* key) {
+	if (!key) return NULL;
+	for (size_t i = 0; i < sizeof(coreOptions) / sizeof(coreOptions[0]); ++i) {
+		if (!strcmp(coreOptions[i].key, key)) return coreOptions[i].value;
+	}
+	return NULL;
+}
+
 static bool env_cb(unsigned cmd, void* data) {
 	Emu* e = cur;
 	if (!e || !e->core) return false;
@@ -436,13 +496,18 @@ static bool env_cb(unsigned cmd, void* data) {
 		return true;
 	}
 	case RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY:
+		/* (the player's BIOS files, for a core that needs one) */
+		*(const char**) data = e->core->sys->bios && biosDir[0] ? biosDir : e->core->dataDir;
+		return true;
 	case RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY:
 		/* (its own folder: the core's own save files never meet the player's) */
 		*(const char**) data = e->core->dataDir;
 		return true;
-	case RETRO_ENVIRONMENT_GET_VARIABLE:
-		((struct retro_variable*) data)->value = NULL; /* (the core's defaults) */
-		return false;
+	case RETRO_ENVIRONMENT_GET_VARIABLE: {
+		struct retro_variable* v = data;
+		v->value = core_option(v->key);
+		return v->value != NULL; /* (else the core's default) */
+	}
 	case RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE:
 		*(bool*) data = false;
 		return true;
@@ -694,25 +759,38 @@ static bool cached_rom(const uint8_t* rom, size_t n, uint32_t crc, char* out, si
 bool emu_open(Emu* e, const char* romPath, const char* savePath, bool audio) {
 	memset(e, 0, sizeof(*e));
 	e->audio = audio;
+	const System* sys = system_for_path(romPath);
+	if (!sys) {
+		fprintf(stderr, "emu: %s isn't a game RetroDS plays\n", romPath);
+		return false;
+	}
+	e->sys = sys;
+	if (!emu_bios_present(sys, NULL, 0)) {
+		fprintf(stderr, "emu: %s games need the BIOS %s in %s\n", sys->name, sys->bios, biosDir[0] ? biosDir : "(no BIOS folder)");
+		return false;
+	}
 
 	pthread_mutex_lock(&coresLock);
 	int slot = -1;
-	for (int i = 0; i < nCorePaths && slot < 0; ++i) {
-		if (!coreBusy[i]) slot = i, coreBusy[i] = true;
+	for (int i = 0; i < nCorePaths[sys->id] && slot < 0; ++i) {
+		if (!coreBusy[sys->id][i]) slot = i, coreBusy[sys->id][i] = true;
 	}
 	char corePath[1024];
-	snprintf(corePath, sizeof(corePath), "%s", slot >= 0 ? corePaths[slot] : "");
+	snprintf(corePath, sizeof(corePath), "%s", slot >= 0 ? corePaths[sys->id][slot] : "");
 	pthread_mutex_unlock(&coresLock);
 	if (slot < 0) {
-		fprintf(stderr, "emu: no free core copy (%d in use)\n", nCorePaths);
+		fprintf(stderr, "emu: no free %s core copy (%d in use)\n", sys->name, nCorePaths[sys->id]);
 		return false;
 	}
 
 	EmuCore* c = calloc(1, sizeof(*c));
 	if (!c) goto fail_slot;
+	c->sys = sys;
 	c->slot = slot;
 	c->pixelFormat = RETRO_PIXEL_FORMAT_0RGB1555; /* libretro's default */
-	snprintf(c->dataDir, sizeof(c->dataDir), "%s/core-%c", cacheDir[0] ? cacheDir : "/tmp", 'a' + slot);
+	char coreName[32];
+	core_name(sys, slot, coreName, sizeof coreName);
+	snprintf(c->dataDir, sizeof(c->dataDir), "%s/%s", cacheDir[0] ? cacheDir : "/tmp", coreName);
 	mkdir(c->dataDir, 0755);
 	c->handle = dlopen(corePath, RTLD_NOW | RTLD_LOCAL);
 	if (!c->handle) {
@@ -750,25 +828,34 @@ bool emu_open(Emu* e, const char* romPath, const char* savePath, bool audio) {
 		goto fail;
 	}
 
-	/* the ROM as played */
+	/* the ROM as played; a disc as it is, from its path */
 	size_t romN = 0;
-	char patchName[256] = "";
-	c->rom = emu_rom_read_played(romPath, &romN, &e->patch, patchName, &e->fileCrc);
-	if (!c->rom) {
-		fprintf(stderr, "emu: can't read %s\n", romPath);
-		goto fail;
-	}
-	c->romSize = romN;
-	e->romCrc = emu_crc32(0, c->rom, romN);
-	snprintf(e->gameCode, sizeof(e->gameCode), "%08X", e->fileCrc);
-	snprintf(e->patchName, sizeof(e->patchName), "%s", patchName);
-	if (e->patch == PATCH_PARTIAL) {
-		pthread_mutex_lock(&patchedLock);
-		snprintf(e->patchSkipped, sizeof(e->patchSkipped), "%s", patched.skipped);
-		pthread_mutex_unlock(&patchedLock);
-	}
 	char played[1200];
-	if (!cached_rom(c->rom, romN, e->romCrc, played, sizeof(played))) snprintf(played, sizeof(played), "%s", romPath);
+	if (sys->fullPath) {
+		if (!disc_code(romPath, e->gameCode, sizeof(e->gameCode))) {
+			fprintf(stderr, "emu: can't read the disc %s\n", romPath);
+			goto fail;
+		}
+		e->fileCrc = e->romCrc = emu_crc32(0, e->gameCode, strlen(e->gameCode));
+		snprintf(played, sizeof(played), "%s", romPath);
+	} else {
+		char patchName[256] = "";
+		c->rom = emu_rom_read_played(romPath, &romN, &e->patch, patchName, &e->fileCrc);
+		if (!c->rom) {
+			fprintf(stderr, "emu: can't read %s\n", romPath);
+			goto fail;
+		}
+		c->romSize = romN;
+		e->romCrc = emu_crc32(0, c->rom, romN);
+		snprintf(e->gameCode, sizeof(e->gameCode), "%08X", e->fileCrc);
+		snprintf(e->patchName, sizeof(e->patchName), "%s", patchName);
+		if (e->patch == PATCH_PARTIAL) {
+			pthread_mutex_lock(&patchedLock);
+			snprintf(e->patchSkipped, sizeof(e->patchSkipped), "%s", patched.skipped);
+			pthread_mutex_unlock(&patchedLock);
+		}
+		if (!cached_rom(c->rom, romN, e->romCrc, played, sizeof(played))) snprintf(played, sizeof(played), "%s", romPath);
+	}
 
 	e->fb = calloc((size_t) EMU_MAX_W * EMU_MAX_H, sizeof(*e->fb));
 	if (audio) e->ring = calloc(AUDIO_RING * 2, sizeof(*e->ring));
@@ -795,7 +882,9 @@ bool emu_open(Emu* e, const char* romPath, const char* savePath, bool audio) {
 			e->sampleRate = av.timing.sample_rate;
 			e->w = (int) av.geometry.base_width;
 			e->h = (int) av.geometry.base_height;
-			if (e->w > 256) e->w = 256, e->h = 224; /* (bsnes's base is its largest: 512 x 448) */
+			if (sys->id == SYS_SNES && e->w > 256) e->w = 256, e->h = 224; /* (bsnes's base is its largest: 512 x 448) */
+			if (e->w > EMU_MAX_W) e->w = EMU_MAX_W;
+			if (e->h > EMU_MAX_H) e->h = EMU_MAX_H;
 			c->set_controller_port_device(0, RETRO_DEVICE_JOYPAD);
 			e->stateSize = c->serialize_size();
 		} else {
@@ -808,7 +897,7 @@ bool emu_open(Emu* e, const char* romPath, const char* savePath, bool audio) {
 		}
 	}
 	save_open(e, savePath);
-	if (debugLog()) fprintf(stderr, "emu: %s on core copy %c (%s), ROM %s, state %zu bytes\n", romPath, 'a' + slot, c->name, e->gameCode, e->stateSize);
+	if (debugLog()) fprintf(stderr, "emu: %s on %s core copy %c (%s), game %s, state %zu bytes\n", romPath, sys->key, 'a' + slot, c->name, e->gameCode, e->stateSize);
 	return true;
 
 fail:
@@ -820,7 +909,7 @@ fail:
 	e->core = NULL, e->fb = NULL, e->ring = NULL;
 fail_slot:
 	pthread_mutex_lock(&coresLock);
-	coreBusy[slot] = false;
+	coreBusy[sys->id][slot] = false;
 	pthread_mutex_unlock(&coresLock);
 	return false;
 }
@@ -837,7 +926,7 @@ void emu_close(Emu* e) {
 	}
 	dlclose(c->handle);
 	pthread_mutex_lock(&coresLock);
-	coreBusy[c->slot] = false;
+	coreBusy[c->sys->id][c->slot] = false;
 	pthread_mutex_unlock(&coresLock);
 	if (e->save) free(e->save->last);
 	free(e->save);
@@ -1129,17 +1218,28 @@ static void block(uint8_t** p, size_t* n, size_t* cap, const char* tag, const vo
 	*n = need;
 }
 
+/* SwanStation's states are a fixed 11 MB buffer the state fills only
+ * part of (a few MB): its files keep the bytes up to the last one that
+ * isn't zero, and are given back padded with zeros (which it takes). */
+static bool state_trims(const Emu* e) {
+	return e->sys && e->sys->id == SYS_PSX;
+}
+
 bool emu_state_save_file_as(Emu* e, const char* path, const void* extra, size_t extraN, StateFormat fmt) {
 	if (!e->core) return false;
-	uint8_t* mem = malloc(e->stateSize);
+	uint8_t* mem = calloc(1, e->stateSize);
 	if (!mem || !emu_state_save(e, mem)) {
 		free(mem);
 		return false;
 	}
-	size_t cap = e->stateSize + extraN + 256, n = 8;
+	size_t memN = e->stateSize;
+	if (state_trims(e)) {
+		while (memN > 1 && !mem[memN - 1]) --memN;
+	}
+	size_t cap = memN + extraN + 256, n = 8;
 	uint8_t* p = malloc(cap);
 	memcpy(p, "RASTATE\x01", 8);
-	block(&p, &n, &cap, "MEM ", mem, e->stateSize);
+	block(&p, &n, &cap, "MEM ", mem, memN);
 	uint8_t crc[4];
 	put_le32(crc, e->romCrc);
 	block(&p, &n, &cap, "SDSC", crc, 4);
@@ -1180,7 +1280,17 @@ bool emu_state_load_file(Emu* e, const char* path) {
 	StateFile sf;
 	StateFileKind kind;
 	if (!e->core || !state_file_read(path, &sf, &kind)) return false;
-	bool ok = sf.memN == e->stateSize && unserialize_in(e, sf.mem, sf.memN);
+	bool ok = false;
+	if (sf.memN == e->stateSize) {
+		ok = unserialize_in(e, sf.mem, sf.memN);
+	} else if (state_trims(e) && sf.memN < e->stateSize) {
+		uint8_t* whole = calloc(1, e->stateSize);
+		if (whole) {
+			memcpy(whole, sf.mem, sf.memN);
+			ok = unserialize_in(e, whole, e->stateSize);
+			free(whole);
+		}
+	}
 	if (!ok) fprintf(stderr, "emu: the core didn't take the state %s (%zu bytes, its states %zu)\n", path, sf.memN, e->stateSize);
 	fprintf(stderr, "load state: %s: %s (%s)\n", path, ok ? "loaded" : "not loaded",
 	        kind == STATE_FILE_OWN ? "RetroDS's" : sf.compressed ? "RetroArch's, compressed" : "RetroArch's");
@@ -1194,7 +1304,7 @@ StateFileKind emu_state_file_kind(Emu* e, const char* path, bool* fromRetrods) {
 	if (fromRetrods) *fromRetrods = false;
 	if (!state_file_read(path, &sf, &kind)) return kind;
 	if (fromRetrods) *fromRetrods = sf.haveCrc;
-	if (e && e->core && sf.memN != e->stateSize) kind = STATE_FILE_OTHER_CORE;
+	if (e && e->core && sf.memN != e->stateSize && !(state_trims(e) && sf.memN < e->stateSize)) kind = STATE_FILE_OTHER_CORE;
 	free(sf.b);
 	return kind;
 }
@@ -1238,8 +1348,14 @@ uint8_t* emu_memory(Emu* e, int region, size_t* size) {
 	return p;
 }
 
-/* index into work RAM for an SNES address, or -1 */
-static long wram_index(uint32_t addr) {
+/* index into work RAM for an address as the system's CPU sees it, or -1 */
+static long wram_index(const Emu* e, uint32_t addr) {
+	if (e->sys && e->sys->id == SYS_PSX) {
+		/* KUSEG, KSEG0 and KSEG1 all reach physical memory; the first 8 MB
+		 * of it are the 2 MB of RAM four times */
+		uint32_t phys = addr & 0x1FFFFFFF;
+		return addr < 0xC0000000u && phys < 0x800000 ? (long) (phys & e->sys->ramMask) : -1;
+	}
 	uint32_t bank = (addr >> 16) & 0xFF, off = addr & 0xFFFF;
 	if (bank == 0x7E || bank == 0x7F) return (long) ((addr & 0xFFFFFF) - 0x7E0000);
 	if ((bank < 0x40 || (bank >= 0x80 && bank < 0xC0)) && off < 0x2000) return (long) off;
@@ -1249,7 +1365,7 @@ static long wram_index(uint32_t addr) {
 uint8_t emu_read8(Emu* e, uint32_t addr) {
 	size_t n;
 	uint8_t* w = emu_memory(e, EMU_MEM_WRAM, &n);
-	long i = wram_index(addr);
+	long i = wram_index(e, addr);
 	return w && i >= 0 && (size_t) i < n ? w[i] : 0;
 }
 
@@ -1268,7 +1384,7 @@ uint32_t emu_read32(Emu* e, uint32_t addr) {
 void emu_write8(Emu* e, uint32_t addr, uint8_t value) {
 	size_t n;
 	uint8_t* w = emu_memory(e, EMU_MEM_WRAM, &n);
-	long i = wram_index(addr);
+	long i = wram_index(e, addr);
 	if (w && i >= 0 && (size_t) i < n) w[i] = value;
 }
 
@@ -1277,7 +1393,7 @@ int emu_apply(Emu* e, const char* what, const Write* w, int n, const WriteRange*
 	uint8_t* ram = emu_memory(e, EMU_MEM_WRAM, &size);
 	if (!ram || n < 0) return -1;
 	for (int i = 0; i < n; ++i) {
-		long at = wram_index(w[i].addr);
+		long at = wram_index(e, w[i].addr);
 		bool listed = false;
 		for (int k = 0; k < nOk && !listed; ++k) listed = w[i].addr >= ok[k].addr && w[i].addr - ok[k].addr < ok[k].size;
 		if (at < 0 || (size_t) at >= size || !listed) {
@@ -1289,7 +1405,7 @@ int emu_apply(Emu* e, const char* what, const Write* w, int n, const WriteRange*
 	char line[2048];
 	int len = snprintf(line, sizeof line, "write %s:", what);
 	for (int i = 0; i < n; ++i) {
-		long at = wram_index(w[i].addr);
+		long at = wram_index(e, w[i].addr);
 		if (len < (int) sizeof line - 24) len += snprintf(line + len, sizeof line - (size_t) len, " $%06X %02X>%02X", (unsigned) w[i].addr, ram[at], w[i].value);
 		ram[at] = w[i].value;
 	}

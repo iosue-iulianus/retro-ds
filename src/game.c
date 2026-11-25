@@ -9,6 +9,7 @@
 #include "game_screens.h"
 #include <zlib.h>
 #include "smmap.h"
+#include "sotn.h"
 #include "hotkeys.h"
 #include "paths.h"
 #include "ui.h"
@@ -160,7 +161,9 @@ static void bug_reset(void) {
 
 /* Between frames (the worker idle): a state a second for the bug log. */
 static void bug_tick(uint32_t nextKeys) {
-	if (!emu.core) return;
+	/* (the SNES's only: a PlayStation state is 11 MB, twelve of them too
+	 * much to keep for a report the app can't send now) */
+	if (!emu.core || emu.sys->id != SYS_SNES) return;
 	int oldest = 0;
 	uint64_t newest = 0;
 	bool any = false;
@@ -243,7 +246,7 @@ static void ahead_stop(void) {
 	ahead.started = false;
 }
 static MapCapture* mc;
-static char subCode[9];          /* the profile in use: the game's code */
+static char subCode[GAME_CODE_N];          /* the profile in use: the game's code */
 /* what the ROM is, by its CRC32 (the log, bug reports) */
 static const char* dump_text(char* buf, size_t n) {
 	const char* name;
@@ -253,10 +256,10 @@ static const char* dump_text(char* buf, size_t n) {
 	case DUMP_MOD_TESTED: snprintf(buf, n, "CRC32 %08x, a mod RetroDS is tested on (%s)", emu.romCrc, name); break;
 	case DUMP_MOD: snprintf(buf, n, "CRC32 %08x, a known mod RetroDS isn't tested on (%s)", emu.romCrc, name); break;
 	case DUMP_MODIFIED:
-		snprintf(buf, n, "CRC32 %08x, not a known dump of %.8s: modified (a patch or hack), trimmed or a bad dump", emu.romCrc,
+		snprintf(buf, n, "CRC32 %08x, not a known dump of %s: modified (a patch or hack), trimmed or a bad dump", emu.romCrc,
 		         emu.gameCode);
 		break;
-	default: snprintf(buf, n, "CRC32 %08x, not checked (no list of %.8s's dumps)", emu.romCrc, emu.gameCode); break;
+	default: snprintf(buf, n, "CRC32 %08x, not checked (no list of %s's dumps)", emu.romCrc, emu.gameCode); break;
 	}
 	/* a patch file beside the ROM (GEN-9): which, and what the file was before it */
 	size_t l = strlen(buf);
@@ -285,7 +288,10 @@ GamePaths gp;
 static SDL_Texture* gameTex[2];
 /* The game's picture: texW x texH as the core draws it (made again when
  * that changes), shown as picW x picH: the SNES screen, 256 wide (hi-res
- * pictures are 512 wide) and 224 or 239 tall (interlaced ones twice that). */
+ * pictures are 512 wide) and 224 or 239 tall (interlaced ones twice that);
+ * a PlayStation picture as wide as it's drawn (256, 320, 368), its 512 and
+ * 640-wide ones (the same width on a television) and interlaced ones
+ * halved. */
 static int texW, texH;
 int picW = SNES_W, picH = SNES_H;
 static void game_tex_fit(int w, int h) {
@@ -296,8 +302,13 @@ static void game_tex_fit(int w, int h) {
 		if (gameTex[i]) SDL_SetTextureBlendMode(gameTex[i], SDL_BLENDMODE_NONE);
 	}
 	texW = w, texH = h;
-	picW = SNES_W;
-	picH = h > 240 ? h / 2 : h;
+	if (emu.sys && emu.sys->id == SYS_PSX) {
+		picW = w >= 480 ? w / 2 : w;
+		picH = h > 288 ? h / 2 : h;
+	} else {
+		picW = SNES_W;
+		picH = h > 240 ? h / 2 : h;
+	}
 	if (debug) fprintf(stderr, "frame %llu: picture %dx%d, shown as %dx%d\n", (unsigned long long) frameCount, w, h, picW, picH);
 }
 /* A w x h picture into an SNES_W x SNES_H one: hi-res and interlaced
@@ -1057,7 +1068,7 @@ static void patch_describe(const uint8_t* rom, size_t romN, uint32_t romCrc, con
 	pi->baseOk = false;
 	const KnownPatch* k;
 	for (int i = 0; pn && (k = profile_patch(p, pn, i)); ++i) {
-		if (strncmp(k->code, emu.gameCode, 8) && k->code[0]) continue; /* (another game's, with the same file) */
+		if (strcmp(k->code, emu.gameCode) && k->code[0]) continue; /* (another game's, with the same file) */
 		if (!pi->known) pi->known = k;
 		if (!k->base || k->base == romCrc) pi->baseOk = true, pi->known = k;
 		else if (pi->nBases < 8) pi->bases[pi->nBases++] = k->base;
@@ -1350,7 +1361,7 @@ static void patch_pick_up(void) {
  * The patched ROM the same size as the one playing, and the battery save and
  * save states the same files. */
 static bool patch_live_ok(void) {
-	char code[9] = "????????";
+	char code[GAME_CODE_N] = "????????";
 	emu_rom_code(romPath, code);
 	size_t nowN = 0, newN = 0;
 	int nowR = PATCH_NONE, newR = PATCH_NONE;
@@ -4500,10 +4511,19 @@ static void pacing_update(void) {
 static int rewindTick;
 static bool wasRewinding;
 
+/* Rewind (L2) and fast forward (R2) are the SNES's: a PlayStation game
+ * uses L2 and R2 itself (owner, Nov 25, 2026) */
+static bool rewind_on(void) {
+	return cfg->rewind && emu.sys && emu.sys->rewindKeys;
+}
+static bool ff_on(void) {
+	return cfg->fastForward && emu.sys && emu.sys->rewindKeys;
+}
+
 static void rewind_setup(void) {
 	emu_rewind_deinit();
 	rewindTick = 0;
-	if (!cfg->rewind || !emu.core) return;
+	if (!rewind_on() || !emu.core) return;
 	int secs = cfg->rewindSeconds < 5 ? 5 : cfg->rewindSeconds > 300 ? 300 : cfg->rewindSeconds;
 	emu_rewind_init(&emu, (size_t) secs * 30);
 	fprintf(stderr, "rewind: %d s (%d states)\n", secs, secs * 30);
@@ -4610,13 +4630,13 @@ static void load_overlay(int s, int which) {
 	char names[20][64];
 	int n = 0;
 	for (int g = 0; g < 2; ++g) { /* this game's, then every game's */
-		char code[8] = "";
-		if (!g) snprintf(code, sizeof(code), "%.8s-", emu.gameCode);
+		char code[GAME_CODE_N + 1] = "";
+		if (!g) snprintf(code, sizeof(code), "%s-", emu.gameCode);
 		for (int k = 0; k < 2; ++k) snprintf(names[n++], 64, "%s%s-%s", code, sides[k], scale);
 		for (int k = 0; k < 2; ++k) snprintf(names[n++], 64, "%s%s", code, sides[k]);
 		if (!g && which) {
-			snprintf(names[n++], 64, "%.8s-%s", emu.gameCode, scale); /* older names */
-			snprintf(names[n++], 64, "%.8s", emu.gameCode);
+			snprintf(names[n++], 64, "%s-%s", emu.gameCode, scale); /* older names */
+			snprintf(names[n++], 64, "%s", emu.gameCode);
 		}
 	}
 	char path[1200];
@@ -4701,6 +4721,7 @@ static void map_reshow(void) {
 static int map_touch(const Pointer* p) {
 	if (nat) return native_touch(p);
 	if (alt) return alt_touch(p);
+	if (sot) return sot_touch(p);
 	const MapProfile* tp = touch_prof();
 	if (!tp || (p->screen == game_screen() && !(mapDrag && p->kind != 1))) return 0;
 	if (p->kind == 1) {
@@ -4978,8 +4999,18 @@ void draw_logo_at(int s, int dy) {
 		SDL_Rect area = ui_image_rect(s, SNES_W, SNES_H, cfg->mapScale);
 		int in = area.w / 10;
 		area = (SDL_Rect) { area.x + in, area.y + in + dy, area.w - in * 2, area.h - in * 2 };
-		if (tp) ui_title_block(s, area, tp->title, (int) (ui_px(s) * 14), (SDL_Color) { 236, 236, 244, 255 });
+		char name[300];
+		snprintf(name, sizeof(name), "%s", gp.base);
+		char* tag = strstr(name, " (");
+		if (tag && tag > name) *tag = 0; /* ("(USA)" and the like off) */
+		ui_title_block(s, area, tp ? tp->title : name, (int) (ui_px(s) * 14), (SDL_Color) { 236, 236, 244, 255 });
 	}
+}
+
+/* The game's logo fitted into `area` (Symphony of the Night's map, SOTN-4) */
+void draw_logo_in(int s, SDL_Rect area) {
+	if (!logoTex[0] && !logoTex[1]) return;
+	ui_image(s, logoTex, logoW, logoH, "fit", &area);
 }
 
 static void draw_game(void) {
@@ -4993,6 +5024,11 @@ static void draw_game(void) {
 			if (nScreens == 2 && !mapOn && s != game_screen()) {
 				/* no map: the other screen black, in its bezel if it has one */
 				if (overlay_on(s)) draw_overlay(s, 1);
+				continue;
+			}
+			if (sot && nScreens == 2 && sot_cover_game()) {
+				/* SOTN-6: the game's menu is the second screen's: here, the logo */
+				draw_logo_at(s, 0);
 				continue;
 			}
 			ui_image_pixels(s, gameTex, picW, picH, cfg->scale, SHADER_ON);
@@ -5023,6 +5059,9 @@ static void draw_game(void) {
 			/* (ALTTP-7, ALTTP-12: where there's no map, draw_alt shows the logo) */
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			draw_alt(s);
+		} else if (sot && sot_screen_shown()) {
+			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, (SDL_Color) { 0, 0, 0, 255 });
+			draw_sot(s);
 		} else if (mapShownIdx >= 0 && !logoForced) {
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			ui_image_pixels(s, mapTex, mapW, mapH, cfg->mapScale, SHADER_ON);
@@ -5409,14 +5448,18 @@ static void ss_setup(const char* rom, const char* code) {
 #endif
 		const MapProfile* lp = profile_find(code);
 		native_open(rom, lp);
+		sot_open(rom);
 		mc = nat || alt ? NULL : mapcap_create(rom, code, true);
 		if (nat) mapW = SMMAP_W, mapH = SMMAP_H;
 		if (alt) mapW = ALTTP_W, mapH = ALTTP_H;
 		logoOnly = lp && lp->logoOnly;
-		snapProf = logoOnly && lp->snap.showMin ? lp : NULL;
+		/* (another system's games: the logo until their own second screen
+		 * exists; owner, Nov 25, 2026) */
+		if (!lp && emu.sys && emu.sys->id != SYS_SNES) logoOnly = true;
+		snapProf = logoOnly && lp && lp->snap.showMin ? lp : NULL;
 		snapShow = snapRevert = 0;
 		if (mc) mapcap_set_still(mc, !map_anim());
-		if (logoOnly) fprintf(stderr, "logo only: %s\n", lp->title);
+		if (logoOnly) fprintf(stderr, "logo only: %s\n", lp ? lp->title : gp.base);
 		if (mc) {
 			fprintf(stderr, "map profile: %s\n", mapcap_title(mc));
 			mapcap_size(mc, &mapW, &mapH);
@@ -5435,6 +5478,7 @@ static void ss_textures(void) {
 	}
 	native_textures();
 	alt_textures();
+	sot_textures();
 }
 
 /* After the device sleeps (or the renderer is reset), the GPU's copies of
@@ -5464,7 +5508,17 @@ static void rebuild_textures(void) {
  * say. */
 
 static void patches_setup(const char* rom) {
-	char code[9] = "????????";
+	const System* sys = system_for_path(rom);
+	if (sys && sys->fullPath) { /* (a disc is played as it is: no patches) */
+		emu_patch_plan(NULL, NULL, 0);
+		patchDir[0] = 0;
+		memset(&patchChoice, 0, sizeof(patchChoice));
+		patchStarted = patchChoice;
+		patchReload = patchReloadNext = patchHandoffNext = false;
+		patchHandoff[0] = 0;
+		return;
+	}
+	char code[GAME_CODE_N] = "????????";
 	emu_rom_code(rom, code);
 	patch_folder(cfg, rom, code, patchDir, sizeof(patchDir), true);
 	patch_choice_load(gp.patches, &patchChoice);
@@ -5540,6 +5594,14 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	game_paths(cfg, rom, &gp);
 	game_keys_reload();
 	patches_setup(rom); /* GEN-9: the patches folder, what's on, and the plan every core opens the ROM with */
+	const System* sys = system_for_path(rom);
+	char biosPath[1200];
+	if (sys && !emu_bios_present(sys, biosPath, sizeof(biosPath))) {
+		/* (the player's own BIOS, never shipped) */
+		fprintf(stderr, "game: no BIOS, %s isn't there\n", biosPath);
+		ui_osd_long(tr("%s games need the BIOS %s: put it in %s"), sys->name, sys->bios, emu_bios_dir());
+		return fromLibrary ? GAME_TO_LIBRARY : GAME_QUIT_APP;
+	}
 	if (!emu_open(&emu, rom, gp.sav, true)) {
 		ui_osd("Couldn't load the game");
 		return fromLibrary ? GAME_TO_LIBRARY : GAME_QUIT_APP;
@@ -5549,7 +5611,9 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		char d[640];
 		fprintf(stderr, "ROM: %s\n", dump_text(d, sizeof(d)));
 	}
-	if (emu.patch != PATCH_NONE) {
+	if (emu.sys->id != SYS_SNES) {
+		/* (RetroAchievements for the PlayStation later: ra.c knows the SNES) */
+	} else if (emu.patch != PATCH_NONE) {
 		ra_game_patched(); /* (RetroAchievements doesn't allow patched games) */
 	} else {
 		ra_game_start(&emu, rom);
@@ -5567,7 +5631,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	frameCount = 0;
 	mapAnimStart = 0; /* (the last game's count was further on) */
 	menuOpen = false;
-	snprintf(subCode, sizeof(subCode), "%.8s", emu.gameCode);
+	snprintf(subCode, sizeof(subCode), "%s", emu.gameCode);
 	ss_setup(rom, subCode);
 	texW = texH = 0;
 	game_tex_fit(emu.w, emu.h);
@@ -5822,7 +5886,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		}
 		ui_tick();
 		ui_read_buttons();
-		ui_set_pinch(alt && altPage == 1 && altShown && !menuOpen && nScreens == 2);
+		ui_set_pinch(((alt && altPage == 1 && altShown) || (sot && sot_map_shown())) && !menuOpen && nScreens == 2);
 		{
 			const char* ld = ui_script_load();
 			if (ld && !state_load(ld)) fprintf(stderr, "could not load %s\n", ld);
@@ -6183,7 +6247,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		 * skipped (RetroArch's habit; issue #44). No hotkeys meanwhile,
 		 * and letting go of the hotkey doesn't open the menu. */
 		bool ffMod = false;
-		if (mod && !menuOpen && cfg->fastForward && btnNow[B_R2] && !(cfg->rewind && btnNow[B_L2])) {
+		if (mod && !menuOpen && ff_on() && btnNow[B_R2] && !(rewind_on() && btnNow[B_L2])) {
 			ffMod = true;
 			for (int i = 0; i < HK_COUNT; ++i) ffMod = ffMod && hkBtn[i] != B_R2;
 			if (ffMod) comboUsed = ffModUsed = true;
@@ -6405,19 +6469,45 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			if (HELD(B_START) && modBtn != B_START && comboHold != B_START) keys |= K_START;
 			if (HELD(B_SELECT) && modBtn != B_SELECT && comboHold != B_SELECT) keys |= K_SELECT;
 			keys |= fb_keys(false); /* L, R and the D-pad, as chosen (GEN-10) */
+			if (!emu.sys->rewindKeys) { /* (a PlayStation game's own L2 and R2) */
+				if (HELD(B_L2)) keys |= K_L2;
+				if (HELD(B_R2)) keys |= K_R2;
+			}
 		}
 		if (modPulse > 0) keys |= modBtn == B_START ? K_START : K_SELECT, --modPulse;
 		if (comboPulse[0] > 0) keys |= K_SELECT, --comboPulse[0];
 		if (comboPulse[1] > 0) keys |= K_START, --comboPulse[1];
 		keys = alt_keys(keys); /* ALTTP-1: X is the second screen's */
+		if (sot && nScreens == 2) keys = sot_keys(keys); /* SOTN-6: Start is the pages' */
+		{
+			/* SOTN-6: the game stopped for the menu page: no frames, no sound */
+			static bool frozen;
+			bool now = sot && sot_frozen();
+			if (now != frozen && audio) {
+				SDL_PauseAudioDevice(audio, now);
+				if (now) SDL_ClearQueuedAudio(audio);
+				else audioQuietUntil = frameCount + 150;
+			}
+			if (frozen && !now) next = SDL_GetPerformanceCounter() / freq;
+			frozen = now;
+			if (now) {
+				ra_idle();
+				ui_clear();
+				draw_game();
+				ui_present();
+				SDL_Delay(16);
+				next = SDL_GetPerformanceCounter() / freq;
+				continue;
+			}
+		}
 		{
 			static uint32_t lastKeys;
 			if (debug && keys != lastKeys) fprintf(stderr, "frame %llu: game keys %03x\n", (unsigned long long) frameCount, keys);
 			lastKeys = keys;
 		}
 
-		bool rewinding = cfg->rewind && btnNow[B_L2];
-		bool ff = cfg->fastForward && btnNow[B_R2] && !rewinding;
+		bool rewinding = rewind_on() && btnNow[B_L2];
+		bool ff = ff_on() && btnNow[B_R2] && !rewinding;
 		ffBox = ff;
 		/* Max (ff_speed 0): as many frames as fit in about 70% of a display
 		 * frame (the rest for drawing it), up to FF_MAX_RUNS; the sound
@@ -6620,7 +6710,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		emuTicks += emuT1 - emuT0;
 		++frameCount;
 		/* the rewind buffer: a state every second emulated frame */
-		if (cfg->rewind && !rewinding && (rewindTick += runs) >= 2) {
+		if (rewind_on() && !rewinding && (rewindTick += runs) >= 2) {
 			emu_rewind_append(&emu);
 			rewindTick = 0;
 		}
@@ -6730,6 +6820,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 
 		if (nat) native_tick();
 		if (alt) alt_tick();
+		if (sot) sot_tick();
 		if (snapProf) update_snapshot();
 
 		Uint64 drawT0 = SDL_GetPerformanceCounter();
@@ -6900,6 +6991,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	mc = NULL;
 	native_free();
 	alt_free(); /* (saves what each file has seen) */
+	sot_free();
 	emu_rewind_deinit();
 	emu_close(&emu); /* flushes the battery save */
 	for (int i = 0; i < MAP_MAX_FRAMES; ++i) {

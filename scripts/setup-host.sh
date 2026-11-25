@@ -1,8 +1,10 @@
 #!/bin/bash
 # Sets up the desktop (x86_64 Linux) build used for development and testing:
 # SDL2 into ./deps, the libretro cores into ../cores (scripts/build-cores.sh),
-# then the app (build/host/retrods, with the bsnes core linked beside it)
-# and the harness (build/host/retrods-harness).
+# then the app (build/host/retrods, with the bsnes and SwanStation cores
+# linked beside it) and the harness (build/host/retrods-harness). The
+# PlayStation needs the player's BIOS in the data folder's bios/ (by
+# default build/host/bios/scph5501.bin).
 #
 # Needs: git, cmake, make, gcc, g++, zlib and libpng headers.
 #
@@ -33,4 +35,5 @@ CORES=${RETRODS_CORES:-$ROOT/../cores}
 make -j"$(nproc)"
 make tools
 ln -sf "$CORES/bsnes/bsnes_libretro.so" build/host/bsnes_libretro.so
-echo "built build/host/retrods (core: build/host/bsnes_libretro.so) and build/host/retrods-harness"
+ln -sf "$CORES/swanstation/build-host/swanstation_libretro.so" build/host/swanstation_libretro.so
+echo "built build/host/retrods (cores: build/host/bsnes_libretro.so, swanstation_libretro.so) and build/host/retrods-harness"

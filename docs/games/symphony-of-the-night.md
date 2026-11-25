@@ -1,0 +1,67 @@
+# Castlevania: Symphony of the Night
+
+| | |
+|---|---|
+| Releases | USA (this page): serial `SLUS-00067`, one disc (track 1 data, track 2 audio) |
+| Game code | `SLUS-00067` (the serial its `SYSTEM.CNF` boots: `src/disc.c`) |
+| Core | SwanStation with `scripts/cores/swanstation-vram.patch` (the game's video RAM, 1 MB) |
+| Code | `src/sotn.c` (reading and composing), `src/game_sotn.c` (the second screen) |
+| Tests | the harness with the disc and `RETRODS_BIOS_DIR`; test files in `test-data/symphony-of-the-night/` (`duo-auto-2026-11-25-first-save.state`: Alucard in the first save room, 33 rooms) |
+| Status | SOTN-1 to 4 on the Duo (Nov 25, 2026: the logo didn't come and the game list said single screen: SOTN-1 changed); SOTN-5 built, checked on the host |
+
+What RetroDS does with this game. Each rule is a promise; change the rule here first, then the code, then the tests. Rule numbers are never reused. `Xeeynamo/sotn-decomp` (AGPL-3.0) is a reference for addresses and formats only: no code from it.
+
+## Rules
+
+**SOTN-1. The logo.** Until the game has its own second screen, and wherever it shows none, the second screen shows the game's logo: the title screen's "Castlevania, Symphony of the Night" lettering, read from the disc (the file the title loads it from, `BIN/F_TITLE0.BIN`, checked against the logo measured on the title), its clear pixels transparent, on black, at its shape on a television (its 512-wide pixels 0.625 as wide as they're high: 1150 x 484). Made in the background like every game's logo, so it's in the game list before the game is first played, and kept as the game's extracted logo (`states/logos/SLUS-00067.png`). A logo of the player's own (`logos/SLUS-00067.png` in the data folder) or a scraped one wins, as for every game. In the game list the game counts as one with a second screen, and it's in Supported Games. *(Until Nov 25, 2026: taken from the title screen's video RAM, so a game resumed from its auto state never had one; the owner, on the Duo.)*
+
+## The map
+
+*The owner, Nov 25, 2026: the map on the second screen should look better than GBA DS's Castlevania maps (`docs/cotm.png` upstream: the map alone in a plain frame), using the game's own art for the background, borders and the like. Of three mock-ups (`sotn-map-mockups/` beside the repo) the owner chose C, the status window with the logo, with ROOMS and the percentage together in one small window as in B.*
+
+What the game itself shows: Select brings up the castle map over the darkened game, at the game's own pixels (one map square is 4 x 4 of them, the castle 64 x 64 squares), explored rooms in blue with light grey walls, save rooms red, teleporters orange, Alucard's room marked by the map cursor. Start's status screen gives ROOMS in a window with a white edge; the file screen gives each save's percentage.
+
+**SOTN-2. The castle map, as the game draws it.** While Alucard is played in the castle, the second screen shows the game's own map picture, read from its video RAM as it changes (the game draws a square there as he explores it), in the game's own palette: exactly the pixels Select shows, nothing more (no unexplored rooms: the game keeps the whole castle's plan in memory, but the map shows only what's been explored). The inverted castle's map turned half round, as Select shows it (*the inverted castle: from the game's code, not yet seen*). At a whole number of screen pixels per game pixel, as large as the castle's 190 lines allow with a little room: 5 on the Duo's top screen (the castle's 242 x 190 pixels as 1210 x 950). Before Alucard has explored a room (the prologue), at the title and the file screens, at game over and the ending: the logo (SOTN-1). While the game loads between areas, the map stays as it was.
+
+**SOTN-3. Where Alucard is.** The game's own map cursor (its cream disc from video RAM, half see-through as the game draws it) closes onto Alucard's square over and over, every 64 frames, as on Select's map; his square from the game's memory (the room's place on the map and his place in the room). It keeps its size with the map at rest whatever the zoom (SOTN-5), as Link's marker does (ALTTP-4).
+
+**SOTN-4. Around the map.** The whole second screen is a window as Start's status screen draws it: a gradient from the player's window colour (the System menu's; 0, 0, 8 at first: navy) less 32 at the top to it plus 32 at the bottom, upside down in the inverted castle as the game's are, dithered as the PlayStation dithers it, a white edge a pixel wide, black round it. The map in it at the left. At the top right the title's logo (SOTN-1), at its own shape. At the bottom right a small window of the same kind holds ROOMS and the rooms explored, as the status screen writes them, and under them the percentage as the file screen gives it (rooms x 1000 / 942, in tenths: `3.5%`), in the status screen's own lettering (its 8 x 8 font from video RAM). Nothing in the game is touched or written: the game is only read.
+
+**SOTN-5. Zoom by touch.** As A Link to the Past's map (ALTTP-3, the owner's ask, Nov 25, 2026): a tap on the map zooms it in, the place tapped gliding to the middle of the window, and a tap zoomed in goes back out to the whole castle at its place; two fingers pinch the zoom round the point between them (which stays under the fingers), and when they lift it glides to the nearest level; a drag moves the map, smoothly, with a fling. The levels: the size at rest and twice it (5 and 10 screen pixels to one of the game's on the Duo's top screen). *(The owner, Nov 25, 2026: 3 and 4 times were far closer than this game needs, and zoomed in the page can't be swiped.)* Only the map zooms, inside the big window; the logo and the ROOMS pane stay where they are, over it. The castle is kept in the window (bigger than it, its edges never come inside; smaller, all of it stays in). Zoomed in and left alone, the map keeps Alucard's square in the middle of the window, as he moves; moved by the player, it stays where it was put until Alucard enters another room, then glides back to him. No zoom indicator, no sounds (A Link to the Past's are its own; not asked for).
+
+## The menu on the second screen
+
+*The owner, Nov 25, 2026: the game's own menu (Start's) on the second screen, made for touch while keeping the gamepad; the map and the menu as two pages of the second screen; swiping away from the map pauses the game, the game screen shows the logo, and the game's own menu never shows on the game screen. The window widened to the screen, then its parts spread out (the menu was always a bit cramped). Of a rebuilt menu (writes to the game) or the game's own moved over, the game's own (no writes: RetroDS only presses the game's buttons).*
+
+**SOTN-6. The map and the menu, two pages.** The second screen has two pages: the map (SOTN-2 to 5) and the menu. Start goes to the menu page, and Start again back to the map: RetroDS takes Start, and the game is never given the player's Start (an exception: listed). A swipe across the second screen goes from one page to the other, the pages following the finger (on the map, while the whole castle fits the window across; zoomed in, a drag moves the map, and a swipe from the window's black edge turns the page); two small squares inside the window, just above its bottom edge, say which page is up (the owner, Nov 25, 2026: under the window they were lost). Going to the menu page pauses the game, always:
+- When the game would open its menu (it's being played: engine step 1, pausing allowed, `0x8003C8B8`), RetroDS presses Start for it, and the game opens its own menu as it does for the player (pausing itself, its sounds and its fade). The menu page shows that menu (SOTN-7); the gamepad works it as in the game (Start excepted). Touch on the menu page only turns the page (a swipe, or the page squares): the menu itself is the gamepad's (the owner, Nov 25, 2026: easier with the D-pad and buttons; a Back button, the game's △, was there until then). Always on for this game, no setting to switch it off (the owner, Nov 25, 2026).
+- When it wouldn't (a cutscene, a door, loading, the prologue, Alucard dead), RetroDS stops the game where it is, sound and all, and the menu page shows the window alone; going back to the map lets it carry on.
+- While the menu page is up, and while the game's menu is opening or closing, the game screen shows the logo (SOTN-1) instead of the game; the game's menu is never seen there.
+Back on the map page (a swipe, Start, or △ at the menu's top, or the game closing its menu any other way: its menu steps 3 to 15), the page slides back at once, RetroDS pressing △ for the game, on its menu's pages only, until its menu has closed, and the game carries on (the owner, Nov 25, 2026: △ held the menu page while the game's menu closed). *(Writes: none. RetroDS presses the game's own buttons.)*
+
+**SOTN-7. The menu, widened.** On the menu page the game's picture of its menu is shown at its 4:3 shape, scaled so that its window's top and bottom edges (lines 16 and 215 of its picture) fall on the map page's window's, and the window carried out sideways to the map's window's edges: each row of a window is continued with that row's own colours (its gradient and dither, whatever the window colour or castle; where something else is drawn at the row's edge as the menu's windows move, the nearest clean row's on the same row of the dither, or that row's from an earlier picture), its white edge moved out, its top and bottom edges drawn across; rows between windows stay black. So the two pages share one window, edge for edge (the owner, Nov 25, 2026: the menu's was lower and shorter than the map's). While no window fills the picture from edge to edge (the menu fading in or out), the window alone.
+
+**SOTN-8.** *Retired (Nov 25, 2026).* The menu's parts spread across the widened window (sideways, by whole steps of the dither, only what's drawn moving; built for the status page, Relics and Equip). Tried on the Duo and taken out by the owner: the sub-screens' blinking cursors kept them jumping and Relics looked wrong, so they went back to centred; then the status page's columns jumped between centred and spread at every move to a sub-screen and back (the game's windows animate over it, and it can only be spread while still; kept spread through the animation, it tore). The menu page is the game's own picture of its menu, widened (SOTN-7), as the game lays it out. A menu laid out by RetroDS would have to be drawn by it from the game's memory (as Super Metroid's and A Link to the Past's screens are), equipping still done by pressing the game's buttons (its own equip routine keeps the inventory and the special cases right, and recalculates the stats, `make_all`, which the game runs only at set moments: browsing and confirming in its equip menu, a hit, a level, a load).
+
+## How it's found (measured in the harness, Nov 25, 2026)
+
+| What | Where | Notes |
+|---|---|---|
+| Game state | `0x8003C734` (32-bit) | 1 title, 2 playing, 8 the file screens (`g_GameState`) |
+| Stage | `0x800974A0` | `0x41` the first save room; bit `0x20` the inverted castle (`g_StageId`) |
+| Rooms explored | `0x8003C760` (32-bit) | 33 in the test state (`g_RoomCount`); the game's percentage: rooms x 100 / 942 |
+| Explored squares | `0x8006BB74`, 0x800 bytes | 2 bits a square, 64 x 64 squares; `+0x400` the inverted castle's (`g_CastleMap`) |
+| The castle's plan | `0x801E0000`, 256 x 256 at 4 bits | every room, explored or not (`CASTLE_MAP_PTR`) |
+| The map picture | video RAM (832, 256), 64 x 256 halfwords, 4 bits a pixel | the game's own drawing of the explored squares; Select draws it 1:1 from (0, 1) of its 256 x 240 picture |
+| Its palette | video RAM (0, 252), 16 colours | via the game's palette table (`g_ClutIds` `0x8003C104`, entry `0x1C0`) |
+| The title's logo | video RAM (780, 2), 230 x 121 halfwords, 8 bits a pixel; palette (512, 240) | CRC32 `BE361342`, palette `1876343F` (SOTN-1) |
+| The file select's relief | video RAM (576, 0), 192 x 240 halfwords, 8 bits; palette (256, 241) | while the file select is up |
+| Alucard's square | `0x800730B0`, `0x800730B4` (the room's place in squares, `g_Tilemap.left/top`) plus `0x800973F0` / `0x800973F4` over 256 (his place in the room) | the map cursor's (SOTN-3) |
+| Window colour | `0x8003CAC0`, three 32-bit values 0 to 31 | the System menu's (`g_Settings.windowColors`) |
+| The status screen's font | video RAM (896, 256), 4 bits, 8 x 8 from `' '`; palette entry `0x196` | resident while playing |
+| The map cursor | video RAM (640, 256), 32 x 32, 4 bits; palette entry `0x170` | |
+
+Checked: the map picture with that palette, placed 1:1, matches the game's Select screen pixel for pixel (but where Alucard's cursor blends over it).
+| Engine step | `0x8003C9A4` | 1 playing, 2 the menu (Start's), 20 Select's map (`g_GameEngineStep`) |
+| Menu step | `0x800978F8` | `0x10` the menu's top page, `0x40` Equip (`g_MenuStep`); △ steps back, and at `0x10` closes the menu |
+| Pausing allowed | `0x8003C8B8` | (`g_PauseAllowed`): with engine step 1, Start opens the menu |

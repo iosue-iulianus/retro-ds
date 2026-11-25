@@ -1,0 +1,44 @@
+diff --git a/src/core/gpu.h b/src/core/gpu.h
+index 0a0959f0..8ee84b40 100644
+--- a/src/core/gpu.h
++++ b/src/core/gpu.h
+@@ -22,6 +22,14 @@ class Timers;
+ class GPU
+ {
+ public:
++  // RetroDS: video RAM (1024 x 512 halfwords) for reading between frames,
++  // with the drawing thread caught up first.
++  uint16_t* GetVRAMForRead()
++  {
++    ReadVRAM(0, 0, VRAM_WIDTH, VRAM_HEIGHT);
++    return m_vram_ptr;
++  }
++
+   enum class BlitterState : uint8_t
+   {
+     Idle,
+diff --git a/src/libretro/libretro_host_interface.cpp b/src/libretro/libretro_host_interface.cpp
+index 6f97a844..69d1c407 100644
+--- a/src/libretro/libretro_host_interface.cpp
++++ b/src/libretro/libretro_host_interface.cpp
+@@ -1144,6 +1144,10 @@ void* HostInterface::retro_get_memory_data(unsigned id)
+       if (!System::IsShutdown())
+         return Bus::g_ram;
+       break;
++    case RETRO_MEMORY_VIDEO_RAM:
++      if (!System::IsShutdown() && g_gpu)
++        return g_gpu->GetVRAMForRead();
++      break;
+     case RETRO_MEMORY_SAVE_RAM:
+     {
+       const MemoryCardType type = g_settings.memory_card_types[0];
+@@ -1168,6 +1172,9 @@ size_t HostInterface::retro_get_memory_size(unsigned id)
+     case RETRO_MEMORY_SYSTEM_RAM:
+       return Bus::g_ram_size;
+ 
++    case RETRO_MEMORY_VIDEO_RAM:
++      return VRAM_WIDTH * VRAM_HEIGHT * sizeof(uint16_t);
++
+     case RETRO_MEMORY_SAVE_RAM:
+     {
+       const MemoryCardType type = g_settings.memory_card_types[0];

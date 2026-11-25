@@ -240,7 +240,7 @@ bool profile_release_name(const char* gameCode, char* out, size_t size);
 /* A patch RetroDS knows (src/dumps_data.h), by its file's checksum: the
  * CRC32 of the file without its last four bytes, and its size */
 typedef struct {
-	char code[9];      /* the release it's for (its game code; "" if not known) */
+	char code[16];     /* the release it's for (its game code; "" if not known) */
 	uint32_t id;
 	uint32_t size;
 	uint32_t base;     /* the ROM it's made for (0: any of the release's, or not known) */

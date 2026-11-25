@@ -8,6 +8,8 @@
 #include "logo.h"
 #include "brand.h"
 #include "emu.h"
+#include "system.h"
+#include "sotn.h"
 #include "esde.h"
 #include "hotkeys.h"
 #include "folderpick.h"
@@ -34,7 +36,7 @@
 typedef struct {
 	char path[1024];
 	char name[160];
-	char code[9];
+	char code[GAME_CODE_N];
 	bool supported;
 	int flag; /* BRAND_FLAG_* shown on the tile, or -1 (only one region of this game) */
 	long long size, mtime; /* the file's, from the scan (its ROM checksum's cache key; with a patch
@@ -67,7 +69,7 @@ static int cmp_games(const void* a, const void* b) {
  * v1.5.3: archives.cache, archives only, read when codes.cache isn't there). */
 typedef struct {
 	long long size, mtime;
-	char code[9];
+	char code[GAME_CODE_N];
 	char path[1024];
 	bool used;
 } CodeCache;
@@ -123,7 +125,7 @@ static bool code_cache_read(const char* path) {
 	while (fgets(line, sizeof(line), f)) {
 		CodeCache c = { 0 };
 		int off = 0;
-		if (sscanf(line, "%lld %lld %8s %n", &c.size, &c.mtime, c.code, &off) < 3 || !off || strlen(c.code) != 8) continue;
+		if (sscanf(line, "%lld %lld %15s %n", &c.size, &c.mtime, c.code, &off) < 3 || !off || strlen(c.code) < 8) continue;
 		line[strcspn(line, "\n")] = 0;
 		snprintf(c.path, sizeof(c.path), "%s", line + off);
 		if (!code_cache_find(c.path)) code_cache_add(&c);
@@ -162,11 +164,11 @@ static void code_cache_save(const Config* cfg) {
 }
 
 /* The game code (emu.h gameCode: the ROM's CRC32), read once per file. */
-static bool game_code(const char* path, const struct stat* st, char code[9]) {
+static bool game_code(const char* path, const struct stat* st, char code[GAME_CODE_N]) {
 	CodeCache* c = code_cache_find(path);
 	if (c && c->size == (long long) st->st_size && c->mtime == (long long) st->st_mtime) {
 		c->used = true;
-		memcpy(code, c->code, 9);
+		memcpy(code, c->code, GAME_CODE_N);
 		return true;
 	}
 	if (!emu_rom_code(path, code)) {
@@ -175,10 +177,10 @@ static bool game_code(const char* path, const struct stat* st, char code[9]) {
 	}
 	if (c) { /* (the file changed) */
 		c->size = st->st_size, c->mtime = st->st_mtime, c->used = true;
-		memcpy(c->code, code, 9);
+		memcpy(c->code, code, GAME_CODE_N);
 	} else {
 		CodeCache n = { st->st_size, st->st_mtime, "", "", true };
-		memcpy(n.code, code, 9);
+		memcpy(n.code, code, GAME_CODE_N);
 		snprintf(n.path, sizeof(n.path), "%s", path);
 		code_cache_add(&n);
 	}
@@ -370,7 +372,7 @@ static void scan_dir(Config* cfg, const char* d, int depth) {
 		memset(&g, 0, sizeof(g));
 		snprintf(g.path, sizeof(g.path), "%s", full);
 		if (!game_code(g.path, &st, g.code)) continue;
-		g.supported = profile_find(g.code) != NULL;
+		g.supported = profile_find(g.code) != NULL || sotn_is(g.code); /* (Symphony of the Night: its own module, no profile) */
 #ifdef RETRODS_SIDE_CODES
 		/* a side build lists only its game's releases (the Makefile's SIDE_CODES) */
 		if (!strstr(RETRODS_SIDE_CODES, g.code)) continue;
@@ -511,7 +513,8 @@ static void rom_crc_save(const Config* cfg) {
 /* The game's ROM checksum if it's known; if not, asks for it (only supported
  * games: the others have no list of dumps to check it against). */
 static bool game_crc(const GameEntry* g, uint32_t* crc, int* patch) {
-	if (!g->supported) return false;
+	const System* sys = system_for_path(g->path);
+	if (!g->supported || !sys || sys->fullPath) return false; /* (a disc: its code is its serial) */
 	pthread_mutex_lock(&crcLock);
 	RomCrc* c = rom_crc_find(g->path, g->size, g->mtime);
 	bool have = c != NULL;
@@ -578,6 +581,28 @@ static void scan_progress(void) {
 	ui_present();
 }
 
+/* A ROM folder named after a system (ROMs/snes) brings the other
+ * systems' folders beside it (ROMs/psx), when they're there. */
+static void scan_siblings(Config* cfg, const char* d) {
+	char dir[1024];
+	snprintf(dir, sizeof(dir), "%s", d);
+	size_t len = strlen(dir);
+	while (len > 1 && dir[len - 1] == '/') dir[--len] = 0;
+	char* slash = strrchr(dir, '/');
+	if (!slash) return;
+	bool named = false;
+	for (int i = 0; i < SYS_COUNT && !named; ++i) named = !strcasecmp(slash + 1, system_get(i)->key);
+	if (!named) return;
+	for (int i = 0; i < SYS_COUNT; ++i) {
+		const char* key = system_get(i)->key;
+		if (!strcasecmp(slash + 1, key)) continue;
+		char other[1100];
+		snprintf(other, sizeof(other), "%.*s/%s", (int) (slash - dir), dir, key);
+		struct stat st;
+		if (!stat(other, &st) && S_ISDIR(st.st_mode)) scan_dir(cfg, other, 0);
+	}
+}
+
 static void scan(Config* cfg) {
 	free(games);
 	games = NULL;
@@ -593,7 +618,10 @@ static void scan(Config* cfg) {
 	code_cache_load(cfg);
 	rom_crc_load(cfg);
 	crcCfg = cfg;
-	for (char* d = strtok_r(dirs, ":", &save); d; d = strtok_r(NULL, ":", &save)) scan_dir(cfg, d, 0);
+	for (char* d = strtok_r(dirs, ":", &save); d; d = strtok_r(NULL, ":", &save)) {
+		scan_dir(cfg, d, 0);
+		scan_siblings(cfg, d);
+	}
 	code_cache_save(cfg);
 	qsort(games, nGames, sizeof(*games), cmp_games);
 	/* (no region flags yet: SNES game codes are checksums, with no region
@@ -1255,6 +1283,7 @@ static int draw_wrapped(int scr, int x, int y, int width, float px, const char* 
 static const struct { const char* title; const char* what; } supportedGames[] = {
 	{ "Super Metroid", N_("The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it.") },
 	{ "The Legend of Zelda: A Link to the Past", N_("The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps.") },
+	{ "Castlevania: Symphony of the Night", N_("The castle map as far as you've explored it, where Alucard is, and the rooms and percentage explored.") },
 };
 static void draw_supported(int scr) {
 	float px = ui_px(scr);
