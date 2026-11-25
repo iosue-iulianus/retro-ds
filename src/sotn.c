@@ -436,17 +436,37 @@ void sotn_button(const SotnView* v, uint32_t* px, int stride, int x, int y, int 
 /* ---------------------------------------------------------------- SOTN-8: the parts spread */
 
 /* A part of a menu page: its rectangle in the game's picture, and how far
- * it moves (dx in whole dither steps of 4; dy rows, its letters alone) */
+ * it moves (dx in whole dither steps of 4; dy rows). Only what's drawn on
+ * the window moves (letters, icons, the portrait): its background stays,
+ * so no seam shows (the gradient is drawn as two triangles, the colour
+ * stepping partway across some rows). */
 typedef struct {
 	int x0, y0, x1, y1, dx, dy;
 } Part;
 
 #define SPREAD_L (-36)
 #define SPREAD_R 44
-/* the status page (the menu's first, MENU_STEP_OPENED), measured on the
- * owner's save, Nov 25, 2026 */
+/* the menu's pages, measured on the owner's saves (Nov 25, 2026): which
+ * steps show them, the white lines of their windows where they rest (all
+ * there, and no other long one: nothing moving over the page), and their
+ * parts */
+typedef struct {
+	int y, x0, x1;
+} Line;
+typedef struct {
+	int stepLo, stepHi;
+	const Line* lines;
+	int nLines;
+	const Part* parts;
+	int nParts;
+} Page;
+
+#define FULL(y) { y, 1, 358 }
+/* the status page (MENU_STEP_OPENED) */
+static const Line statusLines[] = { FULL(16), FULL(215), { 92, 158, 233 }, { 171, 158, 233 } };
 static const Part statusParts[] = {
-	{ 15, 28, 84, 158, SPREAD_L, 0 },   /* the portrait, STR to LCK */
+	{ 15, 28, 84, 99, SPREAD_L, 0 },    /* the portrait */
+	{ 15, 100, 110, 158, SPREAD_L, 0 }, /* its foot, STR to LCK and their bonuses */
 	{ 31, 166, 152, 200, SPREAD_L, 0 }, /* EXP, NEXT, GOLD */
 	{ 247, 28, 336, 118, SPREAD_R, 0 }, /* LEVEL, STATUS, ATT, DEF */
 	{ 239, 138, 336, 165, SPREAD_R, 0 }, /* ROOMS, KILLS */
@@ -454,6 +474,35 @@ static const Part statusParts[] = {
 	 * 2026: clear of the Back button below it) */
 	{ 206, 182, 320, 192, SPREAD_R + 16, -4 },
 };
+/* Relics (MENU_STEP_RELIC): two columns of switches, the relic's
+ * description below */
+static const Line relicLines[] = { FULL(16), FULL(185), FULL(215) };
+static const Part relicParts[] = {
+	{ 2, 17, 165, 184, SPREAD_L, 0 },  /* the left column */
+	{ 170, 17, 355, 184, SPREAD_R, 0 }, /* the right column */
+};
+/* Equip (choosing a slot, sorting, choosing a hand's or an accessory's
+ * item): the slots, the inventory's two columns, the description */
+static const Line equipLines[] = { FULL(16), FULL(112), FULL(185), FULL(215) };
+static const Part equipParts[] = {
+	{ 2, 17, 88, 111, SPREAD_L, 0 },    /* the slot's name, STR to LCK */
+	{ 229, 17, 352, 111, SPREAD_R, 0 }, /* ATT, DEF (and the stats an item would give) */
+	{ 2, 113, 180, 184, SPREAD_L, 0 },  /* the inventory's left column */
+	{ 186, 113, 352, 184, SPREAD_R, 0 }, /* its right column */
+};
+#define N(a) (int) (sizeof(a) / sizeof(a[0]))
+static const Page pages[] = {
+	{ 0x10, 0x10, statusLines, N(statusLines), statusParts, N(statusParts) },
+	{ 0x22, 0x22, relicLines, N(relicLines), relicParts, N(relicParts) },
+	{ 0x40, 0x6F, equipLines, N(equipLines), equipParts, N(equipParts) },
+};
+
+static const Page* page_of(int step) {
+	for (int i = 0; i < N(pages); ++i) {
+		if (step >= pages[i].stepLo && step <= pages[i].stepHi) return &pages[i];
+	}
+	return NULL;
+}
 
 /* a white line at row y of the widened picture from x0 to x1 of the game's */
 static bool white_run(const uint32_t* px, int ow, int ox, int y, int x0, int x1) {
@@ -463,62 +512,74 @@ static bool white_run(const uint32_t* px, int ow, int ox, int y, int x0, int x1)
 	return true;
 }
 
-/* The status page fully up and still (none of the menu's windows moving):
- * its window's top and bottom lines, the commands' box where it rests,
- * and no other window's edge across the page */
-static bool status_settled(const uint32_t* px, int ow, int h, int ox) {
-	if (h < 216 || !white_run(px, ow, ox, 16, 1, 358) || !white_run(px, ow, ox, 215, 1, 358)) return false;
-	if (!white_run(px, ow, ox, 92, 158, 233) || !white_run(px, ow, ox, 171, 158, 233)) return false;
-	for (int y = 93; y < 171; y += 6) {
-		if (!white(px[y * ow + ox + 158]) || !white(px[y * ow + ox + 233])) return false;
+bool sotn_settled(const uint32_t* px, int ow, int h, int ox, int step) {
+	const Page* p = page_of(step);
+	if (!p || h < 216) return false;
+	for (int i = 0; i < p->nLines; ++i) {
+		if (!white_run(px, ow, ox, p->lines[i].y, p->lines[i].x0, p->lines[i].x1)) return false;
 	}
+	/* no other window's edge across the page */
 	for (int y = 17; y < 215; ++y) {
-		if (y == 92 || y == 171) continue;
+		bool listed = false;
+		for (int i = 0; i < p->nLines && !listed; ++i) listed = p->lines[i].y == y;
+		if (listed) continue;
 		int run = 0;
 		for (int x = 1; x < 358; ++x) {
 			run = white(px[y * ow + ox + x]) ? run + 1 : 0;
-			if (run > 24) return false; /* (another window's edge) */
+			if (run > 24) return false;
 		}
 	}
 	return true;
 }
 
-bool sotn_settled(const uint32_t* px, int ow, int h, int ox, int step) {
-	return step == SOTN_MENU_TOP && status_settled(px, ow, h, ox);
-}
-
 bool sotn_spread(uint32_t* px, int ow, int h, int ox, int step, float t) {
-	if (step != SOTN_MENU_TOP || h < 216) return false;
-	const Part* parts = statusParts;
-	int n = (int) (sizeof(statusParts) / sizeof(statusParts[0]));
+	const Page* pg = page_of(step);
+	if (!pg || h < 216 || ow < 16) return false;
 	size_t bytes = (size_t) ow * h * 4;
 	uint32_t* src = malloc(bytes);
 	if (!src) return false;
 	memcpy(src, px, bytes);
-	/* the row's background at x: the widened band's (its dither in step) */
-#define BG(x, y) src[(y) * ow + 4 + (((x) - 4) & 3)]
-	/* first every part taken away (the background in its place) */
-	for (int i = 0; i < n; ++i) {
-		const Part* p = &parts[i];
+	/* the row's background: its colours at the widened bands' left and
+	 * right (either side of the gradient's step), by the dither's place */
+#define BGL(x, y) src[(y) * ow + 4 + (((x) - 4) & 3)]
+#define BGR(x, y) src[(y) * ow + ow - 8 + (((x) - (ow - 8)) & 3)]
+#define IS_BG(c, x, y) ((c) == BGL(x, y) || (c) == BGR(x, y))
+	/* first what every part draws taken away, the background it covered in
+	 * its place (that side of the step's: the nearest background left of it) */
+	for (int i = 0; i < pg->nParts; ++i) {
+		const Part* p = &pg->parts[i];
 		for (int y = p->y0; y <= p->y1; ++y) {
-			for (int x = ox + p->x0; x <= ox + p->x1; ++x) px[y * ow + x] = BG(x, y);
+			bool right = false;
+			for (int x = ox + p->x0 - 1; x > 0; --x) {
+				uint32_t c = src[y * ow + x];
+				if (IS_BG(c, x, y)) {
+					right = c != BGL(x, y);
+					break;
+				}
+			}
+			for (int x = ox + p->x0; x <= ox + p->x1; ++x) {
+				uint32_t c = src[y * ow + x];
+				if (IS_BG(c, x, y)) right = c != BGL(x, y);
+				else px[y * ow + x] = right ? BGR(x, y) : BGL(x, y);
+			}
 		}
 	}
-	/* then each put where it goes */
-	for (int i = 0; i < n; ++i) {
-		const Part* p = &parts[i];
+	/* then put where it goes */
+	for (int i = 0; i < pg->nParts; ++i) {
+		const Part* p = &pg->parts[i];
 		int dx = (int) lroundf(p->dx * t / 4) * 4, dy = (int) lroundf(p->dy * t);
 		for (int y = p->y0; y <= p->y1; ++y) {
 			for (int x = ox + p->x0; x <= ox + p->x1; ++x) {
 				int X = x + dx, Y = y + dy;
-				if (X < 1 || X >= ow - 1 || Y < 0 || Y >= h) continue;
 				uint32_t c = src[y * ow + x];
-				if (dy && c == BG(x, y)) continue; /* (moved up or down: its letters alone) */
+				if (X < 1 || X >= ow - 1 || Y < 0 || Y >= h || IS_BG(c, x, y)) continue;
 				px[Y * ow + X] = c;
 			}
 		}
 	}
-#undef BG
+#undef IS_BG
+#undef BGR
+#undef BGL
 	free(src);
 	return true;
 }
