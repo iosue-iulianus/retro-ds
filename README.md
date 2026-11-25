@@ -109,7 +109,11 @@ Also there: rewind (L2) and fast forward (R2) on the Super Nintendo, patches app
 
 The emulators are [libretro](https://www.libretro.com) cores, loaded as libraries, with small patches that let RetroDS read the game's memory and video memory ([`scripts/cores/`](scripts/cores/)).
 
-- **Drawn from the game itself.** After every frame RetroDS reads the running game and draws the second screen from the game's own graphics and data: Super Metroid's map from the cartridge's map data, A Link to the Past's world from the ground it has shown, Symphony of the Night's from the map it keeps in video memory. Nothing runs hidden, and RetroDS ships no game graphics: they come from your copy.
+- **Drawn from the game itself.** After every frame RetroDS reads the running game and draws the second screen from the game's own graphics and data:
+  - Super Metroid's map and SAMUS page from the cartridge's map data and the game's memory.
+  - A Link to the Past's world from the ground the game has shown you; its items screen and dungeon maps from the game's own tiles and memory.
+  - Symphony of the Night's castle map from the map the game keeps in video memory; its menu is the game's own, moved to the second screen.
+  - Nothing runs hidden, and RetroDS ships no game graphics: they come from your copy.
 - **The game's own look.** No RetroDS panels or icons on the second screen: the game's screens, rearranged for touch at most. The full statement is [Philosophy](wiki/Philosophy.md).
 - **Writes are rare and listed.** Looking changes nothing. Where a tap changes the game (switching an item), RetroDS writes what the game's own menu would, through one gate that only takes the addresses the game's rules page lists, between frames, all or nothing, logged. Symphony of the Night is never written to: RetroDS only presses its buttons.
 - **Rules first, checked against the game.** A second screen is written down in its rules page before it's built, and checked pixel for pixel against the game's own screens ([`scripts/check-games.sh`](scripts/check-games.sh)).
@@ -128,11 +132,14 @@ The Android APK is built by `scripts/build-android.sh` on GitHub Actions ([`.git
 
 ## Origins
 
-RetroDS was called SNES DS until November 2026, and began as a fork of [GBA DS](https://github.com/kyannon/gba-ds) by kyannon, which does the same for the Game Boy Advance. The game list, the menus, settings and the Android app grew from GBA DS's; the emulators, the second screens and the look are RetroDS's. For Game Boy Advance games, use GBA DS.
+RetroDS started as a fork of [GBA DS](https://github.com/kyannon/gba-ds), to explore what could be done with other systems. Once the Super Nintendo was running, it was clear that other systems were within easy reach, and RetroDS became its own project.
 
-## AI disclosure
+## Credits
 
-RetroDS is written almost entirely by AI: its code, documentation and commit messages are written by Claude (Anthropic) in Claude Code sessions. Its owner decides what's built and how each game's second screen should look and behave, reviews each game's rules before they're built, and tests every change on the device. GBA DS was made the same way. The RetroDS logo and icon are the owner's. The emulators themselves, bsnes and SwanStation, are long-established, human-written projects.
+- **[GBA DS](https://github.com/kyannon/gba-ds)** by kyannon, the Android base RetroDS is built on: the game list, the menus and settings, the two-screen Android app.
+- **The emulators' developers:** [bsnes](https://github.com/bsnes-emu/bsnes) by Near (byuu) and its contributors, and its [libretro port](https://github.com/libretro/bsnes); [SwanStation](https://github.com/libretro/swanstation), libretro's fork of Stenzek's [DuckStation](https://github.com/stenzek/duckstation), and its contributors; [libretro](https://www.libretro.com), whose API lets RetroDS load them.
+- **The people who took these games apart,** whose work told RetroDS where to look: P.JBoy's Super Metroid bank logs ([sm_disassembly](https://github.com/insanefirebat/sm_disassembly)), spannerisms' A Link to the Past disassembly ([usdasm](https://github.com/spannerisms/usdasm)), snesrev's [zelda3](https://github.com/snesrev/zelda3), and the [sotn-decomp](https://github.com/Xeeynamo/sotn-decomp) project (Xeeynamo and contributors). Used as references for addresses and formats only: no code from them.
+- **[RetroAchievements](https://retroachievements.org)** and its rcheevos library.
 
 ## Not affiliated
 

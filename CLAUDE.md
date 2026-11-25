@@ -60,25 +60,27 @@ from).
 ## Philosophy
 
 `wiki/Philosophy.md` is the player-facing statement (rewritten with the
-owner, Nov 22, 2026; GBA DS's version is in git history): a portable
-Super Nintendo with a touch second screen. (1) The game screen is the
-game; small changes to it only where the second screen takes something
-over, listed and switchable. (2) The second screen is in the game's own
-style: the game's art (screens, cartridge graphics, what it draws), new
-layouts allowed, no RetroDS font/icons/panels; small touch hints (an
-arrow on a plate) listed. (3) Useful at a glance and smooth: live,
-display-rate scrolling, no capture delays or jumps; the logo or the last
-good picture when unsure. (4) Touch the second screen (look, choose,
-switch items); play with the buttons; touch on the game screen opens
-the pause menu. (5) Read the game freely, write rarely: writes only for
-a deliberate player action, done as the game's own menu would, listed;
-avoid code patches; off in RetroAchievements hardcore. (6) The best tool
-per game: drawn from the game's data (Super Metroid), assembled from
-what the player has seen (A Link to the Past's overworld), opened on a
-hidden copy (status screens), the logo; each checked against the game
-itself. (7) Keep it simple and testable. (8) Exceptions deliberate,
-written down, switchable. Custom asset mode (the player's own map
-pictures) remains an option. How sessions apply it:
+owner, Nov 25, 2026, for more than one system): your favourite classics
+with the second screen they never had. (1) The game screen is the game;
+changed only where the second screen takes something over (SM's
+mini-map covered, SotN's logo while its menu is up), listed. (2) Stay
+within the game's own design: the game's screens, rearranged for touch at
+most, in its own art; no RetroDS panels, fonts or icons, no invented
+presentations (ALttP's grove panorama went); small touch marks listed;
+whole-pixel scaling. (3) Useful at a glance and smooth; the logo or the
+last good picture when unsure. (4) Touch the second screen (look, swipe
+pages, switch items); play with the buttons, and where the buttons are
+better they stay (SotN's menu); touch on the game screen opens RetroDS's
+menu. (5) Read freely, write rarely: writes only for a player's choice,
+as the game's own menu would, listed; better still press the game's
+buttons (SotN: never written); cores patched only to read, games never.
+(6) The best way per game: drawn from the game's data (SM, ALttP's items
+and dungeons), assembled from what's been seen (ALttP's world), the
+game's own drawing from video memory (SotN's map), the game's own screen
+moved over (SotN's menu), the logo; each checked against the game. (7)
+Keep it simple and testable. (8) Exceptions deliberate and written down.
+The hidden copy (`mapcap.c`) and custom asset mode are no longer in it:
+no game uses the first, the second was never built. How sessions apply it:
 
 - **Check requests against it, and say so.** If a request conflicts with
   a principle, say which and suggest something that fits; if the owner
