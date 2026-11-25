@@ -29,7 +29,7 @@ static bool bgDirty, mapDirty, paneDirty, curDirty;
 /* ---- SOTN-5: the view. The map's picture (Select's) is drawn with its
  * origin at (ax, ay) of the second screen, z screen pixels to one of its
  * pixels; at rest, z is `scale` and the map where the layout puts it. */
-#define ZOOMS 4
+#define ZOOMS 2
 /* the Back button (SOTN-7): its size in the widened picture's pixels, at
  * the bottom right inside the window */
 #define BACK_W 60
