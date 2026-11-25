@@ -19,6 +19,15 @@ You play with the buttons. The second screen is for looking: drag and zoom the m
 
 Built for and tested on the **Retroid Pocket Duo**; other dual-screen Android handhelds should work but haven't been tried.
 
+# Why RetroDS
+
+There are other ways to give these games a second screen. RetroDS takes a different one:
+
+- **Your game, unchanged.** RetroDS runs your own cartridge or disc in an accurate emulator (bsnes, SwanStation). It isn't a port or a ROM hack: the game is the one you know, its saves are ordinary saves, and save states and cheats work as they do for any game (RetroAchievements too, on the Super Nintendo). Ports and hacks that add a second screen rebuild or change the game itself, one game at a time.
+- **Drawn live, not captured.** GBA DS, which RetroDS grew from, fills most of its second screens by running a hidden second copy of the game and taking pictures of its screens. RetroDS reads the running game and draws the second screen itself after every frame: the map scrolls under your finger at the screen's refresh rate, with no wait for a picture and no second copy running down the battery.
+- **The game's own look.** Every second screen is made from the game's own graphics (its map, its items screen, its menu), rearranged for touch at most. No RetroDS panels or icons, nothing the game didn't have.
+- **One app for your library.** Super Nintendo and PlayStation games in one game list. The games RetroDS knows get their second screen; every other game plays on one screen with its logo on the other.
+
 # Games with a second screen
 
 Each supported game gets a second screen of its own, worked out from how that game stores its data. What each one shows, and every place it changes the game, is written down in its rules page in [`docs/games/`](docs/games/).
