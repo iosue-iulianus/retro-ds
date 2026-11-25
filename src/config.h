@@ -78,7 +78,8 @@ typedef struct Config {
 	char stateFolder[12]; /* slots 0-9 and the automatic state: "retrods" (stateDir) or "retroarch" (RetroArch's own, shared: issue #39) */
 	char raStateDir[512]; /* RetroArch's state folder when it isn't found from its settings (retroarch_state_dir) */
 	char raCfg[512];      /* RetroArch's retroarch.cfg (retroarch_cfg; default: looked for) */
-	char romDir[1024]; /* library folders, ':'-separated */
+	char romDir[1024]; /* library folders, ':'-separated (Settings > Folders: the Super Nintendo's) */
+	char psxDir[1024]; /* the PlayStation games' folder (Settings > Folders); empty: a "psx" folder beside a "snes" one in romDir */
 	char screenshotDir[512]; /* "Take Screenshot" saves here */
 	char cheatDir[1024]; /* RetroArch .cht folders, ':'-separated (searched two levels deep) */
 	char patchDir[1024]; /* patches, a folder per game in it (GEN-9); default: <assetDir>/patches */

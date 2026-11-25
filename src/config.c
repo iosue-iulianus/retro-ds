@@ -105,7 +105,9 @@ static bool set_option(Config* c, const char* key, const char* val) {
 		snprintf(c->mapScale, sizeof(c->mapScale), "%s", !strcmp(val, "integer") ? "integer" : "fit");
 		return true;
 	}
-	BOOL("smooth", smooth)
+	/* (GBA DS's smooth scaling, colour correction and LCD ghosting are gone:
+	 * an old file's values are read and ignored) */
+	if (!strcmp(key, "smooth") || !strcmp(key, "color_correction") || !strcmp(key, "lcd_ghosting")) return true;
 	if (!strcmp(key, "shader")) {
 		for (int i = 0; i < SH_COUNT; ++i) {
 			if (!strcasecmp(val, shaderNames[i])) c->shader = i;
@@ -118,8 +120,6 @@ static bool set_option(Config* c, const char* key, const char* val) {
 		else if (c->shader == SH_GRID) c->shader = SH_OFF;
 		return true;
 	}
-	BOOL("color_correction", colorCorrection)
-	BOOL("lcd_ghosting", ghosting)
 	if (!strcmp(key, "overlays")) {
 		/* off / both / top / bottom. Before (SNES DS, GBA DS): generated /
 		 * custom, the style, meaning on (overlay_screens said where); from
@@ -212,6 +212,7 @@ static bool set_option(Config* c, const char* key, const char* val) {
 	STR("retroarch_state_dir", raStateDir)
 	STR("retroarch_cfg", raCfg)
 	STR("rom_dir", romDir)
+	STR("rom_dir_psx", psxDir)
 	STR("cheat_dir", cheatDir)
 	STR("patch_dir", patchDir)
 	STR("screenshot_dir", screenshotDir)
@@ -285,8 +286,8 @@ static int nCliKeys;
  * (folders, accounts, updates, how the screens are found, hotkeys, the
  * touch panel) is for all games. */
 static const char* const perGameKeys[] = {
-	"swap", "scale", "map_scale", "smooth", "border_color", "overlays", "overlay_style", "bezel_logo", "bezel_inner",
-	"bezel_outer", "shader", "lcd_strength", "color_correction", "lcd_ghosting", "frame_buffer", "match_display",
+	"swap", "scale", "map_scale", "border_color", "overlays", "overlay_style", "bezel_logo", "bezel_inner",
+	"bezel_outer", "shader", "lcd_strength", "frame_buffer", "match_display",
 	"custom_logos", "rewind", "rewind_seconds",
 	"fast_forward", "ff_speed", "ab_swap", "show_fps", "audio_latency", "screen_gap_mm",
 	"save_on_quit", "auto_load", "left_stick_dpad", "turbo_rate", "button_right", "button_bottom", "button_top", "button_left",
@@ -393,6 +394,7 @@ void config_usage(const char* argv0) {
 	        "\n"
 	        "Options (also accepted as key=value lines in retrods.cfg):\n"
 	        "  --rom-dir=DIR[:DIR]    library folders (/storage/roms/snes)\n"
+	        "  --rom-dir-psx=DIR      the PlayStation games' folder (default: a psx folder beside snes)\n"
 	        "  --cheat-dir=DIR[:DIR]  RetroArch .cht folders (/config/retroarch/cheats:...)\n"
 	        "  --patch-dir=DIR        patches, a folder per game (default: patches beside the app)\n"
 	        "  --screenshot-dir=DIR   where Take Screenshot saves (/storage/roms/screenshots)\n"
@@ -406,7 +408,6 @@ void config_usage(const char* argv0) {
 	        "  --shader=NAME          a pattern over every pixel: off, grid, scanlines, soft,\n"
 	        "                         subpixels-light, subpixels, subpixels-strong\n"
 	        "                         (--lcd-strength=0..100 for the first three)\n"
-	        "  --lcd-ghosting         each frame blended with the one before, as on an old LCD\n"
 	        "  --smooth               plain linear filtering\n"
 	        "  --vsync                sync presentation to the display\n"
 	        "  --no-map               disable the map screen\n"
@@ -485,9 +486,6 @@ static const Setting settingsTable[] = {
 	{ "map_scale", "Second screen scale", SF_STR, OFFB(mapScale), ARR(chMapScale), 0, 0, 0, NULL, "How the map or logo fills its screen." },
 	{ "shader", "Shader", SF_INT, OFFB(shader), ARR(chShader), 0, 0, 0, NULL, "A pattern over every pixel, on both screens." },
 	{ "lcd_strength", "Pattern strength", SF_INT, OFFB(lcdStrength), NULL, 0, 0, 100, 5, "%", "How dark the grid, scanlines and soft cells are." },
-	{ "color_correction", "Color correction", SF_BOOL, OFFB(colorCorrection), ARR(chOnOff), 0, 0, 0, NULL, "Colors as a Game Boy Advance's screen showed them." },
-	{ "lcd_ghosting", "LCD ghosting", SF_BOOL, OFFB(ghosting), ARR(chOnOff), 0, 0, 0, NULL, "Moving things leave a short trail, as on an old handheld's LCD." },
-	{ "smooth", "Smooth scaling", SF_BOOL, OFFB(smooth), ARR(chOnOff), 0, 0, 0, NULL, "Blurry instead of sharp: usually leave off." },
 
 	{ "swap", "Game screen", SF_BOOL, OFFB(swap), ARR(chSwap), 0, 0, 0, NULL, "Which screen the game is on." },
 	{ "screen_gap_mm", "Gap between screens", SF_INT, OFFB(screenGapMm), ARR(chGap), 0, 0, 0, NULL, "For what crosses from one screen to the other. Automatic: the device's, if known." },
@@ -528,10 +526,13 @@ const Setting* config_setting(const char* key) {
 	return NULL;
 }
 
-/* what a face button gives the game with nothing chosen: ab_swap's layout */
+/* what a face button gives the game with nothing chosen: ab_swap's layout,
+ * as game.c's fb_default (the SNES pad by position: A right, B bottom, X top,
+ * Y left; swapped, A and B and X and Y) */
 static const char* face_default(const Config* c, int i) {
-	static const char* const own[10] = { "a", "b", "none", "none", "l", "r", "up", "down", "left", "right" };
-	return i == 0 ? (c->abSwap ? "b" : "a") : i == 1 ? (c->abSwap ? "a" : "b") : own[i];
+	static const char* const own[10] = { "a", "b", "x", "y", "l", "r", "up", "down", "left", "right" };
+	static const char* const swapped[4] = { "b", "a", "y", "x" };
+	return i < 4 && c->abSwap ? swapped[i] : own[i];
 }
 
 int config_setting_index(const Config* c, const Setting* s) {

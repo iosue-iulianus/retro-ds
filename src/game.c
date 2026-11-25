@@ -5672,8 +5672,6 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	ROW(PG_SCREENS, "match_display");
 	ROW(PG_LOOK, "shader");
 	ROW(PG_LOOK, "lcd_strength");
-	ROW(PG_LOOK, "color_correction");
-	ROW(PG_LOOK, "lcd_ghosting");
 	ROW(PG_LOOK, "overlays");
 	ROW(PG_LOOK, "overlay_style");
 	ROW(PG_LOOK, "@overlay");

@@ -2261,6 +2261,26 @@ bool ui_load_brand(int id, SDL_Texture* out[2], int* w, int* h) {
 	return textures_from(image_load_mem(brandImages[id].png, brandImages[id].size), out, w, h, true);
 }
 
+bool ui_load_brand_inked(int id, SDL_Color disc, SDL_Color ink, SDL_Texture* out[2], int* w, int* h) {
+	SDL_Surface* s = image_load_mem(brandImages[id].png, brandImages[id].size);
+	SDL_Surface* c = s ? SDL_ConvertSurfaceFormat(s, SDL_PIXELFORMAT_RGBA32, 0) : NULL;
+	if (s) SDL_FreeSurface(s);
+	if (!c) return false;
+	/* the prompts are a white disc with a navy letter (tools/make_brand.py:
+	 * red 255 and 16), smoothed between them: each pixel is put back as the
+	 * same mix of the new two */
+	for (int y = 0; y < c->h; ++y) {
+		Uint8* p = (Uint8*) c->pixels + y * c->pitch;
+		for (int x = 0; x < c->w; ++x, p += 4) {
+			float t = SDL_clamp((255 - p[0]) / (255.f - 16.f), 0.f, 1.f);
+			p[0] = (Uint8) (disc.r + (ink.r - disc.r) * t + 0.5f);
+			p[1] = (Uint8) (disc.g + (ink.g - disc.g) * t + 0.5f);
+			p[2] = (Uint8) (disc.b + (ink.b - disc.b) * t + 0.5f);
+		}
+	}
+	return textures_from(c, out, w, h, true);
+}
+
 void ui_free_image(SDL_Texture* tex[2]) {
 	for (int v = 0; v < 2; ++v) {
 		if (tex[v]) SDL_DestroyTexture(tex[v]);

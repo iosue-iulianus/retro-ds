@@ -210,6 +210,8 @@ bool ui_load_image(const char* path, SDL_Texture* out[2], int* w, int* h, bool s
 bool ui_load_surface(SDL_Surface* s, SDL_Texture* out[2], int* w, int* h, bool smooth);
 /* One of the built-in images (BRAND_* in brand.h), smooth-scaled. */
 bool ui_load_brand(int id, SDL_Texture* out[2], int* w, int* h);
+/* A button prompt (BRAND_BTN_*) with its disc and its letter in these colours. */
+bool ui_load_brand_inked(int id, SDL_Color disc, SDL_Color ink, SDL_Texture* out[2], int* w, int* h);
 void ui_free_image(SDL_Texture* tex[2]);
 /* A game's title logo: <asset_dir>/logos/<CODE>.png|.bmp|.jpg if the user
  * put one there; else a scraped one in logo_folder named after the ROM file;

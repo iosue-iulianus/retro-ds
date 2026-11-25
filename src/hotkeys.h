@@ -15,7 +15,8 @@ extern const char* const hotkeyBtnNames[];
  * Quit on START with START as the hotkey is SELECT. Logs what it drops when
  * log is set. */
 void hotkeys_resolve(const Config* cfg, int* mod, int btn[HK_COUNT], bool log);
-/* Settings > Hotkeys: a screen of its own, until Done. */
-void hotkeys_run(Config* cfg);
+/* Settings > Hotkeys: a screen of its own, until Done, on the touch screen;
+ * other (may be NULL) draws the other screen meanwhile. */
+void hotkeys_run(Config* cfg, void (*other)(int scr));
 
 #endif
