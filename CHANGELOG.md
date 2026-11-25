@@ -45,8 +45,6 @@ changelog up to then is `git show 3b452dc:CHANGELOG.md` (and on
   away); a tap zooms the map in; the zoom indicator is the game's size; and
   markers: drag the item you'll need (bombs, hammer, glove, hookshot,
   flippers, boots, a fairy, a heart piece) onto the map to remember a place.
-- A Link to the Past's Master Sword grove: the grove carries on across both
-  screens, the top one showing what's above the game's camera.
 
 Nothing playable yet: SNES DS still runs GBA games until the emulator is
 swapped. What has changed from GBA DS v1.5.6 so far:
