@@ -324,6 +324,14 @@ static bool white(uint32_t c) {
 	return (c & 0xFF) > 240 && ((c >> 8) & 0xFF) > 240 && ((c >> 16) & 0xFF) > 240;
 }
 
+static bool near(uint32_t a, uint32_t b) {
+	for (int k = 0; k < 24; k += 8) {
+		int d = (int) ((a >> k) & 255) - (int) ((b >> k) & 255);
+		if (d > 24 || d < -24) return false;
+	}
+	return !white(a);
+}
+
 bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow, int* oxOut) {
 	if (w < 64 || h < 64 || ow <= w) return false;
 	/* the window's left and right edges: the outermost columns white on
@@ -345,22 +353,61 @@ bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow, int* ox
 	int ox = ((ow - (R - L + 1)) / 2 - L) & ~3;
 	int nL = 0, nR = ow - 1;
 	if (oxOut) *oxOut = ox;
+	/* each window row's colours just inside its edges, and whether they're
+	 * clean (the dither's pattern repeating there, nothing else: another
+	 * window passing over the edge as the menu animates isn't) */
+	enum { NONE, ACROSS, WINDOW };
+	static uint8_t kind[1024];
+	static uint32_t sl[1024][4], sr[1024][4];
+	static bool okL[1024], okR[1024];
+	/* and the last clean ones each row had, from earlier pictures (a
+	 * window's gradient stays put while others move over it) */
+	static uint32_t lastL[1024][4], lastR[1024][4];
+	static bool haveLastL[1024], haveLastR[1024];
+	if (h > 1024) return false;
+	for (int y = 0; y < h; ++y) {
+		const uint32_t* row = fb + y * w;
+		bool edges = white(row[L]) && white(row[R]);
+		int whites = 0;
+		for (int x = L; x <= R; ++x) whites += white(row[x]);
+		kind[y] = !edges ? NONE : whites > (R - L) * 9 / 10 ? ACROSS : WINDOW;
+		okL[y] = okR[y] = kind[y] == WINDOW;
+		for (int k = 0; k < 4 && kind[y] == WINDOW; ++k) {
+			sl[y][k] = row[L + 4 + k], sr[y][k] = row[R - 4 - k];
+			/* (and the four within the dither's few steps of each other:
+			 * anything drawn there repeating every 4 pixels isn't it) */
+			okL[y] = okL[y] && row[L + 1 + k] == row[L + 5 + k] && near(sl[y][k], row[L + 4]);
+			okR[y] = okR[y] && row[R - 1 - k] == row[R - 5 - k] && near(sr[y][k], row[R - 4]);
+		}
+	}
 	for (int y = 0; y < h; ++y) {
 		const uint32_t* row = fb + y * w;
 		uint32_t* o = out + y * ow;
 		for (int x = 0; x < ow; ++x) o[x] = 0xFF000000u;
 		for (int x = 0; x < w; ++x) o[ox + x] = row[x];
-		bool edges = white(row[L]) && white(row[R]);
-		int whites = 0;
-		for (int x = L; x <= R; ++x) whites += white(row[x]);
-		if (edges && whites > (R - L) * 9 / 10) {
+		if (kind[y] == ACROSS) {
 			/* a top or bottom edge: across */
 			for (int x = nL; x <= nR; ++x) o[x] = row[L + 1];
-		} else if (edges) {
-			/* a window's row: its colours continued, in the dither's
-			 * 4-pixel steps, from just inside its edges */
-			for (int x = nL + 1; x <= ox + L; ++x) o[x] = row[L + 4 + ((x - ox - L - 4) % 4 + 4) % 4];
-			for (int x = ox + R; x < nR; ++x) o[x] = row[R - 4 - ((ox + R - 4 - x) % 4 + 4) % 4];
+		} else if (kind[y] == WINDOW) {
+			/* a window's row: its colours continued, in the dither's 4-pixel
+			 * steps, from just inside its edges; not clean, the nearest
+			 * clean row's on the dither's same row (y % 4), above or below */
+			static const uint32_t black[4] = { 0xFF000000u, 0xFF000000u, 0xFF000000u, 0xFF000000u };
+			const uint32_t *a = okL[y] ? sl[y] : haveLastL[y] ? lastL[y] : NULL, *b = okR[y] ? sr[y] : haveLastR[y] ? lastR[y] : NULL;
+			for (int d = 4; !a && d < 64; d += 4) {
+				if (y - d >= 0 && okL[y - d]) a = sl[y - d];
+				else if (y + d < h && okL[y + d]) a = sl[y + d];
+			}
+			for (int d = 4; !b && d < 64; d += 4) {
+				if (y - d >= 0 && okR[y - d]) b = sr[y - d];
+				else if (y + d < h && okR[y + d]) b = sr[y + d];
+			}
+			if (!a) a = black;
+			if (!b) b = black;
+			if (okL[y]) memcpy(lastL[y], sl[y], sizeof lastL[y]), haveLastL[y] = true;
+			if (okR[y]) memcpy(lastR[y], sr[y], sizeof lastR[y]), haveLastR[y] = true;
+			for (int x = nL + 1; x <= ox + L; ++x) o[x] = a[((x - ox - L - 4) % 4 + 4) % 4];
+			for (int x = ox + R; x < nR; ++x) o[x] = b[((ox + R - 4 - x) % 4 + 4) % 4];
 			o[nL] = row[L], o[nR] = row[R];
 		}
 	}
@@ -407,6 +454,38 @@ static const Part statusParts[] = {
 	 * 2026: clear of the Back button below it) */
 	{ 206, 182, 320, 192, SPREAD_R + 16, -4 },
 };
+
+/* a white line at row y of the widened picture from x0 to x1 of the game's */
+static bool white_run(const uint32_t* px, int ow, int ox, int y, int x0, int x1) {
+	for (int x = x0; x <= x1; ++x) {
+		if (!white(px[y * ow + ox + x])) return false;
+	}
+	return true;
+}
+
+/* The status page fully up and still (none of the menu's windows moving):
+ * its window's top and bottom lines, the commands' box where it rests,
+ * and no other window's edge across the page */
+static bool status_settled(const uint32_t* px, int ow, int h, int ox) {
+	if (h < 216 || !white_run(px, ow, ox, 16, 1, 358) || !white_run(px, ow, ox, 215, 1, 358)) return false;
+	if (!white_run(px, ow, ox, 92, 158, 233) || !white_run(px, ow, ox, 171, 158, 233)) return false;
+	for (int y = 93; y < 171; y += 6) {
+		if (!white(px[y * ow + ox + 158]) || !white(px[y * ow + ox + 233])) return false;
+	}
+	for (int y = 17; y < 215; ++y) {
+		if (y == 92 || y == 171) continue;
+		int run = 0;
+		for (int x = 1; x < 358; ++x) {
+			run = white(px[y * ow + ox + x]) ? run + 1 : 0;
+			if (run > 24) return false; /* (another window's edge) */
+		}
+	}
+	return true;
+}
+
+bool sotn_settled(const uint32_t* px, int ow, int h, int ox, int step) {
+	return step == SOTN_MENU_TOP && status_settled(px, ow, h, ox);
+}
 
 bool sotn_spread(uint32_t* px, int ow, int h, int ox, int step, float t) {
 	if (step != SOTN_MENU_TOP || h < 216) return false;

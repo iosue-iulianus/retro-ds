@@ -740,7 +740,7 @@ int main(int argc, char** argv) {
 			uint32_t* out = calloc((size_t) ow * e->h, 4);
 			int pox = 0;
 			bool ok = sotn_widen(e->fb, e->w, e->h, out, ow, &pox);
-			if (ok && *s2) sotn_spread(out, ow, e->h, pox, sotn_menu_step(e), 1.0f);
+			if (ok && *s2 && sotn_settled(out, ow, e->h, pox, sotn_menu_step(e))) sotn_spread(out, ow, e->h, pox, sotn_menu_step(e), 1.0f);
 			if (ok && sotn_read(e, &v)) {
 				sotn_window(&v, out, ow, 6, 24, 52, 20, 6, 24);
 				sotn_button(&v, out, ow, 14, 30, 3);

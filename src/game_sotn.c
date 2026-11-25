@@ -298,17 +298,16 @@ void sot_tick(void) {
 		}
 		int pox = 0;
 		wideOk = widePx && emu.fb && sotn_widen(emu.fb, emu.w, emu.h, widePx, ow, &pox);
-		/* SOTN-8: the page's parts spread out: sliding apart over a tenth
-		 * of a second as the menu opens, at once coming back from another
-		 * of its pages */
-		static int lastStep;
+		/* SOTN-8: the page's parts spread out once it's up and still,
+		 * sliding apart over a tenth of a second; while the game's windows
+		 * move (opening, a page coming or going), its picture as it is */
 		static float spreadT;
 		int step = sotn_menu_step(&emu);
-		if (step != SOTN_MENU_TOP) spreadT = 0;
-		else if (lastStep != SOTN_MENU_TOP) spreadT = lastStep < SOTN_MENU_TOP ? 0.0f : 1.0f;
-		else spreadT = SDL_min(1.0f, spreadT + 1.0f / 6);
-		lastStep = step;
-		if (wideOk) sotn_spread(widePx, ow, emu.h, pox, step, spreadT);
+		if (!wideOk || !sotn_settled(widePx, ow, emu.h, pox, step)) spreadT = 0;
+		else {
+			spreadT = SDL_min(1.0f, spreadT + 1.0f / 6);
+			sotn_spread(widePx, ow, emu.h, pox, step, spreadT);
+		}
 		wideDirty = wideOk;
 	} else {
 		wideOk = false;
