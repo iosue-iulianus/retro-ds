@@ -751,12 +751,18 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 
 	int m = px * 6;
 	int headH = px * 18;
+	int gameH = headH * 3 / 2;
+	/* strips in the game list header's colour: one behind the logos, one
+	 * behind the button hints */
+	int topStrip = m * 2 + gameH;
+	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, topStrip }, C_HEADER);
 	int ourW = draw_brand(scr, ui_theme_light() ? BRAND_LOGO_LIGHT : BRAND_LOGO, m, m, headH);
 
 	/* button hints along the bottom */
 	int ty = r.h - px * 11, d = px * 10, bx = m;
 	int gy = ty + px * 7 / 2 - d / 2;
 	int cap = px * 5, cy = gy + d / 2, wordW = px * 18;
+	ui_fill(scr, (SDL_Rect) { 0, cy - (r.h - cy), r.w, (r.h - cy) * 2 }, C_HEADER);
 	bx += draw_brand(scr, BRAND_BTN_A, bx, gy, d) + px * 2;
 	{ /* (a word wider than its slot, as in German, makes the slot wider) */
 		int ww = SDL_max(wordW, ui_label_width(scr, cap, "Play"));
@@ -777,7 +783,6 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 	}
 	GameEntry* g = &games[sel];
 	load_thumbs(cfg, sel);
-	int gameH = headH * 3 / 2;
 	if (logoTex[0] || logoTex[1]) {
 		int maxW = r.w - ourW - m * 3;
 		int w = logoW * gameH / logoH, h = gameH;
@@ -818,13 +823,13 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 			default: break;
 			}
 		}
-		if (line[0]) ui_font_text(scr, TF_BODY, r.w - m, m + gameH + px * 3, px * 4, line, C_DIM, 1);
+		if (line[0]) ui_font_text(scr, TF_BODY, r.w - m, topStrip + px * 4, px * 4, line, C_DIM, 1);
 	}
 
 	/* the picture of where the game carries on from (the game screen only),
 	 * as large as fits between the logos and the hints, its date under it */
 	int capH = px * 5;
-	int top = m + gameH + px * 7, bottom = gy - px * 6 - capH - px * 4;
+	int top = topStrip + px * 9, bottom = cy - (r.h - cy) - px * 4 - capH - px * 4;
 	if (thumbTex[0] || thumbTex[1]) {
 		int aw = r.w - m * 2, ah = bottom - top;
 		int w = aw, h = aw * SNES_H / SNES_W;
@@ -1156,8 +1161,6 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 		char line[300];
 		fit_text(line, sizeof(line), TF_BOLD, px * 4, storageMsg, theme_button(scr).x - px * 8);
 		ui_font_text(scr, TF_BOLD, theme_button(scr).x / 2, g.headerH / 2, px * 4, line, C_GOLD, 0);
-	} else {
-		label_fit(scr, theme_button(scr).x / 2, g.headerH / 2, px * 5, theme_button(scr).x - px * 8, g.headerH, tr("Touch or use the D-Pad"));
 	}
 	draw_theme_button(scr);
 	draw_view_button(scr);
