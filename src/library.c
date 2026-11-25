@@ -1187,8 +1187,8 @@ static void settings_rows(const Config* cfg) {
 	nRows = 0;
 	rowKind[nRows++] = ROW_LANGUAGE;
 	rowKind[nRows++] = ROW_UPDATES;
-	/* ES-DE's folder found: RetroDS in its emulator list (esde.c) */
-	if (esde_present()) rowKind[nRows++] = ROW_ESDE;
+	/* RetroDS in ES-DE's emulator list (esde.c): not offered until it adds
+	 * itself to ES-DE's snes and psx systems (it still knows only gba) */
 	for (size_t i = 0; i < sizeof(android) / sizeof(android[0]); ++i) {
 		rowKind[nRows++] = android[i];
 		/* one display (a phone, a Surface Duo): hold the window portrait or landscape (issue #60) */
