@@ -91,12 +91,5 @@ bool sotn_menu_openable(Emu* e);
  * the widened picture's first and last columns). False
  * (out untouched) unless a window fills the picture from edge to edge. */
 bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow, int* ox);
-/* the status screen's lettering: text at (x, y) of px (stride wide) */
-void sotn_text(const SotnView* v, uint32_t* px, int stride, int x, int y, const char* s);
-/* SOTN-7: a small window of the status screen's kind, w x h at (x, y)
- * (dx, dy: its place on the screen, for the dither) */
-void sotn_window(const SotnView* v, uint32_t* px, int stride, int x, int y, int w, int h, int dx, int dy);
-/* the game's button pictures in its font: 0 ○, 1 ✕, 2 □, 3 △ (8 x 8 at x, y) */
-void sotn_button(const SotnView* v, uint32_t* px, int stride, int x, int y, int which);
 
 #endif

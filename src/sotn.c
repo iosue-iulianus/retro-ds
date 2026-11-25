@@ -414,22 +414,4 @@ bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow, int* ox
 	return true;
 }
 
-void sotn_text(const SotnView* v, uint32_t* px, int stride, int x, int y, const char* s) {
-	text(v, px, stride, x, y, s);
-}
-
-void sotn_window(const SotnView* v, uint32_t* px, int stride, int x, int y, int w, int h, int dx, int dy) {
-	window(v, px, stride, x, y, w, h, dx, dy);
-}
-
-void sotn_button(const SotnView* v, uint32_t* px, int stride, int x, int y, int which) {
-	/* the font's row 14: arrows, then ○ ✕ □ △ from its 9th place */
-	int u = (8 + which) * 8, vv = 14 * 8;
-	for (int r = 0; r < 8; ++r) {
-		for (int c = 0; c < 8; ++c) {
-			uint8_t i = v->font[vv + r][u + c];
-			if (i && v->fontPal[i]) px[(y + r) * stride + x + c] = v->fontPal[i];
-		}
-	}
-}
 

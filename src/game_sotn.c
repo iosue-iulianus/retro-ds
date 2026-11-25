@@ -30,10 +30,6 @@ static bool bgDirty, mapDirty, paneDirty, curDirty;
  * origin at (ax, ay) of the second screen, z screen pixels to one of its
  * pixels; at rest, z is `scale` and the map where the layout puts it. */
 #define ZOOMS 2
-/* the Back button (SOTN-7): its size in the widened picture's pixels, at
- * the bottom right inside the window */
-#define BACK_W 60
-#define BACK_H 20
 /* the game's menu window: its top and bottom edges' lines in the game's
  * picture (measured on the status page), put on the map's window's */
 #define MENU_TOP 16
@@ -63,16 +59,12 @@ static float pageDownX, pageDownY;
 static int injectFrames;   /* frames left of a button RetroDS presses for the game */
 static uint32_t injectKey;
 static int injectGap;      /* frames before the next press */
-static int backPresses;    /* △ presses asked for by the Back button */
 static bool startHeld;
 /* the game's menu widened (SOTN-7) */
 static uint32_t* widePx;
 static int wideW, wideH;
 static bool wideOk, wideDirty;
 static SDL_Texture* wideTex[2];
-static uint32_t backPx[BACK_W * BACK_H];
-static SDL_Texture* backTex[2];
-static bool backDirty;
 
 /* the second screen: the screen the game isn't on */
 static int map_screen(void) {
@@ -91,14 +83,13 @@ void sot_free(void) {
 	ui_free_image(paneTex);
 	ui_free_image(curTex);
 	ui_free_image(wideTex);
-	ui_free_image(backTex);
 	free(bgPx);
 	free(panePx);
 	free(widePx);
 	bgPx = panePx = widePx = NULL;
 	wideW = wideH = 0;
 	sot = sotShown = composed = viewSet = user = focus = drag = pinch = wideOk = pageDrag = false;
-	phase = M_OFF, page = 0, pageX = 0, injectFrames = injectGap = backPresses = 0, startHeld = false;
+	phase = M_OFF, page = 0, pageX = 0, injectFrames = injectGap = 0, startHeld = false;
 	viewCrc = 0;
 	cw = ch = 0;
 	zoomI = 0;
@@ -111,9 +102,8 @@ void sot_textures(void) {
 	ui_free_image(paneTex);
 	ui_free_image(curTex);
 	ui_free_image(wideTex);
-	ui_free_image(backTex);
 	bgDirty = mapDirty = paneDirty = curDirty = composed;
-	wideDirty = wideOk, backDirty = true;
+	wideDirty = wideOk;
 }
 
 /* the window's size for the second screen: as many of the game's pixels
@@ -205,7 +195,7 @@ static void to_menu(void) {
 static void to_map(void) {
 	page = 0;
 	if (phase == M_FROZEN) phase = M_OFF;
-	else if (phase == M_OPENING || phase == M_OPEN) phase = M_CLOSING, phaseFrames = 0, backPresses = 0;
+	else if (phase == M_OPENING || phase == M_OPEN) phase = M_CLOSING, phaseFrames = 0;
 }
 
 /* After a frame, the core idle: the game's menu followed (SOTN-6) */
@@ -228,9 +218,6 @@ static void menu_tick(void) {
 			/* (the game closing its menu itself, however it was asked:
 			 * the map page slides back now) */
 			to_map();
-		} else if (backPresses > 0 && !injectGap && step >= SOTN_MENU_TOP) {
-			press(K_X, 3); /* (△: the game's back) */
-			--backPresses;
 		}
 	} else if (phase == M_CLOSING) {
 		if (eng == SOTN_ENGINE_PLAYING) {
@@ -305,20 +292,6 @@ void sot_tick(void) {
 	if (!sotn_read(&emu, &view)) {
 		sotShown = false;
 		return;
-	}
-	{
-		/* the Back button: a small window, △ and BACK (redrawn as the
-		 * window colour or the font changes, with the map) */
-		static uint32_t lastCrc;
-		uint32_t c = emu_crc32(0, view.window, sizeof(view.window));
-		c = emu_crc32(c, view.fontPal, sizeof(view.fontPal));
-		if (c != lastCrc || backDirty) {
-			memset(backPx, 0, sizeof(backPx));
-			sotn_window(&view, backPx, BACK_W, 0, 0, BACK_W, BACK_H, 0, 0);
-			sotn_button(&view, backPx, BACK_W, 8, 6, 3);
-			sotn_text(&view, backPx, BACK_W, 20, 6, "BACK");
-			lastCrc = c, backDirty = true;
-		}
 	}
 	/* the map while playing in the castle; the title, the file screens,
 	 * the prologue, game over, the ending: the logo; loading and the
@@ -449,19 +422,6 @@ static void menu_fit(int w, int h, float* kx, float* ky, int* ow, SDL_FRect* at)
 	*at = (SDL_FRect) { f.x, f.y - MENU_TOP * *ky, *ow * *kx, h * *ky };
 }
 
-/* the Back button on the screen: the bottom right inside the window */
-static SDL_Rect back_rect(int s) {
-	float kx, ky;
-	int ow;
-	SDL_FRect a;
-	/* (sized for the menu's own picture, 368 wide, whatever's on the screen
-	 * now: the game's 256-wide picture while the menu opens and closes) */
-	menu_fit(MENU_PIC_W, MENU_PIC_H, &kx, &ky, &ow, &a);
-	SDL_FRect f = frame();
-	int w = (int) (BACK_W * kx), h = (int) (BACK_H * ky);
-	return (SDL_Rect) { (int) (f.x + f.w - 6 * kx) - w, (int) (f.y + f.h - 3 * ky) - h, w, h };
-}
-
 /* the two page squares: inside the window, just above its bottom edge */
 static SDL_Rect dots_rect(int s) {
 	SDL_Rect r = screens[s].rect;
@@ -474,7 +434,8 @@ int sot_touch(const Pointer* p) {
 	int s = map_screen();
 	if (nScreens != 2 || !sot_screen_shown()) return 0;
 	SDL_Rect r = screens[s].rect;
-	/* SOTN-6: a swipe across turns the page; on the menu page, Back */
+	/* SOTN-6: a swipe across turns the page, or a tap on the page squares
+	 * (the menu itself is the gamepad's: the owner, Nov 25, 2026) */
 	if (p->kind == 1 && p->screen == s) {
 		SDL_FRect w = inside();
 		bool fits = SOTN_MAP_W * z <= w.w + 1;
@@ -482,13 +443,8 @@ int sot_touch(const Pointer* p) {
 		swipeOk = page == 1 || !sot_map_shown() || fits || edge;
 		pageDrag = false, pageDownX = (float) p->x, pageDownY = (float) p->y;
 		if (page == 1) {
-			SDL_Rect b = back_rect(s), d = dots_rect(s);
-			if (SDL_PointInRect(&(SDL_Point) { p->x, p->y }, &b)) {
-				if (phase == M_OPEN && sotn_menu_step(&emu) != SOTN_MENU_TOP) ++backPresses;
-				else to_map();
-				return 1;
-			}
-			if (p->y >= d.y - d.h * 2) {
+			SDL_Rect d = dots_rect(s);
+			if (p->y >= d.y - d.h * 2 && abs(p->x - r.w / 2) < r.w / 8) {
 				to_map();
 				return 1;
 			}
@@ -658,7 +614,7 @@ static void draw_map_page(int s, int dx) {
 }
 
 /* SOTN-6, 7: the menu page: the game's menu widened, or the window alone
- * (the game stopped, or its menu opening or closing); the Back button */
+ * (the game stopped, or its menu opening or closing) */
 static void draw_menu_page(int s, int dx) {
 	if (wideOk && widePx) {
 		float kx, ky;
@@ -685,13 +641,6 @@ static void draw_menu_page(int s, int dx) {
 		int ox, oy;
 		origin(&ox, &oy);
 		ui_image_part(s, bgTex, (SDL_Rect) { 0, 0, cw, ch }, (SDL_Rect) { ox + dx, oy, cw * scale, ch * scale });
-	}
-	if (phase == M_OPEN || phase == M_FROZEN) {
-		texture(backTex, BACK_W, BACK_H, SDL_BLENDMODE_BLEND, &backDirty);
-		upload(backTex, backPx, BACK_W, &backDirty);
-		SDL_Rect b = back_rect(s);
-		b.x += dx;
-		ui_image_part(s, backTex, (SDL_Rect) { 0, 0, BACK_W, BACK_H }, b);
 	}
 }
 
