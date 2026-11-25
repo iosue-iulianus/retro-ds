@@ -14,11 +14,11 @@
 
 bool sotn_is(const char* gameCode);
 
-/* SOTN-1: the title's logo, while the title screen is up (and its picture
- * and palette are the ones measured): RGBA, its clear pixels transparent,
- * *w x *h; in the title screen's 512-wide pixels, each line twice (so it
- * shows as the game's picture does). malloc'd; NULL if the title isn't up. */
-uint8_t* sotn_title_logo(Emu* e, int* w, int* h);
+/* SOTN-1: the title's logo, from the disc (the file the title loads it
+ * from, checked against the logo measured): RGBA, its clear pixels
+ * transparent, at its shape on a television (1150 x 484). malloc'd; NULL
+ * if it isn't there. */
+uint8_t* sotn_disc_logo(const char* cuePath, int* w, int* h);
 
 /* ---- SOTN-2 to 4: the castle map on the second screen */
 
@@ -34,6 +34,7 @@ typedef struct {
 	bool inverted;     /* the inverted castle */
 	int window[3];     /* the player's window colour (System), 0 to 31 each */
 	int sqX, sqY;      /* Alucard's square on the map */
+	int roomX, roomY;  /* his room's top left square */
 	/* the map as Select shows it: palette indices, 0 clear */
 	uint8_t pic[SOTN_PIC_H][SOTN_PIC_W];
 	uint32_t mapPal[16]; /* RGBA (0xAABBGGRR) */
@@ -53,19 +54,27 @@ bool sotn_has_map(const SotnView* v);
 /* A checksum of everything the composed picture depends on. */
 uint32_t sotn_view_crc(const SotnView* v);
 
-/* Where things went on the composed picture (its pixels: the game's) */
+/* Where things go on the second screen, in the game's pixels (SOTN-4) */
 typedef struct {
-	int mapX, mapY;          /* the castle's top left */
-	float logoX, logoY, logoW, logoH; /* the logo's place (SOTN-4) */
+	int winX, winY, winW, winH;   /* the big window's inside (the map's clip) */
+	int mapX, mapY;               /* Select's picture's origin, the map at rest */
+	int castleX, castleY;         /* the castle's part of Select's picture */
+	int paneX, paneY, paneW, paneH; /* the ROOMS pane */
+	float logoX, logoY, logoW, logoH; /* the logo's place */
 } SotnLayout;
 #define SOTN_LOGO_ASPECT 2.376f /* the title logo's width / height, square pixels */
 
-/* SOTN-4: the window, the map, and the ROOMS pane, cw x ch (RGBA). */
+/* SOTN-4: the big window (cw x ch, RGBA), and where everything goes. */
 void sotn_compose(const SotnView* v, uint32_t* px, int cw, int ch, SotnLayout* out);
+/* SOTN-2: the map as Select shows it, SOTN_PIC_W x SOTN_PIC_H RGBA, clear
+ * where there's no map */
+void sotn_map_pixels(const SotnView* v, uint32_t* px);
+/* SOTN-4: the ROOMS pane, l->paneW x l->paneH RGBA */
+void sotn_pane_pixels(const SotnView* v, const SotnLayout* l, uint32_t* px);
 /* The map cursor's picture (32 x 32 RGBA) */
 void sotn_cursor_pixels(const SotnView* v, uint32_t px[32 * 32]);
-/* SOTN-3: the cursor's square on the composed picture at animation frame
- * t (0 to 63, as the game's: it closes onto Alucard's square) */
-void sotn_cursor_rect(const SotnView* v, const SotnLayout* l, int t, int* x, int* y, int* size);
+/* SOTN-3: the cursor's square in Select's picture at animation frame t
+ * (0 to 63, as the game's: it closes onto Alucard's square) */
+void sotn_cursor_rect(const SotnView* v, int t, int* x, int* y, int* size);
 
 #endif

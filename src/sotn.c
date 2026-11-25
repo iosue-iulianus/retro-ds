@@ -2,6 +2,7 @@
  * video RAM measured in the harness (docs/games/symphony-of-the-night.md),
  * sotn-decomp's names for them in comments: a reference only, no code. */
 #include "sotn.h"
+#include "disc.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,12 +10,18 @@
 
 /* g_GameState: 1 the title, 2 playing, 8 the file screens */
 #define GAME_STATE 0x8003C734u
-#define STATE_TITLE 1
+
+#define VRAM_W 1024
+#define VRAM_H 512
 
 /* The title's logo: an 8-bit texture at video RAM (780, 2), 230 x 121
- * halfwords (460 pixels), its palette at (512, 240); CRC32s of both as the
- * title shows them (the same from the title's first frame, measured from
- * power-on to well after "Press start"). */
+ * halfwords (460 pixels), its palette at (512, 240). The title loads it
+ * from BIN/F_TITLE0.BIN, which is video RAM x 512 to 1023, y 0 to 255,
+ * stored in columns 64 halfwords wide, each as four 32 x 128 blocks (left
+ * and right of its top half, then of its bottom half). CRC32s of the
+ * logo's halfwords row by row and of its palette, as measured. */
+#define TITLE_FILE "BIN/F_TITLE0.BIN"
+#define TITLE_FILE_SIZE 262144
 #define LOGO_X 780
 #define LOGO_Y 2
 #define LOGO_HW 230
@@ -23,9 +30,6 @@
 #define LOGO_CLUT_Y 240
 #define LOGO_TEX_CRC 0xBE361342u
 #define LOGO_CLUT_CRC 0x1876343Fu
-
-#define VRAM_W 1024
-#define VRAM_H 512
 
 bool sotn_is(const char* gameCode) {
 	return gameCode && !strcmp(gameCode, SOTN_CODE);
@@ -37,34 +41,45 @@ static const uint16_t* vram(Emu* e) {
 	return v && n >= VRAM_W * VRAM_H * 2 ? (const uint16_t*) v : NULL;
 }
 
-static uint32_t rect_crc(const uint16_t* v, int x, int y, int w, int h) {
-	uint32_t crc = 0;
-	for (int r = 0; r < h; ++r) crc = emu_crc32(crc, v + (size_t) (y + r) * VRAM_W + x, (size_t) w * 2);
-	return crc;
-}
-
 static uint8_t c5(unsigned c) {
 	return (uint8_t) (c << 3 | c >> 2);
 }
 
-uint8_t* sotn_title_logo(Emu* e, int* w, int* h) {
-	if (!sotn_is(e->gameCode) || emu_read32(e, GAME_STATE) != STATE_TITLE) return NULL;
-	const uint16_t* v = vram(e);
-	if (!v || rect_crc(v, LOGO_X, LOGO_Y, LOGO_HW, LOGO_H) != LOGO_TEX_CRC ||
-	    rect_crc(v, LOGO_CLUT_X, LOGO_CLUT_Y, 256, 1) != LOGO_CLUT_CRC)
+/* the halfword at video RAM (x, y), x 512 to 1023 and y 0 to 255, in F_TITLE0 */
+static uint16_t title_hw(const uint8_t* f, int x, int y) {
+	x -= 512;
+	size_t o = (size_t) (x / 64) * 32768 + (size_t) (x % 64 / 32) * 8192 + (size_t) (y / 128) * 16384 + (size_t) (y % 128) * 64 + (size_t) (x % 32) * 2;
+	return (uint16_t) (f[o] | f[o + 1] << 8);
+}
+
+uint8_t* sotn_disc_logo(const char* cuePath, int* w, int* h) {
+	size_t n = 0;
+	uint8_t* f = disc_read_file(cuePath, TITLE_FILE, &n);
+	if (!f || n != TITLE_FILE_SIZE) {
+		free(f);
 		return NULL;
-	const uint16_t* clut = v + (size_t) LOGO_CLUT_Y * VRAM_W + LOGO_CLUT_X;
-	int W = LOGO_HW * 2, H = LOGO_H * 2;
+	}
+	uint16_t tex[LOGO_H][LOGO_HW], clut[256];
+	for (int y = 0; y < LOGO_H; ++y) {
+		for (int x = 0; x < LOGO_HW; ++x) tex[y][x] = title_hw(f, LOGO_X + x, LOGO_Y + y);
+	}
+	for (int i = 0; i < 256; ++i) clut[i] = title_hw(f, LOGO_CLUT_X + i, LOGO_CLUT_Y);
+	free(f);
+	if (emu_crc32(0, tex, sizeof(tex)) != LOGO_TEX_CRC || emu_crc32(0, clut, sizeof(clut)) != LOGO_CLUT_CRC) return NULL;
+	/* its 460 x 121 pixels at their shape on a television (the title's
+	 * 512-wide pixels 0.625 as wide as a line is high): each 2.5 pixels
+	 * wide and 4 high, 1150 x 484 */
+	int W = LOGO_HW * 2 * 5 / 2, H = LOGO_H * 4;
 	uint8_t* out = calloc((size_t) W * H, 4);
 	if (!out) return NULL;
-	for (int y = 0; y < LOGO_H; ++y) {
+	for (int y = 0; y < H; ++y) {
 		for (int x = 0; x < W; ++x) {
-			uint16_t t = v[(size_t) (LOGO_Y + y) * VRAM_W + LOGO_X + x / 2];
-			uint16_t c = clut[(t >> (8 * (x & 1))) & 0xFF];
+			int sx = x * 2 / 5;
+			uint16_t t = tex[y / 4][sx / 2];
+			uint16_t c = clut[(t >> (8 * (sx & 1))) & 0xFF];
 			if (!c) continue; /* (the PlayStation's clear colour) */
-			uint8_t px[4] = { c5(c & 31), c5((c >> 5) & 31), c5((c >> 10) & 31), 255 };
-			memcpy(out + ((size_t) (y * 2) * W + x) * 4, px, 4);
-			memcpy(out + ((size_t) (y * 2 + 1) * W + x) * 4, px, 4);
+			uint8_t* o = out + ((size_t) y * W + x) * 4;
+			o[0] = c5(c & 31), o[1] = c5((c >> 5) & 31), o[2] = c5((c >> 10) & 31), o[3] = 255;
 		}
 	}
 	*w = W, *h = H;
@@ -123,8 +138,9 @@ bool sotn_read(Emu* e, SotnView* sv) {
 	sv->rooms = (int) emu_read32(e, ROOM_COUNT);
 	sv->inverted = emu_read32(e, STAGE) & 0x20;
 	for (int i = 0; i < 3; ++i) sv->window[i] = (int) emu_read32(e, WINDOW_COLORS + 4 * (uint32_t) i) & 31;
-	sv->sqX = (int) emu_read32(e, TILEMAP_LEFT) + (int) (emu_read32(e, PLAYER_X) >> 8);
-	sv->sqY = (int) emu_read32(e, TILEMAP_TOP) + (int) (emu_read32(e, PLAYER_Y) >> 8);
+	sv->roomX = (int) emu_read32(e, TILEMAP_LEFT), sv->roomY = (int) emu_read32(e, TILEMAP_TOP);
+	sv->sqX = sv->roomX + (int) (emu_read32(e, PLAYER_X) >> 8);
+	sv->sqY = sv->roomY + (int) (emu_read32(e, PLAYER_Y) >> 8);
 	/* Select draws the map's 256 x 256 as a 255 x 255 quad from (0, 1)
 	 * of its picture; in the inverted castle turned half round, from
 	 * (255, 240) to (0, -15) */
@@ -178,7 +194,8 @@ static uint8_t dithered(int c, int x, int y) {
 /* The status screen's window: a gradient from the window colour less 32
  * at the top to it plus 32 at the bottom (the other way round in the
  * inverted castle), dithered, and a white edge a pixel wide */
-static void window(const SotnView* v, uint32_t* px, int stride, int x0, int y0, int w, int h) {
+/* (dx, dy: where (x0, y0) is on the screen, for the dither's pattern) */
+static void window(const SotnView* v, uint32_t* px, int stride, int x0, int y0, int w, int h, int dx, int dy) {
 	int top[3], bot[3];
 	for (int i = 0; i < 3; ++i) {
 		int a = v->window[i] * 8 - 32, b = v->window[i] * 8 + 32;
@@ -196,8 +213,8 @@ static void window(const SotnView* v, uint32_t* px, int stride, int x0, int y0, 
 			uint32_t p;
 			if (x == 0 || y == 0 || x == w - 1 || y == h - 1) p = 0xFFFFFBFFu; /* (255, 251, 255) */
 			else
-				p = 0xFF000000u | (uint32_t) dithered(c[2], x0 + x, y0 + y) << 16 | (uint32_t) dithered(c[1], x0 + x, y0 + y) << 8 |
-				    dithered(c[0], x0 + x, y0 + y);
+				p = 0xFF000000u | (uint32_t) dithered(c[2], dx + x, dy + y) << 16 | (uint32_t) dithered(c[1], dx + x, dy + y) << 8 |
+				    dithered(c[0], dx + x, dy + y);
 			px[(y0 + y) * stride + x0 + x] = p;
 		}
 	}
@@ -216,43 +233,52 @@ static void text(const SotnView* v, uint32_t* px, int stride, int x, int y, cons
 	}
 }
 
+#define PANE_COLS 12
+
 void sotn_compose(const SotnView* v, uint32_t* px, int cw, int ch, SotnLayout* out) {
-	const int m = 4, in = 6; /* black round the window; the map's and panes' room inside it */
+	const int m = 4, in = 6; /* black round the window; the map's and pane's room inside it */
 	for (int i = 0; i < cw * ch; ++i) px[i] = 0xFF000000u;
-	window(v, px, cw, m, m, cw - 2 * m, ch - 2 * m);
-	/* the map, at the left, its clear pixels showing the window */
-	int cx, cy;
-	castle_rect(v, &cx, &cy);
+	window(v, px, cw, m, m, cw - 2 * m, ch - 2 * m, m, m);
+	out->winX = m + 1, out->winY = m + 1, out->winW = cw - 2 * m - 2, out->winH = ch - 2 * m - 2;
+	/* the map at the left, its clear pixels showing the window */
+	castle_rect(v, &out->castleX, &out->castleY);
 	int mx = m + in, my = (ch - SOTN_MAP_H) / 2;
 	if (my < m + 1) my = m + 1;
-	for (int y = 0; y < SOTN_MAP_H && my + y < ch - m - 1; ++y) {
-		for (int x = 0; x < SOTN_MAP_W && mx + x < cw - m - 1; ++x) {
-			uint8_t i = v->pic[cy + y][cx + x];
-			if (i && v->mapPal[i]) px[(my + y) * cw + mx + x] = v->mapPal[i];
+	out->mapX = mx - out->castleX, out->mapY = my - out->castleY;
+	/* ROOMS and the percentage in a pane at the bottom right */
+	out->paneW = PANE_COLS * 8 + 16, out->paneH = 8 * 2 + 6 + 12;
+	out->paneX = cw - m - in - out->paneW, out->paneY = ch - m - in - out->paneH;
+	if (out->paneX <= m || out->paneY <= m) out->paneW = out->paneH = 0;
+	/* the logo's place: the top right, beside the map */
+	float lx = (float) (mx + SOTN_MAP_W + in), lw = (float) (cw - m - in) - lx;
+	float lh = lw / SOTN_LOGO_ASPECT, maxH = (float) (out->paneY - in - (m + in));
+	if (lh > maxH) lh = maxH, lw = lh * SOTN_LOGO_ASPECT;
+	out->logoX = lx + ((float) (cw - m - in) - lx - lw) / 2, out->logoY = (float) (m + in);
+	out->logoW = lw > 0 ? lw : 0, out->logoH = lh > 0 ? lh : 0;
+}
+
+void sotn_map_pixels(const SotnView* v, uint32_t* px) {
+	for (int y = 0; y < SOTN_PIC_H; ++y) {
+		for (int x = 0; x < SOTN_PIC_W; ++x) {
+			uint8_t i = v->pic[y][x];
+			px[y * SOTN_PIC_W + x] = i ? v->mapPal[i] : 0;
 		}
 	}
-	/* ROOMS and the percentage in a pane at the bottom right, as the
-	 * status screen and the file screen write them */
+}
+
+void sotn_pane_pixels(const SotnView* v, const SotnLayout* l, uint32_t* px) {
+	if (!l->paneW || !l->paneH) return;
+	/* as the status screen writes ROOMS, and the file screen the
+	 * percentage (rooms x 1000 / 942, in tenths) */
 	char rooms[16], pct[16], line[32];
 	snprintf(rooms, sizeof rooms, "%d", v->rooms);
 	int tenths = v->rooms * 1000 / ROOMS_ALL;
 	snprintf(pct, sizeof pct, "%d.%d%%", tenths / 10, tenths % 10);
-	const int cols = 12, pw = cols * 8 + 16, ph = 8 * 2 + 6 + 12;
-	int px0 = cw - m - in - pw, py0 = ch - m - in - ph;
-	if (px0 > m && py0 > m) {
-		window(v, px, cw, px0, py0, pw, ph);
-		snprintf(line, sizeof line, "ROOMS%*s", cols - 5, rooms);
-		text(v, px, cw, px0 + 8, py0 + 6, line);
-		snprintf(line, sizeof line, "%*s", cols, pct);
-		text(v, px, cw, px0 + 8, py0 + 6 + 8 + 6, line);
-	}
-	/* the logo's place: the top right, beside the map */
-	float lx = (float) (mx + SOTN_MAP_W + in), lw = (float) (cw - m - in) - lx;
-	float lh = lw / SOTN_LOGO_ASPECT, maxH = (float) (py0 - in - (m + in));
-	if (lh > maxH) lh = maxH, lw = lh * SOTN_LOGO_ASPECT;
-	out->mapX = mx - cx, out->mapY = my - cy; /* (Select's picture's origin) */
-	out->logoX = lx + ((float) (cw - m - in) - lx - lw) / 2, out->logoY = (float) (m + in);
-	out->logoW = lw > 0 ? lw : 0, out->logoH = lh > 0 ? lh : 0;
+	window(v, px, l->paneW, 0, 0, l->paneW, l->paneH, l->paneX, l->paneY);
+	snprintf(line, sizeof line, "ROOMS%*s", PANE_COLS - 5, rooms);
+	text(v, px, l->paneW, 8, 6, line);
+	snprintf(line, sizeof line, "%*s", PANE_COLS, pct);
+	text(v, px, l->paneW, 8, 6 + 8 + 6, line);
 }
 
 void sotn_cursor_pixels(const SotnView* v, uint32_t px[32 * 32]) {
@@ -261,7 +287,7 @@ void sotn_cursor_pixels(const SotnView* v, uint32_t px[32 * 32]) {
 	}
 }
 
-void sotn_cursor_rect(const SotnView* v, const SotnLayout* l, int t, int* x, int* y, int* size) {
+void sotn_cursor_rect(const SotnView* v, int t, int* x, int* y, int* size) {
 	/* as the game's map cursor: a 32-pixel square closing onto Alucard's
 	 * square over 64 frames, quickly at first (in Select's picture) */
 	int tick = 63 - (t & 63);
@@ -269,7 +295,7 @@ void sotn_cursor_rect(const SotnView* v, const SotnLayout* l, int t, int* x, int
 	if (tick == 0) tick = 15;
 	int gx = v->sqX * 4 - 14, gy = v->sqY * 4 - 13;
 	if (v->inverted) gx -= 1, gy -= 17;
-	*x = l->mapX + gx + tick;
-	*y = l->mapY + gy + tick;
+	*x = gx + tick;
+	*y = gy + tick;
 	*size = 32 - tick * 2;
 }

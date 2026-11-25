@@ -9,6 +9,7 @@
 #include "brand.h"
 #include "emu.h"
 #include "system.h"
+#include "sotn.h"
 #include "esde.h"
 #include "hotkeys.h"
 #include "folderpick.h"
@@ -371,7 +372,7 @@ static void scan_dir(Config* cfg, const char* d, int depth) {
 		memset(&g, 0, sizeof(g));
 		snprintf(g.path, sizeof(g.path), "%s", full);
 		if (!game_code(g.path, &st, g.code)) continue;
-		g.supported = profile_find(g.code) != NULL;
+		g.supported = profile_find(g.code) != NULL || sotn_is(g.code); /* (Symphony of the Night: its own module, no profile) */
 #ifdef RETRODS_SIDE_CODES
 		/* a side build lists only its game's releases (the Makefile's SIDE_CODES) */
 		if (!strstr(RETRODS_SIDE_CODES, g.code)) continue;
@@ -1282,6 +1283,7 @@ static int draw_wrapped(int scr, int x, int y, int width, float px, const char* 
 static const struct { const char* title; const char* what; } supportedGames[] = {
 	{ "Super Metroid", N_("The area map and the SAMUS page, drawn from the game: drag the map, tap an item to switch it.") },
 	{ "The Legend of Zelda: A Link to the Past", N_("The items screen (tap to choose), the world map as far as you've explored it, and the dungeon maps.") },
+	{ "Castlevania: Symphony of the Night", N_("The castle map as far as you've explored it, where Alucard is, and the rooms and percentage explored.") },
 };
 static void draw_supported(int scr) {
 	float px = ui_px(scr);

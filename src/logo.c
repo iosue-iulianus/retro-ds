@@ -1,4 +1,5 @@
 #include "logo.h"
+#include "sotn.h"
 #include "emu.h"
 #include "profiles.h"
 #ifdef __ANDROID__
@@ -120,6 +121,17 @@ void logo_drop_path(const char* logoPng, char* out, size_t n) {
  * core and run to its title (the profile's logo.wait, pressStart and wait2,
  * or its steps); the picture inside the profile's box is kept as a PNG. */
 bool logo_extract(const char* romPath, const char* gameCode, const char* outPng) {
+	if (sotn_is(gameCode)) {
+		/* SOTN-1: from the disc, no core needed */
+		int w = 0, h = 0;
+		uint8_t* rgba = sotn_disc_logo(romPath, &w, &h);
+		char tmp[1100];
+		snprintf(tmp, sizeof(tmp), "%s.tmp", outPng);
+		bool ok = rgba && stbi_write_png(tmp, w, h, 4, rgba, w * 4) && rename(tmp, outPng) == 0;
+		free(rgba);
+		fprintf(stderr, "logo: %s %dx%d from the disc -> %s\n", gameCode, w, h, ok ? outPng : "not made");
+		return ok;
+	}
 	const MapProfile* p = profile_find(gameCode);
 	if (!p || (!p->logo.wait && !p->logo.steps[0].frames)) return false;
 	Emu e = { 0 };
@@ -302,7 +314,7 @@ static void enqueue(const char* romPath, const char* gameCode, const char* outPn
 void logo_request(const char* romPath, const char* gameCode, const char* outPng) {
 	if (exists(outPng)) return;
 	const MapProfile* p = profile_find(gameCode);
-	if (!p || (!p->logo.wait && !p->logo.steps[0].frames)) return;
+	if (!sotn_is(gameCode) && (!p || (!p->logo.wait && !p->logo.steps[0].frames))) return;
 	enqueue(romPath, gameCode, outPng);
 }
 

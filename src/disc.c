@@ -147,3 +147,61 @@ bool disc_code(const char* cuePath, char* out, size_t n) {
 	fclose(f);
 	return ok;
 }
+
+/* the directory entry `name` (no version) in the directory at lba, size */
+static bool find_entry(FILE* f, const Track* t, uint32_t lba, uint32_t size, const char* name, size_t nameN, uint32_t* outLba,
+                       uint32_t* outSize, bool* dir) {
+	uint8_t sec[2048];
+	for (uint32_t done = 0; done < size && done < 256 * 2048; done += 2048) {
+		if (!read_sector(f, t, lba + done / 2048, sec)) return false;
+		for (int at = 0; at < 2048;) {
+			int len = sec[at];
+			if (!len || at + len > 2048) break;
+			int n = sec[at + 32];
+			const char* e = (const char*) sec + at + 33;
+			int k = 0;
+			while (k < n && e[k] != ';') ++k;
+			if (33 + n <= len && (size_t) k == nameN && !strncasecmp(e, name, nameN)) {
+				*outLba = le32(sec + at + 2), *outSize = le32(sec + at + 10), *dir = sec[at + 25] & 2;
+				return true;
+			}
+			at += len;
+		}
+	}
+	return false;
+}
+
+uint8_t* disc_read_file(const char* cuePath, const char* path, size_t* n) {
+	*n = 0;
+	Track t;
+	if (!cue_first_track(cuePath, &t)) return NULL;
+	FILE* f = fopen(t.file, "rb");
+	if (!f) return NULL;
+	uint8_t pvd[2048], *out = NULL;
+	if (read_sector(f, &t, 16, pvd) && pvd[0] == 1 && !memcmp(pvd + 1, "CD001", 5)) {
+		uint32_t lba = le32(pvd + 156 + 2), size = le32(pvd + 156 + 10);
+		bool dir = true, ok = true;
+		const char* p = path;
+		while (ok && *p) {
+			while (*p == '/') ++p;
+			size_t k = strcspn(p, "/");
+			if (!k) break;
+			ok = dir && find_entry(f, &t, lba, size, p, k, &lba, &size, &dir);
+			p += k;
+		}
+		if (ok && !dir && size && size <= 8u * 1024 * 1024 && (out = malloc(size))) {
+			for (uint32_t done = 0; done < size; done += 2048) {
+				uint8_t sec[2048];
+				if (!read_sector(f, &t, lba + done / 2048, sec)) {
+					free(out);
+					out = NULL;
+					break;
+				}
+				memcpy(out + done, sec, size - done < 2048 ? size - done : 2048);
+			}
+			if (out) *n = size;
+		}
+	}
+	fclose(f);
+	return out;
+}
