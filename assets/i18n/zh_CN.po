@@ -2226,3 +2226,15 @@ msgstr "适应"
 
 msgid "Scale: 4:3"
 msgstr "缩放：4:3"
+
+msgid "Show all games"
+msgstr "显示所有游戏"
+
+msgid "Show supported games only"
+msgstr "仅显示支持的游戏"
+
+msgid "Supported Games > Show all games lists every game."
+msgstr "支持的游戏 > 显示所有游戏 可列出所有游戏。"
+
+msgid "No supported games found"
+msgstr "没有找到支持的游戏"

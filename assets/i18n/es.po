@@ -2229,3 +2229,15 @@ msgstr "Ajustar"
 
 msgid "Scale: 4:3"
 msgstr "Escala: 4:3"
+
+msgid "Show all games"
+msgstr "Mostrar todos los juegos"
+
+msgid "Show supported games only"
+msgstr "Mostrar solo juegos compatibles"
+
+msgid "Supported Games > Show all games lists every game."
+msgstr "Juegos compatibles > Mostrar todos los juegos muestra cada juego."
+
+msgid "No supported games found"
+msgstr "No se encontraron juegos compatibles"

@@ -377,8 +377,11 @@ static void scan_dir(Config* cfg, const char* d, int depth) {
 		/* a side build lists only its game's releases (the Makefile's SIDE_CODES) */
 		if (!strstr(RETRODS_SIDE_CODES, g.code)) continue;
 #endif
-		/* (every game is listed: the ones without a second screen tagged
-		 * "Single screen only"; Supported Games says which have one) */
+		/* Only the games with a second screen, until the player asks for
+		 * every one (Supported Games > Show all games: show_all); those then
+		 * tagged "Single screen only". (Before its patches are looked for:
+		 * issue #49) */
+		if (!g.supported && !cfg->showAll) continue;
 		entry_patches(cfg, &g, de->d_name, (long long) st.st_size, (long long) st.st_mtime);
 		int n = (int) (ext - de->d_name);
 		if (n >= (int) sizeof(g.name)) n = sizeof(g.name) - 1;
@@ -892,16 +895,33 @@ static SDL_Rect tile_rect(ListGeom* g, int i, int scroll) {
 	return (SDL_Rect) { g->m + col * (g->tileW + g->gap), g->headerH + g->m + row * g->rowH - scroll, g->tileW, g->tileH };
 }
 
-/* each game's logo, loaded on first sight; reloaded when a new one is extracted */
-static SDL_Texture* tileLogo[256][2];
-static int tileLogoW[256], tileLogoH[256];
-static bool tileTried[256];
+/* each game's logo, loaded on first sight; reloaded when a new one is
+ * extracted. As many as there are games (once 256 at most: a library of
+ * more couldn't be scrolled past its 256th game) */
+typedef struct {
+	SDL_Texture* logo[2];
+	int w, h;
+	bool tried;
+} Tile;
+static Tile* tiles;
+static int capTiles;
 
 static void free_tiles(void) {
-	for (int i = 0; i < 256; ++i) {
-		ui_free_image(tileLogo[i]);
-		tileTried[i] = false;
+	for (int i = 0; i < capTiles; ++i) {
+		ui_free_image(tiles[i].logo);
+		tiles[i].tried = false;
 	}
+}
+
+/* room for n games' tiles (new ones empty) */
+static void tiles_for(int n) {
+	if (n <= capTiles) return;
+	int cap = capTiles ? capTiles : 256;
+	while (cap < n) cap *= 2;
+	Tile* t = realloc(tiles, sizeof(*t) * (size_t) cap);
+	if (!t) return;
+	memset(t + capTiles, 0, sizeof(*t) * (size_t) (cap - capTiles));
+	tiles = t, capTiles = cap;
 }
 
 /* The header: the theme and the list / grid buttons at the left, Supported
@@ -1084,7 +1104,9 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 	ListGeom g = list_geom(scr);
 	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, r.h }, C_BG);
 	if (nGames == 0) {
-		ui_label(scr, r.w / 2, r.h / 2 - px * 14, px * 6, "No games found", C_TEXT);
+		ui_label(scr, r.w / 2, r.h / 2 - px * 14, px * 6, cfg->showAll ? "No games found" : "No supported games found", C_TEXT);
+		if (!cfg->showAll)
+			ui_font_text(scr, TF_BODY, r.w / 2, r.h / 2 + px * (cfg->psxDir[0] ? 26 : 14), px * 4, tr("Supported Games > Show all games lists every game."), C_DIM, 0);
 		char dir[300];
 		fit_text(dir, sizeof(dir), TF_BODY, px * 5, cfg->romDir, r.w - px * 16);
 		ui_font_text(scr, TF_BODY, r.w / 2, r.h / 2, px * 5, dir, C_GOLD, 0);
@@ -1096,7 +1118,8 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 	int done, total;
 	logo_progress(&done, &total);
 	bool extracting = done < total;
-	for (int i = 0; i < nGames && i < 256; ++i) {
+	tiles_for(nGames);
+	for (int i = 0; i < nGames && i < capTiles; ++i) {
 		SDL_Rect t = tile_rect(&g, i, scroll);
 		if (t.y + t.h <= g.headerH || t.y >= r.h) continue;
 		bool on = i == sel;
@@ -1122,23 +1145,24 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 			ui_font_text(scr, TF_BOLD, t.x + px * 6, t.y + t.h / 2, px * 5, line, C_TEXT, -1);
 			continue;
 		}
-		if (!tileTried[i]) {
-			tileTried[i] = true;
+		Tile* tl = &tiles[i];
+		if (!tl->tried) {
+			tl->tried = true;
 			bool pixelArt;
-			if (ui_load_logo(cfg, games[i].path, games[i].code, tileLogo[i], &tileLogoW[i], &tileLogoH[i], &pixelArt)) {
+			if (ui_load_logo(cfg, games[i].path, games[i].code, tl->logo, &tl->w, &tl->h, &pixelArt)) {
 				for (int v = 0; v < 2; ++v) {
-					if (tileLogo[i][v]) SDL_SetTextureScaleMode(tileLogo[i][v], SDL_ScaleModeLinear);
+					if (tl->logo[v]) SDL_SetTextureScaleMode(tl->logo[v], SDL_ScaleModeLinear);
 				}
 			}
 		}
-		if (tileLogo[i][0] || tileLogo[i][1]) {
+		if (tl->logo[0] || tl->logo[1]) {
 			/* the logo, as large as fits with some padding, keeping its shape */
 			int pad = px * 5;
 			int aw = t.w - pad * 2, ah = t.h - pad * 2;
-			int w = aw, h = tileLogoH[i] * aw / tileLogoW[i];
-			if (h > ah) h = ah, w = tileLogoW[i] * ah / tileLogoH[i];
+			int w = aw, h = tl->h * aw / tl->w;
+			if (h > ah) h = ah, w = tl->w * ah / tl->h;
 			SDL_Rect a = { t.x + (t.w - w) / 2, t.y + (t.h - h) / 2, w, h };
-			ui_image(scr, tileLogo[i], tileLogoW[i], tileLogoH[i], "stretch", &a);
+			ui_image(scr, tl->logo, tl->w, tl->h, "stretch", &a);
 		} else if (games[i].supported && extracting) {
 			ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, px * 4, "Loading thumbnail...", C_DIM);
 		} else {
@@ -1320,7 +1344,15 @@ static const struct { const char* title; const char* what; } supportedGames[] = 
 	{ "The Legend of Zelda: A Link to the Past", N_("The items screen (tap to choose), the world map as far as you've explored it, your own markers on it, and the dungeon maps.") },
 	{ "Castlevania: Symphony of the Night", N_("The castle map as far as you've explored it, where Alucard is, and the rooms and percentage explored. Start moves the game's own menu to the second screen.") },
 };
-static void draw_supported(int scr) {
+/* the card's two buttons: Show all games / Show supported games only, then Back */
+static SDL_Rect supported_button(int scr, int i) {
+	float px = ui_px(scr);
+	SDL_Rect p = set_panel(scr);
+	int h = px * HEADER_BTN;
+	return (SDL_Rect) { p.x + px * 6, p.y + p.h - px * 6 - h - (1 - i) * (h + px * 4), p.w - px * 12, h };
+}
+
+static void draw_supported(const Config* cfg, int scr, int sel) {
 	float px = ui_px(scr);
 	SDL_Rect p = set_panel(scr);
 	ui_dim(scr, 200);
@@ -1331,9 +1363,12 @@ static void draw_supported(int scr) {
 		ui_font_text(scr, TF_BOLD, x, y + px * 3, fit_cap(TF_BOLD, px * 6, w, supportedGames[i].title), supportedGames[i].title, C_TEXT, -1);
 		y = draw_wrapped(scr, x, y + px * 9, w, px, tr(supportedGames[i].what), C_DIM) + px * 8;
 	}
-	SDL_Rect b = { p.x + px * 6, p.y + p.h - px * 6 - px * HEADER_BTN, p.w - px * 12, px * HEADER_BTN };
-	ui_key(scr, b, px * 3, KEY_SEL);
-	ui_label(scr, b.x + b.w / 2, b.y + b.h / 2, px * 5, "Back", C_TEXT);
+	for (int i = 0; i < 2; ++i) {
+		SDL_Rect b = supported_button(scr, i);
+		ui_key(scr, b, px * 3, sel == i ? KEY_SEL : KEY_PLAIN);
+		const char* t = i ? tr("Back") : cfg->showAll ? tr("Show supported games only") : tr("Show all games");
+		label_fit(scr, b.x + b.w / 2, b.y + b.h / 2, px * 5, b.w - px * 4, b.h, t);
+	}
 }
 
 /* The panel, its buttons (labels[i] on row i; sel == nRows is Back). */
@@ -2575,6 +2610,7 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 	int repeat = 0;
 	bool settingsOpen = false;
 	bool supportedOpen = false; /* the Supported Games panel */
+	int supportedSel = 1;       /* its button: 0 Show all games / supported only, 1 Back */
 	int settingsSel = 0;
 	settingsMsg[0] = 0;
 	updatesOpen = false;
@@ -2688,15 +2724,45 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 		}
 #endif
 		if (supportedOpen) {
-			/* any button that means back, or a tap anywhere, closes it */
-			if (btn_pressed(B_B) || btn_pressed(B_A) || btn_pressed(B_START) || btn_released(B_HOME)) supportedOpen = false;
+			/* its button switches between the supported games and all of them
+			 * (show_all, kept for all games), the list made again; Back, B or a
+			 * tap anywhere else closes it */
+			bool flip = false;
+			if (btn_pressed(B_UP) || btn_pressed(B_DOWN)) supportedSel = !supportedSel;
+			if (btn_pressed(B_A) || btn_pressed(B_START)) {
+				if (supportedSel == 0) flip = true;
+				else supportedOpen = false;
+			}
+			if (btn_pressed(B_B) || btn_released(B_HOME)) supportedOpen = false;
 			Pointer sp;
-			while (ui_next_pointer(&sp))
-				if (sp.screen == ls && sp.kind == 1) supportedOpen = false;
+			while (ui_next_pointer(&sp)) {
+				if (sp.screen != ls || sp.kind != 1) continue;
+				SDL_Rect fb = supported_button(ls, 0);
+				SDL_Point pt = { sp.x, sp.y };
+				if (SDL_PointInRect(&pt, &fb)) flip = true;
+				else supportedOpen = false;
+			}
+			if (flip) {
+				char keep[sizeof(games[0].path)] = "";
+				if (sel >= 0 && sel < nGames) snprintf(keep, sizeof(keep), "%s", games[sel].path);
+				cfg->showAll = !cfg->showAll;
+				setting_changed(cfg, config_setting("show_all"));
+				setRescan = false;
+				free_thumbs();
+				free_tiles();
+				scan(cfg);
+				thumbFor = -2;
+				sel = nGames ? 0 : -1;
+				for (int i = 0; i < nGames && keep[0]; ++i)
+					if (!strcmp(games[i].path, keep)) sel = i;
+				scroll = sel >= 0 ? keep_visible(ls, sel, 0) : 0;
+				supportedOpen = false;
+				fprintf(stderr, "library: %s\n", cfg->showAll ? "every game listed" : "only the supported games listed");
+			}
 			pressed = false;
 			ui_clear();
 			draw_list(cfg, ls, sel, scroll);
-			if (supportedOpen) draw_supported(ls);
+			if (supportedOpen) draw_supported(cfg, ls, supportedSel);
 			if (nScreens > 1) draw_preview(cfg, ui_other_screen(), sel);
 			ui_present();
 			SDL_Delay(15);
@@ -2825,6 +2891,7 @@ bool library_run(Config* cfg, char* outPath, size_t outSize) {
 				if (SDL_PointInRect(&pt, &gb)) {
 					/* Supported Games: the list of games with a second screen */
 					supportedOpen = true;
+					supportedSel = 1;
 					pressed = false;
 					break;
 				}

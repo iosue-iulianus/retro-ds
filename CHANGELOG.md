@@ -4,6 +4,17 @@ RetroDS's history. It started as a fork of GBA DS v1.5.6, then SNES DS;
 GBA DS's own changelog up to then is `git show 3b452dc:CHANGELOG.md` (and
 on [GBA DS's GitHub](https://github.com/kyannon/gba-ds)).
 
+## Unreleased
+
+- **Filtering the game list is back.** By default only the supported
+  games are shown. To see all games, open Supported Games and press Show
+  all games (Show supported games only goes back; the choice is kept).
+  For games without a second screen, a standard emulator is recommended:
+  RetroDS plays them on one screen only.
+- **The game list shows every game.** It stopped after the 256th: in a
+  bigger collection, games further down the alphabet (Super Metroid, say)
+  couldn't be reached.
+
 ## v1.0.0 (November 25, 2026)
 
 The first release.
