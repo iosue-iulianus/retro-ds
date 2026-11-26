@@ -7,9 +7,11 @@
 | Profile | `src/profiles.c`: the `A27F1C7A` entry (logo only, the game on the first screen) |
 | Code | `src/ff6.c` (reading the game), `src/game_ff6.c` (the second screen) |
 | Tests | the harness (`ff6 part`, `ff6 battle`, `ff6 tap ROW`) and the app headless with the test files in `test-data/final-fantasy-vi/` (`harness-*`: the opening at Narshe's gate, the six slots of two players' saves loaded through Continue) |
-| Status | FF6-1 to 6 built Nov 26, 2026 and checked on the host; not yet on the Duo |
+| Status | FF6-1 to 6 built Nov 26, 2026 and checked on the host (FF6-5 pixel-exact against the game's menu); FF6-1 to 4 and 6 installed on the Duo, not yet tried by the owner |
 
 What RetroDS does with this game. Each rule is a promise; change the rule here first, then the code, then the tests. Rule numbers are never reused. `everything8215/ff6` (65816 disassembly, GPL-3.0, byte-identical for this ROM) is a reference for addresses and formats only: no code from it.
+
+*The owner, Nov 26, 2026, later: "That's the whole point of RetroDS, drawing our own screen with data and art from the game": every FF6 screen drawn by RetroDS, as Super Metroid's and A Link to the Past's are, so it can be laid out for the second screen. The game's own pictures moved over (FF6-2, FF6-4) are stopgaps until their drawn screens replace them.*
 
 *The owner, Nov 26, 2026: FF6 next (SCOPE.md's update). The game above and its menus below, especially for battles, touch to fight, as the DS's Chrono Trigger did, and the menus taken off the game screen so they aren't on both. The rules below are the overnight session's reading of that, by earlier decisions (the game's own screens moved over, as Symphony of the Night's menu; press the game's buttons rather than write; when unsure, the logo): for the owner to confirm on the Duo.*
 
@@ -23,7 +25,7 @@ What RetroDS does with this game. Each rule is a promise; change the rule here f
 
 **FF6-4. The main menu, below.** While the game's menu program runs (the main menu on X and everything it opens: Item, Skills, Equip, Relic, Status, Config, Save; shops and the name screens, which use it too), its whole picture is the second screen's, as the game draws it, at whole pixels; the game screen shows the logo meanwhile (as Symphony of the Night's menu page). Worked with the pad, as in the game; no touch yet.
 
-**FF6-5. Elsewhere, the logo.** On the field, the world map, the title, the opening, cutscenes and the ending: the logo (FF6-1). *(A drawn party screen while walking, the main menu's party from the save data with the game's portraits and window style, is planned: see below.)*
+**FF6-5. The party, drawn.** On the field and the world map, the second screen shows the party as the game's main menu shows it, drawn by RetroDS from the game's data and art: the party window with each character's portrait (the back row's further right; an imp's portrait for an imp), name, LV, HP and MP (the maximums with a relic's boost, at most 9999 and 999; MP only for those the game shows it for: any esper in the party, Gogo, or a spell known), and the Time and Steps / Gp windows, in the player's own window style and colours (Config) and font colour, with the game's gradient. The command list is left out (the game's own menu is one button away). At whole pixels, as large as fits, in the middle (4 on the Duo's bottom screen); drawn again only when something on it changes. Checked against the game's own menu pixel for pixel (the seven test states: 0 pixels differ, but for the minute's digit where the clock ticked). Status icons (poison and the like, beside the name) aren't drawn yet. On the title, the opening, cutscenes, the ending, and with no party: the logo (FF6-1).
 
 **FF6-6. The game above.** Until the player picks a screen for the game (Screens > Game screen, for this game or all), this game is on the first (top) screen and its windows and menu below: the DS's Chrono Trigger's way round, and the bottom screen's 4:3 takes the battle windows at full width. RetroDS's other games keep their own choice (by the screens' shapes: the Duo's bottom one).
 
@@ -42,11 +44,17 @@ What RetroDS does with this game. Each rule is a promise; change the rule here f
 | Characters (FF6-5, planned) | `$1600`, 16 x 37 bytes | +8 level, +9 HP, +B max HP, +D MP, +F max MP (the low 14 bits; the top 2 a relic's boost, `CalcMaxHPMP`) |
 | Gp, steps | `$1860`, `$1866` (3 bytes each) | (the disassembly's RAM notes have them the other way round; its code has them as here) |
 | The window style | `$1D4E` bits 0-2, the colours `$1D57` (8 x 7) | |
+| The party (field) | the field's objects `$0867` + 41 x n (settings `verbbppp`), the save's `$1850` elsewhere; the current party `$1A6D` | the field writes them back to `$1850` as the menu opens |
+| Game time | `$021B` hours, `$021C` minutes; a countdown timer instead while `$1188` bit 4 (`$1189` frames) | |
+| Window art | `ED0000` + style x `0x380`: 28 tiles (a 4 x 4 inside, borders, corners: `WindowTileTbl`); colours 1 to 7 the player's | the menu's colour math: 11 down to 0 added over the top 112 lines (every 10), 1 up subtracted below, on the windows only |
+| Text | the fixed-width font `C47FC0` (2bpp); palettes `D8E800` (BG1 palette n: its 4 n; BG3: its n), the main colour the player's `$1D55` | the main menu's text layers scrolled up 3 (BG1) and 1 (BG3), its windows 1 |
+| Portraits | `ED1D00` (0x320 each), palettes `ED5860`; which: `C36F00` (palette), `C36F1B` (graphics); the menu's sprites `C30B8F` | at x 14 (front row) or 26 (back), y 21 + 48 n |
 
 The title: the US splash ("FINAL FANTASY III, ©1994 Square") takes no input; the title proper, over the clouds after it, leaves for New Game / Continue on A only (`$06` bit 7).
 
 ## Planned (not built)
 
-- **The party on the second screen while walking** (FF6-5): the main menu's party window drawn by RetroDS from the save data and the ROM's art (window graphics `ED0000`, palettes `ED1C00` or the player's `$1D57`, portraits `ED1D00` with palettes `ED5860` and layout `C051DA`, the fixed-width font `C47FC0`), with the game's rules for what it shows (`DrawCharBlock`: the boosted maximums capped at 9999 and 999, MP only for those with magic, `CheckMPVisible`). Checked pixel by pixel against the game's own menu (the six test slots).
+- **The battle screen, drawn** (to replace FF6-2's moved windows): the party with HP, MP and time gauges, the commands as touch targets, the enemies to tap as targets, in the game's windows and font; the special lists falling back to the moved window until drawn.
+- **The main menu, drawn** (to replace FF6-4): its pages laid out for touch.
 - **More touch in battle**: the Magic and Item lists, Row and Defend.
 - **The Duo's top screen**: the battle scene is the picture's top two thirds; it could be shown larger there once the windows are below (whole pixels: 7 instead of 4). For the owner.

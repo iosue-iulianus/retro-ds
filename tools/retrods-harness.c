@@ -26,6 +26,8 @@
  *   ff6 tap ROW            FF6-3: a tap on the battle command list's row ROW
  *                          (0 to 3): the presses it makes, each played as a
  *                          tap (3 frames down, 9 up)
+ *   ff6 menu NAME          FF6-5: the party screen RetroDS draws (src/ff6.c),
+ *                          from A's RAM and the ROM: NAME.png, 256 x 224
  *   pokefile ADDR FILE [OFF LEN]  write FILE's bytes (LEN from OFF, else all)
  *                          from ADDR (Final Fantasy VI: a save slot's block
  *                          into $1600 for its party in the menu)
@@ -750,6 +752,21 @@ int main(int argc, char** argv) {
 				printf("ff6 battle: open %d, menu %02X, slot %d, cursor %d, commands %d%s %d%s %d%s %d%s%s\n", b.open, b.menu, b.slot, b.cursor,
 				       b.cmd[0], b.disabled[0] ? "(grey)" : "", b.cmd[1], b.disabled[1] ? "(grey)" : "", b.cmd[2], b.disabled[2] ? "(grey)" : "",
 				       b.cmd[3], b.disabled[3] ? "(grey)" : "", b.shortSet ? ", short" : "");
+			} else if (!strcmp(s1, "menu")) {
+				static Ff6Rom* from;
+				if (!from) from = ff6_rom_load(rom);
+				Ff6Party party;
+				ff6_party_read(e, &party);
+				static uint32_t pic[FF6_PIC_W * FF6_PIC_H];
+				ff6_party_draw(from, &party, pic);
+				char path[1200];
+				out_path(path, sizeof path, s2, ".png");
+				printf("ff6 menu %s: %s; style %d;", path, write_png(path, pic, FF6_PIC_W, FF6_PIC_H, FF6_PIC_W) ? "ok" : "FAILED", party.style);
+				for (int k = 0; k < 4; ++k)
+					if (party.m[k].here)
+						printf(" [%d] char %d lv %d hp %d/%d mp %d/%d%s%s", k, party.m[k].id, party.m[k].level, party.m[k].hp, party.m[k].hpMax, party.m[k].mp,
+						       party.m[k].mpMax, party.m[k].showMp ? "" : " (no MP)", party.m[k].backRow ? " back" : "");
+				printf("\n");
 			} else if (!strcmp(s1, "tap")) {
 				uint32_t keys[8];
 				int n = ff6_command_presses(&b, atoi(s2), keys);

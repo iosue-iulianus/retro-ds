@@ -53,3 +53,307 @@ int ff6_command_presses(const Ff6Battle* b, int row, uint32_t keys[8]) {
 	keys[n++] = K_A;
 	return n;
 }
+
+/* ---- FF6-5: the party screen (see ff6.h) */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Ff6Rom {
+	uint8_t* d;
+	size_t n;
+};
+
+Ff6Rom* ff6_rom_load(const char* path) {
+	FILE* f = path ? fopen(path, "rb") : NULL;
+	if (!f) return NULL;
+	fseek(f, 0, SEEK_END);
+	long n = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	Ff6Rom* r = calloc(1, sizeof(*r));
+	r->d = n > 0 ? malloc((size_t) n) : NULL;
+	if (!r->d || fread(r->d, 1, (size_t) n, f) != (size_t) n) {
+		fclose(f);
+		ff6_rom_free(r);
+		return NULL;
+	}
+	fclose(f);
+	r->n = (size_t) n;
+	if (r->n % 1024 == 512) { /* (a copier header) */
+		memmove(r->d, r->d + 512, r->n - 512);
+		r->n -= 512;
+	}
+	if (r->n < 0x300000) {
+		ff6_rom_free(r);
+		return NULL;
+	}
+	return r;
+}
+
+void ff6_rom_free(Ff6Rom* r) {
+	if (!r) return;
+	free(r->d);
+	free(r);
+}
+
+/* a HiROM address ($C0-$FF banks) in the file */
+static const uint8_t* at(const Ff6Rom* r, uint32_t addr) {
+	uint32_t o = addr & 0x3FFFFF;
+	return o < r->n ? r->d + o : r->d;
+}
+
+static uint16_t rd16(const uint8_t* p) {
+	return (uint16_t) (p[0] | p[1] << 8);
+}
+
+#define CHAR_GOGO 12
+
+void ff6_party_read(Emu* e, Ff6Party* p) {
+	memset(p, 0, sizeof(*p));
+	bool field = ff6_part(e) == FF6_FIELD;
+	int party = emu_read8(e, 0x7E1A6D) & 7;
+	bool espers = emu_read8(e, 0x7E1A69) | emu_read8(e, 0x7E1A6A) | emu_read8(e, 0x7E1A6B) | emu_read8(e, 0x7E1A6C);
+	for (int i = 0; i < 16; ++i) {
+		/* (the field keeps the party's flags in its objects, $0867 + 41 x n,
+		 * and writes them back to $1850 as the menu opens) */
+		uint8_t f = field ? emu_read8(e, 0x7E0867 + 41 * (uint32_t) i) : emu_read8(e, 0x7E1850 + (uint32_t) i);
+		if (!(f & 0x40) || (f & 7) != party) continue;
+		Ff6Member* m = &p->m[f >> 3 & 3];
+		uint32_t c = 0x7E1600 + 37 * (uint32_t) i;
+		m->here = true, m->id = i, m->backRow = f & 0x20;
+		for (int k = 0; k < 6; ++k) m->name[k] = (char) emu_read8(e, c + 2 + (uint32_t) k);
+		m->level = emu_read8(e, c + 8);
+		/* CalcMaxHPMP: the base plus a boost (the top 2 bits: 1 25%, 2 50%,
+		 * 3 12.5%), at most 9999 HP and 999 MP; the current at most that */
+		for (int k = 0; k < 2; ++k) {
+			uint16_t raw = emu_read16(e, c + (k ? 0xF : 0xB));
+			int base = raw & 0x3FFF, b = raw >> 14;
+			int max = base + (b == 1 ? base >> 2 : b == 2 ? base >> 1 : b == 3 ? base >> 3 : 0);
+			int cap = k ? 999 : 9999;
+			if (max > cap) max = cap;
+			int cur = emu_read16(e, c + (k ? 0xD : 0x9));
+			if (cur > max) cur = max;
+			if (k) m->mp = cur, m->mpMax = max;
+			else m->hp = cur, m->hpMax = max;
+		}
+		/* CheckMPVisible: any esper in the party, Gogo, or a spell known */
+		int actor = emu_read8(e, c);
+		m->showMp = espers || actor == CHAR_GOGO;
+		if (!m->showMp && actor < CHAR_GOGO) {
+			for (int s = 0; s < 54 && !m->showMp; ++s) m->showMp = emu_read8(e, 0x7E1A6E + 54 * (uint32_t) actor + (uint32_t) s) == 0xFF;
+		}
+		/* the portrait: an imp's, Locke's for Locke, else the character's graphic */
+		m->portrait = (emu_read8(e, c + 0x14) & 0x20) ? 15 : actor == 1 ? 1 : emu_read8(e, c + 1);
+	}
+	p->style = emu_read8(e, 0x7E1D4E) & 7;
+	for (int k = 0; k < 7; ++k) p->winPal[k] = emu_read16(e, 0x7E1D57 + 14 * (uint32_t) p->style + 2 * (uint32_t) k);
+	p->fontColour = emu_read16(e, 0x7E1D55);
+	if (emu_read8(e, 0x7E1188) & 0x10) { /* (a countdown timer instead) */
+		int s = emu_read16(e, 0x7E1189) / 60 / 60;
+		p->hours = s / 60, p->minutes = s % 60;
+	} else {
+		p->hours = emu_read8(e, 0x7E021B), p->minutes = emu_read8(e, 0x7E021C);
+	}
+	p->gp = emu_read24(e, 0x7E1860), p->steps = emu_read24(e, 0x7E1866);
+	if (p->gp > 9999999) p->gp = 9999999;
+	if (p->steps > 9999999) p->steps = 9999999;
+}
+
+/* ---- drawing: the SNES's way (8 x 8 tiles, BGR555 palettes) */
+
+static uint32_t abgr(uint16_t c) {
+	unsigned r = c & 31, g = c >> 5 & 31, b = c >> 10 & 31;
+	r = r << 3 | r >> 2, g = g << 3 | g >> 2, b = b << 3 | b >> 2;
+	return 0xFF000000u | b << 16 | g << 8 | r;
+}
+
+/* a 4bpp (32 bytes) or 2bpp (16 bytes) tile's pixel */
+static int pix(const uint8_t* t, int bpp, int x, int y) {
+	int s = 7 - x, v = (t[2 * y] >> s & 1) | (t[2 * y + 1] >> s & 1) << 1;
+	if (bpp == 4) v |= (t[16 + 2 * y] >> s & 1) << 2 | (t[16 + 2 * y + 1] >> s & 1) << 3;
+	return v;
+}
+
+/* The main menu's colour math on its windows (InitGradientHDMA): every
+ * channel of a window's pixel, 11 down to 0 added on the top 112 lines (a
+ * step every 10), then 1 up subtracted */
+static uint16_t gradient(uint16_t c, int y) {
+	int band = y / 10, n = band <= 11 ? 11 - band : band - 11;
+	int ch[3] = { c & 31, c >> 5 & 31, c >> 10 & 31 };
+	for (int i = 0; i < 3; ++i) {
+		ch[i] += y < 112 ? n : -n;
+		ch[i] = ch[i] < 0 ? 0 : ch[i] > 31 ? 31 : ch[i];
+	}
+	return (uint16_t) (ch[0] | ch[1] << 5 | ch[2] << 10);
+}
+
+/* A window as DrawWindow lays it (window_pos: its inside's top left and
+ * size in tiles; the border round it): the style's 28 tiles, the inside a
+ * 4 x 4 pattern, the side borders alternating by row, top and bottom by
+ * column (WindowTileTbl) */
+static void window(uint16_t* bg, bool* on, const uint8_t* gfx, int tx, int ty, int w, int h) {
+	for (int r = 0; r < h + 2; ++r) {
+		for (int c = 0; c < w + 2; ++c) {
+			int t;
+			if (r == 0) t = c == 0 ? 16 : c == w + 1 ? 19 : (c - 1) % 2 ? 18 : 17;
+			else if (r == h + 1) t = c == 0 ? 24 : c == w + 1 ? 27 : (c - 1) % 2 ? 26 : 25;
+			else if (c == 0) t = (r - 1) % 2 ? 22 : 20;
+			else if (c == w + 1) t = (r - 1) % 2 ? 23 : 21;
+			else t = (r - 1) % 4 * 4 + (c - 1) % 4;
+			for (int y = 0; y < 8; ++y) {
+				for (int x = 0; x < 8; ++x) {
+					int px = (tx + c) * 8 + x, py = (ty + r) * 8 + y - 1; /* (the menu's BG2 scrolled 1 up) */
+					if (px < 0 || py < 0 || px >= FF6_PIC_W || py >= FF6_PIC_H) continue;
+					int v = pix(gfx + t * 32, 4, x, y);
+					bg[py * FF6_PIC_W + px] = (uint16_t) v;
+					on[py * FF6_PIC_W + px] = true; /* (the window's own tile, clear pixels too) */
+				}
+			}
+		}
+	}
+}
+
+/* the text codes the game uses (its menu font) */
+#define CH_0 0xB4
+#define CH_SLASH 0xC0
+#define CH_COLON 0xC1
+#define CH_BLANK 0xFF
+
+/* The main menu's text layers' scroll: BG1 (the party's text) 3 lines up,
+ * BG3 (Time, Steps, Gp) 1 up, as its windows */
+static int textUp = 3;
+
+/* one character of the fixed-width font (C4/7FC0, 2bpp) at a tile, in a
+ * 4-colour text palette (0 clear) */
+static void glyph(uint32_t* out, const Ff6Rom* r, int code, int tx, int ty, const uint32_t pal[4]) {
+	if (code == CH_BLANK || code < 0) return;
+	const uint8_t* t = at(r, 0xC47FC0 + (uint32_t) code * 16);
+	for (int y = 0; y < 8; ++y) {
+		for (int x = 0; x < 8; ++x) {
+			int v = pix(t, 2, x, y), px = tx * 8 + x, py = ty * 8 + y - textUp;
+			if (v && px < FF6_PIC_W && py >= 0 && py < FF6_PIC_H) out[py * FF6_PIC_W + px] = pal[v];
+		}
+	}
+}
+
+static void text(uint32_t* out, const Ff6Rom* r, const char* s, int tx, int ty, const uint32_t pal[4]) {
+	for (; *s; ++s, ++tx) glyph(out, r, (uint8_t) *s, tx, ty, pal);
+}
+
+/* a number in `digits` places, leading zeros blank (all but the last) or
+ * kept (zeros) */
+static void number(uint32_t* out, const Ff6Rom* r, unsigned v, int digits, bool zeros, int tx, int ty, const uint32_t pal[4]) {
+	for (int i = digits - 1; i >= 0; --i) {
+		unsigned d = v % 10;
+		bool blank = !zeros && v == 0 && i != digits - 1;
+		glyph(out, r, blank ? CH_BLANK : (int) (CH_0 + d), tx + i, ty, pal);
+		v /= 10;
+	}
+}
+
+/* a menu text palette (D8/E800: 40 of 4 colours), its main colour the
+ * player's font colour for the white ones */
+static void text_pal(const Ff6Rom* r, int i, uint32_t pal[4], int fontColour) {
+	const uint8_t* p = at(r, 0xD8E800 + (uint32_t) i * 8);
+	for (int k = 0; k < 4; ++k) pal[k] = abgr(rd16(p + 2 * k));
+	if (fontColour >= 0) pal[3] = abgr((uint16_t) fontColour);
+}
+
+/* the menu's letters for its labels (the game's text codes) */
+static const char kLV[] = { (char) 0x8B, (char) 0x95, 0 };  /* LV */
+static const char kHP[] = { (char) 0x87, (char) 0x8F, 0 };  /* HP */
+static const char kMP[] = { (char) 0x8C, (char) 0x8F, 0 };  /* MP */
+static const char kSlash[] = { (char) CH_SLASH, 0 };
+static const char kTime[] = { (char) 0x93, (char) 0xA2, (char) 0xA6, (char) 0x9E, 0 };  /* Time */
+static const char kSteps[] = { (char) 0x92, (char) 0xAD, (char) 0x9E, (char) 0xA9, (char) 0xAC, 0 };  /* Steps */
+static const char kGp[] = { (char) 0x86, (char) 0xA9, 0 };  /* Gp */
+static const char kColon[] = { (char) CH_COLON, 0 };
+
+void ff6_party_draw(const Ff6Rom* rom, const Ff6Party* p, uint32_t* out) {
+	for (int i = 0; i < FF6_PIC_W * FF6_PIC_H; ++i) out[i] = 0xFF000000u;
+	if (!rom) return;
+	/* BG2: the windows (DrawMainMenu, its command list left out), in the
+	 * style's tiles (ED/0000) and the player's colours */
+	static uint16_t bg[FF6_PIC_W * FF6_PIC_H];
+	static bool on[FF6_PIC_W * FF6_PIC_H];
+	memset(bg, 0, sizeof(bg));
+	memset(on, 0, sizeof(on));
+	const uint8_t* gfx = at(rom, 0xED0000 + 0x380 * (uint32_t) p->style);
+	window(bg, on, gfx, 1, 1, 28, 24);  /* MainMenuCharWindow */
+	window(bg, on, gfx, 23, 16, 6, 2);  /* MainMenuTimeWindow */
+	window(bg, on, gfx, 22, 20, 7, 5);  /* MainMenuStepsWindow */
+	const uint8_t* defPal = at(rom, 0xED1C00 + 32 * (uint32_t) p->style);
+	for (int y = 0; y < FF6_PIC_H; ++y) {
+		for (int x = 0; x < FF6_PIC_W; ++x) {
+			int v = bg[y * FF6_PIC_W + x];
+			if (!v) continue;
+			uint16_t c = v <= 7 ? p->winPal[v - 1] : rd16(defPal + 2 * v);
+			out[y * FF6_PIC_W + x] = abgr(gradient(c, y));
+		}
+	}
+	/* the portraits (sprites, 5 x 5 tiles: ED/1D00, palettes ED/5860, the
+	 * menu's tables at C3/6F00 and C3/6F1B), the back row's further right */
+	for (int s = 0; s < 4; ++s) {
+		const Ff6Member* m = &p->m[s];
+		if (!m->here || m->portrait < 0 || m->portrait > 26) continue;
+		int palNo = *at(rom, 0xC36F00 + (uint32_t) m->portrait);
+		uint16_t off = rd16(at(rom, 0xC36F1B + 2 * (uint32_t) m->portrait));
+		const uint8_t* g = at(rom, 0xED1D00 + off);
+		const uint8_t* pp = at(rom, 0xED5860 + 32 * (uint32_t) palNo);
+		int ox = m->backRow ? 26 : 14, oy = 21 + 48 * s;
+		/* the menu's sprites for it (C3/0B8F: a count, then x (bit 7: 16 x
+		 * 16), y, tile, attributes); its 25 tiles in video RAM from $60,
+		 * 16 to a row */
+		const uint8_t* sp = at(rom, 0xC30B8F);
+		for (int k = 0; k < sp[0] && k < 16; ++k) {
+			const uint8_t* e4 = sp + 1 + 4 * k;
+			bool big = e4[0] & 0x80;
+			int sx = e4[0] & 0x7F, sy = e4[1], tile = e4[2] - 0x60;
+			for (int q = 0; q < (big ? 4 : 1); ++q) {
+				int tt = tile + (q & 1) + (q >> 1) * 16; /* (a 16 x 16 sprite's four tiles) */
+				int gi = tt < 16 ? tt : 16 + (tt - 16);
+				if (gi < 0 || gi >= 25) continue;
+				int bx = ox + sx + (q & 1) * 8, by = oy + sy + (q >> 1) * 8;
+				for (int y = 0; y < 8; ++y) {
+					for (int x = 0; x < 8; ++x) {
+						int v = pix(g + gi * 32, 4, x, y), px = bx + x, py = by + y;
+						if (v && px < FF6_PIC_W && py < FF6_PIC_H) out[py * FF6_PIC_W + px] = abgr(rd16(pp + 2 * v));
+					}
+				}
+			}
+		}
+	}
+	/* the text: BG1's (palette n: D8/E800's 4 n) and BG3's (palette n: its n) */
+	textUp = 3; /* (BG1) */
+	uint32_t white[4], teal1[4], teal3[4];
+	text_pal(rom, 0, white, p->fontColour);
+	text_pal(rom, 4, teal1, -1);
+	text_pal(rom, 3, teal3, -1);
+	for (int s = 0; s < 4; ++s) {
+		const Ff6Member* m = &p->m[s];
+		if (!m->here) continue;
+		int dy = 6 * s;
+		text(out, rom, m->name, 8, 3 + dy, white);
+		text(out, rom, kLV, 10, 5 + dy, teal1);
+		text(out, rom, kHP, 10, 6 + dy, teal1);
+		number(out, rom, (unsigned) m->level, 2, false, 15, 5 + dy, white);
+		number(out, rom, (unsigned) m->hp, 4, false, 13, 6 + dy, white);
+		text(out, rom, kSlash, 17, 6 + dy, white);
+		number(out, rom, (unsigned) m->hpMax, 4, false, 18, 6 + dy, white);
+		if (m->showMp) {
+			text(out, rom, kMP, 10, 7 + dy, teal1);
+			number(out, rom, (unsigned) m->mp, 4, false, 13, 7 + dy, white);
+			text(out, rom, kSlash, 17, 7 + dy, white);
+			number(out, rom, (unsigned) m->mpMax, 4, false, 18, 7 + dy, white);
+		}
+	}
+	textUp = 1; /* (BG3) */
+	text(out, rom, kTime, 25, 17, teal3);
+	number(out, rom, (unsigned) p->hours, 2, false, 25, 18, white);
+	text(out, rom, kColon, 27, 18, white);
+	number(out, rom, (unsigned) p->minutes, 2, true, 28, 18, white);
+	text(out, rom, kSteps, 23, 21, teal3);
+	number(out, rom, p->steps, 7, false, 23, 22, white);
+	text(out, rom, kGp, 23, 24, teal3);
+	number(out, rom, p->gp, 7, false, 23, 25, white);
+}

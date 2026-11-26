@@ -63,3 +63,46 @@ void ff6_battle(Emu* e, Ff6Battle* b);
 int ff6_command_presses(const Ff6Battle* b, int row, uint32_t keys[8]);
 
 #endif
+
+/* ---- FF6-5: the party screen, drawn by RetroDS from the game's data and
+ * art: the main menu's party window and its Time and Steps / Gp windows,
+ * in the player's window style and colours, the game's portraits, font and
+ * rules for what it shows. */
+
+#define FF6_PIC_W 256
+#define FF6_PIC_H 224
+
+/* The ROM as played (a copier header taken off), for the art; NULL if it
+ * can't be read. Freed with ff6_rom_free. */
+typedef struct Ff6Rom Ff6Rom;
+Ff6Rom* ff6_rom_load(const char* path);
+void ff6_rom_free(Ff6Rom* r);
+
+/* One character in the party, as the main menu shows it */
+typedef struct {
+	bool here;          /* a character in this slot */
+	int id;             /* 0 to 15: the save's character */
+	bool backRow;
+	char name[7];       /* in the game's own text codes (FF6 encoding), 0-ended */
+	int level, hp, hpMax, mp, mpMax;
+	bool showMp;        /* the game shows MP (CheckMPVisible) */
+	int portrait;       /* the portrait it uses */
+} Ff6Member;
+
+typedef struct {
+	Ff6Member m[4];     /* by battle order */
+	int style;          /* Config's Window, 0 to 7 */
+	uint16_t winPal[7]; /* its colours 1 to 7 (BGR555) */
+	uint16_t fontColour;
+	int hours, minutes;
+	uint32_t steps, gp;
+} Ff6Party;
+
+/* What the party screen is drawn from, read between frames: the field's
+ * own copy of the party's flags while it runs ($0867 + 41 x n), else the
+ * save's ($1850). */
+void ff6_party_read(Emu* e, Ff6Party* p);
+
+/* The party screen as the game's main menu draws it (its command list
+ * left out), 256 x 224, ABGR8888 (0xAABBGGRR). */
+void ff6_party_draw(const Ff6Rom* rom, const Ff6Party* p, uint32_t* out);

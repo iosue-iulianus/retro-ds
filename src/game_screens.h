@@ -92,7 +92,7 @@ void draw_logo_in(int s, SDL_Rect area); /* the game's logo filling area (game.c
 
 /* ---- Final Fantasy VI (game_ff6.c; src/ff6.c, FF6-2 to 5) */
 extern bool f6;       /* the game is Final Fantasy VI */
-void ff6_open(const char* code);
+void ff6_open(const char* rom, const char* code);
 void ff6_free(void);
 void ff6_textures(void);
 void ff6_tick(void);

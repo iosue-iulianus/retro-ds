@@ -6,6 +6,7 @@
 #include "game_screens.h"
 #include "ff6.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 bool f6; /* this game is Final Fantasy VI */
@@ -21,10 +22,20 @@ static bool stripDirty, menuDirty;
 /* FF6-3: the presses a tap makes, played one at a time as a player's
  * taps (down 3 frames, up 9) */
 static uint32_t queue[8];
+
+/* FF6-5: the party screen RetroDS draws (src/ff6.c), while walking */
+static Ff6Rom* rom6;
+static Ff6Party party, partyDrawn;
+static bool partyValid, partyDirty;
+static uint32_t* partyPx;
+static SDL_Texture* partyTex[2];
 static int queued, queueAt, pressFrame;
 
-void ff6_open(const char* code) {
+void ff6_open(const char* rom, const char* code) {
 	f6 = ff6_is(code);
+	if (f6 && !rom6) rom6 = ff6_rom_load(rom);
+	if (f6 && !partyPx) partyPx = malloc(sizeof(uint32_t) * FF6_PIC_W * FF6_PIC_H);
+	partyValid = false;
 	part = FF6_OTHER;
 	queued = queueAt = pressFrame = 0;
 	memset(&bat, 0, sizeof(bat));
@@ -39,6 +50,10 @@ static void free_tex(SDL_Texture** t) {
 }
 
 void ff6_free(void) {
+	free_tex(partyTex);
+	ff6_rom_free(rom6), rom6 = NULL;
+	free(partyPx), partyPx = NULL;
+	partyValid = false;
 	free_tex(stripTex);
 	free_tex(menuTex);
 	texW = texH = 0;
@@ -46,6 +61,8 @@ void ff6_free(void) {
 }
 
 void ff6_textures(void) {
+	free_tex(partyTex);
+	partyDirty = true;
 	free_tex(stripTex);
 	free_tex(menuTex);
 	texW = texH = 0; /* (made again with the next frame) */
@@ -57,6 +74,18 @@ void ff6_tick(void) {
 	part = ff6_part(&emu);
 	if (part == FF6_BATTLE) ff6_battle(&emu, &bat);
 	else bat.open = false;
+	/* FF6-5: the party, drawn again when anything it shows has changed */
+	if ((part == FF6_FIELD || part == FF6_WORLD) && rom6 && partyPx) {
+		ff6_party_read(&emu, &party);
+		bool any = false;
+		for (int i = 0; i < 4; ++i) any |= party.m[i].here;
+		if (any && (!partyValid || memcmp(&party, &partyDrawn, sizeof(party)))) {
+			ff6_party_draw(rom6, &party, partyPx);
+			partyDrawn = party, partyValid = partyDirty = true;
+		} else if (!any) {
+			partyValid = false;
+		}
+	}
 	stripDirty = menuDirty = true;
 }
 
@@ -70,8 +99,13 @@ static bool menu_shown(void) {
 	return f6 && nScreens == 2 && part == FF6_MENU;
 }
 
+/* FF6-5: the party screen while walking */
+static bool party_shown(void) {
+	return f6 && nScreens == 2 && (part == FF6_FIELD || part == FF6_WORLD) && partyValid;
+}
+
 bool ff6_screen_shown(void) {
-	return battle_shown() || menu_shown();
+	return battle_shown() || menu_shown() || party_shown();
 }
 
 bool ff6_cover_game(void) {
@@ -128,6 +162,17 @@ void draw_ff6(int s) {
 	}
 	int kh = emu.h / picH;
 	if (kh < 1) kh = 1;
+	if (party_shown()) {
+		make_tex(partyTex, FF6_PIC_W, FF6_PIC_H);
+		if (partyDirty) {
+			for (int i = 0; i < nViews; ++i) {
+				if (partyTex[i]) ui_update_texture(partyTex[i], partyPx, FF6_PIC_W * 4);
+			}
+			partyDirty = false;
+		}
+		ui_image_part(s, partyTex, (SDL_Rect) { 0, 0, FF6_PIC_W, FF6_PIC_H }, place(s, FF6_PIC_W, FF6_PIC_H));
+		return;
+	}
 	if (battle_shown()) {
 		int rows = FF6_STRIP_Y1 - FF6_STRIP_Y0;
 		make_tex(stripTex, emu.w, rows * kh);

@@ -5457,7 +5457,7 @@ static void ss_setup(const char* rom, const char* code) {
 		const MapProfile* lp = profile_find(code);
 		native_open(rom, lp);
 		sot_open(rom);
-		ff6_open(code);
+		ff6_open(rom, code);
 		mc = nat || alt || f6 ? NULL : mapcap_create(rom, code, true);
 		if (nat) mapW = SMMAP_W, mapH = SMMAP_H;
 		if (alt) mapW = ALTTP_W, mapH = ALTTP_H;
