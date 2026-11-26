@@ -218,13 +218,20 @@ static void upload_rows(SDL_Texture** t, int y0, int y1) {
 	(void) y1;
 }
 
-/* where the moved picture goes on the second screen: whole screen pixels
- * per game pixel, as large as fits, in the middle */
+/* where a picture goes on the second screen: as the game's own picture is
+ * shown (its Scale: 4:3, a TV's shape, or Pixel Perfect, whole pixels),
+ * so the two screens match. A picture the game's size (the party screen,
+ * the menu) or 4:3 (the battle screen's 320 x 240) */
 static SDL_Rect place(int s, int w, int h) {
-	SDL_Rect r = screens[s].rect;
-	int k = SDL_min(r.w / w, r.h / h);
-	if (k < 1) k = 1;
-	return (SDL_Rect) { (r.w - w * k) / 2, (r.h - h * k) / 2, w * k, h * k };
+	return ui_image_rect(s, w, h, cfg->scale);
+}
+
+/* rows y0 .. y0 + h of the game's picture, where they'd be were the whole
+ * picture placed (the moved battle strip), in the middle */
+static SDL_Rect place_rows(int s, int h) {
+	SDL_Rect r = place(s, picW, picH);
+	int hh = h * r.h / picH;
+	return (SDL_Rect) { r.x, r.y + (r.h - hh) / 2, r.w, hh };
 }
 
 void draw_ff6(int s) {
@@ -265,7 +272,7 @@ void draw_ff6(int s) {
 		int rows = FF6_STRIP_Y1 - FF6_STRIP_Y0;
 		make_tex(stripTex, emu.w, rows * kh);
 		if (stripDirty) upload_rows(stripTex, FF6_STRIP_Y0, FF6_STRIP_Y1), stripDirty = false;
-		ui_image_part(s, stripTex, (SDL_Rect) { 0, 0, emu.w, rows * kh }, place(s, picW, rows));
+		ui_image_part(s, stripTex, (SDL_Rect) { 0, 0, emu.w, rows * kh }, place_rows(s, rows));
 	} else if (menu_shown()) {
 		make_tex(menuTex, emu.w, emu.h);
 		if (menuDirty) upload_rows(menuTex, 0, picH), menuDirty = false;
@@ -308,7 +315,7 @@ int ff6_touch(const Pointer* p) {
 		return 1;
 	}
 	int rows = FF6_STRIP_Y1 - FF6_STRIP_Y0;
-	SDL_Rect d = place(p->screen, picW, rows);
+	SDL_Rect d = place_rows(p->screen, rows);
 	if (p->x < d.x || p->y < d.y || p->x >= d.x + d.w || p->y >= d.y + d.h) return 1;
 	int gx = (p->x - d.x) * picW / d.w, gy = FF6_STRIP_Y0 + (p->y - d.y) * rows / d.h;
 	if (bat.open && bat.menu == FF6_MENU_TARGET) {
