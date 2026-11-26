@@ -36,6 +36,12 @@ static Ff6BattleView bview, bviewDrawn;
 static bool bviewValid, bviewDirty;
 static uint32_t* battlePx;
 static SDL_Texture* battleTex[2];
+/* FF6-2: the party on the game screen, where the battle windows were */
+static uint32_t* stripPx;
+static SDL_Texture* partyStripTex[2];
+static bool stripPxDirty, stripValid;
+static Ff6BattleView stripDrawn;
+static int waitFrames;
 static int queued, queueAt, pressFrame;
 /* FF6-3: a tapped target the game's cursor is being moved to */
 static Ff6Aim aim = { .want = -1 };
@@ -45,7 +51,9 @@ void ff6_open(const char* rom, const char* code) {
 	if (f6 && !rom6) rom6 = ff6_rom_load(rom);
 	if (f6 && !partyPx) partyPx = malloc(sizeof(uint32_t) * FF6_PIC_W * FF6_PIC_H);
 	if (f6 && !battlePx) battlePx = malloc(sizeof(uint32_t) * FF6_BATTLE_W * FF6_BATTLE_H);
-	bviewValid = false;
+	if (f6 && !stripPx) stripPx = malloc(sizeof(uint32_t) * FF6_STRIP_W * FF6_STRIP_H);
+	bviewValid = stripValid = false;
+	waitFrames = 0;
 	partyValid = false;
 	part = FF6_OTHER;
 	queued = queueAt = pressFrame = 0;
@@ -68,6 +76,8 @@ void ff6_free(void) {
 	free(partyPx), partyPx = NULL;
 	free_tex(battleTex);
 	free(battlePx), battlePx = NULL;
+	free_tex(partyStripTex);
+	free(stripPx), stripPx = NULL;
 	bviewValid = false;
 	partyValid = false;
 	free_tex(stripTex);
@@ -81,6 +91,8 @@ void ff6_textures(void) {
 	partyDirty = true;
 	free_tex(battleTex);
 	bviewDirty = true;
+	free_tex(partyStripTex);
+	stripPxDirty = true;
 	free_tex(stripTex);
 	free_tex(menuTex);
 	texW = texH = 0; /* (made again with the next frame) */
@@ -99,12 +111,22 @@ void ff6_tick(void) {
 	/* FF6-2: the battle screen, drawn again when anything on it changes */
 	if (part == FF6_BATTLE && rom6 && battlePx) {
 		ff6_battle_view(&emu, &bview);
-		if (!bviewValid || memcmp(&bview, &bviewDrawn, sizeof(bview))) {
+		/* the waiting page only once nobody's turn has been up for 20
+		 * frames (between turns the menu closes for a few), the last page
+		 * kept till then */
+		waitFrames = ff6_battle_page(&bview) == FF6_PAGE_WAIT ? waitFrames + 1 : 0;
+		bool hold = waitFrames && waitFrames < 20 && bviewValid && ff6_battle_page(&bviewDrawn) != FF6_PAGE_WAIT;
+		if (!hold && (!bviewValid || memcmp(&bview, &bviewDrawn, sizeof(bview)))) {
 			ff6_battle_draw(rom6, &bview, battlePx);
 			bviewDrawn = bview, bviewValid = bviewDirty = true;
 		}
+		/* the party on the game screen: as it is */
+		if (stripPx && (!stripValid || memcmp(&bview, &stripDrawn, sizeof(bview)))) {
+			ff6_strip_draw(rom6, &bview, stripPx);
+			stripDrawn = bview, stripValid = stripPxDirty = true;
+		}
 	} else {
-		bviewValid = false;
+		bviewValid = stripValid = false;
 	}
 	/* FF6-5: the party, drawn again when anything it shows has changed */
 	if ((part == FF6_FIELD || part == FF6_WORLD) && rom6 && partyPx) {
@@ -153,6 +175,8 @@ bool ff6_cover_game(void) {
 	return menu_shown();
 }
 
+static void make_tex(SDL_Texture** t, int w, int h);
+
 /* FF6-2: the strip covered on the game screen (img: where the game's
  * picture is) */
 void ff6_draw_game_cover(int s, SDL_Rect img) {
@@ -160,6 +184,18 @@ void ff6_draw_game_cover(int s, SDL_Rect img) {
 	/* (to the picture's bottom: below the windows only their edges' shadow) */
 	int y0 = img.y + FF6_STRIP_Y0 * img.h / picH, y1 = img.y + img.h;
 	ui_fill(s, (SDL_Rect) { img.x, y0, img.w, y1 - y0 }, (SDL_Color) { 0, 0, 0, 255 });
+	/* the party, drawn where the windows were */
+	if (!stripValid || !stripPx) return;
+	make_tex(partyStripTex, FF6_STRIP_W, FF6_STRIP_H);
+	if (stripPxDirty) {
+		for (int i = 0; i < nViews; ++i) {
+			if (partyStripTex[i]) ui_update_texture(partyStripTex[i], stripPx, FF6_STRIP_W * 4);
+		}
+		stripPxDirty = false;
+	}
+	int x0 = img.x + (picW - FF6_STRIP_W) / 2 * img.w / picW;
+	ui_image_part(s, partyStripTex, (SDL_Rect) { 0, 0, FF6_STRIP_W, FF6_STRIP_H },
+	              (SDL_Rect) { x0, y0, FF6_STRIP_W * img.w / picW, FF6_STRIP_H * img.h / picH });
 }
 
 static void make_tex(SDL_Texture** t, int w, int h) {
@@ -247,40 +283,23 @@ int ff6_touch(const Pointer* p) {
 	if (p->kind != 1) return 1;
 	if (queued > queueAt || aim.want >= 0) return 1; /* (the last tap's presses still playing) */
 	if (battle_drawn()) {
-		/* the drawn battle screen: its command rows */
+		/* the drawn battle screen: its buttons */
 		SDL_Rect d = place(p->screen, FF6_BATTLE_W, FF6_BATTLE_H);
 		if (p->x < d.x || p->y < d.y || p->x >= d.x + d.w || p->y >= d.y + d.h) return 1;
 		int bx = (p->x - d.x) * FF6_BATTLE_W / d.w, by = (p->y - d.y) * FF6_BATTLE_H / d.h;
-		if (bat.open && bat.menu == FF6_MENU_TARGET) {
-			/* an enemy's name, a character in the party window: aim
-			 * there; elsewhere: A on the target the cursor is on */
-			int want = -1;
-			bool named = false;
-			if (bx >= FF6_BBACK_X0 && by >= FF6_BBACK_Y0) {
-				queue[0] = K_B, queued = 1, queueAt = 0, pressFrame = 0;
-				fprintf(stderr, "ff6: tap on Back: B\n");
-				return 1;
-			} else if (bx >= FF6_BCMD_X1 && by >= FF6_BCMD_Y0) {
-				int k = ff6_enemy_row_at(&bview, by);
-				if (k >= 0) named = true, want = 4 + bview.enemy[k];
-			} else if (by < FF6_BPARTY_Y1) {
-				int s = (bx >= FF6_BATTLE_W / 2) + 2 * (by >= FF6_BPARTY_Y1 / 2);
-				if (bview.f[s].here) named = true, want = s;
-			}
-			if (want >= 0) {
-				ff6_aim_start(&aim, want);
-				fprintf(stderr, "ff6: tap on a target (%d): aiming\n", want);
-			} else if (!named) {
-				queue[0] = K_A, queued = 1, queueAt = 0, pressFrame = 0;
-				fprintf(stderr, "ff6: tap while choosing a target: A\n");
-			}
-		} else if (bx < FF6_BCMD_X1 && by >= FF6_BCMD_Y0) {
-			int row = (by - FF6_BCMD_Y0) / FF6_BCMD_DY;
-			int n = ff6_command_presses(&bat, row, queue);
+		int arg, hit = ff6_battle_hit(&bviewDrawn, bx, by, &arg); /* (what's on the screen) */
+		if (hit == FF6_HIT_COMMAND) {
+			int n = ff6_command_presses(&bat, arg, queue);
 			if (n > 0) {
 				queued = n, queueAt = 0, pressFrame = 0;
-				fprintf(stderr, "ff6: tap on command row %d (command %d): %d presses\n", row, bat.cmd[row & 3], n);
+				fprintf(stderr, "ff6: tap on command %d (command %d): %d presses\n", arg, bat.cmd[arg & 3], n);
 			}
+		} else if (hit == FF6_HIT_BACK && bat.open && bat.menu == FF6_MENU_TARGET) {
+			queue[0] = K_B, queued = 1, queueAt = 0, pressFrame = 0;
+			fprintf(stderr, "ff6: tap on Back: B\n");
+		} else if ((hit == FF6_HIT_ENEMY || hit == FF6_HIT_PARTY) && bat.open && bat.menu == FF6_MENU_TARGET) {
+			ff6_aim_start(&aim, hit == FF6_HIT_ENEMY ? 4 + arg : arg);
+			fprintf(stderr, "ff6: tap on a target (%d): aiming\n", aim.want);
 		}
 		return 1;
 	}

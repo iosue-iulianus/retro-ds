@@ -778,6 +778,11 @@ int main(int argc, char** argv) {
 				char path[1200];
 				out_path(path, sizeof path, s2, ".png");
 				printf("ff6 battlepic %s: %s\n", path, write_png(path, pic, FF6_BATTLE_W, FF6_BATTLE_H, FF6_BATTLE_W) ? "ok" : "FAILED");
+				/* and the party on the game screen: NAME-strip.png */
+				static uint32_t strip[FF6_STRIP_W * FF6_STRIP_H];
+				ff6_strip_draw(from, &v, strip);
+				out_path(path, sizeof path, s2, "-strip.png");
+				write_png(path, strip, FF6_STRIP_W, FF6_STRIP_H, FF6_STRIP_W);
 			} else if (!strcmp(s1, "tap")) {
 				uint32_t keys[8];
 				int n = ff6_command_presses(&b, atoi(s2), keys);

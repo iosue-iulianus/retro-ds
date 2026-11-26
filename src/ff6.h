@@ -164,18 +164,20 @@ typedef struct {
 
 void ff6_battle_view(Emu* e, Ff6BattleView* v);
 void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out);
-/* the enemies' rows on it: row k's text at y (its pixels); the row at a y, -1 none */
-int ff6_enemy_row_y(const Ff6BattleView* v, int k);
-int ff6_enemy_row_at(const Ff6BattleView* v, int y);
+/* which page it shows: waiting (the party two by two, the enemies),
+ * someone's commands (their status, a button each), choosing a target
+ * (the enemies' and the party's buttons, Back) */
+enum { FF6_PAGE_WAIT, FF6_PAGE_COMMANDS, FF6_PAGE_TARGET };
+int ff6_battle_page(const Ff6BattleView* v);
+/* what's at x, y on it (its pixels): a command (arg: its row), an enemy
+ * (arg: its monster slot), a character (arg: the party slot), Back */
+enum { FF6_HIT_NONE, FF6_HIT_COMMAND, FF6_HIT_ENEMY, FF6_HIT_PARTY, FF6_HIT_BACK };
+int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg);
 
-/* where the drawn battle screen's commands are (its pixels): row r at
- * y FF6_BCMD_Y0 + r * FF6_BCMD_DY, FF6_BCMD_DY high, x 0 to FF6_BCMD_X1 */
-#define FF6_BCMD_Y0 122
-#define FF6_BCMD_DY 24
-#define FF6_BCMD_X1 160
-/* FF6-3: Back (B) while choosing a target, a window of its own over the
- * enemies' bottom right corner, from x, y to the screen's edges */
-#define FF6_BBACK_X0 256
-#define FF6_BBACK_Y0 208
-/* the party window: y 0 to FF6_BPARTY_Y1, two by two */
-#define FF6_BPARTY_Y1 112
+/* FF6-2: the party on the game screen, where the game's battle windows
+ * were (its rows FF6_STRIP_Y0 to Y1): name, HP, MP, the time gauge */
+#define FF6_STRIP_W 256
+#define FF6_STRIP_H 64
+void ff6_strip_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out);
+
+

@@ -526,110 +526,237 @@ static void hand(uint32_t* out, const Ff6Rom* rom, int hx, int hy) {
 	}
 }
 
-int ff6_enemy_row_y(const Ff6BattleView* v, int k) {
-	return (16 + (v->nEnemies > 4 ? 2 : 3) * k) * 8;
+/* ---- FF6-2, FF6-3: the battle's screens, laid out as the DS's Chrono
+ * Trigger lays its own (pages of big buttons), in the game's windows, font
+ * and art. In tiles of 8 pixels on a 40 x 30 screen. */
+
+/* windows: drawn into bg in order (a later one over an earlier), each
+ * with the menu's gradient down its own height */
+typedef struct { int tx, ty, w, h; } Win;
+static Win wins[24];
+static int nWins;
+
+static void add_win(int tx, int ty, int w, int h) {
+	if (nWins < 24) wins[nWins++] = (Win) { tx, ty, w, h };
 }
 
-int ff6_enemy_row_at(const Ff6BattleView* v, int y) {
-	int dy = v->nEnemies > 4 ? 16 : 24;
-	int k = (y - (ff6_enemy_row_y(v, 0) - 6)) / dy;
-	return y >= ff6_enemy_row_y(v, 0) - 6 && k < v->nEnemies ? k : -1;
+static void draw_wins(const Ff6Rom* rom, int style, const uint16_t winPal[7], uint32_t* out) {
+	static uint16_t bg[FF6_BATTLE_W * FF6_BATTLE_H];
+	static bool on[FF6_BATTLE_W * FF6_BATTLE_H];
+	const uint8_t* gfx = at(rom, 0xED0000 + 0x380 * (uint32_t) style);
+	const uint8_t* defPal = at(rom, 0xED1C00 + 32 * (uint32_t) style);
+	for (int k = 0; k < nWins; ++k) {
+		const Win* w = &wins[k];
+		memset(bg, 0, sizeof(bg[0]) * (size_t) (canvasW * canvasH));
+		memset(on, 0, sizeof(on[0]) * (size_t) (canvasW * canvasH));
+		window(bg, on, gfx, w->tx, w->ty, w->w, w->h);
+		int y0 = w->ty * 8, hh = (w->h + 2) * 8;
+		for (int y = y0; y < y0 + hh && y < canvasH; ++y) {
+			for (int x = w->tx * 8; x < (w->tx + w->w + 2) * 8 && x < canvasW; ++x) {
+				int c = bg[y * canvasW + x];
+				if (!c) continue;
+				uint16_t col = c <= 7 ? winPal[c - 1] : rd16(defPal + 2 * c);
+				out[y * canvasW + x] = abgr(gradient(col, (y - y0) * 224 / hh));
+			}
+		}
+	}
+	nWins = 0;
+}
+
+typedef struct { uint32_t white[4], teal[4], yellow[4], grey[4], gFill[4], gFull[4]; } Pals;
+
+static void battle_pals(const Ff6Rom* rom, const Ff6BattleView* v, Pals* p) {
+	text_pal(rom, 0, p->white, v->fontColour);
+	text_pal(rom, 4, p->teal, -1);
+	text_pal(rom, 2, p->yellow, -1);
+	text_pal(rom, 1, p->grey, -1);
+	battle_pal(rom, 5, p->gFill);
+	battle_pal(rom, 2, p->gFull);
+}
+
+/* the time gauge (DrawGaugeText: a left end, 4 pieces of GaugeTextTbl's
+ * 32 steps, a right end), 6 tiles from tx */
+static void gauge(uint32_t* out, const Ff6Rom* rom, const Pals* p, int atb, int tx, int ty) {
+	const uint32_t* gp = atb == 0xFF ? p->gFull : p->gFill;
+	int i = atb >> 3;
+	glyph(out, rom, 0xF9, tx, ty, gp);
+	for (int k = 0; k < 4; ++k) {
+		int n = i + 1 - 8 * k;
+		glyph(out, rom, 0xF0 + (n < 0 ? 0 : n > 8 ? 8 : n), tx + 1 + k, ty, gp);
+	}
+	glyph(out, rom, 0xFA, tx + 5, ty, gp);
+}
+
+/* a character as the party window shows them: portrait, name (yellow:
+ * whose turn), HP, MP, the time gauge; bx, by the block's top left */
+static void fighter(uint32_t* out, const Ff6Rom* rom, const Ff6BattleView* v, const Pals* p, int s, int bx, int by) {
+	const Ff6Fighter* f = &v->f[s];
+	portrait(rom, out, f->portrait, bx * 8 + 2, by * 8 + 4);
+	bool turn = v->menu.open && v->menu.slot == s;
+	text(out, rom, f->name, bx + 6, by + 1, turn ? p->yellow : p->white);
+	text(out, rom, kHP, bx + 6, by + 2, p->teal);
+	number(out, rom, (unsigned) f->hp, 4, false, bx + 8, by + 2, p->white);
+	text(out, rom, kSlash, bx + 12, by + 2, p->white);
+	number(out, rom, (unsigned) f->hpMax, 4, false, bx + 13, by + 2, p->white);
+	if (f->mpMax > 0) {
+		text(out, rom, kMP, bx + 6, by + 3, p->teal);
+		number(out, rom, (unsigned) f->mp, 4, false, bx + 8, by + 3, p->white);
+		text(out, rom, kSlash, bx + 12, by + 3, p->white);
+		number(out, rom, (unsigned) f->mpMax, 4, false, bx + 13, by + 3, p->white);
+	}
+	if (v->gauge) gauge(out, rom, p, f->atb, bx + 6, by + 4);
+}
+
+static void name_of(const Ff6Rom* rom, uint32_t table, int len, int i, char* out) {
+	const uint8_t* nm = at(rom, table + (uint32_t) (len * i));
+	for (int c = 0; c < len; ++c) out[c] = (char) nm[c];
+	out[len] = 0;
+}
+
+int ff6_battle_page(const Ff6BattleView* v) {
+	if (!v->menu.open) return FF6_PAGE_WAIT;
+	return v->menu.menu == FF6_MENU_TARGET ? FF6_PAGE_TARGET : FF6_PAGE_COMMANDS;
+}
+
+/* the pages' places (tiles): the command buttons, the enemies' grid (two
+ * across, three down), the party's row with Back at its end */
+#define CMD_TY(k) (8 + 5 * (k))
+#define GRID_TX(i) (20 * ((i) % 2))
+#define GRID_TY(i) (8 + 5 * ((i) / 2))
+#define ROW_TX(j) (8 * (j))
+#define ROW_TY 23
+
+int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg) {
+	int tx = x / 8, ty = y / 8, page = ff6_battle_page(v);
+	*arg = -1;
+	if (page == FF6_PAGE_COMMANDS) {
+		for (int k = 0; k < 4; ++k) {
+			if (tx < 20 && ty >= CMD_TY(k) && ty < CMD_TY(k) + 5) return *arg = k, FF6_HIT_COMMAND;
+		}
+	} else if (page == FF6_PAGE_TARGET) {
+		for (int i = 0; i < v->nEnemies; ++i) {
+			if (tx >= GRID_TX(i) && tx < GRID_TX(i) + 20 && ty >= GRID_TY(i) && ty < GRID_TY(i) + 5) return *arg = v->enemy[i], FF6_HIT_ENEMY;
+		}
+		if (ty >= ROW_TY) {
+			int j = tx / 8;
+			if (j == 4) return FF6_HIT_BACK;
+			if (j < 4 && v->f[j].here) return *arg = j, FF6_HIT_PARTY;
+		}
+	}
+	return FF6_HIT_NONE;
 }
 
 void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 	canvasW = FF6_BATTLE_W, canvasH = FF6_BATTLE_H, winUp = 0, textUp = 0;
 	for (int i = 0; i < canvasW * canvasH; ++i) out[i] = 0xFF000000u;
 	if (!rom) return;
-	static uint16_t bg[FF6_BATTLE_W * FF6_BATTLE_H];
-	static bool on[FF6_BATTLE_W * FF6_BATTLE_H];
-	memset(bg, 0, sizeof(bg));
-	memset(on, 0, sizeof(on));
-	const uint8_t* gfx = at(rom, 0xED0000 + 0x380 * (uint32_t) v->style);
-	window(bg, on, gfx, 0, 0, 38, 13);  /* the party (rows 0 to 14) */
-	window(bg, on, gfx, 0, 15, 18, 13); /* the commands */
-	window(bg, on, gfx, 20, 15, 18, 13); /* the enemies */
-	bool aiming = v->menu.open && v->menu.menu == FF6_MENU_TARGET;
-	if (aiming) window(bg, on, gfx, FF6_BBACK_X0 / 8, FF6_BBACK_Y0 / 8, 6, 2); /* Back, above them (FF6-3) */
-	const uint8_t* defPal = at(rom, 0xED1C00 + 32 * (uint32_t) v->style);
-	for (int y = 0; y < canvasH; ++y) {
-		for (int x = 0; x < canvasW; ++x) {
-			int c = bg[y * canvasW + x];
-			if (!c) continue;
-			uint16_t col = c <= 7 ? v->winPal[c - 1] : rd16(defPal + 2 * c);
-			/* (the menu's gradient, by each window's own lines) */
-			out[y * canvasW + x] = abgr(gradient(col, y < 120 ? y * 224 / 120 : (y - 120) * 224 / 120));
+	Pals p;
+	battle_pals(rom, v, &p);
+	int page = ff6_battle_page(v);
+	const Ff6Battle* m = &v->menu;
+	if (page == FF6_PAGE_WAIT) {
+		/* the party, two by two; the enemies below, two across */
+		add_win(0, 0, 38, 13);
+		add_win(0, 15, 38, 13);
+		draw_wins(rom, v->style, v->winPal, out);
+		for (int s = 0; s < 4; ++s) {
+			if (v->f[s].here) fighter(out, rom, v, &p, s, 1 + 19 * (s % 2), 1 + 6 * (s / 2));
 		}
+		for (int i = 0; i < v->nEnemies; ++i) {
+			char name[11];
+			name_of(rom, 0xCFC050, 10, m->monType[v->enemy[i]], name);
+			text(out, rom, name, 3 + 19 * (i % 2), 17 + 3 * (i / 2), p.white);
+		}
+		return;
 	}
-	uint32_t white[4], teal[4], yellow[4], grey[4], gFill[4], gFull[4];
-	text_pal(rom, 0, white, v->fontColour);
-	text_pal(rom, 4, teal, -1);
-	text_pal(rom, 2, yellow, -1);
-	text_pal(rom, 1, grey, -1);
-	battle_pal(rom, 5, gFill);
-	battle_pal(rom, 2, gFull);
-	/* the party, two by two: portrait, name (yellow: whose turn), HP, MP,
-	 * the time gauge */
-	for (int s = 0; s < 4; ++s) {
-		const Ff6Fighter* f = &v->f[s];
-		if (!f->here) continue;
-		int bx = 1 + 19 * (s % 2), by = 1 + 6 * (s / 2);
-		portrait(rom, out, f->portrait, bx * 8 + 2, by * 8 + 4);
-		bool turn = v->menu.open && v->menu.slot == s;
-		text(out, rom, f->name, bx + 6, by + 1, turn ? yellow : white);
-		text(out, rom, kHP, bx + 6, by + 2, teal);
-		number(out, rom, (unsigned) f->hp, 4, false, bx + 8, by + 2, white);
-		text(out, rom, kSlash, bx + 12, by + 2, white);
-		number(out, rom, (unsigned) f->hpMax, 4, false, bx + 13, by + 2, white);
-		if (f->mpMax > 0) {
-			text(out, rom, kMP, bx + 6, by + 3, teal);
-			number(out, rom, (unsigned) f->mp, 4, false, bx + 8, by + 3, white);
-			text(out, rom, kSlash, bx + 12, by + 3, white);
-			number(out, rom, (unsigned) f->mpMax, 4, false, bx + 13, by + 3, white);
-		}
-		if (v->gauge) {
-			/* DrawGaugeText: a left end, 4 pieces (GaugeTextTbl: 32 steps), a right end */
-			const uint32_t* gp = f->atb == 0xFF ? gFull : gFill;
-			int i = f->atb >> 3;
-			glyph(out, rom, 0xF9, bx + 6, by + 4, gp);
-			for (int k = 0; k < 4; ++k) {
-				int n = i + 1 - 8 * k;
-				glyph(out, rom, 0xF0 + (n < 0 ? 0 : n > 8 ? 8 : n), bx + 7 + k, by + 4, gp);
-			}
-			glyph(out, rom, 0xFA, bx + 11, by + 4, gp);
-		}
+	/* whose turn it is, top left */
+	add_win(0, 0, 18, 6);
+	if (page == FF6_PAGE_COMMANDS) {
+		for (int k = 0; k < 4; ++k) add_win(0, CMD_TY(k), 18, 3);
+		add_win(20, 0, 18, 26); /* the enemies, to read */
+	} else {
+		add_win(20, 0, 18, 6);
+		for (int i = 0; i < 6; ++i) add_win(GRID_TX(i), GRID_TY(i), 18, 3);
+		for (int j = 0; j < 5; ++j) add_win(ROW_TX(j), ROW_TY, 6, 5);
 	}
-	/* the commands of the character whose turn it is (ROM D8/CEA0: 7 letters
-	 * each), greyed ones grey; spaced for fingers */
-	if (v->menu.open) {
+	draw_wins(rom, v->style, v->winPal, out);
+	if (v->f[m->slot].here) fighter(out, rom, v, &p, m->slot, 1, 1);
+	if (page == FF6_PAGE_COMMANDS) {
+		/* the commands (ROM D8/CEA0: 7 letters each), a button each, greyed
+		 * ones grey; the game's hand on the one its cursor is on */
 		for (int k = 0; k < 4; ++k) {
-			if (v->menu.cmd[k] < 0) continue;
-			const uint8_t* nm = at(rom, 0xD8CEA0 + 7 * (uint32_t) v->menu.cmd[k]);
+			if (m->cmd[k] < 0) continue;
 			char name[8];
-			for (int c = 0; c < 7; ++c) name[c] = (char) nm[c];
-			name[7] = 0;
-			text(out, rom, name, 3, 16 + 3 * k, v->menu.disabled[k] ? grey : white);
+			name_of(rom, 0xD8CEA0, 7, m->cmd[k], name);
+			text(out, rom, name, 5, CMD_TY(k) + 2, m->disabled[k] ? p.grey : p.white);
 		}
+		if (m->menu == FF6_MENU_COMMANDS) hand(out, rom, 2 * 8, (CMD_TY(m->cursor) + 2) * 8 - 4);
+		for (int i = 0; i < v->nEnemies; ++i) {
+			char name[11];
+			name_of(rom, 0xCFC050, 10, m->monType[v->enemy[i]], name);
+			text(out, rom, name, 23, 2 + 3 * i, p.white);
+		}
+		return;
 	}
-	/* the game's hand cursor on the command its cursor is on: the pad's
-	 * player sees where it is, the game screen no longer showing the list */
-	if (v->menu.open && v->menu.menu == FF6_MENU_COMMANDS) hand(out, rom, 4, (16 + 3 * v->menu.cursor) * 8 - 4);
-	/* choosing a target: the hand beside each name and character the
-	 * game's cursor covers (FF6-3) */
-	for (int s = 0; aiming && s < 4; ++s) {
-		if (v->f[s].here && (v->menu.partyTarget >> s & 1)) hand(out, rom, (1 + 19 * (s % 2)) * 8 + 32, (1 + 6 * (s / 2) + 1) * 8 - 4);
+	/* choosing a target: the command and the target the cursor is on, the
+	 * enemies' buttons (every one alive, top to bottom as they stand; the
+	 * hand on those the cursor covers), the party's, Back */
+	if (m->cursor >= 0 && m->cmd[m->cursor & 3] >= 0) {
+		char name[8];
+		name_of(rom, 0xD8CEA0, 7, m->cmd[m->cursor & 3], name);
+		text(out, rom, name, 22, 2, p.white);
 	}
-	/* the enemies (ROM CF/C050: 10 letters each), the Back window above them */
-	if (aiming) clipX = FF6_BBACK_X0, clipY = FF6_BBACK_Y0;
-	for (int k = 0; k < v->nEnemies; ++k) {
-		int m = v->enemy[k], ty = ff6_enemy_row_y(v, k) / 8;
-		const uint8_t* nm = at(rom, 0xCFC050 + 10 * (uint32_t) v->menu.monType[m]);
+	int covered = 0, at = -1;
+	for (int i = 0; i < 6; ++i) covered += m->monTarget >> i & 1, at = m->monTarget >> i & 1 ? i : at;
+	for (int s = 0; s < 4; ++s) covered += m->partyTarget >> s & 1, at = m->partyTarget >> s & 1 ? 8 + s : at;
+	if (covered == 1 && at < 8) {
 		char name[11];
-		for (int c = 0; c < 10; ++c) name[c] = (char) nm[c];
-		name[10] = 0;
-		text(out, rom, name, 22, ty, white);
-		if (aiming && (v->menu.monTarget >> m & 1)) hand(out, rom, 20 * 8 + 4, ty * 8 - 4);
+		name_of(rom, 0xCFC050, 10, m->monType[at], name);
+		text(out, rom, name, 22, 4, p.yellow);
+	} else if (covered == 1 && v->f[at - 8].here) {
+		text(out, rom, v->f[at - 8].name, 22, 4, p.yellow);
 	}
-	clipX = clipY = 1 << 20;
-	if (aiming) text(out, rom, kBack, FF6_BBACK_X0 / 8 + 2, FF6_BBACK_Y0 / 8 + 1, white);
+	for (int i = 0; i < v->nEnemies; ++i) {
+		char name[11];
+		name_of(rom, 0xCFC050, 10, m->monType[v->enemy[i]], name);
+		text(out, rom, name, GRID_TX(i) + 5, GRID_TY(i) + 2, p.white);
+		if (m->monTarget >> v->enemy[i] & 1) hand(out, rom, (GRID_TX(i) + 2) * 8, (GRID_TY(i) + 2) * 8 - 4);
+	}
+	for (int s = 0; s < 4; ++s) {
+		if (!v->f[s].here) continue;
+		text(out, rom, v->f[s].name, ROW_TX(s) + 1, ROW_TY + 4, s == m->slot ? p.yellow : p.white);
+		if (m->partyTarget >> s & 1) hand(out, rom, ROW_TX(s) * 8 + 24, (ROW_TY + 2) * 8 - 4);
+	}
+	text(out, rom, kBack, ROW_TX(4) + 2, ROW_TY + 4, p.white);
 }
 
+/* FF6-2: the party on the game screen, in the strip where the game's
+ * battle windows were: a line each, name, HP, MP, the time gauge */
+void ff6_strip_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
+	canvasW = FF6_STRIP_W, canvasH = FF6_STRIP_H, winUp = 0, textUp = 0;
+	for (int i = 0; i < canvasW * canvasH; ++i) out[i] = 0xFF000000u;
+	if (!rom) return;
+	Pals p;
+	battle_pals(rom, v, &p);
+	add_win(0, 0, 30, 6);
+	draw_wins(rom, v->style, v->winPal, out);
+	for (int s = 0, row = 0; s < 4; ++s) {
+		const Ff6Fighter* f = &v->f[s];
+		if (!f->here) continue;
+		/* (rows 12 pixels apart: tile row 1 and a shift up) */
+		int y = 8 + 12 * row++, ty = (y + 7) / 8;
+		textUp = ty * 8 - y;
+		bool turn = v->menu.open && v->menu.slot == s;
+		text(out, rom, f->name, 1, ty, turn ? p.yellow : p.white);
+		number(out, rom, (unsigned) f->hp, 4, false, 8, ty, p.white);
+		text(out, rom, kSlash, 12, ty, p.white);
+		number(out, rom, (unsigned) f->hpMax, 4, false, 13, ty, p.white);
+		if (f->mpMax > 0) {
+			number(out, rom, (unsigned) f->mp, 3, false, 18, ty, p.teal);
+			text(out, rom, kSlash, 21, ty, p.teal);
+			number(out, rom, (unsigned) f->mpMax, 3, false, 22, ty, p.teal);
+		}
+		if (v->gauge) gauge(out, rom, &p, f->atb, 25, ty);
+	}
+	textUp = 0;
+}
