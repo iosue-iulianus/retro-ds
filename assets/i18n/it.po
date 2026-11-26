@@ -2230,3 +2230,15 @@ msgstr "Adatta"
 
 msgid "Scale: 4:3"
 msgstr "Scala: 4:3"
+
+msgid "Show all games"
+msgstr "Mostra tutti i giochi"
+
+msgid "Show supported games only"
+msgstr "Mostra solo i giochi supportati"
+
+msgid "Supported Games > Show all games lists every game."
+msgstr "Giochi supportati > Mostra tutti i giochi elenca ogni gioco."
+
+msgid "No supported games found"
+msgstr "Nessun gioco supportato trovato"

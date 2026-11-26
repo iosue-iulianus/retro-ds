@@ -2226,3 +2226,15 @@ msgstr "フィット"
 
 msgid "Scale: 4:3"
 msgstr "スケール: 4:3"
+
+msgid "Show all games"
+msgstr "すべてのゲームを表示"
+
+msgid "Show supported games only"
+msgstr "対応ゲームのみ表示"
+
+msgid "Supported Games > Show all games lists every game."
+msgstr "対応ゲーム > すべてのゲームを表示 で全ゲームを一覧表示します。"
+
+msgid "No supported games found"
+msgstr "対応ゲームが見つかりません"
