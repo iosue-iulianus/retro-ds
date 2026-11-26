@@ -28,14 +28,15 @@ static volatile bool cancelAll;
 
 /* The black round a logo, reached from the box's edge through black,
  * made transparent; black next to the logo (a pixel's outline) kept */
-static void trim_black(uint8_t* rgba, int w, int h) {
+/* (bg: the background's colour, 0xRRGGBB: black for most games) */
+static void trim_black(uint8_t* rgba, int w, int h, uint32_t bg) {
 	uint8_t* mark = calloc((size_t) w * h, 1);
 	int* stack = malloc(sizeof(int) * (size_t) w * h);
 	if (!mark || !stack) {
 		free(mark), free(stack);
 		return;
 	}
-	#define BLACK(i) (!rgba[(i) * 4] && !rgba[(i) * 4 + 1] && !rgba[(i) * 4 + 2])
+	#define BLACK(i) (rgba[(i) * 4] == (bg >> 16 & 0xFF) && rgba[(i) * 4 + 1] == (bg >> 8 & 0xFF) && rgba[(i) * 4 + 2] == (bg & 0xFF))
 	int n = 0;
 	for (int x = 0; x < w; ++x) {
 		int e[2] = { x, (h - 1) * w + x };
@@ -169,7 +170,7 @@ bool logo_extract(const char* romPath, const char* gameCode, const char* outPng)
 				o[0] = c & 0xFF, o[1] = (c >> 8) & 0xFF, o[2] = (c >> 16) & 0xFF, o[3] = 255;
 			}
 		}
-		if (rgba && p->logo.trimBlack) trim_black(rgba, w, h);
+		if (rgba && p->logo.trimBlack) trim_black(rgba, w, h, p->logo.trimRgb);
 		char tmp[1100];
 		snprintf(tmp, sizeof(tmp), "%s.tmp", outPng);
 		ok = rgba && stbi_write_png(tmp, w, h, 4, rgba, w * 4) && rename(tmp, outPng) == 0;

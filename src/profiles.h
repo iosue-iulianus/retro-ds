@@ -63,6 +63,9 @@ typedef struct MapProfile {
 	/* No map yet: the game is listed and the second screen shows its logo,
 	 * but nothing is captured. */
 	bool logoOnly;
+	/* The game on the first (top) screen by default, its second screen
+	 * below, until the player chooses (Final Fantasy VI: FF6-6) */
+	bool gameFirst;
 	/* Logo-only games: screens worth copying to the second screen. When
 	 * `show` matches (at least showMin probes, for `stable` frames) the game
 	 * screen is copied there and stays through play, pauses and loading; it
@@ -177,9 +180,11 @@ typedef struct MapProfile {
 		 * shown, so only the logo's are (the copy is never played) */
 		uint32_t pokeAddr;
 		uint8_t pokeVal;
-		/* the black round the logo (reached from the box's edge) made
-		 * transparent, but for a pixel's outline next to the logo */
+		/* the black round the logo (reached from the box's edge; or
+		 * trimRgb's colour) made transparent, but for a pixel's outline
+		 * next to the logo */
 		bool trimBlack;
+		uint32_t trimRgb; /* the background trimmed, 0xRRGGBB (0: black) */
 		/* a second picture taken the frame after the logo's: with dropPoke
 		 * (as pokeAddr) written, the pixels inside dropRects (x0, y0, x1,
 		 * y1; up to 4, the first with x1 0 ends the list) kept, the rest
