@@ -4,7 +4,9 @@ RetroDS's history. It started as a fork of GBA DS v1.5.6, then SNES DS;
 GBA DS's own changelog up to then is `git show 3b452dc:CHANGELOG.md` (and
 on [GBA DS's GitHub](https://github.com/kyannon/gba-ds)).
 
-## Unreleased
+## v1.0.1 (November 26, 2026)
+
+A bugfix release.
 
 - **Game filtering.** By default only the supported games are shown.
   To see all games, open Supported Games and press Show all games. For
