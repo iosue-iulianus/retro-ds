@@ -788,6 +788,24 @@ int main(int argc, char** argv) {
 					for (int i = 0; i < 3; ++i) frame(e, keys[k]);
 					for (int i = 0; i < 9; ++i) frame(e, 0);
 				}
+			} else if (!strcmp(s1, "aim")) {
+				/* FF6-3: aim the target cursor at s2 (0-3 the party, 4-9 a
+				 * monster slot; or "m" + a monster number, as a tap on its
+				 * name), a press at a time as the play session does */
+				int want = s2[0] == 'm' ? ff6_group_target(&b, (int) strtol(s2 + 1, NULL, 16)) : atoi(s2);
+				Ff6Aim a;
+				ff6_aim_start(&a, want);
+				printf("ff6 aim %d: party %X monsters %02X alive %02X;", want, b.partyTarget, b.monTarget, b.monAlive);
+				uint32_t k;
+				while ((k = ff6_aim_next(&a, &b)) != 0) {
+					printf(" %s", k == K_A ? "A" : k == K_LEFT ? "LEFT" : k == K_RIGHT ? "RIGHT" : k == K_UP ? "UP" : "DOWN");
+					for (int i = 0; i < 3; ++i) frame(e, k);
+					for (int i = 0; i < 9; ++i) frame(e, 0);
+					if (k == K_A) break;
+					ff6_battle(e, &b);
+					printf(" (%X %02X)", b.partyTarget, b.monTarget);
+				}
+				printf("\n");
 			}
 		} else if (!strcmp(cmd, "alttp")) {
 			alttp_cmd(e, rom, p);

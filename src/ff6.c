@@ -1,6 +1,7 @@
 /* Final Fantasy VI (see ff6.h, docs/games/final-fantasy-vi.md). */
 #include "ff6.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 bool ff6_is(const char* gameCode) {
@@ -38,6 +39,88 @@ void ff6_battle(Emu* e, Ff6Battle* b) {
 	}
 	/* Config's Command set (the save's $1D4D bit 7): 1 short */
 	b->shortSet = emu_read8(e, 0x7E1D4D) & 0x80;
+	b->partyTarget = emu_read8(e, 0x7E7B7D) & 0x0F;
+	b->monTarget = emu_read8(e, 0x7E7B7E) & 0x3F;
+	b->monAlive = 0;
+	for (int i = 0; i < 6; ++i) {
+		/* alive: here ($3AA8 + 2n bit 0), not dead (its status, $3EEC + 2n bit 7) */
+		bool here = emu_read8(e, 0x7E3AA8 + 2 * (uint32_t) i) & 1, dead = emu_read8(e, 0x7E3EEC + 2 * (uint32_t) i) & 0x80;
+		if (here && !dead) b->monAlive |= 1 << i;
+		uint16_t id = emu_read16(e, 0x7E2001 + 2 * (uint32_t) i);
+		b->monType[i] = id == 0xFFFF ? -1 : id & 0x1FF;
+		b->monX[i] = emu_read16(e, 0x7E80C3 + 2 * (uint32_t) i);
+		b->monY[i] = emu_read16(e, 0x7E80CF + 2 * (uint32_t) i);
+	}
+}
+
+static int lowest_bit(int m) {
+	for (int i = 0; i < 16; ++i) {
+		if (m >> i & 1) return i;
+	}
+	return -1;
+}
+
+void ff6_aim_start(Ff6Aim* a, int want) {
+	memset(a, 0, sizeof(*a));
+	a->want = want;
+	a->lastMask = -1;
+}
+
+uint32_t ff6_aim_next(Ff6Aim* a, const Ff6Battle* b) {
+	if (a->want < 0) return 0;
+	if (!b->open || b->menu != FF6_MENU_TARGET) return a->want = -1, 0;
+	int mask = b->partyTarget | b->monTarget << 4; /* (want's own bit numbers) */
+	/* the last press: did it move the cursor? */
+	static const uint32_t dirs[4] = { K_LEFT, K_RIGHT, K_UP, K_DOWN };
+	if (a->lastKey && mask == a->lastMask) {
+		for (int d = 0; d < 4; ++d) {
+			if (a->lastKey == dirs[d]) a->blocked |= 1 << d;
+		}
+	} else if (mask != a->lastMask) {
+		a->blocked = 0;
+	}
+	if (mask >> a->want & 1) return a->want = -1, K_A; /* on it */
+	if (!mask || ++a->steps > 12) return a->want = -1, 0;
+	/* the directions to try, best first */
+	int order[4], n = 0;
+	if (a->want >= 4 && b->partyTarget) {
+		order[n++] = 0; /* Left, over to the monsters */
+	} else if (a->want < 4 && !b->partyTarget) {
+		order[n++] = 1; /* Right, toward the party */
+	} else if (a->want < 4) {
+		int at = lowest_bit(b->partyTarget);
+		bool down = ((a->want - at) & 3) <= ((at - a->want) & 3);
+		order[n++] = down ? 3 : 2, order[n++] = down ? 2 : 3;
+	} else {
+		int at = lowest_bit(b->monTarget), w = a->want - 4;
+		int dx = b->monX[w] - b->monX[at], dy = b->monY[w] - b->monY[at];
+		int h = dx < 0 ? 0 : 1, v = dy < 0 ? 2 : 3;
+		bool hFirst = abs(dx) >= abs(dy);
+		order[n++] = hFirst ? h : v;
+		if (hFirst ? dy : dx) order[n++] = hFirst ? v : h;
+		order[n++] = hFirst ? v ^ 1 : h ^ 1; /* (round the other way) */
+		order[n++] = hFirst ? h ^ 1 : v ^ 1;
+	}
+	for (int i = 0; i < n; ++i) {
+		if (!(a->blocked >> order[i] & 1)) {
+			a->lastMask = mask, a->lastKey = dirs[order[i]];
+			return a->lastKey;
+		}
+	}
+	return a->want = -1, 0;
+}
+
+int ff6_group_target(const Ff6Battle* b, int monsterId) {
+	if (monsterId < 0) return -1;
+	int at = b->monTarget ? lowest_bit(b->monTarget) : -1;
+	if (at >= 0 && b->monType[at] == monsterId && (b->monAlive >> at & 1)) return 4 + at;
+	int best = -1, bestD = 0;
+	for (int i = 0; i < 6; ++i) {
+		if (b->monType[i] != monsterId || !(b->monAlive >> i & 1)) continue;
+		int d = at >= 0 ? abs(b->monX[i] - b->monX[at]) + abs(b->monY[i] - b->monY[at]) : i;
+		if (best < 0 || d < bestD) best = i, bestD = d;
+	}
+	return best < 0 ? -1 : 4 + best;
 }
 
 int ff6_command_presses(const Ff6Battle* b, int row, uint32_t keys[8]) {
@@ -421,6 +504,22 @@ static void battle_pal(const Ff6Rom* r, int i, uint32_t pal[4]) {
 	for (int k = 0; k < 4; ++k) pal[k] = abgr(rd16(p + 2 * k));
 }
 
+/* the game's hand cursor (ED/5AC0, 4bpp, tiles 0, 1, 16, 17; palette
+ * D8/E8B8), its top left at x, y */
+static void hand(uint32_t* out, const Ff6Rom* rom, int hx, int hy) {
+	const uint8_t* cg = at(rom, 0xED5AC0);
+	const uint8_t* cp = at(rom, 0xD8E8B8);
+	for (int q = 0; q < 4; ++q) {
+		int t = (q & 1) + (q >> 1) * 16;
+		for (int y = 0; y < 8; ++y) {
+			for (int x = 0; x < 8; ++x) {
+				int c = pix(cg + t * 32, 4, x, y), px = hx + (q & 1) * 8 + x, py = hy + (q >> 1) * 8 + y;
+				if (c && px >= 0 && px < canvasW && py >= 0 && py < canvasH) out[py * canvasW + px] = abgr(rd16(cp + 2 * (c & 3)));
+			}
+		}
+	}
+}
+
 void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 	canvasW = FF6_BATTLE_W, canvasH = FF6_BATTLE_H, winUp = 0, textUp = 0;
 	for (int i = 0; i < canvasW * canvasH; ++i) out[i] = 0xFF000000u;
@@ -493,22 +592,14 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 			text(out, rom, name, 3, 16 + 3 * k, v->menu.disabled[k] ? grey : white);
 		}
 	}
-	/* the game's hand cursor on the command its cursor is on (ED/5AC0,
-	 * 4bpp, tiles 0, 1, 16, 17; palette D8/E8B8): the pad's player sees
-	 * where it is, the game screen no longer showing the list */
-	if (v->menu.open && v->menu.menu == FF6_MENU_COMMANDS) {
-		const uint8_t* cg = at(rom, 0xED5AC0);
-		const uint8_t* cp = at(rom, 0xD8E8B8);
-		int hx = 4, hy = (16 + 3 * v->menu.cursor) * 8 - 4;
-		for (int q = 0; q < 4; ++q) {
-			int t = (q & 1) + (q >> 1) * 16;
-			for (int y = 0; y < 8; ++y) {
-				for (int x = 0; x < 8; ++x) {
-					int c = pix(cg + t * 32, 4, x, y), px = hx + (q & 1) * 8 + x, py = hy + (q >> 1) * 8 + y;
-					if (c && px < canvasW && py >= 0 && py < canvasH) out[py * canvasW + px] = abgr(rd16(cp + 2 * (c & 3)));
-				}
-			}
-		}
+	/* the game's hand cursor on the command its cursor is on: the pad's
+	 * player sees where it is, the game screen no longer showing the list */
+	if (v->menu.open && v->menu.menu == FF6_MENU_COMMANDS) hand(out, rom, 4, (16 + 3 * v->menu.cursor) * 8 - 4);
+	/* choosing a target: the hand beside each name and character the
+	 * game's cursor covers (FF6-3) */
+	bool aiming = v->menu.open && v->menu.menu == FF6_MENU_TARGET;
+	for (int s = 0; aiming && s < 4; ++s) {
+		if (v->f[s].here && (v->menu.partyTarget >> s & 1)) hand(out, rom, (1 + 19 * (s % 2)) * 8 + 32, (1 + 6 * (s / 2) + 1) * 8 - 4);
 	}
 	/* the enemies (ROM CF/C050: 10 letters each) */
 	for (int k = 0; k < 4; ++k) {
@@ -518,5 +609,8 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 		for (int c = 0; c < 10; ++c) name[c] = (char) nm[c];
 		name[10] = 0;
 		text(out, rom, name, 22, 16 + 3 * k, white);
+		bool covered = false;
+		for (int i = 0; aiming && i < 6; ++i) covered |= (v->menu.monTarget >> i & 1) && v->menu.monType[i] == v->enemy[k];
+		if (covered) hand(out, rom, 20 * 8 + 4, (16 + 3 * k) * 8 - 4);
 	}
 }

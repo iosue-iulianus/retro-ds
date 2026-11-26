@@ -42,6 +42,13 @@ typedef struct {
 	int cmd[4];        /* the slot's commands (their numbers), -1 none */
 	bool disabled[4];  /* greyed out: the cursor skips them */
 	bool shortSet;     /* Config's Command set "short" (a cross, not a list) */
+	/* choosing a target: who the game's cursor covers */
+	int partyTarget;   /* bits 0-3, the party's slots ($7B7D) */
+	int monTarget;     /* bits 0-5, the monsters ($7B7E) */
+	/* the monsters */
+	int monAlive;      /* bits 0-5 (here, $3AA8 + 2n bit 0; not dead, $3EEC + 2n bit 7) */
+	int monType[6];    /* monster numbers ($2001), -1 none */
+	int monX[6], monY[6]; /* places on the battlefield ($80C3, $80CF) */
 } Ff6Battle;
 #define FF6_MENU_COMMANDS 0x05
 #define FF6_MENU_TARGET 0x38
@@ -61,6 +68,27 @@ void ff6_battle(Emu* e, Ff6Battle* b);
  * keys (up to 8); the count, 0 if the row can't be chosen (none, greyed,
  * or the menu isn't the command list). */
 int ff6_command_presses(const Ff6Battle* b, int row, uint32_t keys[8]);
+
+/* FF6-3: moving the game's target cursor to a chosen target with the
+ * D-pad, a press at a time, looking where each press took it. want: a
+ * party slot 0 to 3, or 4 + a monster slot (0 to 5). Start with
+ * ff6_aim_start, then ff6_aim_next after every press has played: the next
+ * key (a direction, then K_A on the target), 0 when done or stuck (12
+ * presses, or no way further). */
+typedef struct {
+	int want;          /* -1 none */
+	int steps;
+	int blocked;       /* directions that didn't move it from here: bits L R U D */
+	int lastMask;      /* where the cursor was before the last press */
+	uint32_t lastKey;
+} Ff6Aim;
+void ff6_aim_start(Ff6Aim* a, int want);
+uint32_t ff6_aim_next(Ff6Aim* a, const Ff6Battle* b);
+
+/* FF6-3: the target for a tap on an enemy's name (monsterId: its monster
+ * number): 4 + the monster slot the cursor is on if it's one of those,
+ * else the nearest alive one; -1 none. */
+int ff6_group_target(const Ff6Battle* b, int monsterId);
 
 #endif
 
@@ -141,3 +169,5 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out);
 #define FF6_BCMD_Y0 122
 #define FF6_BCMD_DY 24
 #define FF6_BCMD_X1 160
+/* the party window: y 0 to FF6_BPARTY_Y1, two by two */
+#define FF6_BPARTY_Y1 112

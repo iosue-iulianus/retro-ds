@@ -36,6 +36,8 @@ static bool bviewValid, bviewDirty;
 static uint32_t* battlePx;
 static SDL_Texture* battleTex[2];
 static int queued, queueAt, pressFrame;
+/* FF6-3: a tapped target the game's cursor is being moved to */
+static Ff6Aim aim = { .want = -1 };
 
 void ff6_open(const char* rom, const char* code) {
 	f6 = ff6_is(code);
@@ -46,6 +48,7 @@ void ff6_open(const char* rom, const char* code) {
 	partyValid = false;
 	part = FF6_OTHER;
 	queued = queueAt = pressFrame = 0;
+	ff6_aim_start(&aim, -1);
 	memset(&bat, 0, sizeof(bat));
 	if (f6) fprintf(stderr, "ff6: Final Fantasy VI (FF6-1 to 5)\n");
 }
@@ -236,15 +239,31 @@ void draw_ff6(int s) {
 int ff6_touch(const Pointer* p) {
 	if (!battle_shown() || p->screen == game_screen()) return 0;
 	if (p->kind != 1) return 1;
-	if (queued > queueAt) return 1; /* (the last tap's presses still playing) */
+	if (queued > queueAt || aim.want >= 0) return 1; /* (the last tap's presses still playing) */
 	if (battle_drawn()) {
 		/* the drawn battle screen: its command rows */
 		SDL_Rect d = place(p->screen, FF6_BATTLE_W, FF6_BATTLE_H);
 		if (p->x < d.x || p->y < d.y || p->x >= d.x + d.w || p->y >= d.y + d.h) return 1;
 		int bx = (p->x - d.x) * FF6_BATTLE_W / d.w, by = (p->y - d.y) * FF6_BATTLE_H / d.h;
 		if (bat.open && bat.menu == FF6_MENU_TARGET) {
-			queue[0] = K_A, queued = 1, queueAt = 0, pressFrame = 0;
-			fprintf(stderr, "ff6: tap while choosing a target: A\n");
+			/* an enemy's name, a character in the party window: aim
+			 * there; elsewhere: A on the target the cursor is on */
+			int want = -1;
+			bool named = false;
+			if (bx >= FF6_BCMD_X1 && by >= FF6_BCMD_Y0) {
+				int k = (by - FF6_BCMD_Y0) / FF6_BCMD_DY;
+				if (k >= 0 && k < 4 && bview.enemy[k] >= 0) named = true, want = ff6_group_target(&bat, bview.enemy[k]);
+			} else if (by < FF6_BPARTY_Y1) {
+				int s = (bx >= FF6_BATTLE_W / 2) + 2 * (by >= FF6_BPARTY_Y1 / 2);
+				if (bview.f[s].here) named = true, want = s;
+			}
+			if (want >= 0) {
+				ff6_aim_start(&aim, want);
+				fprintf(stderr, "ff6: tap on a target (%d): aiming\n", want);
+			} else if (!named) {
+				queue[0] = K_A, queued = 1, queueAt = 0, pressFrame = 0;
+				fprintf(stderr, "ff6: tap while choosing a target: A\n");
+			}
 		} else if (bx < FF6_BCMD_X1 && by >= FF6_BCMD_Y0) {
 			int row = (by - FF6_BCMD_Y0) / FF6_BCMD_DY;
 			int n = ff6_command_presses(&bat, row, queue);
@@ -277,7 +296,16 @@ int ff6_touch(const Pointer* p) {
 /* The game's keys for the next frame: the queued presses while they play
  * (the player's own buttons held back meanwhile) */
 uint32_t ff6_keys(uint32_t keys) {
-	if (!f6 || queueAt >= queued) return keys;
+	if (!f6) return keys;
+	if (queueAt >= queued && aim.want >= 0) {
+		/* FF6-3: the next press toward the tapped target, by where the
+		 * last one took the cursor */
+		uint32_t k = ff6_aim_next(&aim, &bat);
+		if (k) queue[0] = k, queued = 1, queueAt = 0, pressFrame = 0;
+		else fprintf(stderr, "ff6: the target cursor couldn't get there\n");
+		if (k == K_A) fprintf(stderr, "ff6: on the target: A\n");
+	}
+	if (queueAt >= queued) return keys;
 	uint32_t k = pressFrame < 3 ? queue[queueAt] : 0;
 	if (++pressFrame >= 12) pressFrame = 0, ++queueAt;
 	return k;
