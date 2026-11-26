@@ -72,6 +72,9 @@ bool ui_render_reset(void);
 /* ui.c's own textures let go, to be made again (after a wake) */
 void ui_textures_reset(void);
 void ui_layout(void);
+/* the game being played wants the first (top) screen, until the player
+ * chooses (the profile's gameFirst; ui_layout applies it) */
+extern bool uiGameFirst;
 /* Call once per loop iteration: sway fixups, script ticks. */
 void ui_tick(void);
 uint64_t ui_ticks(void);

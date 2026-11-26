@@ -20,6 +20,15 @@
  *                          loading also takes RetroArch state files)
  *   peek ADDR [LEN]        print LEN bytes (hex SNES address: 7E0998)
  *   poke ADDR LEN VAL      write 1 or 2 bytes
+ *   ff6 part               Final Fantasy VI (src/ff6.c): which part of the
+ *                          game runs (field, world map, battle, menu, other)
+ *   ff6 battle             its battle menu: open, menu, slot, cursor, commands
+ *   ff6 tap ROW            FF6-3: a tap on the battle command list's row ROW
+ *                          (0 to 3): the presses it makes, each played as a
+ *                          tap (3 frames down, 9 up)
+ *   pokefile ADDR FILE [OFF LEN]  write FILE's bytes (LEN from OFF, else all)
+ *                          from ADDR (Final Fantasy VI: a save slot's block
+ *                          into $1600 for its party in the menu)
  *   dumpram NAME           OUTDIR/NAME.ram: the 128 KB of work RAM
  *   dumpvram NAME          OUTDIR/NAME.vram: the 64 KB of video RAM
  *   copy                   A's state into B (timed)
@@ -79,6 +88,7 @@
 #include "../src/alttp.h"
 #include "../src/smmap.h"
 #include "../src/sotn.h"
+#include "../src/ff6.h"
 
 #include <pthread.h>
 #include <stdio.h>
@@ -731,6 +741,26 @@ int main(int argc, char** argv) {
 				for (int i = 0; i < 3; ++i) frame(e, k);
 				for (int i = 0; i < 9; ++i) frame(e, 0);
 			}
+		} else if (!strcmp(cmd, "ff6")) {
+			Ff6Battle b;
+			ff6_battle(e, &b);
+			if (!strcmp(s1, "part")) {
+				printf("ff6 part: %s\n", ff6_part_name(ff6_part(e)));
+			} else if (!strcmp(s1, "battle")) {
+				printf("ff6 battle: open %d, menu %02X, slot %d, cursor %d, commands %d%s %d%s %d%s %d%s%s\n", b.open, b.menu, b.slot, b.cursor,
+				       b.cmd[0], b.disabled[0] ? "(grey)" : "", b.cmd[1], b.disabled[1] ? "(grey)" : "", b.cmd[2], b.disabled[2] ? "(grey)" : "",
+				       b.cmd[3], b.disabled[3] ? "(grey)" : "", b.shortSet ? ", short" : "");
+			} else if (!strcmp(s1, "tap")) {
+				uint32_t keys[8];
+				int n = ff6_command_presses(&b, atoi(s2), keys);
+				printf("ff6 tap %d: %d presses:", atoi(s2), n);
+				for (int k = 0; k < n; ++k) printf(" %s", keys[k] == K_A ? "A" : keys[k] == K_DOWN ? "DOWN" : "?");
+				printf("\n");
+				for (int k = 0; k < n; ++k) {
+					for (int i = 0; i < 3; ++i) frame(e, keys[k]);
+					for (int i = 0; i < 9; ++i) frame(e, 0);
+				}
+			}
 		} else if (!strcmp(cmd, "alttp")) {
 			alttp_cmd(e, rom, p);
 		} else if (!strcmp(cmd, "sotnwide")) {
@@ -768,6 +798,17 @@ int main(int argc, char** argv) {
 			unsigned v = (unsigned) strtoul(s3, NULL, 16);
 			if (atoi(s2) == 2) emu_write16(e, addr, (uint16_t) v);
 			else emu_write8(e, addr, (uint8_t) v);
+		} else if (!strcmp(cmd, "pokefile")) {
+			unsigned addr = (unsigned) strtoul(s1, NULL, 16);
+			FILE* in = fopen(s2, "rb");
+			long off = s3[0] ? strtol(s3, NULL, 0) : 0, len = -1, n = 0;
+			char lenArg[32] = "";
+			if (sscanf(line, "%*s %*s %*s %*s %31s", lenArg) == 1) len = strtol(lenArg, NULL, 0);
+			int c;
+			if (in && off) fseek(in, off, SEEK_SET);
+			while (in && (len < 0 || n < len) && (c = fgetc(in)) != EOF) emu_write8(e, addr + (unsigned) n++, (uint8_t) c);
+			if (in) fclose(in);
+			printf("pokefile %s: %ld bytes at %06X\n", s2, n, addr);
 		} else if (!strcmp(cmd, "dumpram") || !strcmp(cmd, "dumpvram")) {
 			bool video = cmd[4] == 'v';
 			char path[1200];

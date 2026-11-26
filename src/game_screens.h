@@ -90,4 +90,17 @@ bool sot_cover_game(void);   /* SOTN-6: the game screen shows the logo */
 int sot_touch(const Pointer* p); /* SOTN-5: tap and pinch zoom, drag */
 void draw_logo_in(int s, SDL_Rect area); /* the game's logo filling area (game.c) */
 
+/* ---- Final Fantasy VI (game_ff6.c; src/ff6.c, FF6-2 to 5) */
+extern bool f6;       /* the game is Final Fantasy VI */
+void ff6_open(const char* code);
+void ff6_free(void);
+void ff6_textures(void);
+void ff6_tick(void);
+bool ff6_screen_shown(void); /* the battle windows or the main menu (else the logo) */
+bool ff6_cover_game(void);   /* FF6-4: the game screen shows the logo */
+void ff6_draw_game_cover(int s, SDL_Rect img); /* FF6-2: the battle windows covered */
+void draw_ff6(int s);
+int ff6_touch(const Pointer* p);   /* FF6-3 */
+uint32_t ff6_keys(uint32_t keys);  /* FF6-3: the presses a tap makes */
+
 #endif

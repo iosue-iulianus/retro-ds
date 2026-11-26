@@ -4722,6 +4722,10 @@ static int map_touch(const Pointer* p) {
 	if (nat) return native_touch(p);
 	if (alt) return alt_touch(p);
 	if (sot) return sot_touch(p);
+	if (f6) {
+		int t = ff6_touch(p);
+		if (t) return t;
+	}
 	const MapProfile* tp = touch_prof();
 	if (!tp || (p->screen == game_screen() && !(mapDrag && p->kind != 1))) return 0;
 	if (p->kind == 1) {
@@ -5026,13 +5030,14 @@ static void draw_game(void) {
 				if (overlay_on(s)) draw_overlay(s, 1);
 				continue;
 			}
-			if (sot && nScreens == 2 && sot_cover_game()) {
-				/* SOTN-6: the game's menu is the second screen's: here, the logo */
+			if ((sot && nScreens == 2 && sot_cover_game()) || ff6_cover_game()) {
+				/* SOTN-6, FF6-4: the game's menu is the second screen's: here, the logo */
 				draw_logo_at(s, 0);
 				continue;
 			}
 			ui_image_pixels(s, gameTex, picW, picH, cfg->scale, SHADER_ON);
 			draw_hud_hide(s);
+			if (f6) ff6_draw_game_cover(s, ui_image_rect(s, picW, picH, cfg->scale)); /* FF6-2 */
 			if (overlay_on(s)) draw_overlay(s, 0);
 			if (cfg->showFps) {
 				/* sized to sit in the empty band above the picture */
@@ -5062,6 +5067,9 @@ static void draw_game(void) {
 		} else if (sot && sot_screen_shown()) {
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, (SDL_Color) { 0, 0, 0, 255 });
 			draw_sot(s);
+		} else if (f6 && ff6_screen_shown()) {
+			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, (SDL_Color) { 0, 0, 0, 255 });
+			draw_ff6(s);
 		} else if (mapShownIdx >= 0 && !logoForced) {
 			ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, borderColor);
 			ui_image_pixels(s, mapTex, mapW, mapH, cfg->mapScale, SHADER_ON);
@@ -5449,10 +5457,13 @@ static void ss_setup(const char* rom, const char* code) {
 		const MapProfile* lp = profile_find(code);
 		native_open(rom, lp);
 		sot_open(rom);
-		mc = nat || alt ? NULL : mapcap_create(rom, code, true);
+		ff6_open(code);
+		mc = nat || alt || f6 ? NULL : mapcap_create(rom, code, true);
 		if (nat) mapW = SMMAP_W, mapH = SMMAP_H;
 		if (alt) mapW = ALTTP_W, mapH = ALTTP_H;
 		logoOnly = lp && lp->logoOnly;
+		uiGameFirst = lp && lp->gameFirst;
+		if (uiGameFirst) ui_layout(); /* (FF6-6: the game on the first screen, unless the player chose) */
 		/* (another system's games: the logo until their own second screen
 		 * exists; owner, Nov 25, 2026) */
 		if (!lp && emu.sys && emu.sys->id != SYS_SNES) logoOnly = true;
@@ -5479,6 +5490,7 @@ static void ss_textures(void) {
 	native_textures();
 	alt_textures();
 	sot_textures();
+	ff6_textures();
 }
 
 /* After the device sleeps (or the renderer is reset), the GPU's copies of
@@ -6473,6 +6485,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		if (comboPulse[1] > 0) keys |= K_START, --comboPulse[1];
 		keys = alt_keys(keys); /* ALTTP-1: X is the second screen's */
 		if (sot && nScreens == 2) keys = sot_keys(keys); /* SOTN-6: Start is the pages' */
+		if (f6) keys = ff6_keys(keys); /* FF6-3: the presses a tap makes */
 		{
 			/* SOTN-6: the game stopped for the menu page: no frames, no sound */
 			static bool frozen;
@@ -6815,6 +6828,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		if (nat) native_tick();
 		if (alt) alt_tick();
 		if (sot) sot_tick();
+		if (f6) ff6_tick();
 		if (snapProf) update_snapshot();
 
 		Uint64 drawT0 = SDL_GetPerformanceCounter();
@@ -6986,6 +7000,8 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	native_free();
 	alt_free(); /* (saves what each file has seen) */
 	sot_free();
+	ff6_free();
+	if (uiGameFirst) uiGameFirst = false, ui_layout(); /* (the screens as for every game again) */
 	emu_rewind_deinit();
 	emu_close(&emu); /* flushes the battery save */
 	for (int i = 0; i < MAP_MAX_FRAMES; ++i) {

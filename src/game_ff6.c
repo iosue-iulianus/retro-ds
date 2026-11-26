@@ -1,0 +1,178 @@
+/* Final Fantasy VI's second screen in a play session (FF6-2 to 5,
+ * docs/games/final-fantasy-vi.md): the game's own battle windows and main
+ * menu moved over from the game screen (as Symphony of the Night's menu
+ * is), touch on the battle commands done with the game's own buttons;
+ * src/ff6.c reads the game. */
+#include "game_screens.h"
+#include "ff6.h"
+
+#include <string.h>
+
+bool f6; /* this game is Final Fantasy VI */
+
+static Ff6Part part = FF6_OTHER;
+static Ff6Battle bat;
+/* the pictures moved over: the battle strip, the whole menu screen */
+static SDL_Texture* stripTex[2];
+static SDL_Texture* menuTex[2];
+static int texW, texH;
+static bool stripDirty, menuDirty;
+
+/* FF6-3: the presses a tap makes, played one at a time as a player's
+ * taps (down 3 frames, up 9) */
+static uint32_t queue[8];
+static int queued, queueAt, pressFrame;
+
+void ff6_open(const char* code) {
+	f6 = ff6_is(code);
+	part = FF6_OTHER;
+	queued = queueAt = pressFrame = 0;
+	memset(&bat, 0, sizeof(bat));
+	if (f6) fprintf(stderr, "ff6: Final Fantasy VI (FF6-1 to 5)\n");
+}
+
+static void free_tex(SDL_Texture** t) {
+	for (int i = 0; i < 2; ++i) {
+		if (t[i]) SDL_DestroyTexture(t[i]);
+		t[i] = NULL;
+	}
+}
+
+void ff6_free(void) {
+	free_tex(stripTex);
+	free_tex(menuTex);
+	texW = texH = 0;
+	f6 = false;
+}
+
+void ff6_textures(void) {
+	free_tex(stripTex);
+	free_tex(menuTex);
+	texW = texH = 0; /* (made again with the next frame) */
+}
+
+/* After a frame, the core idle: where the game is, its battle menu */
+void ff6_tick(void) {
+	if (!f6 || !emu.fb) return;
+	part = ff6_part(&emu);
+	if (part == FF6_BATTLE) ff6_battle(&emu, &bat);
+	else bat.open = false;
+	stripDirty = menuDirty = true;
+}
+
+/* FF6-2: the battle windows are the second screen's */
+static bool battle_shown(void) {
+	return f6 && nScreens == 2 && part == FF6_BATTLE;
+}
+
+/* FF6-4: the main menu is the second screen's (the game screen: the logo) */
+static bool menu_shown(void) {
+	return f6 && nScreens == 2 && part == FF6_MENU;
+}
+
+bool ff6_screen_shown(void) {
+	return battle_shown() || menu_shown();
+}
+
+bool ff6_cover_game(void) {
+	return menu_shown();
+}
+
+/* FF6-2: the strip covered on the game screen (img: where the game's
+ * picture is) */
+void ff6_draw_game_cover(int s, SDL_Rect img) {
+	if (!battle_shown() || picH <= 0) return;
+	/* (to the picture's bottom: below the windows only their edges' shadow) */
+	int y0 = img.y + FF6_STRIP_Y0 * img.h / picH, y1 = img.y + img.h;
+	ui_fill(s, (SDL_Rect) { img.x, y0, img.w, y1 - y0 }, (SDL_Color) { 0, 0, 0, 255 });
+}
+
+static void make_tex(SDL_Texture** t, int w, int h) {
+	for (int i = 0; i < nViews; ++i) {
+		if (t[i]) continue;
+		t[i] = SDL_CreateTexture(views[i].ren, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, w, h);
+		if (!t[i]) continue;
+		SDL_SetTextureBlendMode(t[i], SDL_BLENDMODE_NONE);
+		SDL_SetTextureScaleMode(t[i], SDL_ScaleModeNearest);
+	}
+}
+
+/* the game's picture rows y0 .. y1 (its pixels) into t */
+static void upload_rows(SDL_Texture** t, int y0, int y1) {
+	int k = picH > 0 ? emu.h / picH : 1; /* (interlaced: two lines a pixel) */
+	if (k < 1) k = 1;
+	for (int i = 0; i < nViews; ++i) {
+		if (t[i]) ui_update_texture(t[i], emu.fb + (size_t) y0 * k * emu.w, emu.w * 4);
+	}
+	(void) y1;
+}
+
+/* where the moved picture goes on the second screen: whole screen pixels
+ * per game pixel, as large as fits, in the middle */
+static SDL_Rect place(int s, int w, int h) {
+	SDL_Rect r = screens[s].rect;
+	int k = SDL_min(r.w / w, r.h / h);
+	if (k < 1) k = 1;
+	return (SDL_Rect) { (r.w - w * k) / 2, (r.h - h * k) / 2, w * k, h * k };
+}
+
+void draw_ff6(int s) {
+	if (!emu.fb || picW <= 0 || picH <= 0) {
+		draw_logo_at(s, 0);
+		return;
+	}
+	if (texW != emu.w || texH != emu.h) {
+		free_tex(stripTex);
+		free_tex(menuTex);
+		texW = emu.w, texH = emu.h;
+	}
+	int kh = emu.h / picH;
+	if (kh < 1) kh = 1;
+	if (battle_shown()) {
+		int rows = FF6_STRIP_Y1 - FF6_STRIP_Y0;
+		make_tex(stripTex, emu.w, rows * kh);
+		if (stripDirty) upload_rows(stripTex, FF6_STRIP_Y0, FF6_STRIP_Y1), stripDirty = false;
+		ui_image_part(s, stripTex, (SDL_Rect) { 0, 0, emu.w, rows * kh }, place(s, picW, rows));
+	} else if (menu_shown()) {
+		make_tex(menuTex, emu.w, emu.h);
+		if (menuDirty) upload_rows(menuTex, 0, picH), menuDirty = false;
+		ui_image_part(s, menuTex, (SDL_Rect) { 0, 0, emu.w, emu.h }, place(s, picW, picH));
+	} else {
+		draw_logo_at(s, 0);
+	}
+}
+
+/* FF6-3: a tap on the moved battle windows. A command in the command
+ * list: the presses that choose it; choosing a target: A (the target the
+ * game's cursor is on; the D-pad moves it). */
+int ff6_touch(const Pointer* p) {
+	if (!battle_shown() || p->screen == game_screen()) return 0;
+	if (p->kind != 1) return 1;
+	int rows = FF6_STRIP_Y1 - FF6_STRIP_Y0;
+	SDL_Rect d = place(p->screen, picW, rows);
+	if (p->x < d.x || p->y < d.y || p->x >= d.x + d.w || p->y >= d.y + d.h) return 1;
+	int gx = (p->x - d.x) * picW / d.w, gy = FF6_STRIP_Y0 + (p->y - d.y) * rows / d.h;
+	if (queued > queueAt) return 1; /* (the last tap's presses still playing) */
+	if (bat.open && bat.menu == FF6_MENU_TARGET) {
+		queue[0] = K_A, queued = 1, queueAt = 0, pressFrame = 0;
+		fprintf(stderr, "ff6: tap while choosing a target: A\n");
+		return 1;
+	}
+	if (gx < FF6_CMD_X0 || gx >= FF6_CMD_X1 || gy < FF6_CMD_Y0) return 1;
+	int row = (gy - FF6_CMD_Y0) / FF6_CMD_DY;
+	int n = ff6_command_presses(&bat, row, queue);
+	if (n > 0) {
+		queued = n, queueAt = 0, pressFrame = 0;
+		fprintf(stderr, "ff6: tap on command row %d (command %d): %d presses\n", row, bat.cmd[row & 3], n);
+	}
+	return 1;
+}
+
+/* The game's keys for the next frame: the queued presses while they play
+ * (the player's own buttons held back meanwhile) */
+uint32_t ff6_keys(uint32_t keys) {
+	if (!f6 || queueAt >= queued) return keys;
+	uint32_t k = pressFrame < 3 ? queue[queueAt] : 0;
+	if (++pressFrame >= 12) pressFrame = 0, ++queueAt;
+	return k;
+}

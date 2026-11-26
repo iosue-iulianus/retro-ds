@@ -652,9 +652,18 @@ static void layout_screens_inner(void);
  * The AYN Thor: the 6" top (2.9 inches tall, against 2.2 on its almost
  * square bottom screen), the map and items below. Two screens of a shape:
  * the first (top or left), as before. */
+bool uiGameFirst; /* the game being played wants the first (top) screen (its profile's gameFirst) */
+
 static void layout_screens(void) {
 	layout_screens_inner();
 	if (nScreens < 2 || cfg->swapChosen) return;
+	if (uiGameFirst) {
+		/* (Final Fantasy VI: the game above, its battle windows and menu
+		 * below, as the DS's Chrono Trigger did; FF6-6) */
+		if (cfg->swap) fprintf(stderr, "screens: the game on the first screen, as this game wants\n");
+		cfg->swap = false;
+		return;
+	}
 	double off[2], tall[2];
 	for (int i = 0; i < 2; ++i) {
 		const SDL_Rect* r = &screens[i].rect;

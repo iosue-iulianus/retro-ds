@@ -101,6 +101,18 @@ static const MapProfile profiles[] = {
 		           * sprites beside it left out) */
 		          .dropPokeAddr = 0x7E001C, .dropPokeVal = 0x10, .dropRects = { { 48, 62, 96, 78 }, { 64, 38, 80, 166 } } },
 	},
+	/* Final Fantasy VI, as Final Fantasy III in the USA
+	 * (docs/games/final-fantasy-vi.md): its battle windows and main menu
+	 * moved to the second screen by src/game_ff6.c, the logo elsewhere */
+	{
+		.codes = { "A27F1C7A" }, /* USA 1.0 */
+		.title = "Final Fantasy III",
+		.logoOnly = true,
+		.gameFirst = true, /* FF6-6: the game above, its windows below */
+		/* FF6-1: the US splash's lettering (power-on to frame 500), its
+		 * navy round it trimmed */
+		.logo = { .wait = 500, .minX = 24, .minY = 60, .maxX = 237, .maxY = 130, .rev = 1, .trimBlack = true, .trimRgb = 0x181821 },
+	},
 };
 
 const MapProfile* profile_find(const char* gameCode) {
