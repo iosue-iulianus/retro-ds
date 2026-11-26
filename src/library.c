@@ -892,16 +892,33 @@ static SDL_Rect tile_rect(ListGeom* g, int i, int scroll) {
 	return (SDL_Rect) { g->m + col * (g->tileW + g->gap), g->headerH + g->m + row * g->rowH - scroll, g->tileW, g->tileH };
 }
 
-/* each game's logo, loaded on first sight; reloaded when a new one is extracted */
-static SDL_Texture* tileLogo[256][2];
-static int tileLogoW[256], tileLogoH[256];
-static bool tileTried[256];
+/* each game's logo, loaded on first sight; reloaded when a new one is
+ * extracted. As many as there are games (once 256 at most: a library of
+ * more couldn't be scrolled past its 256th game) */
+typedef struct {
+	SDL_Texture* logo[2];
+	int w, h;
+	bool tried;
+} Tile;
+static Tile* tiles;
+static int capTiles;
 
 static void free_tiles(void) {
-	for (int i = 0; i < 256; ++i) {
-		ui_free_image(tileLogo[i]);
-		tileTried[i] = false;
+	for (int i = 0; i < capTiles; ++i) {
+		ui_free_image(tiles[i].logo);
+		tiles[i].tried = false;
 	}
+}
+
+/* room for n games' tiles (new ones empty) */
+static void tiles_for(int n) {
+	if (n <= capTiles) return;
+	int cap = capTiles ? capTiles : 256;
+	while (cap < n) cap *= 2;
+	Tile* t = realloc(tiles, sizeof(*t) * (size_t) cap);
+	if (!t) return;
+	memset(t + capTiles, 0, sizeof(*t) * (size_t) (cap - capTiles));
+	tiles = t, capTiles = cap;
 }
 
 /* The header: the theme and the list / grid buttons at the left, Supported
@@ -1096,7 +1113,8 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 	int done, total;
 	logo_progress(&done, &total);
 	bool extracting = done < total;
-	for (int i = 0; i < nGames && i < 256; ++i) {
+	tiles_for(nGames);
+	for (int i = 0; i < nGames && i < capTiles; ++i) {
 		SDL_Rect t = tile_rect(&g, i, scroll);
 		if (t.y + t.h <= g.headerH || t.y >= r.h) continue;
 		bool on = i == sel;
@@ -1122,23 +1140,24 @@ static void draw_list(Config* cfg, int scr, int sel, int scroll) {
 			ui_font_text(scr, TF_BOLD, t.x + px * 6, t.y + t.h / 2, px * 5, line, C_TEXT, -1);
 			continue;
 		}
-		if (!tileTried[i]) {
-			tileTried[i] = true;
+		Tile* tl = &tiles[i];
+		if (!tl->tried) {
+			tl->tried = true;
 			bool pixelArt;
-			if (ui_load_logo(cfg, games[i].path, games[i].code, tileLogo[i], &tileLogoW[i], &tileLogoH[i], &pixelArt)) {
+			if (ui_load_logo(cfg, games[i].path, games[i].code, tl->logo, &tl->w, &tl->h, &pixelArt)) {
 				for (int v = 0; v < 2; ++v) {
-					if (tileLogo[i][v]) SDL_SetTextureScaleMode(tileLogo[i][v], SDL_ScaleModeLinear);
+					if (tl->logo[v]) SDL_SetTextureScaleMode(tl->logo[v], SDL_ScaleModeLinear);
 				}
 			}
 		}
-		if (tileLogo[i][0] || tileLogo[i][1]) {
+		if (tl->logo[0] || tl->logo[1]) {
 			/* the logo, as large as fits with some padding, keeping its shape */
 			int pad = px * 5;
 			int aw = t.w - pad * 2, ah = t.h - pad * 2;
-			int w = aw, h = tileLogoH[i] * aw / tileLogoW[i];
-			if (h > ah) h = ah, w = tileLogoW[i] * ah / tileLogoH[i];
+			int w = aw, h = tl->h * aw / tl->w;
+			if (h > ah) h = ah, w = tl->w * ah / tl->h;
 			SDL_Rect a = { t.x + (t.w - w) / 2, t.y + (t.h - h) / 2, w, h };
-			ui_image(scr, tileLogo[i], tileLogoW[i], tileLogoH[i], "stretch", &a);
+			ui_image(scr, tl->logo, tl->w, tl->h, "stretch", &a);
 		} else if (games[i].supported && extracting) {
 			ui_label(scr, t.x + t.w / 2, t.y + t.h / 2, px * 4, "Loading thumbnail...", C_DIM);
 		} else {
