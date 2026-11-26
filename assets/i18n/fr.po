@@ -2230,3 +2230,15 @@ msgstr "Ajuster"
 
 msgid "Scale: 4:3"
 msgstr "Échelle : 4:3"
+
+msgid "Show all games"
+msgstr "Afficher tous les jeux"
+
+msgid "Show supported games only"
+msgstr "Afficher seulement les jeux pris en charge"
+
+msgid "Supported Games > Show all games lists every game."
+msgstr "Jeux pris en charge > Afficher tous les jeux liste chaque jeu."
+
+msgid "No supported games found"
+msgstr "Aucun jeu pris en charge trouvé"

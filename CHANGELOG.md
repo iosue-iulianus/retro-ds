@@ -6,6 +6,10 @@ on [GBA DS's GitHub](https://github.com/kyannon/gba-ds)).
 
 ## Unreleased
 
+- **The game list shows the games with a second screen,** as GBA DS's
+  did. Supported Games > Show all games lists every game (the others
+  tagged "Single screen only"), and Show supported games only goes
+  back; the choice is kept.
 - **The game list shows every game.** It stopped after the 256th: in a
   bigger collection, games further down the alphabet (Super Metroid, say)
   couldn't be reached.
