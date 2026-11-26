@@ -106,3 +106,38 @@ void ff6_party_read(Emu* e, Ff6Party* p);
 /* The party screen as the game's main menu draws it (its command list
  * left out), 256 x 224, ABGR8888 (0xAABBGGRR). */
 void ff6_party_draw(const Ff6Rom* rom, const Ff6Party* p, uint32_t* out);
+
+/* ---- FF6-2: the battle screen, drawn by RetroDS (replacing the moved
+ * windows): the party with portraits, HP, MP and time gauges, the active
+ * character's commands, the enemies, in the game's windows and font,
+ * laid out for a 4:3 second screen */
+
+#define FF6_BATTLE_W 320
+#define FF6_BATTLE_H 240
+
+typedef struct {
+	bool here;
+	char name[7];
+	int portrait;
+	int hp, hpMax, mp, mpMax;
+	int atb;           /* the time gauge, 0 to 255 */
+} Ff6Fighter;
+
+typedef struct {
+	Ff6Fighter f[4];
+	Ff6Battle menu;    /* whose turn, the commands, the cursor */
+	int enemy[4];      /* the enemy groups' monster numbers, -1 none */
+	bool gauge;        /* Config's time gauge on */
+	int style;
+	uint16_t winPal[7];
+	uint16_t fontColour;
+} Ff6BattleView;
+
+void ff6_battle_view(Emu* e, Ff6BattleView* v);
+void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out);
+
+/* where the drawn battle screen's commands are (its pixels): row r at
+ * y FF6_BCMD_Y0 + r * FF6_BCMD_DY, FF6_BCMD_DY high, x 0 to FF6_BCMD_X1 */
+#define FF6_BCMD_Y0 122
+#define FF6_BCMD_DY 24
+#define FF6_BCMD_X1 160

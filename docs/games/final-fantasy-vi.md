@@ -6,7 +6,7 @@
 | Dumps | `A27F1C7A` "Final Fantasy III (USA)" (MD5 `e986575b...`, the ROM everything8215/ff6 assembles to) |
 | Profile | `src/profiles.c`: the `A27F1C7A` entry (logo only, the game on the first screen) |
 | Code | `src/ff6.c` (reading the game), `src/game_ff6.c` (the second screen) |
-| Tests | the harness (`ff6 part`, `ff6 battle`, `ff6 tap ROW`) and the app headless with the test files in `test-data/final-fantasy-vi/` (`harness-*`: the opening at Narshe's gate, the six slots of two players' saves loaded through Continue) |
+| Tests | the harness (`ff6 part`, `ff6 battle`, `ff6 tap ROW`, `ff6 menu NAME`, `ff6 battlepic NAME`) and the app headless with the test files in `test-data/final-fantasy-vi/` (`harness-*`: the opening at Narshe's gate, the six slots of two players' saves loaded through Continue) |
 | Status | FF6-1 to 6 built Nov 26, 2026 and checked on the host (FF6-5 pixel-exact against the game's menu); FF6-1 to 4 and 6 installed on the Duo, not yet tried by the owner |
 
 What RetroDS does with this game. Each rule is a promise; change the rule here first, then the code, then the tests. Rule numbers are never reused. `everything8215/ff6` (65816 disassembly, GPL-3.0, byte-identical for this ROM) is a reference for addresses and formats only: no code from it.
@@ -19,9 +19,9 @@ What RetroDS does with this game. Each rule is a promise; change the rule here f
 
 **FF6-1. The logo.** The US release's splash screen lettering, "FINAL FANTASY III" (power-on, frame 500, the box 24, 60 to 237, 130 of its picture), its navy background made clear: on the second screen wherever it shows nothing else, and in the game list. A logo of the player's own wins, as for every game.
 
-**FF6-2. The battle windows, below.** In battle, the game's own battle windows (the party's names, HP and time gauges; the enemies' names; the active character's commands and every list that opens there: Magic, Item, Blitz...) are the second screen's: the strip of the game's picture that holds them (rows 150 to 213) is shown there as the game draws it, live, at whole screen pixels per game pixel, as large as fits (5 on the Duo's bottom screen: its full width), in the middle. On the game screen the same strip, to the picture's bottom, is black: the battle is shown once. Battle messages the game puts at the top of the picture (an attack's name) stay there. *(Exception to Philosophy 1, listed: the game screen covered where the second screen took the windows over, as Super Metroid's mini-map is.)*
+**FF6-2. The battle screen, below.** In battle the second screen shows a battle screen RetroDS draws from the game's data and art, laid out for the 4:3 screen (320 x 240 of the game's pixels: 4 screen pixels each on the Duo's bottom screen): in the player's window style and colours, a window with the party two by two, each with the game's portrait, name (yellow: whose turn it is), HP and MP (when they have MP) and the time gauge (the game's own gauge pieces, its colours: filling, full); under it, left, the commands of the character whose turn it is (the battle's own list, greyed ones grey, a row apart for fingers) with the game's hand cursor on the one its cursor is on; right, the enemies' names. Drawn again whenever anything on it changes. While one of the game's own lists is open (Magic, Item, Blitz...: not drawn yet), the game's battle windows are shown there instead, moved over (a stopgap: the strip of its picture, rows 150 to 213, at whole pixels). On the game screen the battle windows' strip, to the picture's bottom, is black: the battle is shown once. Battle messages the game puts at the top of the picture (an attack's name) stay there. *(Exception to Philosophy 1, listed: the game screen covered where the second screen took the windows over, as Super Metroid's mini-map is. The layout is RetroDS's arrangement of the game's own pieces, the owner's direction, Nov 26, 2026: for the owner to confirm.)*
 
-**FF6-3. Touch to fight.** A tap on a command in the moved command list chooses it, as the player would with the pad: RetroDS presses Down as many times as the game's cursor needs to reach it (the game skips greyed commands, and so does the count), then A. While a target is being chosen, a tap anywhere on the battle windows confirms it (A): the game's cursor starts on its usual target, and the D-pad still moves it. Everything else in battle (the lists that open, cancelling with B, Row and Defend) stays on the pad for now. While the presses play (12 frames each), the player's own buttons wait. Not with Config's Command set "short" (a cross of four, not a list): there the pad only. *(Writes: none. RetroDS presses the game's own buttons.)*
+**FF6-3. Touch to fight.** A tap on a command chooses it, as the player would with the pad: RetroDS presses Down as many times as the game's cursor needs to reach it (the game skips greyed commands, and so does the count), then A. While a target is being chosen, a tap anywhere on the battle windows confirms it (A): the game's cursor starts on its usual target, and the D-pad still moves it. Everything else in battle (the lists that open, picking a particular target, cancelling with B, Row and Defend) stays on the pad for now. While the presses play (12 frames each), the player's own buttons wait. Not with Config's Command set "short" (a cross of four, not a list): there the pad only. *(Writes: none. RetroDS presses the game's own buttons.)*
 
 **FF6-4. The main menu, below.** While the game's menu program runs (the main menu on X and everything it opens: Item, Skills, Equip, Relic, Status, Config, Save; shops and the name screens, which use it too), its whole picture is the second screen's, as the game draws it, at whole pixels; the game screen shows the logo meanwhile (as Symphony of the Night's menu page). Worked with the pad, as in the game; no touch yet.
 
@@ -41,6 +41,12 @@ What RetroDS does with this game. Each rule is a promise; change the rule here f
 | The commands | `$7E202E` + slot x 12: 4 x (number, flags, targeting) | flags bit 7: greyed (`FF` number: none) |
 | Command set | `$7E1D4D` bit 7 | 1: short (FF6-3 off) |
 | The battle windows | rows 151 to 213 of the picture | the command list's rows at y 160 + 12 r, x 8 to 100 |
+| The battle's party | `$2EAE` + 32 x slot: graphic (portrait), name (6), HP, max HP, MP, max MP | `$201D` bits: shown |
+| Time gauges | `$619E` + slot (0 to 255; `FF` full); Config's gauge `$2021` | `GaugeTextTbl`: a left end, 4 pieces `F0` + 0 to 8, a right end; battle palettes `ED62C0` (5 filling, 2 full) |
+| Enemies | `$200D` 4 groups (monster numbers; `FFFF` none) | names `CFC050`, 10 letters |
+| Command names | `D8CEA0`, 7 letters | |
+| The hand cursor | `ED5AC0` 4bpp tiles 0, 1, 16, 17; palette `D8E8B8` | |
+| Battle menu states | `$7BC2`: 00 closed, 01 opening, 05 commands, 38 target, 0E Magic (the lists above 05) | |
 | Characters (FF6-5, planned) | `$1600`, 16 x 37 bytes | +8 level, +9 HP, +B max HP, +D MP, +F max MP (the low 14 bits; the top 2 a relic's boost, `CalcMaxHPMP`) |
 | Gp, steps | `$1860`, `$1866` (3 bytes each) | (the disassembly's RAM notes have them the other way round; its code has them as here) |
 | The window style | `$1D4E` bits 0-2, the colours `$1D57` (8 x 7) | |
@@ -54,7 +60,7 @@ The title: the US splash ("FINAL FANTASY III, ©1994 Square") takes no input; th
 
 ## Planned (not built)
 
-- **The battle screen, drawn** (to replace FF6-2's moved windows): the party with HP, MP and time gauges, the commands as touch targets, the enemies to tap as targets, in the game's windows and font; the special lists falling back to the moved window until drawn.
+- **The battle's lists, drawn** (Magic, Item, Blitz, Rage, Dance, Slots, Tools, Lore...: each a FF6-2 fallback until then), touched as the commands are; **picking a target by touch** (the enemies' and the party's names).
 - **The main menu, drawn** (to replace FF6-4): its pages laid out for touch.
 - **More touch in battle**: the Magic and Item lists, Row and Defend.
 - **The Duo's top screen**: the battle scene is the picture's top two thirds; it could be shown larger there once the windows are below (whole pixels: 7 instead of 4). For the owner.

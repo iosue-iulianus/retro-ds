@@ -191,6 +191,8 @@ static uint16_t gradient(uint16_t c, int y) {
  * size in tiles; the border round it): the style's 28 tiles, the inside a
  * 4 x 4 pattern, the side borders alternating by row, top and bottom by
  * column (WindowTileTbl) */
+static int canvasW = FF6_PIC_W, canvasH = FF6_PIC_H, winUp = 1; /* (the picture being drawn; the windows' scroll) */
+
 static void window(uint16_t* bg, bool* on, const uint8_t* gfx, int tx, int ty, int w, int h) {
 	for (int r = 0; r < h + 2; ++r) {
 		for (int c = 0; c < w + 2; ++c) {
@@ -202,11 +204,11 @@ static void window(uint16_t* bg, bool* on, const uint8_t* gfx, int tx, int ty, i
 			else t = (r - 1) % 4 * 4 + (c - 1) % 4;
 			for (int y = 0; y < 8; ++y) {
 				for (int x = 0; x < 8; ++x) {
-					int px = (tx + c) * 8 + x, py = (ty + r) * 8 + y - 1; /* (the menu's BG2 scrolled 1 up) */
-					if (px < 0 || py < 0 || px >= FF6_PIC_W || py >= FF6_PIC_H) continue;
+					int px = (tx + c) * 8 + x, py = (ty + r) * 8 + y - winUp; /* (the menu's BG2 scrolled 1 up) */
+					if (px < 0 || py < 0 || px >= canvasW || py >= canvasH) continue;
 					int v = pix(gfx + t * 32, 4, x, y);
-					bg[py * FF6_PIC_W + px] = (uint16_t) v;
-					on[py * FF6_PIC_W + px] = true; /* (the window's own tile, clear pixels too) */
+					bg[py * canvasW + px] = (uint16_t) v;
+					on[py * canvasW + px] = true; /* (the window's own tile, clear pixels too) */
 				}
 			}
 		}
@@ -231,7 +233,7 @@ static void glyph(uint32_t* out, const Ff6Rom* r, int code, int tx, int ty, cons
 	for (int y = 0; y < 8; ++y) {
 		for (int x = 0; x < 8; ++x) {
 			int v = pix(t, 2, x, y), px = tx * 8 + x, py = ty * 8 + y - textUp;
-			if (v && px < FF6_PIC_W && py >= 0 && py < FF6_PIC_H) out[py * FF6_PIC_W + px] = pal[v];
+			if (v && px < canvasW && py >= 0 && py < canvasH) out[py * canvasW + px] = pal[v];
 		}
 	}
 }
@@ -270,6 +272,7 @@ static const char kGp[] = { (char) 0x86, (char) 0xA9, 0 };  /* Gp */
 static const char kColon[] = { (char) CH_COLON, 0 };
 
 void ff6_party_draw(const Ff6Rom* rom, const Ff6Party* p, uint32_t* out) {
+	canvasW = FF6_PIC_W, canvasH = FF6_PIC_H, winUp = 1;
 	for (int i = 0; i < FF6_PIC_W * FF6_PIC_H; ++i) out[i] = 0xFF000000u;
 	if (!rom) return;
 	/* BG2: the windows (DrawMainMenu, its command list left out), in the
@@ -356,4 +359,164 @@ void ff6_party_draw(const Ff6Rom* rom, const Ff6Party* p, uint32_t* out) {
 	number(out, rom, p->steps, 7, false, 23, 22, white);
 	text(out, rom, kGp, 23, 24, teal3);
 	number(out, rom, p->gp, 7, false, 23, 25, white);
+}
+
+/* ---- FF6-2: the battle screen, drawn */
+
+void ff6_battle_view(Emu* e, Ff6BattleView* v) {
+	memset(v, 0, sizeof(*v));
+	ff6_battle(e, &v->menu);
+	int shown = emu_read8(e, 0x7E201D); /* (the characters shown: bits 0-3) */
+	for (int s = 0; s < 4; ++s) {
+		Ff6Fighter* f = &v->f[s];
+		/* the battle's own copy for its windows ($2EAE + 32 x slot) */
+		uint32_t b = 0x7E2EAE + 32 * (uint32_t) s;
+		f->here = (shown >> s & 1) != 0;
+		if (!f->here) continue;
+		f->portrait = emu_read8(e, b);
+		for (int k = 0; k < 6; ++k) f->name[k] = (char) emu_read8(e, b + 1 + (uint32_t) k);
+		f->hp = emu_read16(e, b + 7), f->hpMax = emu_read16(e, b + 9);
+		f->mp = emu_read16(e, b + 11), f->mpMax = emu_read16(e, b + 13);
+		f->atb = emu_read8(e, 0x7E619E + (uint32_t) s);
+	}
+	for (int k = 0; k < 4; ++k) {
+		uint16_t id = emu_read16(e, 0x7E200D + 2 * (uint32_t) k);
+		v->enemy[k] = id == 0xFFFF ? -1 : id & 0x1FF;
+	}
+	v->gauge = emu_read8(e, 0x7E2021) & 1;
+	v->style = emu_read8(e, 0x7E1D4E) & 7;
+	for (int k = 0; k < 7; ++k) v->winPal[k] = emu_read16(e, 0x7E1D57 + 14 * (uint32_t) v->style + 2 * (uint32_t) k);
+	v->fontColour = emu_read16(e, 0x7E1D55);
+}
+
+/* a portrait at a pixel, as the menu's sprites lay it (see ff6_party_draw) */
+static void portrait(const Ff6Rom* rom, uint32_t* out, int which, int ox, int oy) {
+	if (which < 0 || which > 26) return;
+	int palNo = *at(rom, 0xC36F00 + (uint32_t) which);
+	uint16_t off = rd16(at(rom, 0xC36F1B + 2 * (uint32_t) which));
+	const uint8_t* g = at(rom, 0xED1D00 + off);
+	const uint8_t* pp = at(rom, 0xED5860 + 32 * (uint32_t) palNo);
+	const uint8_t* sp = at(rom, 0xC30B8F);
+	for (int k = 0; k < sp[0] && k < 16; ++k) {
+		const uint8_t* e4 = sp + 1 + 4 * k;
+		bool big = e4[0] & 0x80;
+		int sx = e4[0] & 0x7F, sy = e4[1], tile = e4[2] - 0x60;
+		for (int q = 0; q < (big ? 4 : 1); ++q) {
+			int gi = tile + (q & 1) + (q >> 1) * 16;
+			if (gi < 0 || gi >= 25) continue;
+			int bx = ox + sx + (q & 1) * 8, by = oy + sy + (q >> 1) * 8;
+			for (int y = 0; y < 8; ++y) {
+				for (int x = 0; x < 8; ++x) {
+					int c = pix(g + gi * 32, 4, x, y), px = bx + x, py = by + y;
+					if (c && px >= 0 && py >= 0 && px < canvasW && py < canvasH) out[py * canvasW + px] = abgr(rd16(pp + 2 * c));
+				}
+			}
+		}
+	}
+}
+
+/* the battle's font palettes (ED/62C0: 8 of 4 colours) */
+static void battle_pal(const Ff6Rom* r, int i, uint32_t pal[4]) {
+	const uint8_t* p = at(r, 0xED62C0 + (uint32_t) i * 8);
+	for (int k = 0; k < 4; ++k) pal[k] = abgr(rd16(p + 2 * k));
+}
+
+void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
+	canvasW = FF6_BATTLE_W, canvasH = FF6_BATTLE_H, winUp = 0, textUp = 0;
+	for (int i = 0; i < canvasW * canvasH; ++i) out[i] = 0xFF000000u;
+	if (!rom) return;
+	static uint16_t bg[FF6_BATTLE_W * FF6_BATTLE_H];
+	static bool on[FF6_BATTLE_W * FF6_BATTLE_H];
+	memset(bg, 0, sizeof(bg));
+	memset(on, 0, sizeof(on));
+	const uint8_t* gfx = at(rom, 0xED0000 + 0x380 * (uint32_t) v->style);
+	window(bg, on, gfx, 0, 0, 38, 13);  /* the party (rows 0 to 14) */
+	window(bg, on, gfx, 0, 15, 18, 13); /* the commands */
+	window(bg, on, gfx, 20, 15, 18, 13); /* the enemies */
+	const uint8_t* defPal = at(rom, 0xED1C00 + 32 * (uint32_t) v->style);
+	for (int y = 0; y < canvasH; ++y) {
+		for (int x = 0; x < canvasW; ++x) {
+			int c = bg[y * canvasW + x];
+			if (!c) continue;
+			uint16_t col = c <= 7 ? v->winPal[c - 1] : rd16(defPal + 2 * c);
+			/* (the menu's gradient, by each window's own lines) */
+			out[y * canvasW + x] = abgr(gradient(col, y < 120 ? y * 224 / 120 : (y - 120) * 224 / 120));
+		}
+	}
+	uint32_t white[4], teal[4], yellow[4], grey[4], gFill[4], gFull[4];
+	text_pal(rom, 0, white, v->fontColour);
+	text_pal(rom, 4, teal, -1);
+	text_pal(rom, 2, yellow, -1);
+	text_pal(rom, 1, grey, -1);
+	battle_pal(rom, 5, gFill);
+	battle_pal(rom, 2, gFull);
+	/* the party, two by two: portrait, name (yellow: whose turn), HP, MP,
+	 * the time gauge */
+	for (int s = 0; s < 4; ++s) {
+		const Ff6Fighter* f = &v->f[s];
+		if (!f->here) continue;
+		int bx = 1 + 19 * (s % 2), by = 1 + 6 * (s / 2);
+		portrait(rom, out, f->portrait, bx * 8 + 2, by * 8 + 4);
+		bool turn = v->menu.open && v->menu.slot == s;
+		text(out, rom, f->name, bx + 6, by + 1, turn ? yellow : white);
+		text(out, rom, kHP, bx + 6, by + 2, teal);
+		number(out, rom, (unsigned) f->hp, 4, false, bx + 8, by + 2, white);
+		text(out, rom, kSlash, bx + 12, by + 2, white);
+		number(out, rom, (unsigned) f->hpMax, 4, false, bx + 13, by + 2, white);
+		if (f->mpMax > 0) {
+			text(out, rom, kMP, bx + 6, by + 3, teal);
+			number(out, rom, (unsigned) f->mp, 4, false, bx + 8, by + 3, white);
+			text(out, rom, kSlash, bx + 12, by + 3, white);
+			number(out, rom, (unsigned) f->mpMax, 4, false, bx + 13, by + 3, white);
+		}
+		if (v->gauge) {
+			/* DrawGaugeText: a left end, 4 pieces (GaugeTextTbl: 32 steps), a right end */
+			const uint32_t* gp = f->atb == 0xFF ? gFull : gFill;
+			int i = f->atb >> 3;
+			glyph(out, rom, 0xF9, bx + 6, by + 4, gp);
+			for (int k = 0; k < 4; ++k) {
+				int n = i + 1 - 8 * k;
+				glyph(out, rom, 0xF0 + (n < 0 ? 0 : n > 8 ? 8 : n), bx + 7 + k, by + 4, gp);
+			}
+			glyph(out, rom, 0xFA, bx + 11, by + 4, gp);
+		}
+	}
+	/* the commands of the character whose turn it is (ROM D8/CEA0: 7 letters
+	 * each), greyed ones grey; spaced for fingers */
+	if (v->menu.open) {
+		for (int k = 0; k < 4; ++k) {
+			if (v->menu.cmd[k] < 0) continue;
+			const uint8_t* nm = at(rom, 0xD8CEA0 + 7 * (uint32_t) v->menu.cmd[k]);
+			char name[8];
+			for (int c = 0; c < 7; ++c) name[c] = (char) nm[c];
+			name[7] = 0;
+			text(out, rom, name, 3, 16 + 3 * k, v->menu.disabled[k] ? grey : white);
+		}
+	}
+	/* the game's hand cursor on the command its cursor is on (ED/5AC0,
+	 * 4bpp, tiles 0, 1, 16, 17; palette D8/E8B8): the pad's player sees
+	 * where it is, the game screen no longer showing the list */
+	if (v->menu.open && v->menu.menu == FF6_MENU_COMMANDS) {
+		const uint8_t* cg = at(rom, 0xED5AC0);
+		const uint8_t* cp = at(rom, 0xD8E8B8);
+		int hx = 4, hy = (16 + 3 * v->menu.cursor) * 8 - 4;
+		for (int q = 0; q < 4; ++q) {
+			int t = (q & 1) + (q >> 1) * 16;
+			for (int y = 0; y < 8; ++y) {
+				for (int x = 0; x < 8; ++x) {
+					int c = pix(cg + t * 32, 4, x, y), px = hx + (q & 1) * 8 + x, py = hy + (q >> 1) * 8 + y;
+					if (c && px < canvasW && py >= 0 && py < canvasH) out[py * canvasW + px] = abgr(rd16(cp + 2 * (c & 3)));
+				}
+			}
+		}
+	}
+	/* the enemies (ROM CF/C050: 10 letters each) */
+	for (int k = 0; k < 4; ++k) {
+		if (v->enemy[k] < 0) continue;
+		const uint8_t* nm = at(rom, 0xCFC050 + 10 * (uint32_t) v->enemy[k]);
+		char name[11];
+		for (int c = 0; c < 10; ++c) name[c] = (char) nm[c];
+		name[10] = 0;
+		text(out, rom, name, 22, 16 + 3 * k, white);
+	}
 }

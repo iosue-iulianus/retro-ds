@@ -28,6 +28,7 @@
  *                          tap (3 frames down, 9 up)
  *   ff6 menu NAME          FF6-5: the party screen RetroDS draws (src/ff6.c),
  *                          from A's RAM and the ROM: NAME.png, 256 x 224
+ *   ff6 battlepic NAME     FF6-2: the battle screen RetroDS draws, NAME.png
  *   pokefile ADDR FILE [OFF LEN]  write FILE's bytes (LEN from OFF, else all)
  *                          from ADDR (Final Fantasy VI: a save slot's block
  *                          into $1600 for its party in the menu)
@@ -767,6 +768,16 @@ int main(int argc, char** argv) {
 						printf(" [%d] char %d lv %d hp %d/%d mp %d/%d%s%s", k, party.m[k].id, party.m[k].level, party.m[k].hp, party.m[k].hpMax, party.m[k].mp,
 						       party.m[k].mpMax, party.m[k].showMp ? "" : " (no MP)", party.m[k].backRow ? " back" : "");
 				printf("\n");
+			} else if (!strcmp(s1, "battlepic")) {
+				static Ff6Rom* from;
+				if (!from) from = ff6_rom_load(rom);
+				Ff6BattleView v;
+				ff6_battle_view(e, &v);
+				static uint32_t pic[FF6_BATTLE_W * FF6_BATTLE_H];
+				ff6_battle_draw(from, &v, pic);
+				char path[1200];
+				out_path(path, sizeof path, s2, ".png");
+				printf("ff6 battlepic %s: %s\n", path, write_png(path, pic, FF6_BATTLE_W, FF6_BATTLE_H, FF6_BATTLE_W) ? "ok" : "FAILED");
 			} else if (!strcmp(s1, "tap")) {
 				uint32_t keys[8];
 				int n = ff6_command_presses(&b, atoi(s2), keys);

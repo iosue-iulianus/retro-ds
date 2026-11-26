@@ -29,12 +29,20 @@ static Ff6Party party, partyDrawn;
 static bool partyValid, partyDirty;
 static uint32_t* partyPx;
 static SDL_Texture* partyTex[2];
+
+/* FF6-2: the battle screen RetroDS draws */
+static Ff6BattleView bview, bviewDrawn;
+static bool bviewValid, bviewDirty;
+static uint32_t* battlePx;
+static SDL_Texture* battleTex[2];
 static int queued, queueAt, pressFrame;
 
 void ff6_open(const char* rom, const char* code) {
 	f6 = ff6_is(code);
 	if (f6 && !rom6) rom6 = ff6_rom_load(rom);
 	if (f6 && !partyPx) partyPx = malloc(sizeof(uint32_t) * FF6_PIC_W * FF6_PIC_H);
+	if (f6 && !battlePx) battlePx = malloc(sizeof(uint32_t) * FF6_BATTLE_W * FF6_BATTLE_H);
+	bviewValid = false;
 	partyValid = false;
 	part = FF6_OTHER;
 	queued = queueAt = pressFrame = 0;
@@ -53,6 +61,9 @@ void ff6_free(void) {
 	free_tex(partyTex);
 	ff6_rom_free(rom6), rom6 = NULL;
 	free(partyPx), partyPx = NULL;
+	free_tex(battleTex);
+	free(battlePx), battlePx = NULL;
+	bviewValid = false;
 	partyValid = false;
 	free_tex(stripTex);
 	free_tex(menuTex);
@@ -63,6 +74,8 @@ void ff6_free(void) {
 void ff6_textures(void) {
 	free_tex(partyTex);
 	partyDirty = true;
+	free_tex(battleTex);
+	bviewDirty = true;
 	free_tex(stripTex);
 	free_tex(menuTex);
 	texW = texH = 0; /* (made again with the next frame) */
@@ -74,6 +87,16 @@ void ff6_tick(void) {
 	part = ff6_part(&emu);
 	if (part == FF6_BATTLE) ff6_battle(&emu, &bat);
 	else bat.open = false;
+	/* FF6-2: the battle screen, drawn again when anything on it changes */
+	if (part == FF6_BATTLE && rom6 && battlePx) {
+		ff6_battle_view(&emu, &bview);
+		if (!bviewValid || memcmp(&bview, &bviewDrawn, sizeof(bview))) {
+			ff6_battle_draw(rom6, &bview, battlePx);
+			bviewDrawn = bview, bviewValid = bviewDirty = true;
+		}
+	} else {
+		bviewValid = false;
+	}
 	/* FF6-5: the party, drawn again when anything it shows has changed */
 	if ((part == FF6_FIELD || part == FF6_WORLD) && rom6 && partyPx) {
 		ff6_party_read(&emu, &party);
@@ -87,6 +110,15 @@ void ff6_tick(void) {
 		}
 	}
 	stripDirty = menuDirty = true;
+}
+
+/* FF6-2: the battle screen RetroDS draws, but while one of the game's own
+ * lists is open (Magic, Item...: not drawn yet, the game's windows moved
+ * over instead) */
+static bool battle_drawn(void) {
+	/* ($7BC2: 00 closed, 01 opening, 05 the command list, 38 choosing a
+	 * target; the lists above 05: Magic 0E...) */
+	return bviewValid && !(bat.open && bat.menu > FF6_MENU_COMMANDS && bat.menu != FF6_MENU_TARGET);
 }
 
 /* FF6-2: the battle windows are the second screen's */
@@ -173,6 +205,17 @@ void draw_ff6(int s) {
 		ui_image_part(s, partyTex, (SDL_Rect) { 0, 0, FF6_PIC_W, FF6_PIC_H }, place(s, FF6_PIC_W, FF6_PIC_H));
 		return;
 	}
+	if (battle_shown() && battle_drawn()) {
+		make_tex(battleTex, FF6_BATTLE_W, FF6_BATTLE_H);
+		if (bviewDirty) {
+			for (int i = 0; i < nViews; ++i) {
+				if (battleTex[i]) ui_update_texture(battleTex[i], battlePx, FF6_BATTLE_W * 4);
+			}
+			bviewDirty = false;
+		}
+		ui_image_part(s, battleTex, (SDL_Rect) { 0, 0, FF6_BATTLE_W, FF6_BATTLE_H }, place(s, FF6_BATTLE_W, FF6_BATTLE_H));
+		return;
+	}
 	if (battle_shown()) {
 		int rows = FF6_STRIP_Y1 - FF6_STRIP_Y0;
 		make_tex(stripTex, emu.w, rows * kh);
@@ -193,11 +236,29 @@ void draw_ff6(int s) {
 int ff6_touch(const Pointer* p) {
 	if (!battle_shown() || p->screen == game_screen()) return 0;
 	if (p->kind != 1) return 1;
+	if (queued > queueAt) return 1; /* (the last tap's presses still playing) */
+	if (battle_drawn()) {
+		/* the drawn battle screen: its command rows */
+		SDL_Rect d = place(p->screen, FF6_BATTLE_W, FF6_BATTLE_H);
+		if (p->x < d.x || p->y < d.y || p->x >= d.x + d.w || p->y >= d.y + d.h) return 1;
+		int bx = (p->x - d.x) * FF6_BATTLE_W / d.w, by = (p->y - d.y) * FF6_BATTLE_H / d.h;
+		if (bat.open && bat.menu == FF6_MENU_TARGET) {
+			queue[0] = K_A, queued = 1, queueAt = 0, pressFrame = 0;
+			fprintf(stderr, "ff6: tap while choosing a target: A\n");
+		} else if (bx < FF6_BCMD_X1 && by >= FF6_BCMD_Y0) {
+			int row = (by - FF6_BCMD_Y0) / FF6_BCMD_DY;
+			int n = ff6_command_presses(&bat, row, queue);
+			if (n > 0) {
+				queued = n, queueAt = 0, pressFrame = 0;
+				fprintf(stderr, "ff6: tap on command row %d (command %d): %d presses\n", row, bat.cmd[row & 3], n);
+			}
+		}
+		return 1;
+	}
 	int rows = FF6_STRIP_Y1 - FF6_STRIP_Y0;
 	SDL_Rect d = place(p->screen, picW, rows);
 	if (p->x < d.x || p->y < d.y || p->x >= d.x + d.w || p->y >= d.y + d.h) return 1;
 	int gx = (p->x - d.x) * picW / d.w, gy = FF6_STRIP_Y0 + (p->y - d.y) * rows / d.h;
-	if (queued > queueAt) return 1; /* (the last tap's presses still playing) */
 	if (bat.open && bat.menu == FF6_MENU_TARGET) {
 		queue[0] = K_A, queued = 1, queueAt = 0, pressFrame = 0;
 		fprintf(stderr, "ff6: tap while choosing a target: A\n");
