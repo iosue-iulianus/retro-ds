@@ -261,8 +261,8 @@ int ff6_touch(const Pointer* p) {
 				fprintf(stderr, "ff6: tap on Back: B\n");
 				return 1;
 			} else if (bx >= FF6_BCMD_X1 && by >= FF6_BCMD_Y0) {
-				int k = (by - FF6_BCMD_Y0) / FF6_BCMD_DY;
-				if (k >= 0 && k < 4 && bview.enemy[k] >= 0) named = true, want = ff6_group_target(&bat, bview.enemy[k]);
+				int k = ff6_enemy_row_at(&bview, by);
+				if (k >= 0) named = true, want = 4 + bview.enemy[k];
 			} else if (by < FF6_BPARTY_Y1) {
 				int s = (bx >= FF6_BATTLE_W / 2) + 2 * (by >= FF6_BPARTY_Y1 / 2);
 				if (bview.f[s].here) named = true, want = s;

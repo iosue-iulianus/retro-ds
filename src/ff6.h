@@ -154,7 +154,8 @@ typedef struct {
 typedef struct {
 	Ff6Fighter f[4];
 	Ff6Battle menu;    /* whose turn, the commands, the cursor */
-	int enemy[4];      /* the enemy groups' monster numbers, -1 none */
+	int enemy[6];      /* the enemies alive, top to bottom on the battlefield: their monster slots */
+	int nEnemies;
 	bool gauge;        /* Config's time gauge on */
 	int style;
 	uint16_t winPal[7];
@@ -163,6 +164,9 @@ typedef struct {
 
 void ff6_battle_view(Emu* e, Ff6BattleView* v);
 void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out);
+/* the enemies' rows on it: row k's text at y (its pixels); the row at a y, -1 none */
+int ff6_enemy_row_y(const Ff6BattleView* v, int k);
+int ff6_enemy_row_at(const Ff6BattleView* v, int y);
 
 /* where the drawn battle screen's commands are (its pixels): row r at
  * y FF6_BCMD_Y0 + r * FF6_BCMD_DY, FF6_BCMD_DY high, x 0 to FF6_BCMD_X1 */

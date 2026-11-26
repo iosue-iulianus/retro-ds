@@ -275,6 +275,7 @@ static uint16_t gradient(uint16_t c, int y) {
  * 4 x 4 pattern, the side borders alternating by row, top and bottom by
  * column (WindowTileTbl) */
 static int canvasW = FF6_PIC_W, canvasH = FF6_PIC_H, winUp = 1; /* (the picture being drawn; the windows' scroll) */
+static int clipX = 1 << 20, clipY = 1 << 20; /* text isn't drawn right of and below both (the Back window) */
 
 static void window(uint16_t* bg, bool* on, const uint8_t* gfx, int tx, int ty, int w, int h) {
 	for (int r = 0; r < h + 2; ++r) {
@@ -316,7 +317,7 @@ static void glyph(uint32_t* out, const Ff6Rom* r, int code, int tx, int ty, cons
 	for (int y = 0; y < 8; ++y) {
 		for (int x = 0; x < 8; ++x) {
 			int v = pix(t, 2, x, y), px = tx * 8 + x, py = ty * 8 + y - textUp;
-			if (v && px < canvasW && py >= 0 && py < canvasH) out[py * canvasW + px] = pal[v];
+			if (v && px < canvasW && py >= 0 && py < canvasH && !(px >= clipX && py >= clipY)) out[py * canvasW + px] = pal[v];
 		}
 	}
 }
@@ -463,9 +464,13 @@ void ff6_battle_view(Emu* e, Ff6BattleView* v) {
 		f->mp = emu_read16(e, b + 11), f->mpMax = emu_read16(e, b + 13);
 		f->atb = emu_read8(e, 0x7E619E + (uint32_t) s);
 	}
-	for (int k = 0; k < 4; ++k) {
-		uint16_t id = emu_read16(e, 0x7E200D + 2 * (uint32_t) k);
-		v->enemy[k] = id == 0xFFFF ? -1 : id & 0x1FF;
+	/* every enemy alive, a row each (the game lists each kind once), top
+	 * to bottom as they stand */
+	for (int i = 0; i < 6; ++i) {
+		if (!(v->menu.monAlive >> i & 1) || v->menu.monType[i] < 0) continue;
+		int k = v->nEnemies++;
+		while (k > 0 && v->menu.monY[v->enemy[k - 1]] > v->menu.monY[i]) v->enemy[k] = v->enemy[k - 1], --k;
+		v->enemy[k] = i;
 	}
 	v->gauge = emu_read8(e, 0x7E2021) & 1;
 	v->style = emu_read8(e, 0x7E1D4E) & 7;
@@ -519,6 +524,16 @@ static void hand(uint32_t* out, const Ff6Rom* rom, int hx, int hy) {
 			}
 		}
 	}
+}
+
+int ff6_enemy_row_y(const Ff6BattleView* v, int k) {
+	return (16 + (v->nEnemies > 4 ? 2 : 3) * k) * 8;
+}
+
+int ff6_enemy_row_at(const Ff6BattleView* v, int y) {
+	int dy = v->nEnemies > 4 ? 16 : 24;
+	int k = (y - (ff6_enemy_row_y(v, 0) - 6)) / dy;
+	return y >= ff6_enemy_row_y(v, 0) - 6 && k < v->nEnemies ? k : -1;
 }
 
 void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
@@ -603,17 +618,18 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 	for (int s = 0; aiming && s < 4; ++s) {
 		if (v->f[s].here && (v->menu.partyTarget >> s & 1)) hand(out, rom, (1 + 19 * (s % 2)) * 8 + 32, (1 + 6 * (s / 2) + 1) * 8 - 4);
 	}
-	if (aiming) text(out, rom, kBack, FF6_BBACK_X0 / 8 + 2, FF6_BBACK_Y0 / 8 + 1, white);
-	/* the enemies (ROM CF/C050: 10 letters each) */
-	for (int k = 0; k < 4; ++k) {
-		if (v->enemy[k] < 0) continue;
-		const uint8_t* nm = at(rom, 0xCFC050 + 10 * (uint32_t) v->enemy[k]);
+	/* the enemies (ROM CF/C050: 10 letters each), the Back window above them */
+	if (aiming) clipX = FF6_BBACK_X0, clipY = FF6_BBACK_Y0;
+	for (int k = 0; k < v->nEnemies; ++k) {
+		int m = v->enemy[k], ty = ff6_enemy_row_y(v, k) / 8;
+		const uint8_t* nm = at(rom, 0xCFC050 + 10 * (uint32_t) v->menu.monType[m]);
 		char name[11];
 		for (int c = 0; c < 10; ++c) name[c] = (char) nm[c];
 		name[10] = 0;
-		text(out, rom, name, 22, 16 + 3 * k, white);
-		bool covered = false;
-		for (int i = 0; aiming && i < 6; ++i) covered |= (v->menu.monTarget >> i & 1) && v->menu.monType[i] == v->enemy[k];
-		if (covered) hand(out, rom, 20 * 8 + 4, (16 + 3 * k) * 8 - 4);
+		text(out, rom, name, 22, ty, white);
+		if (aiming && (v->menu.monTarget >> m & 1)) hand(out, rom, 20 * 8 + 4, ty * 8 - 4);
 	}
+	clipX = clipY = 1 << 20;
+	if (aiming) text(out, rom, kBack, FF6_BBACK_X0 / 8 + 2, FF6_BBACK_Y0 / 8 + 1, white);
 }
+
