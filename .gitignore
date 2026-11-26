@@ -27,3 +27,8 @@ assets/user/
 *.sfc
 *.smc
 *.state
+
+# the GameCube test frontend (tools/gamecube/build.sh)
+tools/gamecube/lrtest-host
+tools/gamecube/lrtest-android
+tools/gamecube/__pycache__/
