@@ -6,6 +6,46 @@ refactored or added yet. Every licence and decompilation figure was checked on
 Nov 23, 2026 against the primary source linked next to it; anything that
 couldn't be checked that way says **unverified**.
 
+**Update, Nov 26, 2026** (with the owner, after the Wind Waker study,
+`docs/research/the-wind-waker.md` on branch `tww-spike`). What changed:
+
+- **Done since:** steps 0 and 1. RetroDS is renamed, the PSX platform
+  runs, Symphony of the Night has its map and menu pages (v1.0.0, Nov 25).
+- **A new filter for titles: skip games that already have a second screen
+  somewhere players can run them.** The Wind Waker study ended because
+  Wind Waker HD's own GamePad screen already runs on Android dual-screen
+  handhelds (ZeldaWWHDRecomp, a native port from the player's Wii U
+  dump): RetroDS would have spent months rebuilding it. By this filter
+  **Ocarina of Time and Majora's Mask** (the 3DS remakes' touch screens;
+  community PC ports), **Super Mario 64** (the DS remake's map) and
+  **Chrono Trigger** (the DS version's two screens) drop down; Wind Waker
+  and Twilight Princess (both had Wii U GamePad screens) are out.
+- **The GPU path is no longer the biggest unknown.** On the Duo, libretro
+  Dolphin rendered with Vulkan through libretro's negotiation interface,
+  its frame copied on the GPU into an AHardwareBuffer and drawn by GLES (as
+  SDL2's renderer would) in the same frame: identical pixels, done 1.7 ms
+  after `retro_run`, no frame of latency, ~0.6 ms of CPU. That is what
+  ParaLLEl-RDP (MIT, Vulkan) needs for N64 (3.2), so **N64 moves up**.
+- **Writes:** the owner considers Super Metroid's and A Link to the Past's
+  touch writes in keeping with the ethos (Philosophy 5: only what the
+  game's own menu would write, listed per game). Silent Hill's weapon
+  equip, Paper Mario's badges and MGS's weapon select would be the same
+  kind of exception.
+- **Order now:** **Final Fantasy VI** (started: branch `ff6`,
+  `docs/games/final-fantasy-vi.md`), **Silent Hill**, EarthBound and
+  Harvest Moon as SNES fillers, then **Paper Mario** (N64 on ParaLLEl-RDP
+  and the Vulkan bridge), Metal Gear Solid (US addresses to find), Mario
+  Kart 64. Details in 7.4.
+- **Other systems, not studied (licences and sources unverified):** the
+  Genesis has GPL-compatible cores (BlastEm, GPLv3; clownmdemu, AGPLv3)
+  but Genesis Plus GX and PicoDrive are non-commercial, so out, and few
+  Genesis games have a screen players pause for (Phantasy Star IV's
+  status, Shining Force's battle status). The Game Boy and Color are
+  cheap (mGBA, MPL-2.0, was GBA DS's core; the pret disassemblies):
+  Pokémon Red and Blue (party, Pokédex, town map) and Link's Awakening DX
+  (map, items) fit; Gold, Silver and Crystal fail the filter (HeartGold
+  and SoulSilver put the Pokégear on the DS's touch screen).
+
 Contents:
 
 1. [Summary and recommendation](#1-summary-and-recommendation)
@@ -373,6 +413,11 @@ later", LGPL, or permissive. "GPLv2 only" and non-commercial licences are out.
   needs confirming and its speed on the Duo is unmeasured; it's a pixel-accurate
   software RDP and was historically slow). Asking GLideN64's author whether
   "version 2" means "or later" is a cheap third route.
+- **Nov 26, 2026:** the Vulkan side is shown working on the Duo (the
+  Wind Waker study): a libretro core on Vulkan, its frame handed to
+  SDL2's GLES drawing through an AHardwareBuffer and a sync fd, same
+  frame, ~0.6 ms of CPU. ParaLLEl-RDP needs exactly that, so the N64
+  spike is now a build patch (no GLideN64) plus this bridge.
 - **Performance**: secondary sources rate N64 as comfortable on the Duo with
   RetroArch (GLideN64 or ParaLLEl), **unverified** for angrylion.
 - **RDRAM exposure**: yes, 8 MB; byte order as noted in 2.2. Paper Mario, OoT
@@ -382,6 +427,14 @@ later", LGPL, or permissive. "GPLv2 only" and non-commercial licences are out.
 - **Size**: ~2.2 MB zipped on libretro's Android buildbot (with GLideN64).
 
 ### 3.3 GameCube (The Wind Waker)
+
+*Studied Nov 25 to 26, 2026 (`docs/research/the-wind-waker.md`, branch
+`tww-spike`): libretro Dolphin builds unchanged for Android arm64, runs
+The Wind Waker on the Duo at ~9.5 ms a frame (of 33) through the Vulkan
+bridge, exposes MEM1 without a patch; its Software and Null renderers
+crash at boot, so it needs the GPU path. The game itself was shelved
+(Wind Waker HD's GamePad screen already runs on Android handhelds). The
+notes below are from Nov 23.*
 
 - **Dolphin** ([dolphin-emu/dolphin](https://github.com/dolphin-emu/dolphin)):
   `SPDX-License-Identifier: GPL-2.0-or-later`, so **compatible**.
@@ -761,6 +814,14 @@ DS layout). Final Fantasy VI and Harvest Moon are the cheapest wins on the SNES
 platform that already exists.
 
 ### 7.4 Next 3 to 5
+
+*Nov 26, 2026, replacing the list below (kept as written): **Final Fantasy
+VI** (now; branch `ff6`), **Silent Hill**, EarthBound or Harvest Moon
+between platform steps, **Paper Mario** menus (N64 via ParaLLEl-RDP and the
+Vulkan bridge), **Metal Gear Solid**, **Mario Kart 64**. Ocarina of Time
+and Majora's Mask fall behind (their 3DS remakes have the touch screen),
+as do Super Mario 64 and Chrono Trigger (their DS versions); Wind Waker and
+Twilight Princess are out (Wii U GamePad screens).*
 
 1. **Symphony of the Night** (with the PSX platform).
 2. **Silent Hill.**
