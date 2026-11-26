@@ -349,6 +349,7 @@ static const char kLV[] = { (char) 0x8B, (char) 0x95, 0 };  /* LV */
 static const char kHP[] = { (char) 0x87, (char) 0x8F, 0 };  /* HP */
 static const char kMP[] = { (char) 0x8C, (char) 0x8F, 0 };  /* MP */
 static const char kSlash[] = { (char) CH_SLASH, 0 };
+static const char kBack[] = { (char) 0x81, (char) 0x9A, (char) 0x9C, (char) 0xA4, 0 }; /* Back */
 static const char kTime[] = { (char) 0x93, (char) 0xA2, (char) 0xA6, (char) 0x9E, 0 };  /* Time */
 static const char kSteps[] = { (char) 0x92, (char) 0xAD, (char) 0x9E, (char) 0xA9, (char) 0xAC, 0 };  /* Steps */
 static const char kGp[] = { (char) 0x86, (char) 0xA9, 0 };  /* Gp */
@@ -532,6 +533,8 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 	window(bg, on, gfx, 0, 0, 38, 13);  /* the party (rows 0 to 14) */
 	window(bg, on, gfx, 0, 15, 18, 13); /* the commands */
 	window(bg, on, gfx, 20, 15, 18, 13); /* the enemies */
+	bool aiming = v->menu.open && v->menu.menu == FF6_MENU_TARGET;
+	if (aiming) window(bg, on, gfx, FF6_BBACK_X0 / 8, FF6_BBACK_Y0 / 8, 6, 2); /* Back, above them (FF6-3) */
 	const uint8_t* defPal = at(rom, 0xED1C00 + 32 * (uint32_t) v->style);
 	for (int y = 0; y < canvasH; ++y) {
 		for (int x = 0; x < canvasW; ++x) {
@@ -597,10 +600,10 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 	if (v->menu.open && v->menu.menu == FF6_MENU_COMMANDS) hand(out, rom, 4, (16 + 3 * v->menu.cursor) * 8 - 4);
 	/* choosing a target: the hand beside each name and character the
 	 * game's cursor covers (FF6-3) */
-	bool aiming = v->menu.open && v->menu.menu == FF6_MENU_TARGET;
 	for (int s = 0; aiming && s < 4; ++s) {
 		if (v->f[s].here && (v->menu.partyTarget >> s & 1)) hand(out, rom, (1 + 19 * (s % 2)) * 8 + 32, (1 + 6 * (s / 2) + 1) * 8 - 4);
 	}
+	if (aiming) text(out, rom, kBack, FF6_BBACK_X0 / 8 + 2, FF6_BBACK_Y0 / 8 + 1, white);
 	/* the enemies (ROM CF/C050: 10 letters each) */
 	for (int k = 0; k < 4; ++k) {
 		if (v->enemy[k] < 0) continue;

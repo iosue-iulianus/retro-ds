@@ -13,6 +13,7 @@ bool f6; /* this game is Final Fantasy VI */
 
 static Ff6Part part = FF6_OTHER;
 static Ff6Battle bat;
+static int listFrames; /* (see ff6_tick) */
 /* the pictures moved over: the battle strip, the whole menu screen */
 static SDL_Texture* stripTex[2];
 static SDL_Texture* menuTex[2];
@@ -49,6 +50,7 @@ void ff6_open(const char* rom, const char* code) {
 	part = FF6_OTHER;
 	queued = queueAt = pressFrame = 0;
 	ff6_aim_start(&aim, -1);
+	listFrames = 0;
 	memset(&bat, 0, sizeof(bat));
 	if (f6) fprintf(stderr, "ff6: Final Fantasy VI (FF6-1 to 5)\n");
 }
@@ -90,6 +92,10 @@ void ff6_tick(void) {
 	part = ff6_part(&emu);
 	if (part == FF6_BATTLE) ff6_battle(&emu, &bat);
 	else bat.open = false;
+	/* how long one of the game's lists has been open: the menu passes
+	 * through other states for a frame (10, 04, 0D: after a target, as a
+	 * list opens), which aren't lists */
+	listFrames = bat.open && bat.menu > FF6_MENU_COMMANDS && bat.menu != FF6_MENU_TARGET ? listFrames + 1 : 0;
 	/* FF6-2: the battle screen, drawn again when anything on it changes */
 	if (part == FF6_BATTLE && rom6 && battlePx) {
 		ff6_battle_view(&emu, &bview);
@@ -121,7 +127,7 @@ void ff6_tick(void) {
 static bool battle_drawn(void) {
 	/* ($7BC2: 00 closed, 01 opening, 05 the command list, 38 choosing a
 	 * target; the lists above 05: Magic 0E...) */
-	return bviewValid && !(bat.open && bat.menu > FF6_MENU_COMMANDS && bat.menu != FF6_MENU_TARGET);
+	return bviewValid && listFrames < 4;
 }
 
 /* FF6-2: the battle windows are the second screen's */
@@ -250,7 +256,11 @@ int ff6_touch(const Pointer* p) {
 			 * there; elsewhere: A on the target the cursor is on */
 			int want = -1;
 			bool named = false;
-			if (bx >= FF6_BCMD_X1 && by >= FF6_BCMD_Y0) {
+			if (bx >= FF6_BBACK_X0 && by >= FF6_BBACK_Y0) {
+				queue[0] = K_B, queued = 1, queueAt = 0, pressFrame = 0;
+				fprintf(stderr, "ff6: tap on Back: B\n");
+				return 1;
+			} else if (bx >= FF6_BCMD_X1 && by >= FF6_BCMD_Y0) {
 				int k = (by - FF6_BCMD_Y0) / FF6_BCMD_DY;
 				if (k >= 0 && k < 4 && bview.enemy[k] >= 0) named = true, want = ff6_group_target(&bat, bview.enemy[k]);
 			} else if (by < FF6_BPARTY_Y1) {

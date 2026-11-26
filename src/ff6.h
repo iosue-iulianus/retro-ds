@@ -169,5 +169,9 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out);
 #define FF6_BCMD_Y0 122
 #define FF6_BCMD_DY 24
 #define FF6_BCMD_X1 160
+/* FF6-3: Back (B) while choosing a target, a window of its own over the
+ * enemies' bottom right corner, from x, y to the screen's edges */
+#define FF6_BBACK_X0 256
+#define FF6_BBACK_Y0 208
 /* the party window: y 0 to FF6_BPARTY_Y1, two by two */
 #define FF6_BPARTY_Y1 112
