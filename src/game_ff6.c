@@ -294,6 +294,10 @@ int ff6_touch(const Pointer* p) {
 				queued = n, queueAt = 0, pressFrame = 0;
 				fprintf(stderr, "ff6: tap on command %d (command %d): %d presses\n", arg, bat.cmd[arg & 3], n);
 			}
+		} else if (hit == FF6_HIT_STATUS && bat.open && bat.menu == FF6_MENU_COMMANDS) {
+			/* the next character whose gauge is full, as X does */
+			queue[0] = K_X, queued = 1, queueAt = 0, pressFrame = 0;
+			fprintf(stderr, "ff6: tap on whose turn it is: X\n");
 		} else if (hit == FF6_HIT_BACK && bat.open && bat.menu == FF6_MENU_TARGET) {
 			queue[0] = K_B, queued = 1, queueAt = 0, pressFrame = 0;
 			fprintf(stderr, "ff6: tap on Back: B\n");

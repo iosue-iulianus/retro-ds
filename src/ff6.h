@@ -170,8 +170,9 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out);
 enum { FF6_PAGE_WAIT, FF6_PAGE_COMMANDS, FF6_PAGE_TARGET };
 int ff6_battle_page(const Ff6BattleView* v);
 /* what's at x, y on it (its pixels): a command (arg: its row), an enemy
- * (arg: its monster slot), a character (arg: the party slot), Back */
-enum { FF6_HIT_NONE, FF6_HIT_COMMAND, FF6_HIT_ENEMY, FF6_HIT_PARTY, FF6_HIT_BACK };
+ * (arg: its monster slot), a character (arg: the party slot), Back, the
+ * status window of whose turn it is (on the command page) */
+enum { FF6_HIT_NONE, FF6_HIT_COMMAND, FF6_HIT_ENEMY, FF6_HIT_PARTY, FF6_HIT_BACK, FF6_HIT_STATUS };
 int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg);
 
 /* FF6-2: the party on the game screen, where the game's battle windows

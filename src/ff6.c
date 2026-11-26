@@ -594,15 +594,17 @@ static void fighter(uint32_t* out, const Ff6Rom* rom, const Ff6BattleView* v, co
 	portrait(rom, out, f->portrait, bx * 8 + 2, by * 8 + 4);
 	bool turn = v->menu.open && v->menu.slot == s;
 	text(out, rom, f->name, bx + 6, by + 1, turn ? p->yellow : p->white);
+	/* (a space after HP and MP: 4 digits ran into them, as in the game's
+	 * menu, and the battle's windows have the room) */
 	text(out, rom, kHP, bx + 6, by + 2, p->teal);
-	number(out, rom, (unsigned) f->hp, 4, false, bx + 8, by + 2, p->white);
-	text(out, rom, kSlash, bx + 12, by + 2, p->white);
-	number(out, rom, (unsigned) f->hpMax, 4, false, bx + 13, by + 2, p->white);
+	number(out, rom, (unsigned) f->hp, 4, false, bx + 9, by + 2, p->white);
+	text(out, rom, kSlash, bx + 13, by + 2, p->white);
+	number(out, rom, (unsigned) f->hpMax, 4, false, bx + 14, by + 2, p->white);
 	if (f->mpMax > 0) {
 		text(out, rom, kMP, bx + 6, by + 3, p->teal);
-		number(out, rom, (unsigned) f->mp, 4, false, bx + 8, by + 3, p->white);
-		text(out, rom, kSlash, bx + 12, by + 3, p->white);
-		number(out, rom, (unsigned) f->mpMax, 4, false, bx + 13, by + 3, p->white);
+		number(out, rom, (unsigned) f->mp, 4, false, bx + 9, by + 3, p->white);
+		text(out, rom, kSlash, bx + 13, by + 3, p->white);
+		number(out, rom, (unsigned) f->mpMax, 4, false, bx + 14, by + 3, p->white);
 	}
 	if (v->gauge) gauge(out, rom, p, f->atb, bx + 6, by + 4);
 }
@@ -630,6 +632,7 @@ int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg) {
 	int tx = x / 8, ty = y / 8, page = ff6_battle_page(v);
 	*arg = -1;
 	if (page == FF6_PAGE_COMMANDS) {
+		if (tx < 20 && ty < 8) return FF6_HIT_STATUS;
 		for (int k = 0; k < 4; ++k) {
 			if (tx < 20 && ty >= CMD_TY(k) && ty < CMD_TY(k) + 5) return *arg = k, FF6_HIT_COMMAND;
 		}
