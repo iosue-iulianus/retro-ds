@@ -7,10 +7,12 @@ note is the starting point for a spike; the spike's findings are added
 here as they come, as `docs/research/the-wind-waker.md` (branch
 `tww-spike`) did for the GameCube.
 
-**Status: step 1 passed.** The emulator and its licence fit; the work is
+**Status: step 1 passed; on hold** (the owner, Nov 27, 2026: record
+what's known for later, no spike work yet). The emulator and its licence fit; the work is
 getting it into RetroDS, which only talks to libretro cores. The owner has
 been playing hakuX itself on the Duo and it runs really well there (Nov 27,
-2026). Next: step 2, its core without its app (below, "The spike").
+2026), NFL 2K5 included. When it resumes: step 2, its core without its
+app (below, "The spike").
 
 ## The emulator: hakuX
 
@@ -112,6 +114,21 @@ The owner's idea: play calling on the touch screen.
   (formations or plays) and what each button holds, to draw the right
   ones (from `MASTER PLAY`). The lesson from FF6 holds: show
   first, touch second.
+- **Runs:** the owner has played NFL 2K5 in hakuX on the Duo, and it runs
+  well (Nov 27, 2026).
+- **Hot routes by drawing** (the owner's idea, Nov 27, 2026): tap a
+  receiver, draw his route with a finger; RetroDS matches the path to the
+  nearest of the game's own hot routes and enters that one as the game's
+  button presses (no writes). The owner pictured it as an overlay on the
+  game screen; by Philosophy 1 (the game screen is the game) and 4 (touch
+  on the game screen opens RetroDS's menu) the fitting form is **on the
+  second screen**: a top-down picture of the formation at the line, from the
+  players' places in RAM, the receivers to tap, the route drawn there. On
+  the game screen itself it would be a written exception (the owner's
+  call). To find: how the game enters a hot route with the controller
+  (which button opens it, how a receiver and a route are chosen), and
+  where the players' places and the play's routes (`MASTER PLAY`) are in
+  RAM before the snap.
 - **Second screen first idea:** the play-call page as the game lays it out
   (formation, then plays), drawn from `MASTER PLAY`; during a play, look
   only.
