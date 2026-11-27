@@ -424,6 +424,22 @@ The `a/b/c` soname scheme is needed only for SNES while it keeps two copies
 
 ---
 
+### 3.5 Original Xbox (added Nov 27, 2026)
+
+- **hakuX** ([rfandango/hakuX](https://github.com/rfandango/hakuX)): an
+  original Xbox emulator for Android, **GPL-3.0 or later**, so
+  **compatible**; no BIOS needed (it reimplements the Xbox kernel). Tuned
+  for Adreno handhelds; press reports most games at full speed on the
+  Retroid Pocket 5. A month old (v1.0.0 Oct 23, 2026).
+- **Not a libretro core:** its core is a library inside its own Android
+  app (its own Vulkan, audio, input). A libretro wrapper is about the
+  GameCube's size of work (3.3), plus the question of its JIT sharing
+  RetroDS's process.
+- **First game idea:** NFL 2K5's play calling on the touch screen (no
+  decomp; a mod tool documents its playbook file).
+- **Detail and the spike's plan:** `docs/research/original-xbox.md`. **Not
+  yet**: first the owner tries hakuX itself on the Duo.
+
 ## 4. Rename to RetroDS
 
 ### 4.1 Checklist
@@ -747,6 +763,7 @@ map collision data, but every address has to be found again for the US disc
 | **Chrono Trigger** (SNES) | No SNES disassembly or decompilation found; [Data Crystal's RAM map](https://datacrystal.tcrf.net/wiki/Chrono_Trigger) only. [power-pudu/egg-of-time](https://github.com/power-pudu/egg-of-time) is a recompilation of the **DS** version (not SNES; and the DS version already has two screens, useful as a design reference) | bsnes | Party status, techs | Look only | 3 | 1 | 5 | 2 | 14 |
 | **Vagrant Story** (PSX) | No public decomp found on GitHub (the "~30%" figure is **unverified**) | SwanStation | The room map, Ashley's status, weapon risk and affinities | | 4 | 1 | 4 | 1 | 14 |
 | **Legend of Mana** (PSX) | No public decomp found (the "NTSC-U complete" figure is **unverified**) | SwanStation | The land map you build | | 3 | 1 | 4 | 1 | 12 |
+| **ESPN NFL 2K5** (Xbox), added Nov 27, 2026 | No decomp. [cruuz/2k-football-mod-tools](https://github.com/cruuz/2k-football-mod-tools) (MIT) parses its playbook (`MASTER PLAY`: 586 plays, routes, formations); see `docs/research/original-xbox.md` | hakuX: **not a libretro core** (3.5) | The play-call page drawn from the playbook | Call plays by touch: a tap presses the game's button for the play (no writes), if its play-call screen works that way (to check) | 4 | 2 | 1 | 1 | 12 |
 
 Also seen, not evaluated: [sonicdcer/sf64](https://github.com/sonicdcer/sf64)
 (Star Fox 64, 100%, CC0: radar), [DavidSM64/Diddy-Kong-Racing](https://github.com/DavidSM64/Diddy-Kong-Racing)
