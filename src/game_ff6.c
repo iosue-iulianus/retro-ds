@@ -108,7 +108,7 @@ void ff6_tick(void) {
 	/* how long one of the game's lists has been open: the menu passes
 	 * through other states for a frame (10, 04, 0D: after a target, as a
 	 * list opens), which aren't lists */
-	listFrames = bat.open && bat.menu > FF6_MENU_COMMANDS && bat.menu != FF6_MENU_TARGET && bat.menu != FF6_MENU_MAGIC && bat.menu != FF6_MENU_ITEM ? listFrames + 1 : 0;
+	listFrames = bat.open && bat.menu > FF6_MENU_COMMANDS && bat.menu != FF6_MENU_TARGET && !ff6_list_menu(bat.menu) ? listFrames + 1 : 0;
 	/* FF6-2: the battle screen, drawn again when anything on it changes */
 	if (part == FF6_BATTLE && rom6 && battlePx) {
 		ff6_battle_view(&emu, &bview);

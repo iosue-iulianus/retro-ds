@@ -55,9 +55,7 @@ typedef struct {
 	int validParty;    /* $201D & $61AC & $61AD & $6193 */
 	int validMons;     /* $0092 */
 	int attack;        /* the spell or item chosen ($7A85) */
-	/* the lists' cursors, this slot's: Magic scroll, column, row
-	 * ($8913/$8917/$891B + slot), Item scroll, row ($8947/$894F + slot) */
-	int magicScroll, magicX, magicY, itemScroll, itemY;
+	int actionCmd;     /* the command of the action being chosen (the queue $2BAE, 8 bytes an action: the one with no character yet), -1 */
 	/* an item picked up in the Item list to be moved ($7B02), from where
 	 * ($7B03: its row x 5) */
 	bool itemHeld;
@@ -67,6 +65,14 @@ typedef struct {
 #define FF6_MENU_TARGET 0x38
 #define FF6_MENU_MAGIC 0x0E
 #define FF6_MENU_ITEM 0x0A
+#define FF6_MENU_LORE 0x1B
+#define FF6_MENU_RAGE 0x1E
+#define FF6_MENU_DANCE 0x21
+#define FF6_MENU_MAGITEK 0x2A
+#define FF6_MENU_THROW 0x2D
+#define FF6_MENU_TOOLS 0x30
+/* the lists RetroDS draws (one of the FF6_MENU_ above) */
+bool ff6_list_menu(int menu);
 void ff6_battle(Emu* e, Ff6Battle* b);
 
 /* FF6-3: touch done as the game's own menu does it: the menu's cursor
@@ -82,11 +88,14 @@ int ff6_command_writes(const Ff6Battle* b, int row, Write* out);
  * game's cursor already covers it (a spell on all), or it can't be moved
  * (A takes the game's own choice) */
 int ff6_target_writes(const Ff6Battle* b, int want, Write* out);
-/* a row of the Magic or Item list: its place in the game's list */
+/* a row of an open list: its place in the game's list (FF6_ESPER: the
+ * Magic list's esper, which Up on its top row opens) */
+#define FF6_ESPER 255
 int ff6_list_writes(const Ff6Battle* b, int index, Write* out);
-/* the keys that choose that row once written (up to 3): Magic A; Item A
- * twice (the game's first A picks an item up to move it, a second on it
- * uses it), after B if another item is held (else they'd swap) */
+/* the keys that choose that row once written (up to 3; 0: a pause, 12
+ * frames): A; Item A twice (the game's first A picks an item up to move
+ * it, a second on it uses it), after B if another item is held (else
+ * they'd swap); the esper Up, a pause (its window opening), A */
 int ff6_list_keys(const Ff6Battle* b, int index, uint32_t keys[3]);
 
 #endif
@@ -154,13 +163,15 @@ typedef struct {
 	bool ready;        /* the battle's copies are made (not as it starts) */
 	Ff6Fighter f[4];
 	Ff6Battle menu;
-	/* the Magic or Item list while it's open: its rows that hold something,
-	 * in the game's order (their places in its list), the game's cursor's
-	 * row (-1: on none of them), the first row shown (the play session's
-	 * page, FF6_LIST_PAGE rows a page) */
+	/* an open list (Magic, Item, Lore, Rage, Dance, Magitek, Throw,
+	 * Tools): its rows that hold something, in the game's order (their
+	 * places in its list; the Magic list's esper first, FF6_ESPER), the
+	 * game's cursor's row (-1: on none of them), the first row shown (the
+	 * play session's page, FF6_LIST_PAGE rows a page) */
 	int nList;
-	uint8_t listAt[256], listId[256], listVal[256]; /* place, spell or item, MP cost or how many */
+	uint8_t listAt[256], listId[256], listVal[256]; /* place, what (spell, item...), MP cost or how many */
 	bool listOff[256];  /* greyed: too little MP, not for battle */
+	bool listShowVal;   /* (MP or how many shown) */
 	int listCursor, listTop;    /* whose turn, the commands, the cursor */
 	int enemy[6];      /* the enemies alive, top to bottom on the battlefield: their monster slots */
 	int nEnemies;
