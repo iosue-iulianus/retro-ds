@@ -143,6 +143,12 @@ The owner's idea: play calling on the touch screen.
   the game enters audibles and each defensive adjustment on the controller
   (every one must be reachable by its buttons, else it's left out), and
   which of them it shows anywhere (to borrow its art).
+  **Art RetroDS needs of its own** (the owner, Nov 27, 2026): the owner's,
+  made with Google Flow from prompts, as the logo and icon are the owner's
+  (`assets/brand/source/`), lossless PNG with transparency. The style of a
+  mid-2000s sports broadcast (the game's own), **without ESPN's, the NFL's
+  or teams' names and logos** (trademarks); no lettering in the art (labels
+  in the game's font, drawn by RetroDS).
 - **Second screen first idea:** the play-call page as the game lays it out
   (formation, then plays), drawn from `MASTER PLAY`; during a play, look
   only.
