@@ -1053,9 +1053,12 @@ void emu_rewind_init(Emu* e, size_t entries) {
 	rw.owner = e;
 }
 
-/* XOR of a and b, zero runs written as (0, count): any other byte as it is */
+/* XOR of a and b, zero runs written as (0, count): any other byte as it is.
+ * Room for the worst case first: a run of one zero takes 4 bytes, so
+ * changed and unchanged bytes taking turns come to 2.5 times the state
+ * (given back to the size used at the end) */
 static uint8_t* delta_pack(const uint8_t* a, const uint8_t* b, size_t n, size_t* outN) {
-	uint8_t* out = malloc(n + n / 64 + 16);
+	uint8_t* out = malloc(n / 2 * 5 + 16);
 	if (!out) return NULL;
 	size_t o = 0;
 	for (size_t i = 0; i < n;) {
