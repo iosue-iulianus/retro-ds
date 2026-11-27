@@ -1,4 +1,4 @@
-# Builds the Android APK on every push to snes, on pull requests into snes
+# Builds the Android APK on every push to retrods, on pull requests into retrods
 # (so a branch is built before it's merged), and by hand from the Actions
 # tab. The APK is attached to the run as an artifact.
 #

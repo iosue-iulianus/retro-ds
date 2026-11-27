@@ -1,9 +1,11 @@
-/* RetroDS: a GBA emulator for dual-screen handhelds that keeps the game's own
- * map on the second screen.
+/* RetroDS: Super Nintendo and PlayStation games on dual-screen handhelds,
+ * with the second screen they never had, drawn from the game's own data.
  *
- *   library.c  game list (rescans the ROM folder every time it opens)
- *   game.c     play session, pause menu, auto save/resume
- *   mapcap.c   map capture with a shadow emulator core; profiles.c per game
+ *   emu.c      the libretro cores (bsnes, SwanStation); system.c per console
+ *   library.c  game list (rescans the ROM folders every time it opens)
+ *   game.c     play session, pause menu, auto save/resume; the second
+ *              screens in game_sm.c, game_alttp.c, game_sotn.c
+ *   profiles.c per game; mapcap.c capture on a hidden copy (no game uses it)
  *   ui.c       windows, screens, touch/buttons, drawing
  */
 #include "android.h"
