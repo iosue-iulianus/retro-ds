@@ -91,5 +91,8 @@ bool sotn_menu_openable(Emu* e);
  * the widened picture's first and last columns). False
  * (out untouched) unless a window fills the picture from edge to edge. */
 bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow, int* ox);
+/* the window colours sotn_widen keeps from earlier pictures forgotten (as
+ * the menu opens: the player may have changed them in the System menu) */
+void sotn_widen_forget(void);
 
 #endif

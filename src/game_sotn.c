@@ -90,6 +90,7 @@ void sot_free(void) {
 	wideW = wideH = 0;
 	sot = sotShown = composed = viewSet = user = focus = drag = pinch = wideOk = pageDrag = false;
 	phase = M_OFF, page = 0, pageX = 0, injectFrames = injectGap = 0, startHeld = false;
+	sotn_widen_forget();
 	viewCrc = 0;
 	cw = ch = 0;
 	zoomI = 0;
@@ -179,6 +180,7 @@ static void to_menu(void) {
 	if (phase == M_OFF) {
 		if (sotn_menu_openable(&emu)) {
 			phase = M_OPENING, phaseFrames = 0;
+			sotn_widen_forget();
 			press(K_START, 2);
 			fprintf(stderr, "sotn: menu page, the game's menu opened (Start pressed for it)\n");
 		} else {
