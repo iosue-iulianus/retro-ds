@@ -744,6 +744,7 @@ int main(int argc, char** argv) {
 				for (int i = 0; i < 9; ++i) frame(e, 0);
 			}
 		} else if (!strcmp(cmd, "ff6")) {
+			static int listTop, listSeen = -2, listMenu; /* (the list page's scroll, as the play session's) */
 			Ff6Battle b;
 			ff6_battle(e, &b);
 			if (!strcmp(s1, "part")) {
@@ -772,11 +773,20 @@ int main(int argc, char** argv) {
 				if (!from) from = ff6_rom_load(rom);
 				Ff6BattleView v;
 				ff6_battle_view(e, &v);
+				ff6_list_follow(&v, &listTop, &listSeen, &listMenu);
 				static uint32_t pic[FF6_BATTLE_W * FF6_BATTLE_H];
 				ff6_battle_draw(from, &v, pic);
 				char path[1200];
 				out_path(path, sizeof path, s2, ".png");
 				printf("ff6 battlepic %s: %s\n", path, write_png(path, pic, FF6_BATTLE_W, FF6_BATTLE_H, FF6_BATTLE_W) ? "ok" : "FAILED");
+				/* where the hand is: page, menu, the list's first line, the hands */
+				int xy[16], n = ff6_battle_hands(xy, 8);
+				printf("ff6 hand %s: page %d menu %02X top %d:", s2, ff6_battle_page(&v), v.menu.menu, v.listTop);
+				for (int k = 0; k < n; ++k) printf(" %d,%d", xy[2 * k], xy[2 * k + 1]);
+				/* and what a tap just right of the first hand hits (as the
+				 * play session's): the button it points at; the game's cursor */
+				int arg = -1, hit = n ? ff6_battle_hit(&v, xy[0] + 24, xy[1] + 4, &arg) : -1;
+				printf(" | hit %d %d | cursor %d list %d\n", hit, arg, v.menu.cursor, v.listCursor);
 				/* and the party on the game screen: NAME-strip.png */
 				static uint32_t strip[FF6_STRIP_W * FF6_STRIP_H];
 				ff6_strip_draw(from, &v, strip);
@@ -825,8 +835,12 @@ int main(int argc, char** argv) {
 			} else if (!strcmp(s1, "list")) {
 				Ff6BattleView v;
 				ff6_battle_view(e, &v);
-				printf("ff6 list: menu %02X, %d rows, cursor %d:", v.menu.menu, v.nList, v.listCursor);
-				for (int k = 0; k < v.nList && k < 40; ++k) printf(" %d:%02X%s(%d)", v.listAt[k], v.listId[k], v.listOff[k] ? "-" : "", v.listVal[k]);
+				int held = v.listEsper; /* (the esper counted, as the game's list holds it) */
+				for (int k = 0; k < v.nList; ++k) held += v.listId[k] != 0xFF;
+				printf("ff6 list: menu %02X, %d rows, %d places, %d across, %d lines, esper %s, cursor %d line %d:", v.menu.menu, held, v.nList, v.listCols,
+				       v.nLines, v.listEsper ? "yes" : "no", v.listCursor, v.listCursorLine);
+				for (int k = 0; k < v.nList && k < 40; ++k)
+					if (v.listId[k] != 0xFF) printf(" %d:%02X%s(%d)", k, v.listId[k], v.listOff[k] ? "-" : "", v.listVal[k]);
 				printf("\n");
 			}
 		} else if (!strcmp(cmd, "alttp")) {

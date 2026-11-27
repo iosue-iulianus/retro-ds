@@ -133,6 +133,7 @@ static const ListDef listDefs[] = {
 };
 
 static const ListDef* list_def(int menu) {
+	if (menu == FF6_MENU_ESPER) menu = FF6_MENU_MAGIC; /* (its esper window: the Magic list's page) */
 	for (size_t i = 0; i < sizeof listDefs / sizeof listDefs[0]; ++i) {
 		if (listDefs[i].menu == menu) return &listDefs[i];
 	}
@@ -164,6 +165,9 @@ int ff6_list_writes(const Ff6Battle* b, int index, Write* out) {
 }
 
 int ff6_list_keys(const Ff6Battle* b, int index, uint32_t keys[3]) {
+	/* the esper's window open: A summons; a spell: Down closes it (the
+	 * cursor as written), a pause, A */
+	if (b->menu == FF6_MENU_ESPER) return index == FF6_ESPER ? (keys[0] = K_A, 1) : (keys[0] = K_DOWN, keys[1] = 0, keys[2] = K_A, 3);
 	if (index == FF6_ESPER) return keys[0] = K_UP, keys[1] = 0, keys[2] = K_A, 3;
 	if (b->menu != FF6_MENU_ITEM) return keys[0] = K_A, 1;
 	if (b->itemHeld && b->itemHeldAt == index) return keys[0] = K_A, 1;
@@ -202,15 +206,15 @@ int ff6_blitz_keys(const Ff6Rom* rom, int k, uint32_t keys[11]) {
 
 /* a list's row: what it holds (FF: nothing), its MP cost or how many,
  * greyed */
-static bool list_row(Emu* e, const Ff6Battle* m, int i, uint8_t* id, uint8_t* val, bool* off) {
+static bool list_row(Emu* e, const Ff6Battle* m, int menu, int i, uint8_t* id, uint8_t* val, bool* off) {
 	uint32_t slot = (uint32_t) m->slot, a;
 	*val = 0, *off = false;
-	switch (m->menu) {
+	switch (menu) {
 	case FF6_MENU_MAGIC:
 	case FF6_MENU_LORE:
 		/* the spell lists: $208E + 316 x slot, 4 bytes a row (spell, greyed,
 		 * targeting, MP): the esper, 54 spells, 24 lores */
-		a = 0x7E208E + 316 * slot + 4 * (uint32_t) (i + (m->menu == FF6_MENU_MAGIC ? 1 : 55));
+		a = 0x7E208E + 316 * slot + 4 * (uint32_t) (i + (menu == FF6_MENU_MAGIC ? 1 : 55));
 		*id = emu_read8(e, a), *off = emu_read8(e, a + 1) & 0x80, *val = emu_read8(e, a + 3);
 		break;
 	case FF6_MENU_ITEM:
@@ -616,33 +620,42 @@ void ff6_battle_view(Emu* e, Ff6BattleView* v) {
 	v->blitzKnown = emu_read8(e, 0x7E1D28);
 	v->bushidoKnown = (emu_read8(e, 0x7E2020) & 7) + 1;
 	v->bushidoBar = emu_read8(e, 0x7E7B82);
-	/* an open list: its rows that hold something, the game's cursor's */
-	v->listCursor = -1;
+	/* an open list, as the game lays it out: every place from the top (the
+	 * game's cursor stops on empty ones too), as far as the last that holds
+	 * something or the cursor; the esper's line above Magic's */
+	v->listCursor = v->listCursorLine = -1;
 	const Ff6Battle* m = &v->menu;
 	const ListDef* d = m->open ? list_def(m->menu) : NULL;
 	if (d) {
 		uint32_t c = (uint32_t) m->slot;
 		int at = ((d->scroll ? emu_read8(e, d->scroll + c) : 0) + emu_read8(e, d->y + c)) * d->cols + emu_read8(e, d->x + c);
-		v->listShowVal = m->menu == FF6_MENU_MAGIC || m->menu == FF6_MENU_ITEM || m->menu == FF6_MENU_LORE || m->menu == FF6_MENU_THROW;
-		if (m->menu == FF6_MENU_MAGIC && !emu_read8(e, 0x7E7AE8)) {
-			/* the esper, first (the game's: Up from the top row; not for
-			 * X-Magic's spells, $7AE8, where Up doesn't open it) */
+		v->listCols = d->cols;
+		v->listShowVal = d->menu == FF6_MENU_MAGIC || d->menu == FF6_MENU_ITEM || d->menu == FF6_MENU_LORE || d->menu == FF6_MENU_THROW;
+		if (d->menu == FF6_MENU_MAGIC && !emu_read8(e, 0x7E7AE8)) {
+			/* the esper (the game's: Up from the top row; not for X-Magic's
+			 * spells, $7AE8, where Up doesn't open it) */
 			uint32_t a = 0x7E208E + 316 * c;
 			uint8_t id = emu_read8(e, a);
 			if (id != 0xFF) {
-				v->listAt[0] = FF6_ESPER, v->listId[0] = id;
-				v->listOff[0] = emu_read8(e, a + 1) & 0x80, v->listVal[0] = emu_read8(e, a + 3);
-				v->nList = 1;
+				v->listEsper = true, v->esperId = id;
+				v->esperOff = emu_read8(e, a + 1) & 0x80, v->esperVal = emu_read8(e, a + 3);
 			}
 		}
-		for (int i = 0; i < d->rows && v->nList < 256; ++i) {
+		int last = -1;
+		for (int i = 0; i < d->rows && i < 256; ++i) {
 			uint8_t id, val;
 			bool off;
-			if (!list_row(e, m, i, &id, &val, &off)) continue;
-			if (i == at) v->listCursor = v->nList;
-			v->listAt[v->nList] = (uint8_t) i, v->listId[v->nList] = id, v->listVal[v->nList] = val, v->listOff[v->nList] = off;
-			++v->nList;
+			if (!list_row(e, m, d->menu, i, &id, &val, &off)) id = 0xFF, val = 0, off = false;
+			else last = i;
+			v->listId[i] = id, v->listVal[i] = val, v->listOff[i] = off;
 		}
+		if (m->menu == FF6_MENU_ESPER && v->listEsper) v->listCursor = FF6_ESPER, v->listCursorLine = 0;
+		else if (m->menu != FF6_MENU_ESPER && at < d->rows) v->listCursor = at, v->listCursorLine = (v->listEsper ? 1 : 0) + at / d->cols;
+		if (v->listCursor >= 0 && v->listCursor != FF6_ESPER && v->listCursor > last) last = v->listCursor;
+		int rows = last < 0 ? 1 : last / d->cols + 1; /* (whole rows, at least one) */
+		v->nList = rows * d->cols;
+		if (v->nList > d->rows) v->nList = d->rows;
+		v->nLines = (v->listEsper ? 1 : 0) + rows;
 	}
 	v->gauge = emu_read8(e, 0x7E2021) & 1;
 	v->style = emu_read8(e, 0x7E1D4E) & 7;
@@ -684,7 +697,15 @@ static void battle_pal(const Ff6Rom* r, int i, uint32_t pal[4]) {
 
 /* the game's hand cursor (ED/5AC0, 4bpp, tiles 0, 1, 16, 17; palette
  * D8/E8B8), its top left at x, y */
+static int handXY[16], nHands;
+int ff6_battle_hands(int* xy, int max) {
+	int n = nHands < max ? nHands : max;
+	memcpy(xy, handXY, sizeof(int) * 2 * (size_t) n);
+	return n;
+}
+
 static void hand(uint32_t* out, const Ff6Rom* rom, int hx, int hy) {
+	if (nHands < 8) handXY[2 * nHands] = hx, handXY[2 * nHands + 1] = hy, ++nHands;
 	const uint8_t* cg = at(rom, 0xED5AC0);
 	const uint8_t* cp = at(rom, 0xD8E8B8);
 	for (int q = 0; q < 4; ++q) {
@@ -830,43 +851,91 @@ int ff6_battle_page(const Ff6BattleView* v) {
 	return v->menu.menu == FF6_MENU_TARGET ? FF6_PAGE_TARGET : FF6_PAGE_COMMANDS;
 }
 
-/* the pages' places (tiles): the command buttons, the enemies' grid (two
- * across, three down), the party's row with Back at its end */
-#define CMD_TY(k) (8 + 5 * (k))
+/* the pages' places (tiles): the enemies' grid (two across, three down),
+ * the party's row with Back at its end */
 #define GRID_TX(i) (20 * ((i) % 2))
 #define GRID_TY(i) (8 + 5 * ((i) / 2))
 #define ROW_TX(j) (8 * (j))
 #define ROW_TY 23
-/* the command page's Row and Def. buttons, under the enemies */
-#define ROWDEF_TX(j) (20 + 10 * (j))
-#define ROWDEF_TY 20
-/* the list's rows: two across, five down, a row 3 tiles high */
-#define LIST_TX(i) (20 * ((i) % 2))
-#define LIST_TY(i) (8 + 3 * ((i) / 2))
+/* the lists' lines, 3 tiles high (a window one line inside) */
+#define LIST_TY(l) (8 + 3 * (l))
 /* Blitz's buttons: two across, four down, two lines each (the name, the
- * code); Back alone under them */
+ * code); SwdTech's, two across, a line each; Back alone under them */
+#define LIST_TX(i) (20 * ((i) % 2))
+#define LIST2_TY(i) LIST_TY((i) / 2)
 #define BLITZ_TX(i) (20 * ((i) % 2))
 #define BLITZ_TY(i) (8 + 4 * ((i) / 2))
 #define BACK_TX 32
 #define BACK_TY 24
+
+/* the command page's buttons, as the game's cursor moves (Win: a window's
+ * top left and inside size, in tiles): the Window set (and Relm's
+ * Control) a column, Row left of it and Def. right (the pad's Left and
+ * Right open them); the Short set the game's cross (Up, Left, Right,
+ * Down choose its four), Row and Def. at the sides (L, R) */
+static Win command_box(const Ff6Battle* m, int k) {
+	static const Win cross[4] = { { 14, 8, 10, 4 }, { 8, 14, 10, 4 }, { 20, 14, 10, 4 }, { 14, 20, 10, 4 } };
+	if (m->shortSet && !m->control) return cross[k & 3];
+	return (Win) { 8, 8 + 5 * k, 22, 3 };
+}
+#define ROWDEF_TX(j) ((j) ? 32 : 0)
+#define ROWDEF_TY 8
+#define ROWDEF_H 18
+static bool in_win(Win b, int tx, int ty) {
+	return tx >= b.tx && tx < b.tx + b.w + 2 && ty >= b.ty && ty < b.ty + b.h + 2;
+}
+/* a list's place on its page: the line (from the page's top) and the
+ * column, a window one line high; the esper's line full width */
+static Win list_box(const Ff6BattleView* v, int line, int col) {
+	if (v->listCols == 1) return (Win) { 0, LIST_TY(line), 38, 1 };
+	return (Win) { 20 * col, LIST_TY(line), 18, 1 };
+}
+/* the place (or FF6_ESPER) on a line of the page and column; -1 none */
+static int list_at(const Ff6BattleView* v, int line, int col) {
+	int l = v->listTop + line;
+	if (l < 0 || l >= v->nLines) return -1;
+	if (v->listEsper && l == 0) return FF6_ESPER;
+	int i = (l - (v->listEsper ? 1 : 0)) * v->listCols + col;
+	return col < v->listCols && i < v->nList ? i : -1;
+}
+
+void ff6_list_follow(Ff6BattleView* v, int* top, int* seenLine, int* seenMenu) {
+	int lm = ff6_battle_page(v) == FF6_PAGE_LIST ? (v->menu.menu == FF6_MENU_ESPER ? FF6_MENU_MAGIC : v->menu.menu) : 0;
+	if (lm != *seenMenu) *seenMenu = lm, *seenLine = -2, *top = 0;
+	if (lm && v->listCursorLine != *seenLine) {
+		*seenLine = v->listCursorLine;
+		if (*seenLine >= 0 && *seenLine < *top) *top = *seenLine;
+		else if (*seenLine >= *top + FF6_LIST_LINES) *top = *seenLine - FF6_LIST_LINES + 1;
+	}
+	if (*top > v->nLines - FF6_LIST_LINES) *top = v->nLines - FF6_LIST_LINES;
+	if (*top < 0) *top = 0;
+	v->listTop = *top;
+}
 
 int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg) {
 	int tx = x / 8, ty = y / 8, page = ff6_battle_page(v);
 	*arg = -1;
 	if (page == FF6_PAGE_COMMANDS) {
 		if (tx < 20 && ty < 8) return FF6_HIT_STATUS;
-		if (!v->menu.control && tx >= 20 && ty >= ROWDEF_TY) return tx < ROWDEF_TX(1) ? FF6_HIT_ROWCMD : FF6_HIT_DEF;
+		for (int j = 0; j < 2 && !v->menu.control; ++j) {
+			if (in_win((Win) { ROWDEF_TX(j), ROWDEF_TY, 6, ROWDEF_H }, tx, ty)) return j ? FF6_HIT_DEF : FF6_HIT_ROWCMD;
+		}
 		for (int k = 0; k < 4; ++k) {
-			if (tx < 20 && ty >= CMD_TY(k) && ty < CMD_TY(k) + 5) return *arg = k, FF6_HIT_COMMAND;
+			if (in_win(command_box(&v->menu, k), tx, ty)) return *arg = k, FF6_HIT_COMMAND;
 		}
 	} else if (page == FF6_PAGE_LIST) {
-		for (int k = 0; k < FF6_LIST_PAGE && v->listTop + k < v->nList; ++k) {
-			if (tx >= LIST_TX(k) && tx < LIST_TX(k) + 20 && ty >= LIST_TY(k) && ty < LIST_TY(k) + 3) return *arg = v->listTop + k, FF6_HIT_ROW;
+		for (int l = 0; l < FF6_LIST_LINES; ++l) {
+			for (int c = 0; c < v->listCols; ++c) {
+				int i = list_at(v, l, c);
+				Win b = i == FF6_ESPER ? (Win) { 0, LIST_TY(l), 38, 1 } : list_box(v, l, c);
+				if (i >= 0 && (i == FF6_ESPER || v->listId[i] != 0xFF) && in_win(b, tx, ty)) return *arg = i, FF6_HIT_ROW;
+				if (i == FF6_ESPER) break;
+			}
 		}
 		if (ty >= ROW_TY) {
 			int j = tx / 8;
 			if (j == 0 && v->listTop > 0) return FF6_HIT_UP;
-			if (j == 1 && v->listTop + FF6_LIST_PAGE < v->nList) return FF6_HIT_DOWN;
+			if (j == 1 && v->listTop + FF6_LIST_LINES < v->nLines) return FF6_HIT_DOWN;
 			if (j == 4) return FF6_HIT_BACK;
 		}
 	} else if (page == FF6_PAGE_BLITZ) {
@@ -878,7 +947,7 @@ int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg) {
 		if (tx >= BACK_TX && ty >= BACK_TY) return FF6_HIT_BACK;
 	} else if (page == FF6_PAGE_BUSHIDO) {
 		for (int k = 0; k < v->bushidoKnown; ++k) {
-			if (tx >= LIST_TX(k) && tx < LIST_TX(k) + 20 && ty >= LIST_TY(k) && ty < LIST_TY(k) + 3) return *arg = k, FF6_HIT_ROW;
+			if (tx >= LIST_TX(k) && tx < LIST_TX(k) + 20 && ty >= LIST2_TY(k) && ty < LIST2_TY(k) + 3) return *arg = k, FF6_HIT_ROW;
 		}
 		if (tx >= BACK_TX && ty >= BACK_TY) return FF6_HIT_BACK;
 	} else if (page == FF6_PAGE_TARGET) {
@@ -895,6 +964,7 @@ int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg) {
 }
 
 void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
+	nHands = 0;
 	canvasW = FF6_BATTLE_W, canvasH = FF6_BATTLE_H, winUp = 0, textUp = 0;
 	for (int i = 0; i < canvasW * canvasH; ++i) out[i] = 0xFF000000u;
 	if (!rom) return;
@@ -920,22 +990,36 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 	/* whose turn it is, top left */
 	add_win(0, 0, 18, 6);
 	if (page == FF6_PAGE_COMMANDS) {
-		for (int k = 0; k < 4; ++k) add_win(0, CMD_TY(k), 18, 3);
-		add_win(20, 0, 18, m->control ? 26 : 18); /* the enemies, to read */
+		add_win(20, 0, 18, 6); /* the enemies, to read */
+		for (int k = 0; k < 4; ++k) {
+			Win b = command_box(m, k);
+			add_win(b.tx, b.ty, b.w, b.h);
+		}
 		if (!m->control) {
-			add_win(ROWDEF_TX(0), ROWDEF_TY, 8, 6); /* Row, Def. (the pad's Left and Right) */
-			add_win(ROWDEF_TX(1), ROWDEF_TY, 8, 6);
+			add_win(ROWDEF_TX(0), ROWDEF_TY, 6, ROWDEF_H); /* Row, Def. (the pad's Left and Right; L, R) */
+			add_win(ROWDEF_TX(1), ROWDEF_TY, 6, ROWDEF_H);
 		}
 	} else if (page == FF6_PAGE_BLITZ || page == FF6_PAGE_BUSHIDO) {
 		add_win(20, 0, 18, 6);
 		for (int i = 0; i < 8; ++i) {
 			if (page == FF6_PAGE_BLITZ) add_win(BLITZ_TX(i), BLITZ_TY(i), 18, 2);
-			else add_win(LIST_TX(i), LIST_TY(i), 18, 1);
+			else add_win(LIST_TX(i), LIST2_TY(i), 18, 1);
 		}
 		add_win(BACK_TX, BACK_TY, 6, 4);
 	} else if (page == FF6_PAGE_LIST) {
 		add_win(20, 0, 18, 6);
-		for (int k = 0; k < FF6_LIST_PAGE; ++k) add_win(LIST_TX(k), LIST_TY(k), 18, 1);
+		/* a window for each place that holds something (the gaps empty) */
+		for (int l = 0; l < FF6_LIST_LINES; ++l) {
+			for (int c = 0; c < v->listCols; ++c) {
+				int i = list_at(v, l, c);
+				if (i == FF6_ESPER) {
+					add_win(0, LIST_TY(l), 38, 1);
+					break;
+				}
+				Win b = list_box(v, l, c);
+				if (i >= 0 && v->listId[i] != 0xFF) add_win(b.tx, b.ty, b.w, b.h);
+			}
+		}
 		add_win(ROW_TX(0), ROW_TY, 6, 5);
 		add_win(ROW_TX(1), ROW_TY, 6, 5);
 		add_win(ROW_TX(2), ROW_TY, 14, 5);
@@ -951,27 +1035,31 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 		/* the commands (ROM D8/CEA0: 7 letters each), a button each, greyed
 		 * ones grey; the game's hand on the one its cursor is on */
 		for (int k = 0; k < 4; ++k) {
-			if (m->cmd[k] < 0) continue;
-			char name[11];
-			if (m->control) attack_name(rom, m->cmd[k], name); /* (a controlled monster's attacks) */
-			else name_of(rom, 0xD8CEA0, 7, m->cmd[k], name);
-			text(out, rom, name, 5, CMD_TY(k) + 2, m->disabled[k] ? p.grey : p.white);
+			Win b = command_box(m, k);
+			int ty = b.ty + 1 + (b.h - 1) / 2; /* (the middle line) */
+			if (m->cmd[k] >= 0) {
+				char name[11];
+				if (m->control) attack_name(rom, m->cmd[k], name); /* (a controlled monster's attacks) */
+				else name_of(rom, 0xD8CEA0, 7, m->cmd[k], name);
+				text(out, rom, name, b.tx + 3, ty, m->disabled[k] ? p.grey : p.white);
+			}
+			if (m->menu == FF6_MENU_COMMANDS && m->cursor == k) hand(out, rom, (b.tx + 1) * 8, ty * 8 - 4);
 		}
-		if (m->menu == FF6_MENU_COMMANDS) hand(out, rom, 2 * 8, (CMD_TY(m->cursor) + 2) * 8 - 4);
 		if (!m->control) {
 			/* Row and Def. (the command names 14, 15); the hand on the one
 			 * the pad has opened (the game's states 24, 27) */
 			for (int j = 0; j < 2; ++j) {
 				char name[8];
+				int ty = ROWDEF_TY + 1 + (ROWDEF_H - 1) / 2;
 				name_of(rom, 0xD8CEA0, 7, 0x14 + j, name);
-				text(out, rom, name, ROWDEF_TX(j) + 3, ROWDEF_TY + 4, p.white);
-				if (m->menu == (j ? FF6_MENU_DEF : FF6_MENU_ROW)) hand(out, rom, (ROWDEF_TX(j) + 1) * 8, (ROWDEF_TY + 4) * 8 - 4);
+				text(out, rom, name, ROWDEF_TX(j) + 3, ty, p.white);
+				if (m->menu == (j ? FF6_MENU_DEF : FF6_MENU_ROW)) hand(out, rom, (ROWDEF_TX(j) + 1) * 8, ty * 8 - 4);
 			}
 		}
 		for (int i = 0; i < v->nEnemies; ++i) {
 			char name[11];
 			name_of(rom, 0xCFC050, 10, m->monType[v->enemy[i]], name);
-			text(out, rom, name, 23, 2 + 3 * i, p.white);
+			text(out, rom, name, 22, 1 + i, p.white);
 		}
 		return;
 	}
@@ -1011,8 +1099,8 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 			for (int k = 0; k < v->bushidoKnown; ++k) {
 				char name[13];
 				name_of(rom, 0xCF3C40, 12, k, name);
-				text(out, rom, name, LIST_TX(k) + 2, LIST_TY(k) + 1, k == v->bushidoWant ? p.yellow : p.white);
-				if (k == level) hand(out, rom, LIST_TX(k) * 8, (LIST_TY(k) + 1) * 8 - 4);
+				text(out, rom, name, LIST_TX(k) + 2, LIST2_TY(k) + 1, k == v->bushidoWant ? p.yellow : p.white);
+				if (k == level) hand(out, rom, LIST_TX(k) * 8, (LIST2_TY(k) + 1) * 8 - 4);
 			}
 		}
 		text(out, rom, kBack, BACK_TX + 2, BACK_TY + 3, p.white);
@@ -1028,27 +1116,42 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 			name_of(rom, 0xD8CEA0, 7, m->cmd[m->cursor & 3], name);
 			text(out, rom, name, 22, 2, p.white);
 		}
-		for (int k = -1; k < FF6_LIST_PAGE; ++k) {
-			int i = k < 0 ? v->listCursor : v->listTop + k;
-			if (i < 0 || i >= v->nList || (k >= 0 && i >= v->nList)) continue;
-			char name[14];
-			list_name(rom, m->menu, v->listAt[i] == FF6_ESPER, v->listId[i], name);
-			if (k < 0) {
-				text(out, rom, name, 22, 4, p.yellow);
-				continue;
+		int lm = m->menu == FF6_MENU_ESPER ? FF6_MENU_MAGIC : m->menu;
+		char name[14];
+		if (v->listCursor == FF6_ESPER) list_name(rom, lm, true, v->esperId, name), text(out, rom, name, 22, 4, p.yellow);
+		else if (v->listCursor >= 0 && v->listId[v->listCursor] != 0xFF) list_name(rom, lm, false, v->listId[v->listCursor], name), text(out, rom, name, 22, 4, p.yellow);
+		for (int l = 0; l < FF6_LIST_LINES; ++l) {
+			for (int c = 0; c < v->listCols; ++c) {
+				int i = list_at(v, l, c);
+				if (i < 0) continue;
+				bool esper = i == FF6_ESPER;
+				Win b = esper ? (Win) { 0, LIST_TY(l), 38, 1 } : list_box(v, l, c);
+				if (!esper && v->listId[i] != 0xFF) {
+					bool off = esper ? v->esperOff : v->listOff[i];
+					const uint32_t* pal = off ? p.grey : p.white;
+					list_name(rom, lm, false, v->listId[i], name);
+					text(out, rom, name, b.tx + 2, b.ty + 1, pal);
+					if (v->listShowVal) number(out, rom, v->listVal[i], 2, false, b.tx + b.w - 2, b.ty + 1, pal);
+				} else if (esper) {
+					const uint32_t* pal = v->esperOff ? p.grey : p.white;
+					list_name(rom, lm, true, v->esperId, name);
+					text(out, rom, name, b.tx + 2, b.ty + 1, pal);
+					number(out, rom, v->esperVal, 2, false, b.tx + b.w - 2, b.ty + 1, pal);
+				}
+				/* (the hand on an empty place too: the game's cursor stops there) */
+				if (i == v->listCursor) hand(out, rom, b.tx * 8, (b.ty + 1) * 8 - 4);
+				if (esper) break;
 			}
-			const uint32_t* pal = v->listOff[i] ? p.grey : p.white;
-			text(out, rom, name, LIST_TX(k) + 2, LIST_TY(k) + 1, pal);
-			if (v->listShowVal) number(out, rom, v->listVal[i], 2, false, LIST_TX(k) + 16, LIST_TY(k) + 1, pal);
-			if (i == v->listCursor) hand(out, rom, LIST_TX(k) * 8, (LIST_TY(k) + 1) * 8 - 4);
 		}
-		/* the arrows: the font's up arrow (D4), drawn upside down for down */
+		/* the arrows: the font's up arrow (D4), drawn upside down for down;
+		 * which page (the one most of the lines shown are on) */
 		glyph(out, rom, v->listTop > 0 ? 0xD4 : CH_BLANK, ROW_TX(0) + 3, ROW_TY + 4, p.white);
-		if (v->listTop + FF6_LIST_PAGE < v->nList) glyph_flipped(out, rom, 0xD4, ROW_TX(1) + 3, ROW_TY + 4, p.white);
-		int pages = (v->nList + FF6_LIST_PAGE - 1) / FF6_LIST_PAGE;
+		if (v->listTop + FF6_LIST_LINES < v->nLines) glyph_flipped(out, rom, 0xD4, ROW_TX(1) + 3, ROW_TY + 4, p.white);
+		int pages = (v->nLines + FF6_LIST_LINES - 1) / FF6_LIST_LINES;
 		if (pages > 1) {
-			int dg = pages > 9 ? 2 : 1;
-			number(out, rom, (unsigned) (v->listTop / FF6_LIST_PAGE + 1), dg, false, ROW_TX(2) + 7 - dg, ROW_TY + 4, p.white);
+			int dg = pages > 9 ? 2 : 1, page = (v->listTop + FF6_LIST_LINES / 2) / FF6_LIST_LINES + 1;
+			if (v->listTop + FF6_LIST_LINES >= v->nLines) page = pages;
+			number(out, rom, (unsigned) page, dg, false, ROW_TX(2) + 7 - dg, ROW_TY + 4, p.white);
 			text(out, rom, kSlash, ROW_TX(2) + 7, ROW_TY + 4, p.white);
 			number(out, rom, (unsigned) pages, dg, false, ROW_TX(2) + 8, ROW_TY + 4, p.white);
 		}

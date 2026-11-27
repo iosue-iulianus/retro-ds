@@ -46,6 +46,11 @@ Final Fantasy VI (FF3 USA 1.0):
   ff6acts    taps that act: Fire's damage, Cure's healing, each Blitz
              queued as itself, Row and Def. queued, a target the game's
              rules don't allow refused
+  ff6pad     the pad on each battle page moves the game's hand the way it
+             was pressed on the page as drawn (the game's cursor drives it):
+             the command column and Row / Def. (Window set), the Short set's
+             cross, each list (Magic and its esper, Item, Lore, Rage, Dance,
+             Magitek, Throw, Tools) scrolling a line at a time
 """
 import argparse
 import os
@@ -375,11 +380,97 @@ def ff6_acts(rom, data, out):
     report("ff6acts", refused, "a lore kept to the enemies, tapped on a character: %s" % ("refused" if refused else "NOT refused"))
 
 
+# FF6-2: the pad against the page. Each case: a start (commands put in Sabin's
+# second slot where the test party hasn't them; the list opened), then presses;
+# after each, the page drawn and where its hand is (in a list, from the list's
+# top: its first line shown x 24 added).
+FF6_PAD = [
+    ("command column, Row, Def.", [], ["DOWN", "DOWN", "DOWN", "UP", "UP", "UP", "LEFT", "RIGHT", "RIGHT", "LEFT"]),
+    ("Short set's cross, Row (L), Def. (R)", ["SHORT"], ["LEFT", "RIGHT", "UP", "DOWN", "UP", "L", "R"]),
+    ("Magic and its esper", ["cmd 2"], ["RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "LEFT", "UP", "UP", "UP", "UP", "UP", "UP", "DOWN"]),
+    ("Item", ["cmd 3"], ["DOWN"] * 7 + ["UP"] * 3 + ["LEFT", "RIGHT"]),
+    ("Lore", ["poke 7E203D 1 0C", "cmd 1"], ["DOWN"] * 6 + ["UP", "LEFT", "RIGHT"]),
+    ("Rage", ["poke 7E203D 1 10", "cmd 1"], ["RIGHT", "DOWN", "DOWN", "LEFT", "UP"]),
+    ("Dance", ["poke 7E203D 1 13", "cmd 1"], ["RIGHT", "DOWN", "LEFT", "UP"]),
+    ("Magitek", ["poke 7E203D 1 1D", "cmd 1"], ["RIGHT", "DOWN", "LEFT", "UP"]),
+    ("Throw", ["poke 7E203D 1 08", "cmd 1"], ["DOWN"] * 6 + ["UP", "LEFT", "RIGHT"]),
+    ("Tools", ["poke 7E203D 1 09", "cmd 1"], ["RIGHT", "DOWN", "LEFT", "UP"]),
+]
+
+
+def ff6_pad(rom, data, out):
+    cfg = int(re.search(r"peek 7E1D4D: ([0-9A-F]{2})", harness(rom, out, [ff6_state(data, FF6_SABIN), "peek 7E1D4D 1"], "ff6pad-cfg")).group(1), 16)
+    lines = []
+    for k, (_, setup, presses) in enumerate(FF6_PAD):
+        lines += [ff6_state(data, FF6_SABIN)]
+        for st in setup:
+            if st == "SHORT":   # (Config's Command set: short; the battle's copy too)
+                lines += ["poke 7E1D4D 1 %02X" % (cfg | 0x80), "poke 7E2F2E 1 01", "wait 2"]
+            elif st.startswith("cmd"):
+                lines += ["poke 7E203E 1 00", "ff6 " + st, "wait 30"]
+            else:
+                lines += [st]
+        lines += ["ff6 battlepic pad%d-0" % k]
+        for j, key in enumerate(presses):
+            # (the Short set's Row and Def. stay open while L or R is held: the page drawn
+            # then, and a pause after for the window to close)
+            if key in ("L", "R"):
+                lines += ["hold %s 20" % key, "ff6 battlepic pad%d-%d" % (k, j + 1), "wait 30"]
+            else:
+                lines += ["tap " + key, "wait 24", "ff6 battlepic pad%d-%d" % (k, j + 1)]
+    text = harness(rom, out, lines, "ff6pad")
+    hands = {}
+    taps = []
+    for name, page, menu, top, xy, hit, arg, cur, lcur in re.findall(
+            r"ff6 hand \S*?pad(\d+-\d+): page (\d+) menu ([0-9A-F]{2}) top (\d+):((?: -?\d+,-?\d+)*) \| hit (-?\d+) (-?\d+) \| cursor (\d+) list (-?\d+)", text):
+        pts = [tuple(map(int, q.split(","))) for q in xy.split()]
+        hands[name] = (int(page), menu, int(top), pts)
+        # a tap where the hand points hits the button of the game's cursor (FF6_HIT_COMMAND 1,
+        # FF6_HIT_ROW 6, FF6_HIT_ROWCMD 9, FF6_HIT_DEF 10; a list's empty place: nothing)
+        hit, arg = int(hit), int(arg)
+        want = {"05": (1, int(cur)), "24": (9, -1), "27": (10, -1)}.get(menu) if page == "1" else None
+        if page == "3":
+            want = (6, int(lcur)) if (hit, arg) != (0, -1) else (0, -1)
+        if want and (hit, arg) != want:
+            taps.append("%s: hit %d %d, wanted %d %d" % (name, hit, arg, want[0], want[1]))
+    for k, (title, _, presses) in enumerate(FF6_PAD):
+        bad = []
+        for j, key in enumerate(presses):
+            a, b = hands.get("%d-%d" % (k, j)), hands.get("%d-%d" % (k, j + 1))
+            if not a or not b or len(a[3]) != 1 or len(b[3]) != 1:
+                bad.append("%s: %s hands" % (key, "no" if not a or not b else "%d/%d" % (len(a[3]), len(b[3]))))
+                continue
+            (ax, ay), (bx, by) = a[3][0], b[3][0]
+            lst = a[0] == 3 and b[0] == 3   # (FF6_PAGE_LIST: from the list's top)
+            if lst:
+                ay += a[2] * 24
+                by += b[2] * 24
+            dx, dy = bx - ax, by - ay
+            if key == "UP":
+                ok = dy < 0
+            elif key == "DOWN":
+                ok = dy > 0
+            elif key in ("LEFT", "L"):
+                ok = dx < 0 or (lst and dy < 0)   # (a list's wrap: the line before's last column, as the game's)
+            else:
+                ok = dx > 0 or (lst and dy > 0)
+            # (Row's and Def.'s windows: the press opened them)
+            want = {"LEFT": "24", "L": "24", "RIGHT": "27", "R": "27"}.get(key) if a[1] == "05" and b[1] in ("24", "27") else None
+            if want and b[1] != want:
+                ok = False
+            if key in ("L", "R") and b[1] != {"L": "24", "R": "27"}[key]:
+                ok = False
+            if not ok:
+                bad.append("%s moved %+d,%+d (menu %s > %s)" % (key, dx, dy, a[1], b[1]))
+        report("ff6pad", not bad, "%s: %d presses%s" % (title, len(presses), "; " + "; ".join(bad) if bad else " as shown"))
+    report("ff6pad", not taps and len(hands) > 0, "a tap where the hand is hits the game's cursor's button, %d pages%s" % (len(hands), "; " + "; ".join(taps) if taps else ""))
+
+
 CHECKS = {
     "items": ("alttp", alttp_items), "dungeon": ("alttp", alttp_dungeon), "marker": ("alttp", alttp_marker),
     "pieces": ("alttp", alttp_pieces), "writes": ("alttp", alttp_writes),
     "smmap": ("sm", sm_map), "smpage": ("sm", sm_page), "smwrites": ("sm", sm_writes),
-    "ff6party": ("ff6", ff6_party), "ff6menus": ("ff6", ff6_menus), "ff6acts": ("ff6", ff6_acts),
+    "ff6party": ("ff6", ff6_party), "ff6menus": ("ff6", ff6_menus), "ff6acts": ("ff6", ff6_acts), "ff6pad": ("ff6", ff6_pad),
 }
 
 

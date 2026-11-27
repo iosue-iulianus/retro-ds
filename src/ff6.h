@@ -78,6 +78,7 @@ typedef struct {
 #define FF6_MENU_SLOT 0x08    /* (A stops the reels) */
 #define FF6_MENU_ROW 0x24     /* (Row's window: A changes rows) */
 #define FF6_MENU_DEF 0x27     /* (Def.'s: A defends) */
+#define FF6_MENU_ESPER 0x16   /* (the Magic list's esper window: A summons, Down or Right closes it) */
 /* the lists RetroDS draws (one of the FF6_MENU_ above) */
 bool ff6_list_menu(int menu);
 /* the command page's (the command list, Row's and Def.'s windows) */
@@ -177,18 +178,24 @@ typedef struct {
 	Ff6Fighter f[4];
 	Ff6Battle menu;
 	/* an open list (Magic, Item, Lore, Rage, Dance, Magitek, Throw,
-	 * Tools): its rows that hold something, in the game's order (their
-	 * places in its list; the Magic list's esper first, FF6_ESPER), the
-	 * game's cursor's row (-1: on none of them), the first row shown (the
-	 * play session's page, FF6_LIST_PAGE rows a page) */
-	int nList;
-	uint8_t listAt[256], listId[256], listVal[256]; /* place, what (spell, item...), MP cost or how many */
+	 * Tools), as the game lays it out (so the pad moves its cursor as
+	 * shown): its places in the game's order, gaps and all (listId FF: an
+	 * empty place), listCols across; the Magic list's esper on a line of
+	 * its own above them (listEsper). Lines: the esper's (0, if shown),
+	 * then the rows of places. The game's cursor's place (FF6_ESPER: on
+	 * the esper, its window open; -1 none) and line (-1); the first line
+	 * shown (the play session's, FF6_LIST_LINES a page) */
+	int nList, listCols, nLines;
+	uint8_t listId[256], listVal[256]; /* what (spell, item...; FF empty), MP cost or how many */
 	bool listOff[256];  /* greyed: too little MP, not for battle */
 	bool listShowVal;   /* (MP or how many shown) */
+	bool listEsper;     /* the esper's line shown */
+	uint8_t esperId, esperVal;
+	bool esperOff;
+	int listCursor, listCursorLine, listTop;
 	/* Blitz: the ones known (bits); SwdTech: how many known, the bar (32 a
 	 * level); the one tapped, waiting to be done (-1; the play session's) */
 	int blitzKnown, bushidoKnown, bushidoBar, blitzWant, bushidoWant;
-	int listCursor, listTop;    /* whose turn, the commands, the cursor */
 	int enemy[6];      /* the enemies alive, top to bottom on the battlefield: their monster slots */
 	int nEnemies;
 	bool gauge;        /* Config's time gauge on */
@@ -203,14 +210,23 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out);
  * someone's commands (their status, a button each), choosing a target
  * (the enemies' and the party's buttons, Back) */
 enum { FF6_PAGE_WAIT, FF6_PAGE_COMMANDS, FF6_PAGE_TARGET, FF6_PAGE_LIST, FF6_PAGE_BLITZ, FF6_PAGE_BUSHIDO };
-#define FF6_LIST_PAGE 10
+#define FF6_LIST_LINES 5
 int ff6_battle_page(const Ff6BattleView* v);
 /* what's at x, y on it (its pixels): a command (arg: its row), an enemy
  * (arg: its monster slot), a character (arg: the party slot), Back, the
  * status window of whose turn it is (on the command page) */
 enum { FF6_HIT_NONE, FF6_HIT_COMMAND, FF6_HIT_ENEMY, FF6_HIT_PARTY, FF6_HIT_BACK, FF6_HIT_STATUS, FF6_HIT_ROW, FF6_HIT_UP, FF6_HIT_DOWN, FF6_HIT_ROWCMD, FF6_HIT_DEF };
-/* (FF6_HIT_ROW: a row of the list, arg its index in the view's list) */
+/* (FF6_HIT_ROW: a place in the list, arg its place in the game's list or
+ * FF6_ESPER; Blitz, SwdTech: which) */
 int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg);
+/* the list page's first line (FF6-2): opened at its top, scrolled a line
+ * at a time as the game's when its cursor goes past the lines shown (the
+ * arrows' pages otherwise); top, seenLine, seenMenu the play session's
+ * (0, -2, 0 to start), v->listTop set */
+void ff6_list_follow(Ff6BattleView* v, int* top, int* seenLine, int* seenMenu);
+/* where the last ff6_battle_draw put the game's hand: up to max of them
+ * (x, y: its top left, in the picture's pixels); their count */
+int ff6_battle_hands(int* xy, int max);
 
 /* FF6-2: the party on the game screen, where the game's battle windows
  * were (its rows FF6_STRIP_Y0 to Y1): name, HP, MP, the time gauge */

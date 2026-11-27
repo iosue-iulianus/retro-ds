@@ -115,17 +115,8 @@ void ff6_tick(void) {
 	/* FF6-2: the battle screen, drawn again when anything on it changes */
 	if (part == FF6_BATTLE && rom6 && battlePx) {
 		ff6_battle_view(&emu, &bview);
-		/* the list page: opened on the page with the game's cursor, which it
-		 * follows when the pad moves it; the arrows' pages otherwise */
-		int lm = ff6_battle_page(&bview) == FF6_PAGE_LIST ? bview.menu.menu : 0;
-		if (lm != listMenu) listMenu = lm, listSeen = -2;
-		if (lm && bview.listCursor != listSeen) {
-			listSeen = bview.listCursor;
-			if (listSeen >= 0 && (listSeen < listTop || listSeen >= listTop + FF6_LIST_PAGE || listSeen == -2))
-				listTop = listSeen / FF6_LIST_PAGE * FF6_LIST_PAGE;
-		}
-		if (listTop >= bview.nList) listTop = bview.nList > 0 ? (bview.nList - 1) / FF6_LIST_PAGE * FF6_LIST_PAGE : 0;
-		bview.listTop = listTop;
+		/* the list page's first line (ff6_list_follow) */
+		ff6_list_follow(&bview, &listTop, &listSeen, &listMenu);
 		bview.blitzWant = queued > queueAt && bat.menu == FF6_MENU_BLITZ ? blitzWant : -1;
 		bview.bushidoWant = bushidoWant;
 	}
@@ -135,6 +126,9 @@ void ff6_tick(void) {
 		 * kept till then */
 		waitFrames = ff6_battle_page(&bview) == FF6_PAGE_WAIT ? waitFrames + 1 : 0;
 		bool hold = waitFrames && waitFrames < 20 && bviewValid && ff6_battle_page(&bviewDrawn) != FF6_PAGE_WAIT;
+		/* (and while one of the game's windows opens or closes, $7BC2 01 for
+		 * a few frames: the esper's over Magic, Row's: the page stays) */
+		if (bview.menu.open && bview.menu.menu == 0x01 && bviewValid && ff6_battle_page(&bviewDrawn) != FF6_PAGE_WAIT) hold = true;
 		if (!hold && (!bviewValid || memcmp(&bview, &bviewDrawn, sizeof(bview)))) {
 			ff6_battle_draw(rom6, &bview, battlePx);
 			bviewDrawn = bview, bviewValid = bviewDirty = true;
@@ -380,13 +374,16 @@ int ff6_touch(const Pointer* p) {
 		/* A when the bar comes to its level (ff6_keys) */
 		bushidoWant = arg;
 		fprintf(stderr, "ff6: SwdTech %d: waiting for the bar\n", arg);
-	} else if (hit == FF6_HIT_ROW && arg < bviewDrawn.nList) {
-		snprintf(what, sizeof what, "list row %d (%d)", bviewDrawn.listAt[arg], bviewDrawn.listId[arg]);
+	} else if (hit == FF6_HIT_ROW && (arg == FF6_ESPER || arg < bviewDrawn.nList)) {
+		/* a place in the list (or the esper): its cursor, then the keys */
+		bool esper = arg == FF6_ESPER, off = esper ? bviewDrawn.esperOff : bviewDrawn.listOff[arg];
+		snprintf(what, sizeof what, "list row %d (%d)", arg, esper ? bviewDrawn.esperId : bviewDrawn.listId[arg]);
 		uint32_t keys[3];
-		int nk = ff6_list_keys(&bat, bviewDrawn.listAt[arg], keys);
-		if (!bviewDrawn.listOff[arg]) choose_keys(what, w, ff6_list_writes(&bat, bviewDrawn.listAt[arg], w), keys, nk);
+		int nk = ff6_list_keys(&bat, arg, keys);
+		if (!off) choose_keys(what, w, ff6_list_writes(&bat, arg, w), keys, nk);
 	} else if (hit == FF6_HIT_UP || hit == FF6_HIT_DOWN) {
-		listTop += hit == FF6_HIT_UP ? -FF6_LIST_PAGE : FF6_LIST_PAGE;
+		listTop += hit == FF6_HIT_UP ? -FF6_LIST_LINES : FF6_LIST_LINES;
+		if (listTop > bviewDrawn.nLines - FF6_LIST_LINES) listTop = bviewDrawn.nLines - FF6_LIST_LINES;
 		if (listTop < 0) listTop = 0;
 	}
 	return 1;
