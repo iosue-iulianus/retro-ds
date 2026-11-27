@@ -161,6 +161,33 @@ int ff6_list_keys(const Ff6Battle* b, int index, uint32_t keys[3]) {
 	return n;
 }
 
+static const uint8_t* at(const Ff6Rom* r, uint32_t a); /* (the ROM at an address: below) */
+
+/* the Blitz codes' buttons (the disassembly's BlitzButtonMaskTbl, by
+ * BLITZ_CODE: none, A, B, X, Y, L, R, down-left, down, down-right, right,
+ * up-right, up, up-left, left) */
+static const uint32_t blitzKeys[15] = {
+	0, K_A, K_B, K_X, K_Y, K_L, K_R, K_DOWN | K_LEFT, K_DOWN, K_DOWN | K_RIGHT, K_RIGHT, K_UP | K_RIGHT, K_UP, K_UP | K_LEFT, K_LEFT,
+};
+
+/* a Blitz's code from the ROM (C4/7A40: 12 bytes each, 11 buttons, A
+ * last, then the count x 2) */
+static int blitz_code(const Ff6Rom* rom, int k, uint8_t code[11]) {
+	const uint8_t* b = at(rom, 0xC47A40 + 12 * (uint32_t) (k & 7));
+	int n = b[11] / 2;
+	if (n > 11) n = 11;
+	for (int i = 0; i < n; ++i) code[i] = b[i] < 15 ? b[i] : 0;
+	return n;
+}
+
+int ff6_blitz_keys(const Ff6Rom* rom, int k, uint32_t keys[11]) {
+	if (!rom || k < 0 || k > 7) return 0;
+	uint8_t code[11];
+	int n = blitz_code(rom, k, code);
+	for (int i = 0; i < n; ++i) keys[i] = blitzKeys[code[i]];
+	return n;
+}
+
 /* a list's row: what it holds (FF: nothing), its MP cost or how many,
  * greyed */
 static bool list_row(Emu* e, const Ff6Battle* m, int i, uint8_t* id, uint8_t* val, bool* off) {
@@ -393,15 +420,20 @@ static void glyph(uint32_t* out, const Ff6Rom* r, int code, int tx, int ty, cons
 	}
 }
 
-/* a glyph upside down (the font has an up arrow, not a down one) */
-static void glyph_flipped(uint32_t* out, const Ff6Rom* r, int code, int tx, int ty, const uint32_t pal[4]) {
+/* a glyph mirrored (h) and / or upside down (v): the font has an up
+ * arrow, a right one and a down-left one, not the others */
+static void glyph_flip(uint32_t* out, const Ff6Rom* r, int code, int tx, int ty, const uint32_t pal[4], bool h, bool v) {
 	const uint8_t* t = at(r, 0xC47FC0 + (uint32_t) code * 16);
 	for (int y = 0; y < 8; ++y) {
 		for (int x = 0; x < 8; ++x) {
-			int v = pix(t, 2, x, 7 - y), px = tx * 8 + x, py = ty * 8 + y - textUp;
-			if (v && px < canvasW && py >= 0 && py < canvasH && !(px >= clipX && py >= clipY)) out[py * canvasW + px] = pal[v];
+			int c = pix(t, 2, h ? 7 - x : x, v ? 7 - y : y), px = tx * 8 + x, py = ty * 8 + y - textUp;
+			if (c && px < canvasW && py >= 0 && py < canvasH && !(px >= clipX && py >= clipY)) out[py * canvasW + px] = pal[c];
 		}
 	}
+}
+
+static void glyph_flipped(uint32_t* out, const Ff6Rom* r, int code, int tx, int ty, const uint32_t pal[4]) {
+	glyph_flip(out, r, code, tx, ty, pal, false, true);
 }
 
 static void text(uint32_t* out, const Ff6Rom* r, const char* s, int tx, int ty, const uint32_t pal[4]) {
@@ -558,6 +590,12 @@ void ff6_battle_view(Emu* e, Ff6BattleView* v) {
 		while (k > 0 && v->menu.monY[v->enemy[k - 1]] > v->menu.monY[i]) v->enemy[k] = v->enemy[k - 1], --k;
 		v->enemy[k] = i;
 	}
+	/* Blitz: the ones Sabin knows ($1D28); SwdTech: how many Cyan knows
+	 * ($2020 + 1), the bar ($7B82: 32 a level, 4 frames a step) */
+	v->blitzWant = v->bushidoWant = -1;
+	v->blitzKnown = emu_read8(e, 0x7E1D28);
+	v->bushidoKnown = (emu_read8(e, 0x7E2020) & 7) + 1;
+	v->bushidoBar = emu_read8(e, 0x7E7B82);
 	/* an open list: its rows that hold something, the game's cursor's */
 	v->listCursor = -1;
 	const Ff6Battle* m = &v->menu;
@@ -700,6 +738,18 @@ static void gauge(uint32_t* out, const Ff6Rom* rom, const Pals* p, int atb, int 
 	glyph(out, rom, 0xFA, tx + 5, ty, gp);
 }
 
+/* a longer gauge of the game's pieces: `pieces` of 8 steps between its
+ * ends, filled to `fill` of 128 */
+static void long_gauge(uint32_t* out, const Ff6Rom* rom, const Pals* p, int fill, int tx, int ty, int pieces) {
+	int steps = fill * pieces * 8 / 128;
+	glyph(out, rom, 0xF9, tx, ty, p->gFill);
+	for (int k = 0; k < pieces; ++k) {
+		int n = steps - 8 * k;
+		glyph(out, rom, 0xF0 + (n < 0 ? 0 : n > 8 ? 8 : n), tx + 1 + k, ty, p->gFill);
+	}
+	glyph(out, rom, 0xFA, tx + 1 + pieces, ty, p->gFill);
+}
+
 /* a character as the party window shows them: portrait, name (yellow:
  * whose turn), HP, MP, the time gauge; bx, by the block's top left */
 static void fighter(uint32_t* out, const Ff6Rom* rom, const Ff6BattleView* v, const Pals* p, int s, int bx, int by) {
@@ -746,6 +796,8 @@ static void list_name(const Ff6Rom* rom, int menu, bool esper, int id, char* out
 int ff6_battle_page(const Ff6BattleView* v) {
 	if (!v->menu.open) return FF6_PAGE_WAIT;
 	if (ff6_list_menu(v->menu.menu)) return FF6_PAGE_LIST;
+	if (v->menu.menu == FF6_MENU_BLITZ) return FF6_PAGE_BLITZ;
+	if (v->menu.menu == FF6_MENU_BUSHIDO) return FF6_PAGE_BUSHIDO;
 	return v->menu.menu == FF6_MENU_TARGET ? FF6_PAGE_TARGET : FF6_PAGE_COMMANDS;
 }
 
@@ -759,6 +811,12 @@ int ff6_battle_page(const Ff6BattleView* v) {
 /* the list's rows: two across, five down, a row 3 tiles high */
 #define LIST_TX(i) (20 * ((i) % 2))
 #define LIST_TY(i) (8 + 3 * ((i) / 2))
+/* Blitz's buttons: two across, four down, two lines each (the name, the
+ * code); Back alone under them */
+#define BLITZ_TX(i) (20 * ((i) % 2))
+#define BLITZ_TY(i) (8 + 4 * ((i) / 2))
+#define BACK_TX 32
+#define BACK_TY 24
 
 int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg) {
 	int tx = x / 8, ty = y / 8, page = ff6_battle_page(v);
@@ -778,6 +836,18 @@ int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg) {
 			if (j == 1 && v->listTop + FF6_LIST_PAGE < v->nList) return FF6_HIT_DOWN;
 			if (j == 4) return FF6_HIT_BACK;
 		}
+	} else if (page == FF6_PAGE_BLITZ) {
+		for (int i = 0, k = 0; k < 8; ++k) {
+			if (!(v->blitzKnown >> k & 1)) continue;
+			if (tx >= BLITZ_TX(i) && tx < BLITZ_TX(i) + 20 && ty >= BLITZ_TY(i) && ty < BLITZ_TY(i) + 4) return *arg = k, FF6_HIT_ROW;
+			++i;
+		}
+		if (tx >= BACK_TX && ty >= BACK_TY) return FF6_HIT_BACK;
+	} else if (page == FF6_PAGE_BUSHIDO) {
+		for (int k = 0; k < v->bushidoKnown; ++k) {
+			if (tx >= LIST_TX(k) && tx < LIST_TX(k) + 20 && ty >= LIST_TY(k) && ty < LIST_TY(k) + 3) return *arg = k, FF6_HIT_ROW;
+		}
+		if (tx >= BACK_TX && ty >= BACK_TY) return FF6_HIT_BACK;
 	} else if (page == FF6_PAGE_TARGET) {
 		for (int i = 0; i < v->nEnemies; ++i) {
 			if (tx >= GRID_TX(i) && tx < GRID_TX(i) + 20 && ty >= GRID_TY(i) && ty < GRID_TY(i) + 5) return *arg = v->enemy[i], FF6_HIT_ENEMY;
@@ -819,6 +889,13 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 	if (page == FF6_PAGE_COMMANDS) {
 		for (int k = 0; k < 4; ++k) add_win(0, CMD_TY(k), 18, 3);
 		add_win(20, 0, 18, 26); /* the enemies, to read */
+	} else if (page == FF6_PAGE_BLITZ || page == FF6_PAGE_BUSHIDO) {
+		add_win(20, 0, 18, 6);
+		for (int i = 0; i < 8; ++i) {
+			if (page == FF6_PAGE_BLITZ) add_win(BLITZ_TX(i), BLITZ_TY(i), 18, 2);
+			else add_win(LIST_TX(i), LIST_TY(i), 18, 1);
+		}
+		add_win(BACK_TX, BACK_TY, 6, 4);
 	} else if (page == FF6_PAGE_LIST) {
 		add_win(20, 0, 18, 6);
 		for (int k = 0; k < FF6_LIST_PAGE; ++k) add_win(LIST_TX(k), LIST_TY(k), 18, 1);
@@ -848,6 +925,49 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 			name_of(rom, 0xCFC050, 10, m->monType[v->enemy[i]], name);
 			text(out, rom, name, 23, 2 + 3 * i, p.white);
 		}
+		return;
+	}
+	if (page == FF6_PAGE_BLITZ || page == FF6_PAGE_BUSHIDO) {
+		if (m->cmd[m->cursor & 3] >= 0) {
+			char name[8];
+			name_of(rom, 0xD8CEA0, 7, m->cmd[m->cursor & 3], name);
+			text(out, rom, name, 22, 2, p.white);
+		}
+		if (page == FF6_PAGE_BLITZ) {
+			/* the Blitzes Sabin knows: the name (attacks from 5D), the code in
+			 * the font's letters and arrows (up D4, right D5, down-left D6,
+			 * turned for the others) */
+			for (int i = 0, k = 0; k < 8; ++k) {
+				if (!(v->blitzKnown >> k & 1)) continue;
+				char name[11];
+				name_of(rom, 0xE6F7B9, 10, 0x5D - 0x51 + k, name);
+				text(out, rom, name, BLITZ_TX(i) + 2, BLITZ_TY(i) + 1, k == v->blitzWant ? p.yellow : p.white);
+				uint8_t code[11];
+				int n = blitz_code(rom, k, code);
+				for (int j = 0; j < n - 1 && j < 10; ++j) { /* (the last, A, left out) */
+					int c = code[j], x = BLITZ_TX(i) + 3 + j, y = BLITZ_TY(i) + 2;
+					static const char letters[7] = { 0, 'A', 'B', 'X', 'Y', 'L', 'R' };
+					if (c >= 1 && c <= 6) glyph(out, rom, 0x80 + letters[c] - 'A', x, y, p.teal);
+					else if (c == 8 || c == 12) glyph_flip(out, rom, 0xD4, x, y, p.teal, false, c == 8);
+					else if (c == 10 || c == 14) glyph_flip(out, rom, 0xD5, x, y, p.teal, c == 14, false);
+					else if (c == 7 || c == 9 || c == 11 || c == 13) glyph_flip(out, rom, 0xD6, x, y, p.teal, c == 9 || c == 11, c == 11 || c == 13);
+				}
+				++i;
+			}
+		} else {
+			/* the bar, as the game's gauge (its pieces, 0 to 255 over the
+			 * levels known), the techniques Cyan knows (CF/3C40: 12 letters),
+			 * the hand on the bar's level, the one tapped yellow till it comes */
+			int full = v->bushidoKnown * 32, level = v->bushidoBar >> 5;
+			long_gauge(out, rom, &p, full ? (v->bushidoBar & 0xFF) * 128 / full : 0, 22, 4, 14);
+			for (int k = 0; k < v->bushidoKnown; ++k) {
+				char name[13];
+				name_of(rom, 0xCF3C40, 12, k, name);
+				text(out, rom, name, LIST_TX(k) + 2, LIST_TY(k) + 1, k == v->bushidoWant ? p.yellow : p.white);
+				if (k == level) hand(out, rom, LIST_TX(k) * 8, (LIST_TY(k) + 1) * 8 - 4);
+			}
+		}
+		text(out, rom, kBack, BACK_TX + 2, BACK_TY + 3, p.white);
 		return;
 	}
 	if (page == FF6_PAGE_LIST) {

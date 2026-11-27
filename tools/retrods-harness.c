@@ -800,6 +800,28 @@ int main(int argc, char** argv) {
 						for (int i = 0; i < 9; ++i) frame(e, 0);
 					}
 				}
+			} else if (!strcmp(s1, "blitz")) {
+				/* FF6-3: a Blitz's code pressed (each 3 frames down, 9 up), A last */
+				static Ff6Rom* from;
+				if (!from) from = ff6_rom_load(rom);
+				uint32_t keys[11];
+				int n = ff6_blitz_keys(from, atoi(s2), keys);
+				printf("ff6 blitz %d: %d presses\n", atoi(s2), n);
+				for (int k = 0; k < n; ++k) {
+					for (int i = 0; i < 3; ++i) frame(e, keys[k]);
+					for (int i = 0; i < 9; ++i) frame(e, 0);
+				}
+			} else if (!strcmp(s1, "swd")) {
+				/* FF6-3: SwdTech: A when the bar ($7B82, 32 a level) is at s2 */
+				int want = atoi(s2), waited = 0;
+				while (waited < 3000) {
+					int bar = emu_read8(e, 0x7E7B82);
+					if ((bar >> 5) == want && (bar & 31) < 28) break;
+					frame(e, 0), ++waited;
+				}
+				printf("ff6 swd %d: after %d frames\n", want, waited);
+				for (int i = 0; i < 3; ++i) frame(e, K_A);
+				for (int i = 0; i < 9; ++i) frame(e, 0);
 			} else if (!strcmp(s1, "list")) {
 				Ff6BattleView v;
 				ff6_battle_view(e, &v);

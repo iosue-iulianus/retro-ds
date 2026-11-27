@@ -71,6 +71,9 @@ typedef struct {
 #define FF6_MENU_MAGITEK 0x2A
 #define FF6_MENU_THROW 0x2D
 #define FF6_MENU_TOOLS 0x30
+#define FF6_MENU_BLITZ 0x3D   /* (a button code, then A) */
+#define FF6_MENU_BUSHIDO 0x37 /* (SwdTech: A when the bar is at the level) */
+#define FF6_MENU_SLOT 0x08    /* (A stops the reels) */
 /* the lists RetroDS draws (one of the FF6_MENU_ above) */
 bool ff6_list_menu(int menu);
 void ff6_battle(Emu* e, Ff6Battle* b);
@@ -97,6 +100,10 @@ int ff6_list_writes(const Ff6Battle* b, int index, Write* out);
  * it, a second on it uses it), after B if another item is held (else
  * they'd swap); the esper Up, a pause (its window opening), A */
 int ff6_list_keys(const Ff6Battle* b, int index, uint32_t keys[3]);
+/* FF6-3: a Blitz (0 to 7): its code's buttons from the ROM, A last (up to
+ * 11), pressed one at a time as the player would; 0 if none */
+typedef struct Ff6Rom Ff6Rom;
+int ff6_blitz_keys(const Ff6Rom* rom, int k, uint32_t keys[11]);
 
 #endif
 
@@ -110,7 +117,6 @@ int ff6_list_keys(const Ff6Battle* b, int index, uint32_t keys[3]);
 
 /* The ROM as played (a copier header taken off), for the art; NULL if it
  * can't be read. Freed with ff6_rom_free. */
-typedef struct Ff6Rom Ff6Rom;
 Ff6Rom* ff6_rom_load(const char* path);
 void ff6_rom_free(Ff6Rom* r);
 
@@ -172,6 +178,9 @@ typedef struct {
 	uint8_t listAt[256], listId[256], listVal[256]; /* place, what (spell, item...), MP cost or how many */
 	bool listOff[256];  /* greyed: too little MP, not for battle */
 	bool listShowVal;   /* (MP or how many shown) */
+	/* Blitz: the ones known (bits); SwdTech: how many known, the bar (32 a
+	 * level); the one tapped, waiting to be done (-1; the play session's) */
+	int blitzKnown, bushidoKnown, bushidoBar, blitzWant, bushidoWant;
 	int listCursor, listTop;    /* whose turn, the commands, the cursor */
 	int enemy[6];      /* the enemies alive, top to bottom on the battlefield: their monster slots */
 	int nEnemies;
@@ -186,7 +195,7 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out);
 /* which page it shows: waiting (the party two by two, the enemies),
  * someone's commands (their status, a button each), choosing a target
  * (the enemies' and the party's buttons, Back) */
-enum { FF6_PAGE_WAIT, FF6_PAGE_COMMANDS, FF6_PAGE_TARGET, FF6_PAGE_LIST };
+enum { FF6_PAGE_WAIT, FF6_PAGE_COMMANDS, FF6_PAGE_TARGET, FF6_PAGE_LIST, FF6_PAGE_BLITZ, FF6_PAGE_BUSHIDO };
 #define FF6_LIST_PAGE 10
 int ff6_battle_page(const Ff6BattleView* v);
 /* what's at x, y on it (its pixels): a command (arg: its row), an enemy

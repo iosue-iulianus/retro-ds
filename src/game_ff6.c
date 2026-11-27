@@ -22,7 +22,7 @@ static bool stripDirty, menuDirty;
 
 /* FF6-3: the presses a tap makes, played one at a time as a player's
  * taps (down 3 frames, up 9) */
-static uint32_t queue[8];
+static uint32_t queue[16];
 
 /* FF6-5: the party screen RetroDS draws (src/ff6.c), while walking */
 static Ff6Rom* rom6;
@@ -46,6 +46,8 @@ static int queued, queueAt, pressFrame;
 /* FF6-3: the list page's first row shown, and the game's cursor's row
  * when it was last seen (the page follows the pad's cursor) */
 static int listTop, listSeen = -2, listMenu;
+/* FF6-3: the Blitz being entered, the SwdTech waited for (-1 none) */
+static int blitzWant = -1, bushidoWant = -1;
 
 void ff6_open(const char* rom, const char* code) {
 	f6 = ff6_is(code);
@@ -108,7 +110,8 @@ void ff6_tick(void) {
 	/* how long one of the game's lists has been open: the menu passes
 	 * through other states for a frame (10, 04, 0D: after a target, as a
 	 * list opens), which aren't lists */
-	listFrames = bat.open && bat.menu > FF6_MENU_COMMANDS && bat.menu != FF6_MENU_TARGET && !ff6_list_menu(bat.menu) ? listFrames + 1 : 0;
+	listFrames = bat.open && bat.menu > FF6_MENU_COMMANDS && bat.menu != FF6_MENU_TARGET && !ff6_list_menu(bat.menu) && bat.menu != FF6_MENU_BLITZ && bat.menu != FF6_MENU_BUSHIDO ? listFrames + 1 : 0;
+	if (!bat.open || bat.menu != FF6_MENU_BUSHIDO) bushidoWant = -1;
 	/* FF6-2: the battle screen, drawn again when anything on it changes */
 	if (part == FF6_BATTLE && rom6 && battlePx) {
 		ff6_battle_view(&emu, &bview);
@@ -123,6 +126,8 @@ void ff6_tick(void) {
 		}
 		if (listTop >= bview.nList) listTop = bview.nList > 0 ? (bview.nList - 1) / FF6_LIST_PAGE * FF6_LIST_PAGE : 0;
 		bview.listTop = listTop;
+		bview.blitzWant = queued > queueAt && bat.menu == FF6_MENU_BLITZ ? blitzWant : -1;
+		bview.bushidoWant = bushidoWant;
 	}
 	if (part == FF6_BATTLE && rom6 && battlePx && bview.ready) {
 		/* the waiting page only once nobody's turn has been up for 20
@@ -312,7 +317,7 @@ static void choose_keys(const char* what, const Write* w, int n, const uint32_t*
 		snprintf(label, sizeof label, "(frame %llu) %s", (unsigned long long) frameCount, what);
 		if (emu_apply(&emu, label, w, n, ok, nOk) != n) return;
 	}
-	for (int i = 0; i < nKeys && i < 8; ++i) queue[i] = keys[i];
+	for (int i = 0; i < nKeys && i < 16; ++i) queue[i] = keys[i];
 	queued = nKeys, queueAt = 0, pressFrame = 0;
 	fprintf(stderr, "ff6: %s: %d presses\n", what, nKeys);
 }
@@ -333,7 +338,12 @@ int ff6_touch(const Pointer* p) {
 	if (!battle_shown() || p->screen == game_screen()) return 0;
 	if (p->kind != 1) return 1;
 	if (queued > queueAt) return 1; /* (the last tap's press still playing) */
-	if (!bviewValid || !battle_drawn()) return 1;
+	if (!bviewValid) return 1;
+	if (!battle_drawn()) {
+		/* the moved windows: Slot's reels, a tap stops one (A) */
+		if (bat.open && bat.menu == FF6_MENU_SLOT) press("Slot: A", K_A);
+		return 1;
+	}
 	SDL_Rect d = place(p->screen, FF6_BATTLE_W, FF6_BATTLE_H);
 	if (p->x < d.x || p->y < d.y || p->x >= d.x + d.w || p->y >= d.y + d.h) return 1;
 	int bx = (p->x - d.x) * FF6_BATTLE_W / d.w, by = (p->y - d.y) * FF6_BATTLE_H / d.h;
@@ -351,6 +361,16 @@ int ff6_touch(const Pointer* p) {
 		int want = hit == FF6_HIT_ENEMY ? 4 + arg : arg;
 		snprintf(what, sizeof what, "target %d", want);
 		choose(what, w, ff6_target_writes(&bat, want, w));
+	} else if (hit == FF6_HIT_ROW && bat.open && bat.menu == FF6_MENU_BLITZ) {
+		/* the Blitz's code, pressed as the player would, A last */
+		uint32_t keys[11];
+		int nk = ff6_blitz_keys(rom6, arg, keys);
+		snprintf(what, sizeof what, "Blitz %d", arg);
+		if (nk > 0) blitzWant = arg, choose_keys(what, w, 0, keys, nk);
+	} else if (hit == FF6_HIT_ROW && bat.open && bat.menu == FF6_MENU_BUSHIDO) {
+		/* A when the bar comes to its level (ff6_keys) */
+		bushidoWant = arg;
+		fprintf(stderr, "ff6: SwdTech %d: waiting for the bar\n", arg);
 	} else if (hit == FF6_HIT_ROW && arg < bviewDrawn.nList) {
 		snprintf(what, sizeof what, "list row %d (%d)", bviewDrawn.listAt[arg], bviewDrawn.listId[arg]);
 		uint32_t keys[3];
@@ -366,7 +386,19 @@ int ff6_touch(const Pointer* p) {
 /* The game's keys for the next frame: the queued presses while they play
  * (the player's own buttons held back meanwhile) */
 uint32_t ff6_keys(uint32_t keys) {
-	if (!f6 || queueAt >= queued) return keys;
+	if (!f6) return keys;
+	if (queueAt >= queued && bushidoWant >= 0 && bat.open && bat.menu == FF6_MENU_BUSHIDO) {
+		/* FF6-3: SwdTech: A on the bar's level (32 a level; not in its last
+		 * steps, so the press's frames stay on it) */
+		int bar = emu_read8(&emu, 0x7E7B82);
+		if ((bar >> 5) == bushidoWant && (bar & 31) < 28) {
+			fprintf(stderr, "ff6: SwdTech %d: the bar's there: A\n", bushidoWant);
+			queue[0] = K_A, queued = 1, queueAt = 0, pressFrame = 0;
+			bushidoWant = -1;
+		}
+		return 0; /* (the player's own buttons wait meanwhile) */
+	}
+	if (queueAt >= queued) return keys;
 	uint32_t k = pressFrame < 3 ? queue[queueAt] : 0;
 	if (++pressFrame >= 12) pressFrame = 0, ++queueAt;
 	return k;
