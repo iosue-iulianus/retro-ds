@@ -440,7 +440,10 @@ The `a/b/c` soname scheme is needed only for SNES while it keeps two copies
 - **Detail and the spike's plan:** `docs/research/original-xbox.md`. The
   owner plays hakuX on the Duo and it runs really well (Nov 27, 2026): the
   spike's next step is its core without its app, **on hold** (the owner:
-  record for later). Also the owner's idea: hot routes drawn with a finger.
+  record for later). Also the owner's ideas: hot routes drawn with a finger on the second
+  screen; audibles and defensive changes there too, an agreed exception to
+  Philosophy 2 (RetroDS's own layout and art where the game has none), all
+  entered as the game's own button presses.
 
 ## 4. Rename to RetroDS
 

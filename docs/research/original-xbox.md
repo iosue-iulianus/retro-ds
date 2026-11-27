@@ -129,6 +129,20 @@ The owner's idea: play calling on the touch screen.
   (which button opens it, how a receiver and a route are chosen), and
   where the players' places and the play's routes (`MASTER PLAY`) are in
   RAM before the snap.
+- **Pre-snap on the second screen** (the owner, Nov 27, 2026, building on
+  the hot routes: "this is going outside a bit of our scope but it would be
+  a good exception"): offensive audibles, defensive changes and the other
+  pre-snap adjustments as pages on the second screen, each a tap that sends
+  the game's own button presses (no writes). **An agreed exception to
+  Philosophy 2** (the game's own screens and art): these pages are laid out
+  by RetroDS, and drawn with its own art where the game has none (the live
+  top-down field before the snap). Kept small: the game's own play art,
+  font and colours wherever it has them (its play-call diagrams), RetroDS's
+  drawing only for what it doesn't show. To write as a rule in the game's
+  page (`docs/games/espn-nfl-2k5.md`) when its work starts. To find: how
+  the game enters audibles and each defensive adjustment on the controller
+  (every one must be reachable by its buttons, else it's left out), and
+  which of them it shows anywhere (to borrow its art).
 - **Second screen first idea:** the play-call page as the game lays it out
   (formation, then plays), drawn from `MASTER PLAY`; during a play, look
   only.
