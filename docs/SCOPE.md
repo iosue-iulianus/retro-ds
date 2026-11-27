@@ -798,8 +798,8 @@ map collision data, but every address has to be found again for the US disc
 | **Twilight Princess** (GC) | [zeldaret/tp](https://github.com/zeldaret/tp): C++, matching, **CC0-1.0**; [decomp.dev](https://decomp.dev/zeldaret/tp): GZ2E01 **100% code and data** | Dolphin: not yet | Map and items, as the Wii U HD version's GamePad | Drag items onto buttons; wolf toggle | 5 | 5 | 1 | 1 | 17 |
 | **Metroid Prime** (GC), note only | [PrimeDecomp/prime](https://github.com/PrimeDecomp/prime): [decomp.dev](https://decomp.dev/PrimeDecomp/prime) GM8E01 **99.4% code** (not ~24% as the brief had); licence **unverified** (GitHub's API didn't return the repo) | Dolphin: not yet | The 3D map | Rotate the map | 5 | 5 | 1 | 1 | 17 |
 | **Chrono Trigger** (SNES) | No SNES disassembly or decompilation found; [Data Crystal's RAM map](https://datacrystal.tcrf.net/wiki/Chrono_Trigger) only. [power-pudu/egg-of-time](https://github.com/power-pudu/egg-of-time) is a recompilation of the **DS** version (not SNES; and the DS version already has two screens, useful as a design reference) | bsnes | Party status, techs | Look only | 3 | 1 | 5 | 2 | 14 |
-| **Vagrant Story** (PSX) | No public decomp found on GitHub (the "~30%" figure is **unverified**) | SwanStation | The room map, Ashley's status, weapon risk and affinities | | 4 | 1 | 4 | 1 | 14 |
-| **Legend of Mana** (PSX) | No public decomp found (the "NTSC-U complete" figure is **unverified**) | SwanStation | The land map you build | | 3 | 1 | 4 | 1 | 12 |
+| **Vagrant Story** (PSX) | No public decomp found on GitHub (the "~30%" figure is **unverified**). *Nov 27, 2026: now [ser-pounce/rood-reverse](https://github.com/ser-pounce/rood-reverse), byte-matching, **CC0-1.0** (see 7.5)* | SwanStation | The room map, Ashley's status, weapon risk and affinities | | 4 | 1 | 4 | 1 | 14 |
+| **Legend of Mana** (PSX) | No public decomp found (the "NTSC-U complete" figure is **unverified**). *Nov 27, 2026: now [celophi/lom-decomp](https://github.com/celophi/lom-decomp), matching, NTSC-U and NTSC-J, **MIT** (see 7.5)* | SwanStation | The land map you build | | 3 | 1 | 4 | 1 | 12 |
 
 Also seen, not evaluated: [sonicdcer/sf64](https://github.com/sonicdcer/sf64)
 (Star Fox 64, 100%, CC0: radar), [DavidSM64/Diddy-Kong-Racing](https://github.com/DavidSM64/Diddy-Kong-Racing)
@@ -831,6 +831,46 @@ Twilight Princess are out (Wii U GamePad screens).*
 
 With **Final Fantasy VI** or **Harvest Moon** in between whenever the platform
 work needs a break, since they need nothing new.
+
+### 7.5 More candidates (Nov 27, 2026)
+
+Suggested by another assistant's web search (Gemini), for the owner. Each
+repository below was looked up on GitHub on Nov 27, 2026 (it exists; its
+licence, last push and description as GitHub gives them); **completion
+figures are Gemini's and unverified** unless the repository's own description
+says so. Not scored yet. The "second screen" column is written as the
+game's own screens where the game has one (Philosophy 2, the owner's
+reading of it: the game's own screens, not new panels); where an idea was a
+tracker or dashboard the game doesn't show, it says so, as a risk to check
+with the owner first. Lesson from Final Fantasy VI: **look only first**;
+touch that drives a game's menus costs far more than reading it.
+
+**PlayStation (SwanStation, runs today):**
+
+| Game | Source (looked up Nov 27, 2026) | Second screen | Notes |
+|---|---|---|---|
+| **Spyro the Dragon** | [TheMobyCollective/spyro-1](https://github.com/TheMobyCollective/spyro-1) (**CC0-1.0**, 184 stars) and [theMagicalKarp/open-spyro](https://github.com/theMagicalKarp/open-spyro) (**CC0-1.0**, SCUS-94228; "100% matched" unverified) | The game's own Guidebook / inventory pages (gems, dragons, eggs per level and world) kept up below | Look only; the pause pages are what players keep opening |
+| **Tomba!** | [afsenovilla/Tombi-Decomp](https://github.com/afsenovilla/Tombi-Decomp) (matching, **MIT**), [hansbonini/psx_tomba](https://github.com/hansbonini/psx_tomba) (WIP, no licence) | The game's own Events list and items (130 events) | Look only |
+| **King's Field** (US: the Japanese King's Field II) | [Voicedrew11/kings-field-2-decomp](https://github.com/Voicedrew11/kings-field-2-decomp) (matching, SLUS-00158, **CC0-1.0**; Gemini named a `sushi-shi/kings-field-decomp` that **doesn't exist**; its "453/471 functions" is unverified). Also [Voicedrew11/kings-field-3-decomp](https://github.com/Voicedrew11/kings-field-3-decomp) (King's Field II US, SLUS-00255, CC0) | An automap of the dungeon, HP / MP, equipment | Check whether the game has a map of its own: an automap it doesn't have would be a new presentation (owner's call) |
+| **Brave Fencer Musashi** | [Druthulu/BFM-decomp](https://github.com/Druthulu/BFM-decomp) (SLUS-00726, "218 binaries rebuild byte-identical from C" per its description, **AGPL-3.0**) | The clock (it drives the town's schedules), BP, the area | Look only; action RPG, no battle menus |
+| **Dino Crisis 2** | [anzaldoivan/dino-crisis-2-decomp](https://github.com/anzaldoivan/dino-crisis-2-decomp) (**MIT**, 5 stars; "US exe and 82 overlays" unverified) | The area map, health, weapons and ammo | Check what map screen the game itself has |
+| **Crash Team Racing** | [CTR-tools/CTR-ModSDK](https://github.com/CTR-tools/CTR-ModSDK) (**GPL-3.0**, 461 stars, houses a decompilation effort), [CTR-tools/CTR-in-C](https://github.com/CTR-tools/CTR-in-C) (non-matching, no licence) | The track map with every racer, as Mario Kart DS's bottom screen (the game's own corner map, larger) | Proven DS layout |
+| **Vagrant Story** | [ser-pounce/rood-reverse](https://github.com/ser-pounce/rood-reverse) (byte-matching, **CC0-1.0**, 197 stars); [noprompt/rood-boi](https://github.com/noprompt/rood-boi) (a PC port on it, CC0) | The game's room map; Ashley's RISK, HP, MP; the weapon's class, affinity and type | Look only (its menus are deep, as FF6's) |
+| **Legend of Mana** | [celophi/lom-decomp](https://github.com/celophi/lom-decomp) (matching, NTSC-U and NTSC-J, **MIT**) | The land map the player builds; quests | Look only |
+| Xenogears, Chrono Cross (note only) | [ladysilverberg/xenogears-decomp](https://github.com/ladysilverberg/xenogears-decomp) (matching, no licence), [yaz0r/Noah](https://github.com/yaz0r/Noah) (MIT); [jdperos/chrono-cross-decomp](https://github.com/jdperos/chrono-cross-decomp) ("100% matching" per its description, based on the Japanese Radical Dreamers edition, no licence) | Party status at most | JRPG menus: look only, if at all |
+
+**Super Nintendo (bsnes, runs today):**
+
+| Game | Source (looked up Nov 27, 2026) | Second screen | Notes |
+|---|---|---|---|
+| **Donkey Kong Country 2** (and 1, 3) | [Yoshifanatic1/Donkey-Kong-Country-2-Disassembly](https://github.com/Yoshifanatic1/Donkey-Kong-Country-2-Disassembly) (also [1](https://github.com/Yoshifanatic1/Donkey-Kong-Country-1-Disassembly), [3](https://github.com/Yoshifanatic1/Donkey-Kong-Country-3-Disassembly); **GPL-3.0**, last pushed 2021); [p4plus2/DKC2-disassembly](https://github.com/p4plus2/DKC2-disassembly) (no licence, 2024) | The world map with each stage's DK coin, Kremkoins (what the game's map marks) | A per-stage collectible tracker beyond what the map shows would be new (owner's call) |
+| **Yoshi's Island** | **No disassembly found** (Gemini cited only a "community disassembly" and Data Crystal's RAM map) | The game's own world score page (red coins, flowers, stars per stage) | Super FX 2 cartridge: check bsnes's speed on the Duo |
+| **Super Mario Kart** | [Yoshifanatic1/Super-Mario-Kart-Disassembly](https://github.com/Yoshifanatic1/Super-Mario-Kart-Disassembly) (**GPL-3.0**, 2021) | The game's own course map (its 1P bottom half) moved to the second screen, larger | DSP-1 chip: bsnes needs its firmware or HLE (CLAUDE.md: "not a first game") |
+| **ActRaiser** | [DerrickGold/ar-recomp](https://github.com/DerrickGold/ar-recomp) (recompilation, licence NOASSERTION) and RAM maps | The simulation mode's own status (each town's population, lairs left, SP) | Look only |
+
+Gemini's own picks for a quick change of pace: Spyro (PSX), Harvest Moon or
+Donkey Kong Country 2 (SNES); for the most DS-like: Silent Hill, King's Field,
+Tomba!.
 
 ---
 
