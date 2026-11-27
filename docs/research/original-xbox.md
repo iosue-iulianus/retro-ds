@@ -147,8 +147,11 @@ The owner's idea: play calling on the touch screen.
   made with Google Flow from prompts, as the logo and icon are the owner's
   (`assets/brand/source/`), lossless PNG with transparency. The style of a
   mid-2000s sports broadcast (the game's own), **without ESPN's, the NFL's
-  or teams' names and logos** (trademarks); no lettering in the art (labels
-  in the game's font, drawn by RetroDS).
+  or teams' names and logos** (trademarks). Lettering: fixed page titles
+  may be in the art (Gemini letters well: the logo came from it), at the
+  cost of translation (RetroDS's labels are translated, an image's aren't);
+  everything that changes (formations, plays, audibles, names) is drawn by
+  RetroDS in the game's font.
 - **Second screen first idea:** the play-call page as the game lays it out
   (formation, then plays), drawn from `MASTER PLAY`; during a play, look
   only.
