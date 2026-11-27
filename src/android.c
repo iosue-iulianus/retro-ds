@@ -96,14 +96,14 @@ void android_data_setup(void) {
 	if (!kv_get(record, "data_dir_now", was, sizeof(was))) snprintf(was, sizeof(was), "%s", def);
 	data_dir_setup(def, record, want, true, out, sizeof(out));
 	setenv("RETRODS_HOME", out, 1);
-	/* a ROM or save folder chosen inside the old folder (Settings > Folders,
-	 * library.cfg) moved with it */
+	/* a ROM folder (either system's) or save folder chosen inside the old
+	 * folder (Settings > Folders, library.cfg) moved with it */
 	size_t wn = strlen(was);
 	if (strcmp(was, out)) {
 		char lib[1100], v[1024], fixed[2100];
 		snprintf(lib, sizeof(lib), "%s/states/library.cfg", out);
-		static const char* const keys[] = { "save_dir", "rom_dir" };
-		for (int i = 0; i < 2; ++i) {
+		static const char* const keys[] = { "save_dir", "rom_dir", "rom_dir_psx" };
+		for (size_t i = 0; i < sizeof(keys) / sizeof(keys[0]); ++i) {
 			if (!kv_get(lib, keys[i], v, sizeof(v)) || strncmp(v, was, wn) || (v[wn] && v[wn] != '/')) continue;
 			snprintf(fixed, sizeof(fixed), "%s%s", out, v + wn);
 			kv_set(lib, keys[i], fixed, NULL);

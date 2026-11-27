@@ -22,6 +22,7 @@
 #include "i18n.h"
 #include "emu.h"
 #include "profiles.h"
+#include "sotn.h"
 
 #include <dirent.h>
 #include <libgen.h>
@@ -74,11 +75,12 @@ int main(int argc, char** argv) {
 			return 0;
 		}
 		/* --supported ROM: exit 0 if RetroDS has second-screen support for the
-		 * game (a profile for its code), 1 if not, 2 if it can't be read */
+		 * game (a profile for its code, or a module of its own: Symphony of
+		 * the Night), 1 if not, 2 if it can't be read (library.c's test) */
 		if (!strcmp(argv[i], "--supported") && i + 1 < argc) {
 			char code[GAME_CODE_N];
 			if (!emu_rom_code(argv[i + 1], code)) return 2;
-			bool yes = profile_find(code) != NULL;
+			bool yes = profile_find(code) != NULL || sotn_is(code);
 			printf("%s: %s\n", code, yes ? "supported" : "not supported");
 			return yes ? 0 : 1;
 		}

@@ -332,6 +332,16 @@ static bool near(uint32_t a, uint32_t b) {
 	return !white(a);
 }
 
+/* the last clean colours each row of a window had, from earlier pictures
+ * (a window's gradient stays put while others move over it) */
+static uint32_t lastL[1024][4], lastR[1024][4];
+static bool haveLastL[1024], haveLastR[1024];
+
+void sotn_widen_forget(void) {
+	memset(haveLastL, 0, sizeof haveLastL);
+	memset(haveLastR, 0, sizeof haveLastR);
+}
+
 bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow, int* oxOut) {
 	if (w < 64 || h < 64 || ow <= w) return false;
 	/* the window's left and right edges: the outermost columns white on
@@ -351,6 +361,10 @@ bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow, int* ox
 	/* the window centred, its edges at the widened picture's own (the
 	 * picture placed on whole dither steps) */
 	int ox = ((ow - (R - L + 1)) / 2 - L) & ~3;
+	/* (the picture kept inside the widened one: a window off its centre
+	 * by more than the room there is leaves it off centre instead) */
+	if (ox < 0) ox = 0;
+	if (ox > ow - w) ox = (ow - w) & ~3;
 	int nL = 0, nR = ow - 1;
 	if (oxOut) *oxOut = ox;
 	/* each window row's colours just inside its edges, and whether they're
@@ -360,10 +374,7 @@ bool sotn_widen(const uint32_t* fb, int w, int h, uint32_t* out, int ow, int* ox
 	static uint8_t kind[1024];
 	static uint32_t sl[1024][4], sr[1024][4];
 	static bool okL[1024], okR[1024];
-	/* and the last clean ones each row had, from earlier pictures (a
-	 * window's gradient stays put while others move over it) */
-	static uint32_t lastL[1024][4], lastR[1024][4];
-	static bool haveLastL[1024], haveLastR[1024];
+	/* (and the last clean ones each row had: lastL, lastR above) */
 	if (h > 1024) return false;
 	for (int y = 0; y < h; ++y) {
 		const uint32_t* row = fb + y * w;
