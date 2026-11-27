@@ -25,6 +25,7 @@
  *   ff6 battle             its battle menu: open, menu, slot, cursor, commands
  *   ff6 cmd ROW / target T / row I   FF6-3: a tap: the menu's cursor written, then A
  *   ff6 list               the open Magic / Item list as the second screen reads it
+ *   ff6 mm ROW             FF6-5: a tap on the main menu's row: its cursor written, then A
  *   ff6 menu NAME          FF6-5: the party screen RetroDS draws (src/ff6.c),
  *                          from A's RAM and the ROM: NAME.png, 256 x 224
  *   ff6 battlepic NAME     FF6-2: the battle screen RetroDS draws, NAME.png
@@ -799,6 +800,17 @@ int main(int argc, char** argv) {
 						for (int i = 0; i < 3; ++i) frame(e, keys[k]);
 						for (int i = 0; i < 9; ++i) frame(e, 0);
 					}
+				}
+			} else if (!strcmp(s1, "mm")) {
+				/* FF6-5: a tap on the main menu (a command, or a character while
+				 * it asks for one): its cursor written, then A */
+				Write w[4];
+				int n = ff6_menu_writes(atoi(s2), w), nOk;
+				const WriteRange* ok = ff6_write_ranges(&nOk);
+				printf("ff6 mm %d: %d writes\n", atoi(s2), n);
+				if (n > 0 && emu_apply(e, "mm", w, n, ok, nOk) == n) {
+					for (int i = 0; i < 3; ++i) frame(e, K_A);
+					for (int i = 0; i < 9; ++i) frame(e, 0);
 				}
 			} else if (!strcmp(s1, "blitz")) {
 				/* FF6-3: a Blitz's code pressed (each 3 frames down, 9 up), A last */

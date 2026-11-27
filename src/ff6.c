@@ -78,11 +78,23 @@ static const WriteRange ff6Writes[] = {
 	{ 0x7E890F, 4, "the command lists' cursors (FF6-3)" },
 	{ 0x7E8913, 0x58, "the battle lists' cursors: Magic, Lore, Rage, Dance, Magitek, Item, Throw, Tools (FF6-3)" },
 	{ 0x7E7B7D, 2, "the target cursor: the party, the monsters (FF6-3)" },
+	{ 0x7E004B, 1, "the main menu's cursor: the choice (FF6-5)" },
+	{ 0x7E004D, 2, "the main menu's cursor: column, row (FF6-5)" },
 };
 
 const WriteRange* ff6_write_ranges(int* n) {
 	*n = (int) (sizeof ff6Writes / sizeof ff6Writes[0]);
 	return ff6Writes;
+}
+
+int ff6_menu_writes(int row, Write* out) {
+	/* the main menu's cursor (the menu program's direct page): its row and
+	 * column, the choice they make (one column: the row) */
+	if (row < 0 || row > 6) return -1;
+	out[0] = (Write) { 0x7E004E, (uint8_t) row };
+	out[1] = (Write) { 0x7E004D, 0 };
+	out[2] = (Write) { 0x7E004B, (uint8_t) row };
+	return 3;
 }
 
 int ff6_command_writes(const Ff6Battle* b, int row, Write* out) {
@@ -303,7 +315,12 @@ static uint16_t rd16(const uint8_t* p) {
 
 void ff6_party_read(Emu* e, Ff6Party* p) {
 	memset(p, 0, sizeof(*p));
-	bool field = ff6_part(e) == FF6_FIELD;
+	Ff6Part part = ff6_part(e);
+	bool field = part == FF6_FIELD;
+	p->menuState = part == FF6_MENU ? emu_read8(e, 0x7E0026) : -1;
+	p->menuCursor = emu_read8(e, 0x7E004B);
+	p->menuOption = emu_read8(e, 0x7E0025);
+	p->saveOk = (part == FF6_MENU ? emu_read8(e, 0x7E0201) : emu_read8(e, 0x7E1EB7)) & 0x80;
 	int party = emu_read8(e, 0x7E1A6D) & 7;
 	bool espers = emu_read8(e, 0x7E1A69) | emu_read8(e, 0x7E1A6A) | emu_read8(e, 0x7E1A6B) | emu_read8(e, 0x7E1A6C);
 	for (int i = 0; i < 16; ++i) {
@@ -418,6 +435,7 @@ static void window(uint16_t* bg, bool* on, const uint8_t* gfx, int tx, int ty, i
 /* The main menu's text layers' scroll: BG1 (the party's text) 3 lines up,
  * BG3 (Time, Steps, Gp) 1 up, as its windows */
 static int textUp = 3;
+static int textLeft; /* (a layer scrolled sideways: the text that many pixels left) */
 
 /* one character of the fixed-width font (C4/7FC0, 2bpp) at a tile, in a
  * 4-colour text palette (0 clear) */
@@ -426,8 +444,8 @@ static void glyph(uint32_t* out, const Ff6Rom* r, int code, int tx, int ty, cons
 	const uint8_t* t = at(r, 0xC47FC0 + (uint32_t) code * 16);
 	for (int y = 0; y < 8; ++y) {
 		for (int x = 0; x < 8; ++x) {
-			int v = pix(t, 2, x, y), px = tx * 8 + x, py = ty * 8 + y - textUp;
-			if (v && px < canvasW && py >= 0 && py < canvasH && !(px >= clipX && py >= clipY)) out[py * canvasW + px] = pal[v];
+			int v = pix(t, 2, x, y), px = tx * 8 + x - textLeft, py = ty * 8 + y - textUp;
+			if (v && px >= 0 && px < canvasW && py >= 0 && py < canvasH && !(px >= clipX && py >= clipY)) out[py * canvasW + px] = pal[v];
 		}
 	}
 }
@@ -482,6 +500,18 @@ static const char kSteps[] = { (char) 0x92, (char) 0xAD, (char) 0x9E, (char) 0xA
 static const char kGp[] = { (char) 0x86, (char) 0xA9, 0 };  /* Gp */
 static const char kColon[] = { (char) CH_COLON, 0 };
 
+static void hand(uint32_t* out, const Ff6Rom* rom, int hx, int hy); /* (the game's hand cursor: below) */
+
+/* plain letters in the game's text codes (A-Z 80, a-z 9A, 0-9 B4) */
+static void ascii_text(const char* s, char* out) {
+	int n = 0;
+	for (; *s && n < 15; ++s) {
+		char c = *s;
+		out[n++] = (char) (c >= 'A' && c <= 'Z' ? 0x80 + c - 'A' : c >= 'a' && c <= 'z' ? 0x9A + c - 'a' : c >= '0' && c <= '9' ? 0xB4 + c - '0' : 0xFF);
+	}
+	out[n] = 0;
+}
+
 void ff6_party_draw(const Ff6Rom* rom, const Ff6Party* p, uint32_t* out) {
 	canvasW = FF6_PIC_W, canvasH = FF6_PIC_H, winUp = 1;
 	for (int i = 0; i < FF6_PIC_W * FF6_PIC_H; ++i) out[i] = 0xFF000000u;
@@ -494,6 +524,7 @@ void ff6_party_draw(const Ff6Rom* rom, const Ff6Party* p, uint32_t* out) {
 	memset(on, 0, sizeof(on));
 	const uint8_t* gfx = at(rom, 0xED0000 + 0x380 * (uint32_t) p->style);
 	window(bg, on, gfx, 1, 1, 28, 24);  /* MainMenuCharWindow */
+	window(bg, on, gfx, 23, 1, 6, 13);  /* MainMenuOptionsWindow (the command list) */
 	window(bg, on, gfx, 23, 16, 6, 2);  /* MainMenuTimeWindow */
 	window(bg, on, gfx, 22, 20, 7, 5);  /* MainMenuStepsWindow */
 	const uint8_t* defPal = at(rom, 0xED1C00 + 32 * (uint32_t) p->style);
@@ -570,6 +601,43 @@ void ff6_party_draw(const Ff6Rom* rom, const Ff6Party* p, uint32_t* out) {
 	number(out, rom, p->steps, 7, false, 23, 22, white);
 	text(out, rom, kGp, 23, 24, teal3);
 	number(out, rom, p->gp, 7, false, 23, 25, white);
+	/* the command list (menu_text.en.inc's MAIN_MENU_*: BG3, column 24,
+	 * every other row from 3), the game's hand on the main menu's cursor
+	 * (MainMenuCursorPos: 175, 18 + 15 a row) or, choosing a character,
+	 * on theirs (CharSelectCursorPos: 8, 40 + 48 a row) */
+	static const char* const cmds[7] = { "Item", "Skills", "Equip", "Relic", "Status", "Config", "Save" };
+	uint32_t greyT[4]; /* (Save off a save point: BG3_TEXT_COLOR::GRAY, palette 1) */
+	text_pal(rom, 1, greyT, -1);
+	/* choosing a character: the command's hand stays where it was, 2
+	 * pixels right, under the text (the character's moves, below) */
+	canvasW = FF6_PIC_W, canvasH = FF6_PIC_H;
+	if (p->menuState == FF6_MM_CHAR && p->menuOption < 7) hand(out, rom, 177, 18 + 15 * p->menuOption);
+	for (int k = 0; k < 7; ++k) {
+		/* (BG3 there is scrolled a line at a time, InitMainMenuBG3VScrollHDMA:
+		 * the names 15 pixels apart from y 20, column 24) */
+		char t[8];
+		ascii_text(cmds[k], t);
+		int y = 20 + 15 * k, ty = (y + 7) / 8;
+		textUp = ty * 8 - y;
+		text(out, rom, t, 24, ty, k == 6 && !p->saveOk ? greyT : white);
+	}
+	textUp = 1, textLeft = 0;
+	canvasW = FF6_PIC_W, canvasH = FF6_PIC_H;
+	if (p->menuState == FF6_MM_COMMANDS && p->menuCursor < 7) hand(out, rom, 175, 18 + 15 * p->menuCursor);
+	if (p->menuState == FF6_MM_CHAR && p->menuCursor < 4) hand(out, rom, 8, 40 + 48 * p->menuCursor);
+}
+
+int ff6_party_hit(const Ff6Party* p, int x, int y, int* arg) {
+	*arg = -1;
+	/* the command list's rows (the window's inside, x 168 on: a row 15
+	 * high round each name) */
+	if (x >= 168 && y >= 16 && y < 16 + 15 * 7) return *arg = (y - 16) / 15, FF6_PH_COMMAND;
+	/* a character's block (48 a row from 16) */
+	if (x < 168 && y >= 16 && y < 16 + 48 * 4) {
+		int r = (y - 16) / 48;
+		if (p->m[r].here) return *arg = r, FF6_PH_CHAR;
+	}
+	return FF6_PH_NONE;
 }
 
 /* ---- FF6-2: the battle screen, drawn */

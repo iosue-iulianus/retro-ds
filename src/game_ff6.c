@@ -46,6 +46,9 @@ static int queued, queueAt, pressFrame;
 /* FF6-3: the list page's first row shown, and the game's cursor's row
  * when it was last seen (the page follows the pad's cursor) */
 static int listTop, listSeen = -2, listMenu;
+/* FF6-5: a main menu command tapped while walking (-1 none), the frames
+ * waited for the menu */
+static int menuWant = -1, menuWait;
 /* FF6-3: the Blitz being entered, the SwdTech waited for (-1 none) */
 static int blitzWant = -1, bushidoWant = -1;
 
@@ -61,6 +64,7 @@ void ff6_open(const char* rom, const char* code) {
 	part = FF6_OTHER;
 	queued = queueAt = pressFrame = 0;
 	listTop = 0, listSeen = -2, listMenu = 0;
+	menuWant = -1;
 	listFrames = 0;
 	memset(&bat, 0, sizeof(bat));
 	if (f6) fprintf(stderr, "ff6: Final Fantasy VI (FF6-1 to 5)\n");
@@ -147,8 +151,10 @@ void ff6_tick(void) {
 	} else {
 		bviewValid = stripValid = false;
 	}
-	/* FF6-5: the party, drawn again when anything it shows has changed */
-	if ((part == FF6_FIELD || part == FF6_WORLD) && rom6 && partyPx) {
+	/* FF6-5: the party, drawn again when anything it shows has changed
+	 * (walking, and in the main menu: its commands and choosing a
+	 * character) */
+	if ((part == FF6_FIELD || part == FF6_WORLD || part == FF6_MENU) && rom6 && partyPx) {
 		ff6_party_read(&emu, &party);
 		bool any = false;
 		for (int i = 0; i < 4; ++i) any |= party.m[i].here;
@@ -176,14 +182,21 @@ static bool battle_shown(void) {
 	return f6 && nScreens == 2 && part == FF6_BATTLE;
 }
 
-/* FF6-4: the main menu is the second screen's (the game screen: the logo) */
-static bool menu_shown(void) {
-	return f6 && nScreens == 2 && part == FF6_MENU;
+/* FF6-5: the main menu's own states RetroDS draws (its commands,
+ * choosing a character) */
+static bool main_menu(void) {
+	return part == FF6_MENU && partyValid && (party.menuState == FF6_MM_COMMANDS || party.menuState == FF6_MM_CHAR);
 }
 
-/* FF6-5: the party screen while walking */
+/* FF6-4: the menu's other pages are the second screen's, moved over (the
+ * game screen: the logo) */
+static bool menu_shown(void) {
+	return f6 && nScreens == 2 && part == FF6_MENU && !main_menu();
+}
+
+/* FF6-5: the party screen while walking, and the main menu's */
 static bool party_shown(void) {
-	return f6 && nScreens == 2 && (part == FF6_FIELD || part == FF6_WORLD) && partyValid;
+	return f6 && nScreens == 2 && (((part == FF6_FIELD || part == FF6_WORLD) && partyValid) || main_menu());
 }
 
 bool ff6_screen_shown(void) {
@@ -191,7 +204,7 @@ bool ff6_screen_shown(void) {
 }
 
 bool ff6_cover_game(void) {
-	return menu_shown();
+	return f6 && nScreens == 2 && part == FF6_MENU;
 }
 
 static void make_tex(SDL_Texture** t, int w, int h);
@@ -334,7 +347,32 @@ static void press(const char* what, uint32_t key) {
 
 /* FF6-3: a tap on the drawn battle screen (on the moved windows, the
  * stopgap while a list not drawn yet is open: the pad's) */
+/* FF6-5: a tap on the party screen: a command (walking: X first, the
+ * choice made once the menu's open, ff6_keys), a character while the menu
+ * asks for one */
+static int party_touch(const Pointer* p) {
+	if (p->kind != 1 || queued > queueAt || menuWant >= 0) return 1;
+	SDL_Rect d = place(p->screen, FF6_PIC_W, FF6_PIC_H);
+	if (p->x < d.x || p->y < d.y || p->x >= d.x + d.w || p->y >= d.y + d.h) return 1;
+	int px = (p->x - d.x) * FF6_PIC_W / d.w, py = (p->y - d.y) * FF6_PIC_H / d.h;
+	int arg, hit = ff6_party_hit(&partyDrawn, px, py, &arg);
+	Write w[4];
+	char what[64];
+	if (hit == FF6_PH_COMMAND && main_menu() && party.menuState == FF6_MM_COMMANDS) {
+		snprintf(what, sizeof what, "main menu %d", arg);
+		choose(what, w, ff6_menu_writes(arg, w));
+	} else if (hit == FF6_PH_COMMAND && !main_menu()) {
+		menuWant = arg, menuWait = 0;
+		press("the menu (X), then a command", K_X);
+	} else if (hit == FF6_PH_CHAR && main_menu() && party.menuState == FF6_MM_CHAR) {
+		snprintf(what, sizeof what, "main menu character %d", arg);
+		choose(what, w, ff6_menu_writes(arg, w));
+	}
+	return 1;
+}
+
 int ff6_touch(const Pointer* p) {
+	if (f6 && party_shown() && p->screen != game_screen()) return party_touch(p);
 	if (!battle_shown() || p->screen == game_screen()) return 0;
 	if (p->kind != 1) return 1;
 	if (queued > queueAt) return 1; /* (the last tap's press still playing) */
@@ -396,6 +434,21 @@ int ff6_touch(const Pointer* p) {
  * (the player's own buttons held back meanwhile) */
 uint32_t ff6_keys(uint32_t keys) {
 	if (!f6) return keys;
+	if (menuWant >= 0 && queueAt >= queued) {
+		/* FF6-5: a command tapped while walking: once the menu's open (its
+		 * commands, state 05), its cursor written, then A */
+		if (main_menu() && party.menuState == FF6_MM_COMMANDS) {
+			Write w[4];
+			char what[64];
+			int row = menuWant;
+			snprintf(what, sizeof what, "main menu %d", row);
+			menuWant = -1;
+			choose(what, w, ff6_menu_writes(row, w));
+		} else if (++menuWait > 180) {
+			menuWant = -1; /* (it didn't open: an event, a place it can't) */
+		}
+		if (menuWant >= 0) return 0;
+	}
 	if (queueAt >= queued && bushidoWant >= 0 && bat.open && bat.menu == FF6_MENU_BUSHIDO) {
 		/* FF6-3: SwdTech: A on the bar's level (32 a level; not in its last
 		 * steps, so the press's frames stay on it) */

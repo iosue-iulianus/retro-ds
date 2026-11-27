@@ -91,6 +91,9 @@ void ff6_battle(Emu* e, Ff6Battle* b);
  * when the game wouldn't take it (a greyed command, a target its
  * targeting rules don't allow, an empty list row). */
 const WriteRange* ff6_write_ranges(int* n);
+/* FF6-5: the main menu's cursor on a row: its commands (0 Item to 6
+ * Save) or, choosing a character, theirs (0 to 3); then A */
+int ff6_menu_writes(int row, Write* out);
 /* a command: row 0 to 3 of the command list */
 int ff6_command_writes(const Ff6Battle* b, int row, Write* out);
 /* a target: a party slot 0 to 3, or 4 + a monster slot. 0 writes: the
@@ -144,7 +147,15 @@ typedef struct {
 	uint16_t fontColour;
 	int hours, minutes;
 	uint32_t steps, gp;
+	/* the main menu while it's open (the menu program: its state $0026, 05
+	 * its commands, 06 choosing a character; its cursor $004B, the command
+	 * chosen $0025); -1 not open */
+	int menuState, menuCursor, menuOption;
+	bool saveOk;        /* Save not grey: on a save point (walking $1EB7, the menu $0201: bit 7) */
 } Ff6Party;
+/* the main menu's states RetroDS draws as the party screen */
+#define FF6_MM_COMMANDS 0x05
+#define FF6_MM_CHAR 0x06
 
 /* What the party screen is drawn from, read between frames: the field's
  * own copy of the party's flags while it runs ($0867 + 41 x n), else the
@@ -154,6 +165,10 @@ void ff6_party_read(Emu* e, Ff6Party* p);
 /* The party screen as the game's main menu draws it (its command list
  * left out), 256 x 224, ABGR8888 (0xAABBGGRR). */
 void ff6_party_draw(const Ff6Rom* rom, const Ff6Party* p, uint32_t* out);
+/* what's at x, y on it (its pixels): a command of the list (arg: 0 Item
+ * to 6 Save), a character's block (arg: the row, 0 to 3) */
+enum { FF6_PH_NONE, FF6_PH_COMMAND, FF6_PH_CHAR };
+int ff6_party_hit(const Ff6Party* p, int x, int y, int* arg);
 
 /* ---- FF6-2: the battle screen, drawn by RetroDS (replacing the moved
  * windows): the party with portraits, HP, MP and time gauges, the active
