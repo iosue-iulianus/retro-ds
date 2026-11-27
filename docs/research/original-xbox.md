@@ -104,10 +104,13 @@ The owner's idea: play calling on the touch screen.
   compared, as `tools/ramdiff.py` does).
 - **Touch:** play calling drives a game menu, the kind that made Final
   Fantasy VI's battle touch costly (`docs/games/final-fantasy-vi.md`).
-  What makes it easier here, **if** the game shows a few plays at a time,
-  each on a face button, paged with the shoulders (to check in the game): a
-  tap presses that button, no memory writes, as Symphony of the Night's
-  menu and FF6's Blitz codes are pressed. The lesson from FF6 holds: show
+  What makes it easier here (the owner, Nov 27, 2026): **the player picks a
+  formation, then a play, and each formation and each play is one button
+  press on the controller.** So a tap presses that button: no memory
+  writes, nothing steered, as Symphony of the Night's menu and FF6's Blitz
+  codes are pressed. What's left to find in RAM is which page is up
+  (formations or plays) and what each button holds, to draw the right
+  ones (from `MASTER PLAY`). The lesson from FF6 holds: show
   first, touch second.
 - **Second screen first idea:** the play-call page as the game lays it out
   (formation, then plays), drawn from `MASTER PLAY`; during a play, look
