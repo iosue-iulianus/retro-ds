@@ -284,7 +284,9 @@ Device details:
   `RETRODS_SCREENS=1920x1080,1280x960` (with `RETRODS_WINDOW=1920x2040`)
   stands in for the Duo's two screens.
 - **The second screens' regression check:** `scripts/check-games.sh
-  --alttp ROM --sm ROM` (`tools/check_games.py`, about 15 s on the host)
+  --alttp ROM --sm ROM --ff6 ROM` (`tools/check_games.py`, about 30 s on the host;
+  FF6's: the party screen against the game's menu, every battle command's
+  menu and list, taps that act)
   builds the harness and compares both games' second screens with the
   games' own screens and the Python references: ALttP's items screen,
   dungeon map, Link's marker, the GPU map pieces (with the owner's seen

@@ -7,7 +7,7 @@ references, as each check in docs/games/*.md was first made. Run it before
 merging a branch that touches a second screen (scripts/check-games.sh
 builds the harness first).
 
-    check_games.py --alttp ROM --sm ROM [--data DIR] [--out DIR] [--only NAME,...]
+    check_games.py --alttp ROM --sm ROM --ff6 ROM [--data DIR] [--out DIR] [--only NAME,...]
 
 --data: the test states (default ../test-data beside the repo); --out: where
 the harness writes (default a new folder in /tmp, removed when everything
@@ -35,6 +35,17 @@ Super Metroid:
   smpage     the equipment page as the game's but for its cursor
   smwrites   every item switch's writes on the game's list, twice; none
              while paused (SM-10's gate)
+Final Fantasy VI (FF3 USA 1.0):
+  ff6party   the party screen RetroDS draws pixel for pixel as the game's
+             main menu (seven saves; not the menu's command list, which it
+             leaves out, nor the clock's minute, which ticks while the menu
+             opens)
+  ff6menus   a tap on each command opens the game's own menu for it, and
+             the lists read as the game holds them (the commands put in the
+             battle's command list where the test party hasn't them)
+  ff6acts    taps that act: Fire's damage, Cure's healing, each Blitz
+             queued as itself, Row and Def. queued, a target the game's
+             rules don't allow refused
 """
 import argparse
 import os
@@ -294,10 +305,81 @@ def sm_writes(rom, data, out):
     report("smwrites", len(res) == len(SM_TOGGLES) and not wrote, "paused: %d switches, %d wrote" % (len(res), len(wrote)))
 
 
+# ---- Final Fantasy VI ----
+
+FF6_PARTY_STATES = ["narshe-gate", "ff3-3-slot1-scenario-split", "ff3-3-slot2-world-map", "ff3-3-slot3-all-characters",
+                    "finalf3-slot1-floating-continent", "finalf3-slot2-world-map", "finalf3-slot3-kefkas-tower"]
+FF6_CMDBOX = (168, 0, 256, 131)   # the main menu's command list (x0, y0, x1, y1), left out of the party screen
+FF6_MINUTE = (232, 143, 240, 151)  # the clock's minute digit
+FF6_SABIN = "harness-ff3-3-battle-behemoth-sabin"  # Sabin's turn: Edgar, Sabin, Terra, Shadow v Behemoth, 2 Misfits
+FF6_TERRA = "harness-ff3-3-battle-behemoth-terra"  # the same battle, Terra's turn
+
+
+def ff6_party(rom, data, out):
+    lines = []
+    for s in FF6_PARTY_STATES:
+        lines += ["load %s/final-fantasy-vi/harness-%s.state" % (data, s), "wait 2", "ff6 menu ours-" + s, "tap X", "wait 90", "shot game-" + s]
+    harness(rom, out, lines, "ff6party")
+    for s in FF6_PARTY_STATES:
+        a, b = png(os.path.join(out, "ours-%s.png" % s)), png(os.path.join(out, "game-%s.png" % s))
+        d = (a != b).any(2)
+        for x0, y0, x1, y1 in (FF6_CMDBOX, FF6_MINUTE):
+            d[y0:y1, x0:x1] = False
+        n = int(d.sum())
+        report("ff6party", n == 0, "%s: RetroDS's party screen vs the game's menu, %d pixels differ" % (s, n))
+
+
+def ff6_state(data, name):
+    return "load %s/final-fantasy-vi/%s.state" % (data, name)
+
+
+def ff6_menus(rom, data, out):
+    # (command number, the menu the game opens, rows its list should hold: -1 not a list)
+    cases = [(0x00, 0x38, -1), (0x0A, 0x3D, -1), (0x02, 0x0E, 15), (0x01, 0x0A, 64), (0x08, 0x2D, 13), (0x09, 0x30, 2),
+             (0x10, 0x1E, 10), (0x13, 0x21, 1), (0x0C, 0x1B, 3), (0x1D, 0x2A, 4), (0x07, 0x37, -1), (0x0F, 0x08, -1)]
+    lines = []
+    for cmd, _, _ in cases:
+        # (Fight is Sabin's first; the others put in his second slot of the battle's command list,
+        # $202E + 12 + 3, where the list's own targeting doesn't matter)
+        if cmd == 0x00:
+            lines += [ff6_state(data, FF6_SABIN), "ff6 cmd 0", "wait 30", "ff6 battle", "ff6 list"]
+        else:
+            lines += [ff6_state(data, FF6_SABIN), "poke 7E203D 1 %02X" % cmd, "poke 7E203E 1 00", "ff6 cmd 1", "wait 30", "ff6 battle", "ff6 list"]
+    text = harness(rom, out, lines, "ff6menus")
+    menus = re.findall(r"ff6 battle: open (\d), menu ([0-9A-F]{2})", text)
+    lists = re.findall(r"ff6 list: menu ([0-9A-F]{2}), (\d+) rows", text)
+    bad = []
+    for (cmd, menu, rows), (op, got), (_, n) in zip(cases, menus, lists):
+        if op != "1" or int(got, 16) != menu or (rows >= 0 and int(n) != rows):
+            bad.append("%02X: menu %s, %s rows (wanted %02X, %d)" % (cmd, got, n, menu, rows))
+    report("ff6menus", len(menus) == len(cases) and not bad, "%d commands opened their menus%s" % (len(cases) - len(bad), "; not: " + "; ".join(bad) if bad else ""))
+
+
+def ff6_acts(rom, data, out):
+    lines = [ff6_state(data, FF6_SABIN), "peek 7E3BFC 2", "ff6 cmd 2", "wait 20", "ff6 row 9", "wait 20", "ff6 target 4", "wait 240", "peek 7E3BFC 2"]
+    lines += [ff6_state(data, FF6_TERRA), "peek 7E3BFA 2", "ff6 cmd 2", "wait 20", "ff6 row 0", "wait 40", "ff6 target 3", "wait 300", "peek 7E3BFA 2"]
+    for k in range(4):
+        lines += [ff6_state(data, FF6_SABIN), "ff6 cmd 1", "wait 20", "ff6 blitz %d" % k, "wait 10", "peek 7E2BAE 3"]
+    for d in ("LEFT", "RIGHT"):
+        lines += [ff6_state(data, FF6_SABIN), "tap " + d, "wait 4", "tap A", "wait 10", "peek 7E2BAE 3"]
+    lines += [ff6_state(data, FF6_SABIN), "poke 7E203D 1 0C", "poke 7E203E 1 00", "ff6 cmd 1", "wait 30", "ff6 row 7", "wait 30", "ff6 target 1"]
+    text = harness(rom, out, lines, "ff6acts")
+    hp = [int(b + a, 16) for a, b in re.findall(r"peek 7E3BF[AC]: ([0-9A-F]{2}) ([0-9A-F]{2})", text)]
+    report("ff6acts", len(hp) == 4 and hp[1] < hp[0], "Magic > Fire > Behemoth: HP %s" % (" > ".join(map(str, hp[:2]))))
+    report("ff6acts", len(hp) == 4 and hp[3] > hp[2], "Magic > Cure > Shadow: HP %s" % (" > ".join(map(str, hp[2:]))))
+    acts = re.findall(r"peek 7E2BAE: FF ([0-9A-F]{2}) ([0-9A-F]{2})", text)
+    want = [("0A", "%02X" % k) for k in range(4)] + [("14", None), ("15", None)]
+    ok = len(acts) == len(want) and all(c == wc and (wa is None or a == wa) for (c, a), (wc, wa) in zip(acts, want))
+    report("ff6acts", ok, "Blitzes, Row, Def. queued: %s" % ", ".join("%s %s" % x for x in acts))
+    refused = re.search(r"ff6 target 1: -1 writes", text) is not None
+    report("ff6acts", refused, "a lore kept to the enemies, tapped on a character: %s" % ("refused" if refused else "NOT refused"))
+
+
 CHECKS = {
     "items": ("alttp", alttp_items), "dungeon": ("alttp", alttp_dungeon), "marker": ("alttp", alttp_marker),
     "pieces": ("alttp", alttp_pieces), "writes": ("alttp", alttp_writes),
     "smmap": ("sm", sm_map), "smpage": ("sm", sm_page), "smwrites": ("sm", sm_writes),
+    "ff6party": ("ff6", ff6_party), "ff6menus": ("ff6", ff6_menus), "ff6acts": ("ff6", ff6_acts),
 }
 
 
@@ -305,6 +387,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--alttp", help="A Link to the Past (USA) ROM")
     ap.add_argument("--sm", help="Super Metroid (JU) ROM")
+    ap.add_argument("--ff6", help="Final Fantasy III (USA) 1.0 ROM")
     ap.add_argument("--data", default=os.path.join(os.path.dirname(REPO), "test-data"))
     ap.add_argument("--out")
     ap.add_argument("--only", help="comma-separated: " + ",".join(CHECKS))
@@ -316,7 +399,7 @@ def main():
     names = a.only.split(",") if a.only else list(CHECKS)
     for name in names:
         game, fn = CHECKS[name]
-        rom = a.alttp if game == "alttp" else a.sm
+        rom = {"alttp": a.alttp, "sm": a.sm, "ff6": a.ff6}[game]
         if not rom:
             print("%-8s skip (no %s ROM given)" % (name, game))
             continue
