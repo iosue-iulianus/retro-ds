@@ -22,7 +22,9 @@
 
 /* ES-DE's own gba system for Android (resources/systems/android/es_systems.xml,
  * ES-DE 3.4, Sep 2026). With RetroArch in SAF mode its RetroArch lines end
- * in %ROMSAF% instead (es_systems_saf.xml: the only difference). */
+ * in %ROMSAF% instead (es_systems_saf.xml: the only difference).
+ * GBA DS's, kept as the template for RetroDS's snes and psx entries: not
+ * used while the setting is hidden (esde.h). */
 static const char* const GBA_BODY =
 	"        <fullname>Nintendo Game Boy Advance</fullname>\n"
 	"        <path>%ROMPATH%/gba</path>\n"

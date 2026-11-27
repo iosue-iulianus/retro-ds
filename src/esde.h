@@ -13,7 +13,13 @@
  * Other emulators stay in the list, so a game RetroDS doesn't support can be
  * switched to one of them (ES-DE: the game's metadata > Alternative emulator).
  * Turning it off takes out only what RetroDS put in, and deletes a file it
- * made once nothing else is left in it. ES-DE reads the files when it starts. */
+ * made once nothing else is left in it. ES-DE reads the files when it starts.
+ *
+ * For now it's GBA DS's integration, which knows only ES-DE's gba system:
+ * the setting isn't offered (library.c's ROW_ESDE), and at start
+ * esde_integration_refresh takes out what an earlier version put in. It's
+ * offered again once RetroDS adds itself to ES-DE's snes and psx systems
+ * in the same way (esde.c's GBA_BODY is the template for their entries). */
 #ifndef RETRODS_ESDE_H
 #define RETRODS_ESDE_H
 
