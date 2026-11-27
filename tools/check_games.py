@@ -366,7 +366,16 @@ def ff6_mainmenu(rom, data, out):
     for row, _ in want:
         lines += [ff6_state(data, "harness-ff3-3-slot2-world-map"), "tap X", "wait 60", "ff6 mm %d" % row, "wait 3", "peek 7E0026 1", "peek 7E0027 1"]
     lines += [ff6_state(data, "harness-ff3-3-slot2-world-map"), "tap X", "wait 60", "ff6 mm 4", "wait 10", "ff6 mm 1", "wait 3", "peek 7E0026 1", "peek 7E0027 1"]
+    # (the Item page by taps: Tonic, Tonic again (picked up, then used: the characters, 70), Terra)
+    lines += [ff6_state(data, "harness-ff3-3-slot2-world-map"), "tap X", "wait 60", "ff6 mm 0", "wait 60", "ff6 mtap 60 116", "wait 10",
+              "peek 7E0026 1", "ff6 mtap 60 116", "wait 40", "peek 7E0026 1", "ff6 mtap 150 140", "wait 20", "peek 7E0057 1"]
     text = harness(rom, out, lines, "ff6mainmenu")
+    tail = text[text.find("ff6 mtap"):]
+    st = re.findall(r"peek 7E0026: ([0-9A-F]{2})", tail)
+    hand = re.findall(r"peek 7E0057: ([0-9A-F]{2})", tail)
+    ok_item = st[:2] == ["19", "70"] and hand == ["88"]
+    report("ff6menus", ok_item, "Item page by taps: Tonic picked up (%s), used (%s), the hand on Terra (%s)" % (st[0] if st else "?", st[1] if len(st) > 1 else "?", hand[0] if hand else "?"))
+    text = text[:text.find("ff6 mtap")]
     states = [(int(a, 16), int(b, 16)) for a, b in re.findall(r"peek 7E0026: ([0-9A-F]{2})\npeek 7E0027: ([0-9A-F]{2})", text)]
     bad = []
     for (row, st), (cur, nxt) in zip(want, states):

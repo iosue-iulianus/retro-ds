@@ -46,6 +46,10 @@ static int queued, queueAt, pressFrame;
 /* FF6-3: the list page's first row shown, and the game's cursor's row
  * when it was last seen (the page follows the pad's cursor) */
 static int listTop, listSeen = -2, listMenu;
+/* FF6-4: a tap on a menu page being followed (the hand moved there) */
+static Ff6MenuAim menuAim;
+static int menuDownX, menuDownY;
+static bool menuDown, fastPress; /* (the hand's moves: 2 frames down, 2 up) */
 /* FF6-5: a main menu command tapped while walking (-1 none), the frames
  * waited for the menu */
 static int menuWant = -1, menuWait;
@@ -65,6 +69,7 @@ void ff6_open(const char* rom, const char* code) {
 	queued = queueAt = pressFrame = 0;
 	listTop = 0, listSeen = -2, listMenu = 0;
 	menuWant = -1;
+	menuAim.active = false, menuDown = false, fastPress = false;
 	listFrames = 0;
 	memset(&bat, 0, sizeof(bat));
 	if (f6) fprintf(stderr, "ff6: Final Fantasy VI (FF6-1 to 5)\n");
@@ -331,7 +336,7 @@ static void choose_keys(const char* what, const Write* w, int n, const uint32_t*
 		if (emu_apply(&emu, label, w, n, ok, nOk) != n) return;
 	}
 	for (int i = 0; i < nKeys && i < 16; ++i) queue[i] = keys[i];
-	queued = nKeys, queueAt = 0, pressFrame = 0;
+	queued = nKeys, queueAt = 0, pressFrame = 0, fastPress = false;
 	fprintf(stderr, "ff6: %s: %d presses\n", what, nKeys);
 }
 
@@ -341,7 +346,7 @@ static void choose(const char* what, const Write* w, int n) {
 }
 
 static void press(const char* what, uint32_t key) {
-	queue[0] = key, queued = 1, queueAt = 0, pressFrame = 0;
+	queue[0] = key, queued = 1, queueAt = 0, pressFrame = 0, fastPress = false;
 	fprintf(stderr, "ff6: %s\n", what);
 }
 
@@ -371,8 +376,39 @@ static int party_touch(const Pointer* p) {
 	return 1;
 }
 
+/* FF6-4: a tap on the menu's pages (the game's picture moved over): the
+ * game's hand moved to the row tapped with the D-pad, then A (ff6_keys,
+ * ff6_menu_aim_next); a swipe across: B */
+static int menu_touch(const Pointer* p) {
+	SDL_Rect d = place(p->screen, picW, picH);
+	if (p->kind == 1) {
+		menuDownX = p->x, menuDownY = p->y, menuDown = true;
+		return 1;
+	}
+	if (p->kind != 2 || !menuDown) return 1;
+	menuDown = false;
+	if (queued > queueAt || menuAim.active) return 1;
+	if (abs(p->x - menuDownX) > d.w / 6) {
+		press("the menu, a swipe: B", K_B);
+		return 1;
+	}
+	if (menuDownX < d.x || menuDownY < d.y || menuDownX >= d.x + d.w || menuDownY >= d.y + d.h) return 1;
+	int px = (menuDownX - d.x) * picW / d.w, py = (menuDownY - d.y) * picH / d.h;
+	int state = emu_read8(&emu, 0x7E0026);
+	if (state == 0x27 || state == 0x2A) {
+		/* (a shop's how many to buy or sell: Up and Down change it, so a
+		 * tap is A, the number on the pad) */
+		press("the shop's number: A", K_A);
+		return 1;
+	}
+	ff6_menu_aim_start(&menuAim, px, py);
+	fprintf(stderr, "ff6: a tap on the menu at %d,%d: the hand there, then A\n", px, py);
+	return 1;
+}
+
 int ff6_touch(const Pointer* p) {
 	if (f6 && party_shown() && p->screen != game_screen()) return party_touch(p);
+	if (f6 && menu_shown() && p->screen != game_screen()) return menu_touch(p);
 	if (!battle_shown() || p->screen == game_screen()) return 0;
 	if (p->kind != 1) return 1;
 	if (queued > queueAt) return 1; /* (the last tap's press still playing) */
@@ -460,8 +496,21 @@ uint32_t ff6_keys(uint32_t keys) {
 		}
 		return 0; /* (the player's own buttons wait meanwhile) */
 	}
+	if (queueAt >= queued && menuAim.active) {
+		/* FF6-4: the next press toward the row tapped on a menu page */
+		if (!menu_shown()) {
+			menuAim.active = false;
+		} else {
+			uint32_t k = ff6_menu_aim_next(&menuAim, &emu);
+			if (k) queue[0] = k, queued = 1, queueAt = 0, pressFrame = 0, fastPress = k != K_A;
+			if (k == K_A) fprintf(stderr, "ff6: the hand's on the row tapped: A\n");
+			else if (!k) fprintf(stderr, "ff6: the hand can't get to the row tapped\n");
+		}
+	}
 	if (queueAt >= queued) return keys;
-	uint32_t k = pressFrame < 3 ? queue[queueAt] : 0;
-	if (++pressFrame >= 12) pressFrame = 0, ++queueAt;
+	int on = fastPress ? 2 : 3, len = fastPress ? 4 : 12;
+	uint32_t k = pressFrame < on ? queue[queueAt] : 0;
+	if (++pressFrame >= len) pressFrame = 0, ++queueAt;
+	if (queueAt >= queued) fastPress = false;
 	return k;
 }

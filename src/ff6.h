@@ -11,6 +11,8 @@
 #include "emu.h"
 #include "writes.h"
 
+typedef struct Ff6Rom Ff6Rom; /* (the ROM as played: ff6_rom_load) */
+
 #define FF6_CODE "A27F1C7A" /* Final Fantasy III (USA) 1.0 */
 #define FF6_CODE_REV1 "C0FA0464" /* and 1.1 (Rev 1) */
 
@@ -94,6 +96,18 @@ const WriteRange* ff6_write_ranges(int* n);
 /* FF6-5: the main menu's cursor on a row: its commands (0 Item to 6
  * Save) or, choosing a character, theirs (0 to 3); then A */
 int ff6_menu_writes(int row, Write* out);
+/* FF6-4: a tap on one of the menu's pages (the game's picture, its pixels
+ * x, y): the game's hand moved there with the D-pad, a press at a time,
+ * watching where it goes ($55, $57), then A. ff6_menu_aim_next after each
+ * press has played: the next key (a direction, then K_A on the row), 0
+ * when it can't get there (above or below the list, 24 presses) */
+typedef struct {
+	bool active;
+	int x, y, steps, lastHx, lastHy, rowStep, colStep;
+	uint32_t lastKey, blocked;
+} Ff6MenuAim;
+void ff6_menu_aim_start(Ff6MenuAim* a, int x, int y);
+uint32_t ff6_menu_aim_next(Ff6MenuAim* a, Emu* e);
 /* a command: row 0 to 3 of the command list */
 int ff6_command_writes(const Ff6Battle* b, int row, Write* out);
 /* a target: a party slot 0 to 3, or 4 + a monster slot. 0 writes: the
@@ -111,7 +125,6 @@ int ff6_list_writes(const Ff6Battle* b, int index, Write* out);
 int ff6_list_keys(const Ff6Battle* b, int index, uint32_t keys[3]);
 /* FF6-3: a Blitz (0 to 7): its code's buttons from the ROM, A last (up to
  * 11), pressed one at a time as the player would; 0 if none */
-typedef struct Ff6Rom Ff6Rom;
 int ff6_blitz_keys(const Ff6Rom* rom, int k, uint32_t keys[11]);
 
 #endif

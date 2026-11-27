@@ -26,6 +26,7 @@
  *   ff6 cmd ROW / target T / row I   FF6-3: a tap: the menu's cursor written, then A
  *   ff6 list               the open Magic / Item list as the second screen reads it
  *   ff6 mm ROW             FF6-5: a tap on the main menu's row: its cursor written, then A
+ *   ff6 mtap X Y           FF6-4: a tap on a menu page at X, Y (its cursor's row there, A; none: B)
  *   ff6 menu NAME          FF6-5: the party screen RetroDS draws (src/ff6.c),
  *                          from A's RAM and the ROM: NAME.png, 256 x 224
  *   ff6 battlepic NAME     FF6-2: the battle screen RetroDS draws, NAME.png
@@ -812,6 +813,23 @@ int main(int argc, char** argv) {
 					for (int i = 0; i < 3; ++i) frame(e, K_A);
 					for (int i = 0; i < 9; ++i) frame(e, 0);
 				}
+			} else if (!strcmp(s1, "mtap")) {
+				/* FF6-4: a tap at x y on a menu page (the game's picture): the
+				 * hand moved there with the D-pad (2 frames down, 2 up), then A */
+				Ff6MenuAim a;
+				ff6_menu_aim_start(&a, atoi(s2), atoi(s3));
+				printf("ff6 mtap %d %d:", atoi(s2), atoi(s3));
+				uint32_t k;
+				while ((k = ff6_menu_aim_next(&a, e)) != 0) {
+					printf(" %s", k == K_A ? "A" : k == K_LEFT ? "LEFT" : k == K_RIGHT ? "RIGHT" : k == K_UP ? "UP" : "DOWN");
+					for (int i = 0; i < 2; ++i) frame(e, k);
+					for (int i = 0; i < 2; ++i) frame(e, 0);
+					if (k == K_A) {
+						for (int i = 0; i < 8; ++i) frame(e, 0);
+						break;
+					}
+				}
+				printf("\n");
 			} else if (!strcmp(s1, "blitz")) {
 				/* FF6-3: a Blitz's code pressed (each 3 frames down, 9 up), A last */
 				static Ff6Rom* from;

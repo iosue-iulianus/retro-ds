@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static const uint8_t* at(const Ff6Rom* r, uint32_t a); /* (the ROM at an address: below) */
+
 bool ff6_is(const char* gameCode) {
 	/* (1.1, Rev 1: only banks C1 and C2's battle code differ; every table
 	 * RetroDS reads, the RAM and the handlers it tells the game's parts by
@@ -97,6 +99,50 @@ int ff6_menu_writes(int row, Write* out) {
 	return 3;
 }
 
+void ff6_menu_aim_start(Ff6MenuAim* a, int x, int y) {
+	memset(a, 0, sizeof(*a));
+	a->x = x, a->y = y, a->active = true, a->lastHx = a->lastHy = -1;
+}
+
+uint32_t ff6_menu_aim_next(Ff6MenuAim* a, Emu* e) {
+	if (!a->active) return 0;
+	/* the hand, where the menu's cursor task put it ($55, $57: its top left) */
+	int hx = emu_read8(e, 0x7E0055), hy = emu_read8(e, 0x7E0057);
+	bool moved = hx != a->lastHx || hy != a->lastHy;
+	if (a->lastKey && !moved) a->blocked |= a->lastKey;
+	if (moved) {
+		a->blocked = 0;
+		/* (the page's spacing, learnt from the hand's own moves) */
+		if (a->lastKey == K_UP || a->lastKey == K_DOWN) a->rowStep = abs(hy - a->lastHy);
+		if (a->lastKey == K_LEFT || a->lastKey == K_RIGHT) a->colStep = abs(hx - a->lastHx);
+	}
+	a->lastHx = hx, a->lastHy = hy;
+	/* the row: the nearest to the tap, by the spacing (till a move has shown
+	 * it: within 6 of the hand's middle); the column: the tap right of the
+	 * hand, less than a column further (112 till shown) */
+	int dy = a->y - (hy + 4), colW = a->colStep > 16 ? a->colStep : 112;
+	int rowsAway = a->rowStep > 0 ? (dy + (dy > 0 ? a->rowStep / 2 : -a->rowStep / 2)) / a->rowStep : (dy > 6 ? 1 : dy < -6 ? -1 : 0);
+	/* (sideways only where the cursor has columns, $53: on a page of
+	 * settings, Config, Left and Right change the setting) */
+	bool cols = emu_read8(e, 0x7E0053) > 1;
+	uint32_t want = 0;
+	if (rowsAway < 0) want = K_UP;
+	else if (rowsAway > 0) want = K_DOWN;
+	else if (cols && a->x < hx - 8) want = K_LEFT;
+	else if (cols && a->x > hx + colW) want = K_RIGHT;
+	/* past the row (the way back is the way it came): it's this one */
+	if ((want == K_UP && a->lastKey == K_DOWN) || (want == K_DOWN && a->lastKey == K_UP)) want = 0;
+	if (want && (a->blocked & want)) {
+		/* (it won't go further: sideways, the nearest column is it; above
+		 * or below the list, nothing) */
+		want = (want == K_LEFT || want == K_RIGHT) ? 0 : (uint32_t) -1;
+	}
+	if (want == (uint32_t) -1 || ++a->steps > 24) return a->active = false, 0;
+	if (!want) return a->active = false, K_A;
+	a->lastKey = want;
+	return want;
+}
+
 int ff6_command_writes(const Ff6Battle* b, int row, Write* out) {
 	if (!b->open || b->menu != FF6_MENU_COMMANDS || row < 0 || row > 3 || b->disabled[row]) return -1;
 	out[0] = (Write) { 0x7E890F + (uint32_t) b->slot, (uint8_t) row };
@@ -184,8 +230,6 @@ int ff6_list_keys(const Ff6Battle* b, int index, uint32_t keys[3]) {
 	keys[n++] = K_A, keys[n++] = K_A;
 	return n;
 }
-
-static const uint8_t* at(const Ff6Rom* r, uint32_t a); /* (the ROM at an address: below) */
 
 /* the Blitz codes' buttons (the disassembly's BlitzButtonMaskTbl, by
  * BLITZ_CODE: none, A, B, X, Y, L, R, down-left, down, down-right, right,
