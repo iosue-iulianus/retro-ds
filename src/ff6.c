@@ -5,7 +5,10 @@
 #include <string.h>
 
 bool ff6_is(const char* gameCode) {
-	return gameCode && !strcmp(gameCode, FF6_CODE);
+	/* (1.1, Rev 1: only banks C1 and C2's battle code differ; every table
+	 * RetroDS reads, the RAM and the handlers it tells the game's parts by
+	 * are the same) */
+	return gameCode && (!strcmp(gameCode, FF6_CODE) || !strcmp(gameCode, FF6_CODE_REV1));
 }
 
 /* The NMI handlers the game's programs install (measured, Nov 26, 2026) */

@@ -105,7 +105,7 @@ static const MapProfile profiles[] = {
 	 * (docs/games/final-fantasy-vi.md): its battle windows and main menu
 	 * moved to the second screen by src/game_ff6.c, the logo elsewhere */
 	{
-		.codes = { "A27F1C7A" }, /* USA 1.0 */
+		.codes = { "A27F1C7A", "C0FA0464" }, /* USA 1.0, 1.1 (Rev 1: its battle code moved, not what RetroDS reads) */
 		.title = "Final Fantasy III",
 		.logoOnly = true,
 		.gameFirst = true, /* FF6-6: the game above, its windows below */

@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Releases | USA 1.0 (this page). 1.1 (`C0FA0464`) and Japan's Final Fantasy VI (`45EF5AC8`) are other ROMs: not handled yet |
-| Dumps | `A27F1C7A` "Final Fantasy III (USA)" (MD5 `e986575b...`, the ROM everything8215/ff6 assembles to) |
+| Dumps | `A27F1C7A` "Final Fantasy III (USA)" (MD5 `e986575b...`, the ROM everything8215/ff6 assembles to); `C0FA0464` "Final Fantasy III (USA) (Rev 1)", 1.1: only banks C1 and C2 (battle code) differ, every table RetroDS reads is the same byte for byte, its battle NMI handler at the same address (checked Nov 27, 2026: the battle pages, Blitz, a spell on a target) |
 | Profile | `src/profiles.c`: the `A27F1C7A` entry (logo only, the game on the first screen) |
 | Code | `src/ff6.c` (reading the game), `src/game_ff6.c` (the second screen) |
 | Tests | the harness (`ff6 part`, `ff6 battle`, `ff6 tap ROW`, `ff6 menu NAME`, `ff6 battlepic NAME`) and the app headless with the test files in `test-data/final-fantasy-vi/` (`harness-*`: the opening at Narshe's gate, the six slots of two players' saves loaded through Continue) |

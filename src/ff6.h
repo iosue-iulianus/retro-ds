@@ -12,6 +12,7 @@
 #include "writes.h"
 
 #define FF6_CODE "A27F1C7A" /* Final Fantasy III (USA) 1.0 */
+#define FF6_CODE_REV1 "C0FA0464" /* and 1.1 (Rev 1) */
 
 bool ff6_is(const char* gameCode);
 
