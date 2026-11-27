@@ -7,9 +7,10 @@ note is the starting point for a spike; the spike's findings are added
 here as they come, as `docs/research/the-wind-waker.md` (branch
 `tww-spike`) did for the GameCube.
 
-**Status: not started.** The emulator and its licence fit; the work is
-getting it into RetroDS, which only talks to libretro cores. Next: the
-owner tries hakuX itself on the Duo (below, "The spike").
+**Status: step 1 passed.** The emulator and its licence fit; the work is
+getting it into RetroDS, which only talks to libretro cores. The owner has
+been playing hakuX itself on the Duo and it runs really well there (Nov 27,
+2026). Next: step 2, its core without its app (below, "The spike").
 
 ## The emulator: hakuX
 
@@ -28,8 +29,8 @@ Android" (990 stars; v1.0.0 Oct 23, 2026, v1.3.0 Oct 31, 2026).
   loaded).
 - **Speed** (press, secondary): v1.2 brought most games tested on the
   Retroid Pocket 5 (Adreno 650) to their own frame rate caps at double
-  resolution; some needed Turnip. **The Duo (Adreno 722) is unknown**:
-  roughly comparable, not established.
+  resolution; some needed Turnip. **On the Duo (Adreno 722): runs really
+  well** in the owner's play (Nov 27, 2026; hakuX's own app).
 - **Its code** (`native/`): `core/` (the VM, XBE loading, the disc's
   file system, a memory scanner for its cheats, per-game mods), `kernel/`,
   `hle/`, `dev/` (devices), `cpu/`, `state/` (savestates, a versioned
@@ -118,8 +119,8 @@ In order; stop at the first that fails.
 
 1. **The owner plays NFL 2K5 in hakuX itself on the Duo** (its own app,
    the player's own disc image). Speed, sound, controls. If it doesn't run
-   well there, this ends here. Back up the Duo's states first only if
-   RetroDS is touched (it isn't, at this step).
+   well there, this ends here. **Passed** (the owner, Nov 27, 2026: "runs
+   really well on the Duo").
 2. **The core without its app:** build `libhakuxcore.so` (its
    `android/README.md`), and from a small test program on the Duo (as
    `tools/gamecube/lrtest.c` did for Dolphin) boot a game with no window,

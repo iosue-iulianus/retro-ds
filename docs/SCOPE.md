@@ -437,8 +437,9 @@ The `a/b/c` soname scheme is needed only for SNES while it keeps two copies
   RetroDS's process.
 - **First game idea:** NFL 2K5's play calling on the touch screen (no
   decomp; a mod tool documents its playbook file).
-- **Detail and the spike's plan:** `docs/research/original-xbox.md`. **Not
-  yet**: first the owner tries hakuX itself on the Duo.
+- **Detail and the spike's plan:** `docs/research/original-xbox.md`. The
+  owner plays hakuX on the Duo and it runs really well (Nov 27, 2026): the
+  spike's next step is its core without its app.
 
 ## 4. Rename to RetroDS
 
