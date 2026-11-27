@@ -43,6 +43,7 @@ typedef struct {
 	int cmd[4];        /* the slot's commands (their numbers), -1 none */
 	bool disabled[4];  /* greyed out: the cursor skips them */
 	bool shortSet;     /* Config's Command set "short" (a cross, not a list) */
+	bool control;      /* Relm controlling a monster: cmd[] are its attacks */
 	/* choosing a target: who the game's cursor covers */
 	int partyTarget;   /* bits 0-3, the party's slots ($7B7D) */
 	int monTarget;     /* bits 0-5, the monsters ($7B7E) */
@@ -74,8 +75,12 @@ typedef struct {
 #define FF6_MENU_BLITZ 0x3D   /* (a button code, then A) */
 #define FF6_MENU_BUSHIDO 0x37 /* (SwdTech: A when the bar is at the level) */
 #define FF6_MENU_SLOT 0x08    /* (A stops the reels) */
+#define FF6_MENU_ROW 0x24     /* (Row's window: A changes rows) */
+#define FF6_MENU_DEF 0x27     /* (Def.'s: A defends) */
 /* the lists RetroDS draws (one of the FF6_MENU_ above) */
 bool ff6_list_menu(int menu);
+/* the command page's (the command list, Row's and Def.'s windows) */
+bool ff6_command_menu(int menu);
 void ff6_battle(Emu* e, Ff6Battle* b);
 
 /* FF6-3: touch done as the game's own menu does it: the menu's cursor
@@ -163,6 +168,7 @@ typedef struct {
 	int portrait;
 	int hp, hpMax, mp, mpMax;
 	int atb;           /* the time gauge, 0 to 255 */
+	int status;        /* the first status the game's status window would name (0 Wound, 1 Petrify...), -1 none */
 } Ff6Fighter;
 
 typedef struct {
@@ -201,7 +207,7 @@ int ff6_battle_page(const Ff6BattleView* v);
 /* what's at x, y on it (its pixels): a command (arg: its row), an enemy
  * (arg: its monster slot), a character (arg: the party slot), Back, the
  * status window of whose turn it is (on the command page) */
-enum { FF6_HIT_NONE, FF6_HIT_COMMAND, FF6_HIT_ENEMY, FF6_HIT_PARTY, FF6_HIT_BACK, FF6_HIT_STATUS, FF6_HIT_ROW, FF6_HIT_UP, FF6_HIT_DOWN };
+enum { FF6_HIT_NONE, FF6_HIT_COMMAND, FF6_HIT_ENEMY, FF6_HIT_PARTY, FF6_HIT_BACK, FF6_HIT_STATUS, FF6_HIT_ROW, FF6_HIT_UP, FF6_HIT_DOWN, FF6_HIT_ROWCMD, FF6_HIT_DEF };
 /* (FF6_HIT_ROW: a row of the list, arg its index in the view's list) */
 int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg);
 

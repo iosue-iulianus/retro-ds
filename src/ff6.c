@@ -30,9 +30,12 @@ void ff6_battle(Emu* e, Ff6Battle* b) {
 	b->menu = emu_read8(e, 0x7E7BC2);
 	b->slot = emu_read8(e, 0x7E62CA) & 3;
 	b->cursor = emu_read8(e, 0x7E890F + (uint32_t) b->slot) & 3;
-	/* each slot's four commands: number, flags (bit 7: greyed), targeting */
+	/* each slot's four commands: number, flags (bit 7: greyed), targeting;
+	 * Relm controlling a monster ($62CC + slot): its attacks instead
+	 * ($205E, the same shape, attack numbers) */
+	b->control = emu_read8(e, 0x7E62CC + (uint32_t) b->slot) != 0;
 	for (int i = 0; i < 4; ++i) {
-		uint32_t a = 0x7E202E + (uint32_t) (b->slot * 12 + i * 3);
+		uint32_t a = (b->control ? 0x7E205E : 0x7E202E) + (uint32_t) (b->slot * 12 + i * 3);
 		uint8_t n = emu_read8(e, a), f = emu_read8(e, a + 1);
 		b->cmd[i] = n == 0xFF ? -1 : n;
 		b->disabled[i] = n == 0xFF || (f & 0x80);
@@ -131,6 +134,12 @@ static const ListDef* list_def(int menu) {
 		if (listDefs[i].menu == menu) return &listDefs[i];
 	}
 	return NULL;
+}
+
+bool ff6_command_menu(int menu) {
+	/* (the command list, Row's and Def.'s windows: opening 17 / 19,
+	 * closing 18 / 1A, open 24 / 27) */
+	return menu == FF6_MENU_COMMANDS || menu == 0x17 || menu == 0x18 || menu == 0x19 || menu == 0x1A || menu == FF6_MENU_ROW || menu == FF6_MENU_DEF;
 }
 
 bool ff6_list_menu(int menu) {
@@ -581,6 +590,14 @@ void ff6_battle_view(Emu* e, Ff6BattleView* v) {
 		if (f->hp == 0xFFFF || f->hpMax == 0xFFFF) v->ready = false;
 		f->mp = emu_read16(e, b + 11), f->mpMax = emu_read16(e, b + 13);
 		f->atb = emu_read8(e, 0x7E619E + (uint32_t) s);
+		/* the first status, as the game's status window names it
+		 * (GetFirstStatus: status 1's bit 7 first... then status 3 and 4's) */
+		uint16_t st12 = (uint16_t) (emu_read8(e, b + 15) << 8 | emu_read8(e, b + 16));
+		uint16_t st34 = (uint16_t) (emu_read8(e, b + 17) << 8 | emu_read8(e, b + 18));
+		f->status = -1;
+		for (int k = 0; k < 32 && f->status < 0; ++k) {
+			if ((k < 16 ? st12 : st34) >> (15 - (k & 15)) & 1) f->status = k;
+		}
 	}
 	/* every enemy alive, a row each (the game lists each kind once), top
 	 * to bottom as they stand */
@@ -604,8 +621,9 @@ void ff6_battle_view(Emu* e, Ff6BattleView* v) {
 		uint32_t c = (uint32_t) m->slot;
 		int at = ((d->scroll ? emu_read8(e, d->scroll + c) : 0) + emu_read8(e, d->y + c)) * d->cols + emu_read8(e, d->x + c);
 		v->listShowVal = m->menu == FF6_MENU_MAGIC || m->menu == FF6_MENU_ITEM || m->menu == FF6_MENU_LORE || m->menu == FF6_MENU_THROW;
-		if (m->menu == FF6_MENU_MAGIC) {
-			/* the esper, first (the game's: Up from the top row) */
+		if (m->menu == FF6_MENU_MAGIC && !emu_read8(e, 0x7E7AE8)) {
+			/* the esper, first (the game's: Up from the top row; not for
+			 * X-Magic's spells, $7AE8, where Up doesn't open it) */
 			uint32_t a = 0x7E208E + 316 * c;
 			uint8_t id = emu_read8(e, a);
 			if (id != 0xFF) {
@@ -778,6 +796,14 @@ static void name_of(const Ff6Rom* rom, uint32_t table, int len, int i, char* out
 	out[len] = 0;
 }
 
+/* an attack's name: spells E6/F567 (7), esper attacks E6/FE8F (10, from
+ * 36), the rest E6/F7B9 (10, from 51) */
+static void attack_name(const Ff6Rom* rom, int id, char* out) {
+	if (id < 0x36) name_of(rom, 0xE6F567, 7, id, out);
+	else if (id < 0x51) name_of(rom, 0xE6FE8F, 10, id - 0x36, out);
+	else name_of(rom, 0xE6F7B9, 10, id - 0x51 < 175 ? id - 0x51 : 0, out);
+}
+
 /* a list row's name, from the ROM: spells E6/F567 (7: an icon, 6
  * letters), espers E6/F6E1 (8; their attacks 36 on), items D2/B300 (13:
  * an icon, 12), attacks E6/F7B9 (10, from attack 51: lores from 8B, by
@@ -808,6 +834,9 @@ int ff6_battle_page(const Ff6BattleView* v) {
 #define GRID_TY(i) (8 + 5 * ((i) / 2))
 #define ROW_TX(j) (8 * (j))
 #define ROW_TY 23
+/* the command page's Row and Def. buttons, under the enemies */
+#define ROWDEF_TX(j) (20 + 10 * (j))
+#define ROWDEF_TY 20
 /* the list's rows: two across, five down, a row 3 tiles high */
 #define LIST_TX(i) (20 * ((i) % 2))
 #define LIST_TY(i) (8 + 3 * ((i) / 2))
@@ -823,6 +852,7 @@ int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg) {
 	*arg = -1;
 	if (page == FF6_PAGE_COMMANDS) {
 		if (tx < 20 && ty < 8) return FF6_HIT_STATUS;
+		if (!v->menu.control && tx >= 20 && ty >= ROWDEF_TY) return tx < ROWDEF_TX(1) ? FF6_HIT_ROWCMD : FF6_HIT_DEF;
 		for (int k = 0; k < 4; ++k) {
 			if (tx < 20 && ty >= CMD_TY(k) && ty < CMD_TY(k) + 5) return *arg = k, FF6_HIT_COMMAND;
 		}
@@ -888,7 +918,11 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 	add_win(0, 0, 18, 6);
 	if (page == FF6_PAGE_COMMANDS) {
 		for (int k = 0; k < 4; ++k) add_win(0, CMD_TY(k), 18, 3);
-		add_win(20, 0, 18, 26); /* the enemies, to read */
+		add_win(20, 0, 18, m->control ? 26 : 18); /* the enemies, to read */
+		if (!m->control) {
+			add_win(ROWDEF_TX(0), ROWDEF_TY, 8, 6); /* Row, Def. (the pad's Left and Right) */
+			add_win(ROWDEF_TX(1), ROWDEF_TY, 8, 6);
+		}
 	} else if (page == FF6_PAGE_BLITZ || page == FF6_PAGE_BUSHIDO) {
 		add_win(20, 0, 18, 6);
 		for (int i = 0; i < 8; ++i) {
@@ -915,11 +949,22 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 		 * ones grey; the game's hand on the one its cursor is on */
 		for (int k = 0; k < 4; ++k) {
 			if (m->cmd[k] < 0) continue;
-			char name[8];
-			name_of(rom, 0xD8CEA0, 7, m->cmd[k], name);
+			char name[11];
+			if (m->control) attack_name(rom, m->cmd[k], name); /* (a controlled monster's attacks) */
+			else name_of(rom, 0xD8CEA0, 7, m->cmd[k], name);
 			text(out, rom, name, 5, CMD_TY(k) + 2, m->disabled[k] ? p.grey : p.white);
 		}
 		if (m->menu == FF6_MENU_COMMANDS) hand(out, rom, 2 * 8, (CMD_TY(m->cursor) + 2) * 8 - 4);
+		if (!m->control) {
+			/* Row and Def. (the command names 14, 15); the hand on the one
+			 * the pad has opened (the game's states 24, 27) */
+			for (int j = 0; j < 2; ++j) {
+				char name[8];
+				name_of(rom, 0xD8CEA0, 7, 0x14 + j, name);
+				text(out, rom, name, ROWDEF_TX(j) + 3, ROWDEF_TY + 4, p.white);
+				if (m->menu == (j ? FF6_MENU_DEF : FF6_MENU_ROW)) hand(out, rom, (ROWDEF_TX(j) + 1) * 8, (ROWDEF_TY + 4) * 8 - 4);
+			}
+		}
 		for (int i = 0; i < v->nEnemies; ++i) {
 			char name[11];
 			name_of(rom, 0xCFC050, 10, m->monType[v->enemy[i]], name);
@@ -1033,6 +1078,13 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 		text(out, rom, name, 22, 4, p.yellow);
 	} else if (covered == 1 && v->f[at - 8].here) {
 		text(out, rom, v->f[at - 8].name, 22, 4, p.yellow);
+		/* their first status, as the game's own status window shows it
+		 * (C2/ADE1: 10 letters a status) */
+		if (v->f[at - 8].status >= 0) {
+			char st[11];
+			name_of(rom, 0xC2ADE1, 10, v->f[at - 8].status, st);
+			text(out, rom, st, 22, 5, p.teal);
+		}
 	}
 	for (int i = 0; i < v->nEnemies; ++i) {
 		char name[11];

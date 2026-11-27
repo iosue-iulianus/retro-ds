@@ -110,7 +110,7 @@ void ff6_tick(void) {
 	/* how long one of the game's lists has been open: the menu passes
 	 * through other states for a frame (10, 04, 0D: after a target, as a
 	 * list opens), which aren't lists */
-	listFrames = bat.open && bat.menu > FF6_MENU_COMMANDS && bat.menu != FF6_MENU_TARGET && !ff6_list_menu(bat.menu) && bat.menu != FF6_MENU_BLITZ && bat.menu != FF6_MENU_BUSHIDO ? listFrames + 1 : 0;
+	listFrames = bat.open && bat.menu > FF6_MENU_COMMANDS && bat.menu != FF6_MENU_TARGET && !ff6_list_menu(bat.menu) && bat.menu != FF6_MENU_BLITZ && bat.menu != FF6_MENU_BUSHIDO && !ff6_command_menu(bat.menu) ? listFrames + 1 : 0;
 	if (!bat.open || bat.menu != FF6_MENU_BUSHIDO) bushidoWant = -1;
 	/* FF6-2: the battle screen, drawn again when anything on it changes */
 	if (part == FF6_BATTLE && rom6 && battlePx) {
@@ -353,6 +353,15 @@ int ff6_touch(const Pointer* p) {
 	if (hit == FF6_HIT_COMMAND) {
 		snprintf(what, sizeof what, "command %d (%d)", arg, bat.cmd[arg & 3]);
 		choose(what, w, ff6_command_writes(&bat, arg, w));
+	} else if ((hit == FF6_HIT_ROWCMD || hit == FF6_HIT_DEF) && bat.open && (bat.menu == FF6_MENU_COMMANDS || bat.menu == FF6_MENU_ROW || bat.menu == FF6_MENU_DEF)) {
+		/* Row / Def.: the pad's Left / Right (L / R with the short command
+		 * set) opens its window, A takes it; already open: A */
+		bool row = hit == FF6_HIT_ROWCMD;
+		uint32_t keys[3];
+		int nk = 0;
+		if (bat.menu == (row ? FF6_MENU_ROW : FF6_MENU_DEF)) keys[nk++] = K_A;
+		else if (bat.menu == FF6_MENU_COMMANDS) keys[nk++] = row ? (bat.shortSet ? K_L : K_LEFT) : (bat.shortSet ? K_R : K_RIGHT), keys[nk++] = 0, keys[nk++] = K_A;
+		if (nk) choose_keys(row ? "Row" : "Def.", w, 0, keys, nk);
 	} else if (hit == FF6_HIT_STATUS && bat.open && bat.menu == FF6_MENU_COMMANDS) {
 		press("whose turn it is: X (the next character ready)", K_X);
 	} else if (hit == FF6_HIT_BACK && bat.open) {
