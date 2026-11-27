@@ -11,8 +11,7 @@ A bugfix release.
 - **Rewind could crash.** Rewinding across a big change on screen (a
   room or scene change) could corrupt memory and crash the game.
 - **Symphony of the Night's menu could crash** on the second screen,
-  depending on where the menu's window sat. Its colours also follow a
-  change made in the System menu straight away.
+  depending on where the menu's window sat.
 - **A save state could crash RetroDS** when memory ran short; now the
   save just fails.
 - **Moving RetroDS's folder** (Settings > Folders) now moves a
