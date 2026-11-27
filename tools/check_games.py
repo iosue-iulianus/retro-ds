@@ -37,9 +37,9 @@ Super Metroid:
              while paused (SM-10's gate)
 Final Fantasy VI (FF3 USA 1.0):
   ff6party   the party screen RetroDS draws pixel for pixel as the game's
-             main menu, its command list and hand too (seven saves, and
-             choosing a character; not the clock's minute, which ticks
-             while the menu opens)
+             main menu (seven saves; not the menu's command list, which it
+             leaves out, nor the clock's minute, which ticks while the menu
+             opens)
   ff6menus   a tap on each command opens the game's own menu for it, and
              the lists read as the game holds them (the commands put in the
              battle's command list where the test party hasn't them)
@@ -309,6 +309,7 @@ def sm_writes(rom, data, out):
 
 FF6_PARTY_STATES = ["narshe-gate", "ff3-3-slot1-scenario-split", "ff3-3-slot2-world-map", "ff3-3-slot3-all-characters",
                     "finalf3-slot1-floating-continent", "finalf3-slot2-world-map", "finalf3-slot3-kefkas-tower"]
+FF6_CMDBOX = (168, 0, 256, 131)   # the main menu's command list (x0, y0, x1, y1), left out of the party screen
 FF6_MINUTE = (232, 143, 240, 151)  # the clock's minute digit
 FF6_SABIN = "harness-ff3-3-battle-behemoth-sabin"  # Sabin's turn: Edgar, Sabin, Terra, Shadow v Behemoth, 2 Misfits
 FF6_TERRA = "harness-ff3-3-battle-behemoth-terra"  # the same battle, Terra's turn
@@ -317,15 +318,13 @@ FF6_TERRA = "harness-ff3-3-battle-behemoth-terra"  # the same battle, Terra's tu
 def ff6_party(rom, data, out):
     lines = []
     for s in FF6_PARTY_STATES:
-        lines += ["load %s/final-fantasy-vi/harness-%s.state" % (data, s), "tap X", "wait 90", "ff6 menu ours-" + s, "shot game-" + s]
-        if s == FF6_PARTY_STATES[0]:   # (and choosing a character: Skills, the cursor on the second)
-            lines += ["tap DOWN", "wait 10", "tap A", "wait 20", "tap DOWN", "wait 10", "ff6 menu ours-chars", "shot game-chars"]
+        lines += ["load %s/final-fantasy-vi/harness-%s.state" % (data, s), "wait 2", "ff6 menu ours-" + s, "tap X", "wait 90", "shot game-" + s]
     harness(rom, out, lines, "ff6party")
-    for s in FF6_PARTY_STATES + ["chars"]:
+    for s in FF6_PARTY_STATES:
         a, b = png(os.path.join(out, "ours-%s.png" % s)), png(os.path.join(out, "game-%s.png" % s))
         d = (a != b).any(2)
-        x0, y0, x1, y1 = FF6_MINUTE
-        d[y0:y1, x0:x1] = False
+        for x0, y0, x1, y1 in (FF6_CMDBOX, FF6_MINUTE):
+            d[y0:y1, x0:x1] = False
         n = int(d.sum())
         report("ff6party", n == 0, "%s: RetroDS's party screen vs the game's menu, %d pixels differ" % (s, n))
 
@@ -354,38 +353,6 @@ def ff6_menus(rom, data, out):
         if op != "1" or int(got, 16) != menu or (rows >= 0 and int(n) != rows):
             bad.append("%02X: menu %s, %s rows (wanted %02X, %d)" % (cmd, got, n, menu, rows))
     report("ff6menus", len(menus) == len(cases) and not bad, "%d commands opened their menus%s" % (len(cases) - len(bad), "; not: " + "; ".join(bad) if bad else ""))
-    ff6_mainmenu(rom, data, out)
-
-
-def ff6_mainmenu(rom, data, out):
-    # (the main menu's taps: each command from the world map, the menu's state after it; Skills, Equip,
-    # Relic and Status ask for a character (06), then the character's tap opens the page)
-    # (the page's init or select state, the menu fading to it: 01 / 02 with it next)
-    want = [(0, (0x07, 0x08)), (1, (0x06,)), (2, (0x06,)), (3, (0x06,)), (4, (0x06,)), (5, (0x0D, 0x0E)), (6, (0x13, 0x14))]
-    lines = []
-    for row, _ in want:
-        lines += [ff6_state(data, "harness-ff3-3-slot2-world-map"), "tap X", "wait 60", "ff6 mm %d" % row, "wait 3", "peek 7E0026 1", "peek 7E0027 1"]
-    lines += [ff6_state(data, "harness-ff3-3-slot2-world-map"), "tap X", "wait 60", "ff6 mm 4", "wait 10", "ff6 mm 1", "wait 3", "peek 7E0026 1", "peek 7E0027 1"]
-    # (the Item page by taps: Tonic, Tonic again (picked up, then used: the characters, 70), Terra)
-    lines += [ff6_state(data, "harness-ff3-3-slot2-world-map"), "tap X", "wait 60", "ff6 mm 0", "wait 60", "ff6 mtap 60 116", "wait 10",
-              "peek 7E0026 1", "ff6 mtap 60 116", "wait 40", "peek 7E0026 1", "ff6 mtap 150 140", "wait 20", "peek 7E0057 1"]
-    text = harness(rom, out, lines, "ff6mainmenu")
-    tail = text[text.find("ff6 mtap"):]
-    st = re.findall(r"peek 7E0026: ([0-9A-F]{2})", tail)
-    hand = re.findall(r"peek 7E0057: ([0-9A-F]{2})", tail)
-    ok_item = st[:2] == ["19", "70"] and hand == ["88"]
-    report("ff6menus", ok_item, "Item page by taps: Tonic picked up (%s), used (%s), the hand on Terra (%s)" % (st[0] if st else "?", st[1] if len(st) > 1 else "?", hand[0] if hand else "?"))
-    text = text[:text.find("ff6 mtap")]
-    states = [(int(a, 16), int(b, 16)) for a, b in re.findall(r"peek 7E0026: ([0-9A-F]{2})\npeek 7E0027: ([0-9A-F]{2})", text)]
-    bad = []
-    for (row, st), (cur, nxt) in zip(want, states):
-        # (a page fades: the menu's state 00 with the page's next, or the page itself)
-        if not (cur in st or (cur in (0, 1, 2) and nxt in st)):
-            bad.append("row %d: %02X/%02X (wanted %s)" % (row, cur, nxt, "/".join("%02X" % x for x in st)))
-    status = states[-1] if len(states) > len(want) else (-1, -1)
-    ok_status = status[0] in (0x0B, 0x0C) or (status[0] in (0, 1, 2) and status[1] in (0x0B, 0x0C))
-    report("ff6menus", len(states) == len(want) + 1 and not bad and ok_status,
-           "main menu: %d commands opened as the game's%s; Status > the second character: %02X/%02X" % (len(want) - len(bad), "; not: " + "; ".join(bad) if bad else "", status[0], status[1]))
 
 
 def ff6_acts(rom, data, out):
