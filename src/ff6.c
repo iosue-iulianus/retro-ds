@@ -51,89 +51,88 @@ void ff6_battle(Emu* e, Ff6Battle* b) {
 		b->monX[i] = emu_read16(e, 0x7E80C3 + 2 * (uint32_t) i);
 		b->monY[i] = emu_read16(e, 0x7E80CF + 2 * (uint32_t) i);
 	}
+	b->targetFlags = emu_read8(e, 0x7E7A84);
+	b->validParty = emu_read8(e, 0x7E201D) & emu_read8(e, 0x7E61AC) & emu_read8(e, 0x7E61AD) & emu_read8(e, 0x7E6193) & 0x0F;
+	b->validMons = emu_read8(e, 0x7E0092) & 0x3F;
+	b->attack = emu_read8(e, 0x7E7A85);
+	uint32_t c = (uint32_t) b->slot;
+	b->magicScroll = emu_read8(e, 0x7E8913 + c), b->magicX = emu_read8(e, 0x7E8917 + c), b->magicY = emu_read8(e, 0x7E891B + c);
+	b->itemScroll = emu_read8(e, 0x7E8947 + c), b->itemY = emu_read8(e, 0x7E894F + c);
+	b->itemHeld = emu_read8(e, 0x7E7B02) != 0;
+	b->itemHeldAt = emu_read16(e, 0x7E7B03) / 5;
 }
 
-static int lowest_bit(int m) {
-	for (int i = 0; i < 16; ++i) {
-		if (m >> i & 1) return i;
+/* ---- FF6-3: touch, written as the game's menu does it */
+
+static const WriteRange ff6Writes[] = {
+	{ 0x7E890F, 4, "the command lists' cursors (FF6-3)" },
+	{ 0x7E8913, 12, "the Magic lists' cursors: scroll, column, row (FF6-3)" },
+	{ 0x7E8947, 12, "the Item lists' cursors: scroll, column, row (FF6-3)" },
+	{ 0x7E7B7D, 2, "the target cursor: the party, the monsters (FF6-3)" },
+};
+
+const WriteRange* ff6_write_ranges(int* n) {
+	*n = (int) (sizeof ff6Writes / sizeof ff6Writes[0]);
+	return ff6Writes;
+}
+
+int ff6_command_writes(const Ff6Battle* b, int row, Write* out) {
+	if (!b->open || b->menu != FF6_MENU_COMMANDS || row < 0 || row > 3 || b->disabled[row]) return -1;
+	out[0] = (Write) { 0x7E890F + (uint32_t) b->slot, (uint8_t) row };
+	return 1;
+}
+
+/* the targeting flags ($7A84) */
+#define T_MANUAL 0x01   /* the cursor can be moved */
+#define T_ONE_SIDE 0x02 /* not to the other side */
+#define T_AUTO 0x10     /* no A needed */
+#define T_ROULETTE 0x80
+
+int ff6_target_writes(const Ff6Battle* b, int want, Write* out) {
+	if (!b->open || b->menu != FF6_MENU_TARGET || want < 0 || want > 9) return -1;
+	bool party = want < 4;
+	int bit = 1 << (party ? want : want - 4);
+	/* covered already (a spell on all of them, or the one the cursor's on) */
+	if ((party ? b->partyTarget : b->monTarget) & bit) return 0;
+	int f = b->targetFlags;
+	if ((f & T_ROULETTE) || (f & T_AUTO) || !(f & T_MANUAL)) return -1;
+	/* only to the side the cursor's on, for an action kept to one */
+	if ((f & T_ONE_SIDE) && (party ? !b->partyTarget : !b->monTarget)) return -1;
+	/* a target the game would take: present and targetable */
+	if (!((party ? b->validParty : b->validMons) & bit)) return -1;
+	out[0] = (Write) { 0x7E7B7D, (uint8_t) (party ? bit : 0) };
+	out[1] = (Write) { 0x7E7B7E, (uint8_t) (party ? 0 : bit) };
+	return 2;
+}
+
+int ff6_list_writes(const Ff6Battle* b, int index, Write* out) {
+	uint32_t c = (uint32_t) b->slot;
+	if (!b->open || index < 0) return -1;
+	if (b->menu == FF6_MENU_MAGIC && index < 54) {
+		/* two across, four rows shown, scrolled by rows (at most 23) */
+		int row = index / 2, scroll = row < 23 ? row : 23;
+		out[0] = (Write) { 0x7E8913 + c, (uint8_t) scroll };
+		out[1] = (Write) { 0x7E891B + c, (uint8_t) (row - scroll) };
+		out[2] = (Write) { 0x7E8917 + c, (uint8_t) (index % 2) };
+		return 3;
+	}
+	if (b->menu == FF6_MENU_ITEM && index < 256) {
+		/* one across, four rows shown (scrolled at most 251) */
+		int scroll = index < 251 ? index : 251;
+		out[0] = (Write) { 0x7E8947 + c, (uint8_t) scroll };
+		out[1] = (Write) { 0x7E894F + c, (uint8_t) (index - scroll) };
+		out[2] = (Write) { 0x7E894B + c, 0 };
+		return 3;
 	}
 	return -1;
 }
 
-void ff6_aim_start(Ff6Aim* a, int want) {
-	memset(a, 0, sizeof(*a));
-	a->want = want;
-	a->lastMask = -1;
-}
-
-uint32_t ff6_aim_next(Ff6Aim* a, const Ff6Battle* b) {
-	if (a->want < 0) return 0;
-	if (!b->open || b->menu != FF6_MENU_TARGET) return a->want = -1, 0;
-	int mask = b->partyTarget | b->monTarget << 4; /* (want's own bit numbers) */
-	/* the last press: did it move the cursor? */
-	static const uint32_t dirs[4] = { K_LEFT, K_RIGHT, K_UP, K_DOWN };
-	if (a->lastKey && mask == a->lastMask) {
-		for (int d = 0; d < 4; ++d) {
-			if (a->lastKey == dirs[d]) a->blocked |= 1 << d;
-		}
-	} else if (mask != a->lastMask) {
-		a->blocked = 0;
-	}
-	if (mask >> a->want & 1) return a->want = -1, K_A; /* on it */
-	if (!mask || ++a->steps > 12) return a->want = -1, 0;
-	/* the directions to try, best first */
-	int order[4], n = 0;
-	if (a->want >= 4 && b->partyTarget) {
-		order[n++] = 0; /* Left, over to the monsters */
-	} else if (a->want < 4 && !b->partyTarget) {
-		order[n++] = 1; /* Right, toward the party */
-	} else if (a->want < 4) {
-		int at = lowest_bit(b->partyTarget);
-		bool down = ((a->want - at) & 3) <= ((at - a->want) & 3);
-		order[n++] = down ? 3 : 2, order[n++] = down ? 2 : 3;
-	} else {
-		int at = lowest_bit(b->monTarget), w = a->want - 4;
-		int dx = b->monX[w] - b->monX[at], dy = b->monY[w] - b->monY[at];
-		int h = dx < 0 ? 0 : 1, v = dy < 0 ? 2 : 3;
-		bool hFirst = abs(dx) >= abs(dy);
-		order[n++] = hFirst ? h : v;
-		if (hFirst ? dy : dx) order[n++] = hFirst ? v : h;
-		order[n++] = hFirst ? v ^ 1 : h ^ 1; /* (round the other way) */
-		order[n++] = hFirst ? h ^ 1 : v ^ 1;
-	}
-	for (int i = 0; i < n; ++i) {
-		if (!(a->blocked >> order[i] & 1)) {
-			a->lastMask = mask, a->lastKey = dirs[order[i]];
-			return a->lastKey;
-		}
-	}
-	return a->want = -1, 0;
-}
-
-int ff6_group_target(const Ff6Battle* b, int monsterId) {
-	if (monsterId < 0) return -1;
-	int at = b->monTarget ? lowest_bit(b->monTarget) : -1;
-	if (at >= 0 && b->monType[at] == monsterId && (b->monAlive >> at & 1)) return 4 + at;
-	int best = -1, bestD = 0;
-	for (int i = 0; i < 6; ++i) {
-		if (b->monType[i] != monsterId || !(b->monAlive >> i & 1)) continue;
-		int d = at >= 0 ? abs(b->monX[i] - b->monX[at]) + abs(b->monY[i] - b->monY[at]) : i;
-		if (best < 0 || d < bestD) best = i, bestD = d;
-	}
-	return best < 0 ? -1 : 4 + best;
-}
-
-int ff6_command_presses(const Ff6Battle* b, int row, uint32_t keys[8]) {
-	if (!b->open || b->menu != FF6_MENU_COMMANDS || b->shortSet) return 0;
-	if (row < 0 || row > 3 || b->disabled[row]) return 0;
-	int n = 0, at = b->cursor;
-	/* Down as the game moves it: to the next row that isn't greyed */
-	for (int guard = 0; at != row && guard < 4; ++guard) {
-		do at = (at + 1) & 3; while (b->disabled[at] && at != b->cursor);
-		keys[n++] = K_DOWN;
-	}
-	if (at != row) return 0;
-	keys[n++] = K_A;
+int ff6_list_keys(const Ff6Battle* b, int index, uint32_t keys[3]) {
+	if (b->menu != FF6_MENU_ITEM) return keys[0] = K_A, 1;
+	if (b->itemHeld && b->itemHeldAt == index) return keys[0] = K_A, 1;
+	int n = 0;
+	if (b->itemHeld) keys[n++] = K_B;
+	keys[n++] = K_A, keys[n++] = K_A;
 	return n;
 }
 
@@ -322,6 +321,17 @@ static void glyph(uint32_t* out, const Ff6Rom* r, int code, int tx, int ty, cons
 	}
 }
 
+/* a glyph upside down (the font has an up arrow, not a down one) */
+static void glyph_flipped(uint32_t* out, const Ff6Rom* r, int code, int tx, int ty, const uint32_t pal[4]) {
+	const uint8_t* t = at(r, 0xC47FC0 + (uint32_t) code * 16);
+	for (int y = 0; y < 8; ++y) {
+		for (int x = 0; x < 8; ++x) {
+			int v = pix(t, 2, x, 7 - y), px = tx * 8 + x, py = ty * 8 + y - textUp;
+			if (v && px < canvasW && py >= 0 && py < canvasH && !(px >= clipX && py >= clipY)) out[py * canvasW + px] = pal[v];
+		}
+	}
+}
+
 static void text(uint32_t* out, const Ff6Rom* r, const char* s, int tx, int ty, const uint32_t pal[4]) {
 	for (; *s; ++s, ++tx) glyph(out, r, (uint8_t) *s, tx, ty, pal);
 }
@@ -476,6 +486,27 @@ void ff6_battle_view(Emu* e, Ff6BattleView* v) {
 		while (k > 0 && v->menu.monY[v->enemy[k - 1]] > v->menu.monY[i]) v->enemy[k] = v->enemy[k - 1], --k;
 		v->enemy[k] = i;
 	}
+	/* the Magic list (this slot's: 54 rows of 4 bytes from $2092 + 316 x
+	 * slot: spell, greyed, targeting, MP) or the Item list (256 of 5 from
+	 * $2686: item, its use flags (bit 7: not in battle), targeting, how
+	 * many); empty rows FF */
+	v->listCursor = -1;
+	const Ff6Battle* m = &v->menu;
+	if (m->open && (m->menu == FF6_MENU_MAGIC || m->menu == FF6_MENU_ITEM)) {
+		bool magic = m->menu == FF6_MENU_MAGIC;
+		int at = magic ? (m->magicScroll + m->magicY) * 2 + m->magicX : m->itemScroll + m->itemY;
+		for (int i = 0; i < (magic ? 54 : 256); ++i) {
+			uint32_t a = magic ? 0x7E2092 + 316 * (uint32_t) m->slot + 4 * (uint32_t) i : 0x7E2686 + 5 * (uint32_t) i;
+			uint8_t id = emu_read8(e, a);
+			if (id == 0xFF) continue;
+			if (i == at) v->listCursor = v->nList;
+			v->listAt[v->nList] = (uint8_t) i;
+			v->listId[v->nList] = id;
+			v->listOff[v->nList] = emu_read8(e, a + 1) & 0x80;
+			v->listVal[v->nList] = emu_read8(e, a + 3);
+			++v->nList;
+		}
+	}
 	v->gauge = emu_read8(e, 0x7E2021) & 1;
 	v->style = emu_read8(e, 0x7E1D4E) & 7;
 	for (int k = 0; k < 7; ++k) v->winPal[k] = emu_read16(e, 0x7E1D57 + 14 * (uint32_t) v->style + 2 * (uint32_t) k);
@@ -621,6 +652,7 @@ static void name_of(const Ff6Rom* rom, uint32_t table, int len, int i, char* out
 
 int ff6_battle_page(const Ff6BattleView* v) {
 	if (!v->menu.open) return FF6_PAGE_WAIT;
+	if (v->menu.menu == FF6_MENU_MAGIC || v->menu.menu == FF6_MENU_ITEM) return FF6_PAGE_LIST;
 	return v->menu.menu == FF6_MENU_TARGET ? FF6_PAGE_TARGET : FF6_PAGE_COMMANDS;
 }
 
@@ -631,6 +663,9 @@ int ff6_battle_page(const Ff6BattleView* v) {
 #define GRID_TY(i) (8 + 5 * ((i) / 2))
 #define ROW_TX(j) (8 * (j))
 #define ROW_TY 23
+/* the list's rows: two across, five down, a row 3 tiles high */
+#define LIST_TX(i) (20 * ((i) % 2))
+#define LIST_TY(i) (8 + 3 * ((i) / 2))
 
 int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg) {
 	int tx = x / 8, ty = y / 8, page = ff6_battle_page(v);
@@ -639,6 +674,16 @@ int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg) {
 		if (tx < 20 && ty < 8) return FF6_HIT_STATUS;
 		for (int k = 0; k < 4; ++k) {
 			if (tx < 20 && ty >= CMD_TY(k) && ty < CMD_TY(k) + 5) return *arg = k, FF6_HIT_COMMAND;
+		}
+	} else if (page == FF6_PAGE_LIST) {
+		for (int k = 0; k < FF6_LIST_PAGE && v->listTop + k < v->nList; ++k) {
+			if (tx >= LIST_TX(k) && tx < LIST_TX(k) + 20 && ty >= LIST_TY(k) && ty < LIST_TY(k) + 3) return *arg = v->listTop + k, FF6_HIT_ROW;
+		}
+		if (ty >= ROW_TY) {
+			int j = tx / 8;
+			if (j == 0 && v->listTop > 0) return FF6_HIT_UP;
+			if (j == 1 && v->listTop + FF6_LIST_PAGE < v->nList) return FF6_HIT_DOWN;
+			if (j == 4) return FF6_HIT_BACK;
 		}
 	} else if (page == FF6_PAGE_TARGET) {
 		for (int i = 0; i < v->nEnemies; ++i) {
@@ -681,6 +726,13 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 	if (page == FF6_PAGE_COMMANDS) {
 		for (int k = 0; k < 4; ++k) add_win(0, CMD_TY(k), 18, 3);
 		add_win(20, 0, 18, 26); /* the enemies, to read */
+	} else if (page == FF6_PAGE_LIST) {
+		add_win(20, 0, 18, 6);
+		for (int k = 0; k < FF6_LIST_PAGE; ++k) add_win(LIST_TX(k), LIST_TY(k), 18, 1);
+		add_win(ROW_TX(0), ROW_TY, 6, 5);
+		add_win(ROW_TX(1), ROW_TY, 6, 5);
+		add_win(ROW_TX(2), ROW_TY, 14, 5);
+		add_win(ROW_TX(4), ROW_TY, 6, 5);
 	} else {
 		add_win(20, 0, 18, 6);
 		for (int i = 0; i < 6; ++i) add_win(GRID_TX(i), GRID_TY(i), 18, 3);
@@ -705,12 +757,55 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out) {
 		}
 		return;
 	}
+	if (page == FF6_PAGE_LIST) {
+		/* the list: the command, the row the game's cursor is on; a button
+		 * a row (the game's icon and name, the MP cost or how many; greyed
+		 * ones grey), the game's hand on its cursor's; the page's arrows,
+		 * which page, Back */
+		bool magic = m->menu == FF6_MENU_MAGIC;
+		if (m->cmd[m->cursor & 3] >= 0) {
+			char name[8];
+			name_of(rom, 0xD8CEA0, 7, m->cmd[m->cursor & 3], name);
+			text(out, rom, name, 22, 2, p.white);
+		}
+		for (int k = -1; k < FF6_LIST_PAGE; ++k) {
+			int i = k < 0 ? v->listCursor : v->listTop + k;
+			if (i < 0 || i >= v->nList || (k >= 0 && i >= v->nList)) continue;
+			char name[14];
+			if (magic) name_of(rom, 0xE6F567, 7, v->listId[i], name);
+			else name_of(rom, 0xD2B300, 13, v->listId[i], name);
+			if (k < 0) {
+				text(out, rom, name, 22, 4, p.yellow);
+				continue;
+			}
+			const uint32_t* pal = v->listOff[i] ? p.grey : p.white;
+			text(out, rom, name, LIST_TX(k) + 2, LIST_TY(k) + 1, pal);
+			number(out, rom, v->listVal[i], 2, false, LIST_TX(k) + 16, LIST_TY(k) + 1, pal);
+			if (i == v->listCursor) hand(out, rom, LIST_TX(k) * 8, (LIST_TY(k) + 1) * 8 - 4);
+		}
+		/* the arrows: the font's up arrow (D4), drawn upside down for down */
+		glyph(out, rom, v->listTop > 0 ? 0xD4 : CH_BLANK, ROW_TX(0) + 3, ROW_TY + 4, p.white);
+		if (v->listTop + FF6_LIST_PAGE < v->nList) glyph_flipped(out, rom, 0xD4, ROW_TX(1) + 3, ROW_TY + 4, p.white);
+		int pages = (v->nList + FF6_LIST_PAGE - 1) / FF6_LIST_PAGE;
+		if (pages > 1) {
+			int dg = pages > 9 ? 2 : 1;
+			number(out, rom, (unsigned) (v->listTop / FF6_LIST_PAGE + 1), dg, false, ROW_TX(2) + 7 - dg, ROW_TY + 4, p.white);
+			text(out, rom, kSlash, ROW_TX(2) + 7, ROW_TY + 4, p.white);
+			number(out, rom, (unsigned) pages, dg, false, ROW_TX(2) + 8, ROW_TY + 4, p.white);
+		}
+		text(out, rom, kBack, ROW_TX(4) + 2, ROW_TY + 4, p.white);
+		return;
+	}
 	/* choosing a target: the command and the target the cursor is on, the
 	 * enemies' buttons (every one alive, top to bottom as they stand; the
 	 * hand on those the cursor covers), the party's, Back */
 	if (m->cursor >= 0 && m->cmd[m->cursor & 3] >= 0) {
-		char name[8];
-		name_of(rom, 0xD8CEA0, 7, m->cmd[m->cursor & 3], name);
+		/* (Magic and Item: the spell or item chosen, $7A85) */
+		int cmd = m->cmd[m->cursor & 3];
+		char name[14];
+		if (cmd == 2 && m->attack < 54) name_of(rom, 0xE6F567, 7, m->attack, name);
+		else if (cmd == 1 && m->attack < 0xFF) name_of(rom, 0xD2B300, 13, m->attack, name);
+		else name_of(rom, 0xD8CEA0, 7, cmd, name);
 		text(out, rom, name, 22, 2, p.white);
 	}
 	int covered = 0, at = -1;

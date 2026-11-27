@@ -43,8 +43,9 @@ static bool stripPxDirty, stripValid;
 static Ff6BattleView stripDrawn;
 static int waitFrames;
 static int queued, queueAt, pressFrame;
-/* FF6-3: a tapped target the game's cursor is being moved to */
-static Ff6Aim aim = { .want = -1 };
+/* FF6-3: the list page's first row shown, and the game's cursor's row
+ * when it was last seen (the page follows the pad's cursor) */
+static int listTop, listSeen = -2, listMenu;
 
 void ff6_open(const char* rom, const char* code) {
 	f6 = ff6_is(code);
@@ -57,7 +58,7 @@ void ff6_open(const char* rom, const char* code) {
 	partyValid = false;
 	part = FF6_OTHER;
 	queued = queueAt = pressFrame = 0;
-	ff6_aim_start(&aim, -1);
+	listTop = 0, listSeen = -2, listMenu = 0;
 	listFrames = 0;
 	memset(&bat, 0, sizeof(bat));
 	if (f6) fprintf(stderr, "ff6: Final Fantasy VI (FF6-1 to 5)\n");
@@ -107,9 +108,22 @@ void ff6_tick(void) {
 	/* how long one of the game's lists has been open: the menu passes
 	 * through other states for a frame (10, 04, 0D: after a target, as a
 	 * list opens), which aren't lists */
-	listFrames = bat.open && bat.menu > FF6_MENU_COMMANDS && bat.menu != FF6_MENU_TARGET ? listFrames + 1 : 0;
+	listFrames = bat.open && bat.menu > FF6_MENU_COMMANDS && bat.menu != FF6_MENU_TARGET && bat.menu != FF6_MENU_MAGIC && bat.menu != FF6_MENU_ITEM ? listFrames + 1 : 0;
 	/* FF6-2: the battle screen, drawn again when anything on it changes */
-	if (part == FF6_BATTLE && rom6 && battlePx) ff6_battle_view(&emu, &bview);
+	if (part == FF6_BATTLE && rom6 && battlePx) {
+		ff6_battle_view(&emu, &bview);
+		/* the list page: opened on the page with the game's cursor, which it
+		 * follows when the pad moves it; the arrows' pages otherwise */
+		int lm = ff6_battle_page(&bview) == FF6_PAGE_LIST ? bview.menu.menu : 0;
+		if (lm != listMenu) listMenu = lm, listSeen = -2;
+		if (lm && bview.listCursor != listSeen) {
+			listSeen = bview.listCursor;
+			if (listSeen >= 0 && (listSeen < listTop || listSeen >= listTop + FF6_LIST_PAGE || listSeen == -2))
+				listTop = listSeen / FF6_LIST_PAGE * FF6_LIST_PAGE;
+		}
+		if (listTop >= bview.nList) listTop = bview.nList > 0 ? (bview.nList - 1) / FF6_LIST_PAGE * FF6_LIST_PAGE : 0;
+		bview.listTop = listTop;
+	}
 	if (part == FF6_BATTLE && rom6 && battlePx && bview.ready) {
 		/* the waiting page only once nobody's turn has been up for 20
 		 * frames (between turns the menu closes for a few), the last page
@@ -287,54 +301,64 @@ void draw_ff6(int s) {
 	}
 }
 
-/* FF6-3: a tap on the moved battle windows. A command in the command
- * list: the presses that choose it; choosing a target: A (the target the
- * game's cursor is on; the D-pad moves it). */
+/* FF6-3: the writes for a tap (the menu's cursor where the tap was),
+ * then A as the player's: the game chooses as from its own pad */
+static void choose_keys(const char* what, const Write* w, int n, const uint32_t* keys, int nKeys) {
+	if (n < 0) return;
+	if (n > 0) {
+		int nOk;
+		const WriteRange* ok = ff6_write_ranges(&nOk);
+		char label[96];
+		snprintf(label, sizeof label, "(frame %llu) %s", (unsigned long long) frameCount, what);
+		if (emu_apply(&emu, label, w, n, ok, nOk) != n) return;
+	}
+	for (int i = 0; i < nKeys && i < 8; ++i) queue[i] = keys[i];
+	queued = nKeys, queueAt = 0, pressFrame = 0;
+	fprintf(stderr, "ff6: %s: %d presses\n", what, nKeys);
+}
+
+static void choose(const char* what, const Write* w, int n) {
+	static const uint32_t a[1] = { K_A };
+	choose_keys(what, w, n, a, 1);
+}
+
+static void press(const char* what, uint32_t key) {
+	queue[0] = key, queued = 1, queueAt = 0, pressFrame = 0;
+	fprintf(stderr, "ff6: %s\n", what);
+}
+
+/* FF6-3: a tap on the drawn battle screen (on the moved windows, the
+ * stopgap while a list not drawn yet is open: the pad's) */
 int ff6_touch(const Pointer* p) {
 	if (!battle_shown() || p->screen == game_screen()) return 0;
 	if (p->kind != 1) return 1;
-	if (queued > queueAt || aim.want >= 0) return 1; /* (the last tap's presses still playing) */
-	if (!bviewValid) return 1;
-	if (battle_drawn()) {
-		/* the drawn battle screen: its buttons */
-		SDL_Rect d = place(p->screen, FF6_BATTLE_W, FF6_BATTLE_H);
-		if (p->x < d.x || p->y < d.y || p->x >= d.x + d.w || p->y >= d.y + d.h) return 1;
-		int bx = (p->x - d.x) * FF6_BATTLE_W / d.w, by = (p->y - d.y) * FF6_BATTLE_H / d.h;
-		int arg, hit = ff6_battle_hit(&bviewDrawn, bx, by, &arg); /* (what's on the screen) */
-		if (hit == FF6_HIT_COMMAND) {
-			int n = ff6_command_presses(&bat, arg, queue);
-			if (n > 0) {
-				queued = n, queueAt = 0, pressFrame = 0;
-				fprintf(stderr, "ff6: tap on command %d (command %d): %d presses\n", arg, bat.cmd[arg & 3], n);
-			}
-		} else if (hit == FF6_HIT_STATUS && bat.open && bat.menu == FF6_MENU_COMMANDS) {
-			/* the next character whose gauge is full, as X does */
-			queue[0] = K_X, queued = 1, queueAt = 0, pressFrame = 0;
-			fprintf(stderr, "ff6: tap on whose turn it is: X\n");
-		} else if (hit == FF6_HIT_BACK && bat.open && bat.menu == FF6_MENU_TARGET) {
-			queue[0] = K_B, queued = 1, queueAt = 0, pressFrame = 0;
-			fprintf(stderr, "ff6: tap on Back: B\n");
-		} else if ((hit == FF6_HIT_ENEMY || hit == FF6_HIT_PARTY) && bat.open && bat.menu == FF6_MENU_TARGET) {
-			ff6_aim_start(&aim, hit == FF6_HIT_ENEMY ? 4 + arg : arg);
-			fprintf(stderr, "ff6: tap on a target (%d): aiming\n", aim.want);
-		}
-		return 1;
-	}
-	int rows = FF6_STRIP_Y1 - FF6_STRIP_Y0;
-	SDL_Rect d = place_rows(p->screen, rows);
+	if (queued > queueAt) return 1; /* (the last tap's press still playing) */
+	if (!bviewValid || !battle_drawn()) return 1;
+	SDL_Rect d = place(p->screen, FF6_BATTLE_W, FF6_BATTLE_H);
 	if (p->x < d.x || p->y < d.y || p->x >= d.x + d.w || p->y >= d.y + d.h) return 1;
-	int gx = (p->x - d.x) * picW / d.w, gy = FF6_STRIP_Y0 + (p->y - d.y) * rows / d.h;
-	if (bat.open && bat.menu == FF6_MENU_TARGET) {
-		queue[0] = K_A, queued = 1, queueAt = 0, pressFrame = 0;
-		fprintf(stderr, "ff6: tap while choosing a target: A\n");
-		return 1;
-	}
-	if (gx < FF6_CMD_X0 || gx >= FF6_CMD_X1 || gy < FF6_CMD_Y0) return 1;
-	int row = (gy - FF6_CMD_Y0) / FF6_CMD_DY;
-	int n = ff6_command_presses(&bat, row, queue);
-	if (n > 0) {
-		queued = n, queueAt = 0, pressFrame = 0;
-		fprintf(stderr, "ff6: tap on command row %d (command %d): %d presses\n", row, bat.cmd[row & 3], n);
+	int bx = (p->x - d.x) * FF6_BATTLE_W / d.w, by = (p->y - d.y) * FF6_BATTLE_H / d.h;
+	int arg, hit = ff6_battle_hit(&bviewDrawn, bx, by, &arg); /* (what's on the screen) */
+	Write w[4];
+	char what[64];
+	if (hit == FF6_HIT_COMMAND) {
+		snprintf(what, sizeof what, "command %d (%d)", arg, bat.cmd[arg & 3]);
+		choose(what, w, ff6_command_writes(&bat, arg, w));
+	} else if (hit == FF6_HIT_STATUS && bat.open && bat.menu == FF6_MENU_COMMANDS) {
+		press("whose turn it is: X (the next character ready)", K_X);
+	} else if (hit == FF6_HIT_BACK && bat.open) {
+		press("Back: B", K_B);
+	} else if ((hit == FF6_HIT_ENEMY || hit == FF6_HIT_PARTY) && bat.open && bat.menu == FF6_MENU_TARGET) {
+		int want = hit == FF6_HIT_ENEMY ? 4 + arg : arg;
+		snprintf(what, sizeof what, "target %d", want);
+		choose(what, w, ff6_target_writes(&bat, want, w));
+	} else if (hit == FF6_HIT_ROW && arg < bviewDrawn.nList) {
+		snprintf(what, sizeof what, "list row %d (%d)", bviewDrawn.listAt[arg], bviewDrawn.listId[arg]);
+		uint32_t keys[3];
+		int nk = ff6_list_keys(&bat, bviewDrawn.listAt[arg], keys);
+		if (!bviewDrawn.listOff[arg]) choose_keys(what, w, ff6_list_writes(&bat, bviewDrawn.listAt[arg], w), keys, nk);
+	} else if (hit == FF6_HIT_UP || hit == FF6_HIT_DOWN) {
+		listTop += hit == FF6_HIT_UP ? -FF6_LIST_PAGE : FF6_LIST_PAGE;
+		if (listTop < 0) listTop = 0;
 	}
 	return 1;
 }
@@ -342,16 +366,7 @@ int ff6_touch(const Pointer* p) {
 /* The game's keys for the next frame: the queued presses while they play
  * (the player's own buttons held back meanwhile) */
 uint32_t ff6_keys(uint32_t keys) {
-	if (!f6) return keys;
-	if (queueAt >= queued && aim.want >= 0) {
-		/* FF6-3: the next press toward the tapped target, by where the
-		 * last one took the cursor */
-		uint32_t k = ff6_aim_next(&aim, &bat);
-		if (k) queue[0] = k, queued = 1, queueAt = 0, pressFrame = 0;
-		else fprintf(stderr, "ff6: the target cursor couldn't get there\n");
-		if (k == K_A) fprintf(stderr, "ff6: on the target: A\n");
-	}
-	if (queueAt >= queued) return keys;
+	if (!f6 || queueAt >= queued) return keys;
 	uint32_t k = pressFrame < 3 ? queue[queueAt] : 0;
 	if (++pressFrame >= 12) pressFrame = 0, ++queueAt;
 	return k;

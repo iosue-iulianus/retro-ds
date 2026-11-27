@@ -23,9 +23,8 @@
  *   ff6 part               Final Fantasy VI (src/ff6.c): which part of the
  *                          game runs (field, world map, battle, menu, other)
  *   ff6 battle             its battle menu: open, menu, slot, cursor, commands
- *   ff6 tap ROW            FF6-3: a tap on the battle command list's row ROW
- *                          (0 to 3): the presses it makes, each played as a
- *                          tap (3 frames down, 9 up)
+ *   ff6 cmd ROW / target T / row I   FF6-3: a tap: the menu's cursor written, then A
+ *   ff6 list               the open Magic / Item list as the second screen reads it
  *   ff6 menu NAME          FF6-5: the party screen RetroDS draws (src/ff6.c),
  *                          from A's RAM and the ROM: NAME.png, 256 x 224
  *   ff6 battlepic NAME     FF6-2: the battle screen RetroDS draws, NAME.png
@@ -783,33 +782,29 @@ int main(int argc, char** argv) {
 				ff6_strip_draw(from, &v, strip);
 				out_path(path, sizeof path, s2, "-strip.png");
 				write_png(path, strip, FF6_STRIP_W, FF6_STRIP_H, FF6_STRIP_W);
-			} else if (!strcmp(s1, "tap")) {
-				uint32_t keys[8];
-				int n = ff6_command_presses(&b, atoi(s2), keys);
-				printf("ff6 tap %d: %d presses:", atoi(s2), n);
-				for (int k = 0; k < n; ++k) printf(" %s", keys[k] == K_A ? "A" : keys[k] == K_DOWN ? "DOWN" : "?");
-				printf("\n");
-				for (int k = 0; k < n; ++k) {
-					for (int i = 0; i < 3; ++i) frame(e, keys[k]);
-					for (int i = 0; i < 9; ++i) frame(e, 0);
+			} else if (!strcmp(s1, "cmd") || !strcmp(s1, "target") || !strcmp(s1, "row")) {
+				/* FF6-3: a tap as the play session does it: the menu's cursor
+				 * written (cmd ROW, target T: 0-3 the party, 4-9 a monster
+				 * slot; row I: a place in the open Magic / Item list), then A */
+				Write w[4];
+				int v = atoi(s2);
+				int n = !strcmp(s1, "cmd") ? ff6_command_writes(&b, v, w) : !strcmp(s1, "target") ? ff6_target_writes(&b, v, w) : ff6_list_writes(&b, v, w);
+				printf("ff6 %s %d: %d writes\n", s1, v, n);
+				int nOk;
+				const WriteRange* ok = ff6_write_ranges(&nOk);
+				uint32_t keys[3] = { K_A };
+				int nk = !strcmp(s1, "row") ? ff6_list_keys(&b, v, keys) : 1;
+				if (n >= 0 && (n == 0 || emu_apply(e, s1, w, n, ok, nOk) == n)) {
+					for (int k = 0; k < nk; ++k) {
+						for (int i = 0; i < 3; ++i) frame(e, keys[k]);
+						for (int i = 0; i < 9; ++i) frame(e, 0);
+					}
 				}
-			} else if (!strcmp(s1, "aim")) {
-				/* FF6-3: aim the target cursor at s2 (0-3 the party, 4-9 a
-				 * monster slot; or "m" + a monster number, as a tap on its
-				 * name), a press at a time as the play session does */
-				int want = s2[0] == 'm' ? ff6_group_target(&b, (int) strtol(s2 + 1, NULL, 16)) : atoi(s2);
-				Ff6Aim a;
-				ff6_aim_start(&a, want);
-				printf("ff6 aim %d: party %X monsters %02X alive %02X;", want, b.partyTarget, b.monTarget, b.monAlive);
-				uint32_t k;
-				while ((k = ff6_aim_next(&a, &b)) != 0) {
-					printf(" %s", k == K_A ? "A" : k == K_LEFT ? "LEFT" : k == K_RIGHT ? "RIGHT" : k == K_UP ? "UP" : "DOWN");
-					for (int i = 0; i < 3; ++i) frame(e, k);
-					for (int i = 0; i < 9; ++i) frame(e, 0);
-					if (k == K_A) break;
-					ff6_battle(e, &b);
-					printf(" (%X %02X)", b.partyTarget, b.monTarget);
-				}
+			} else if (!strcmp(s1, "list")) {
+				Ff6BattleView v;
+				ff6_battle_view(e, &v);
+				printf("ff6 list: menu %02X, %d rows, cursor %d:", v.menu.menu, v.nList, v.listCursor);
+				for (int k = 0; k < v.nList && k < 40; ++k) printf(" %d:%02X%s(%d)", v.listAt[k], v.listId[k], v.listOff[k] ? "-" : "", v.listVal[k]);
 				printf("\n");
 			}
 		} else if (!strcmp(cmd, "alttp")) {

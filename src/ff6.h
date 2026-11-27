@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include "emu.h"
+#include "writes.h"
 
 #define FF6_CODE "A27F1C7A" /* Final Fantasy III (USA) 1.0 */
 
@@ -49,46 +50,44 @@ typedef struct {
 	int monAlive;      /* bits 0-5 (here, $3AA8 + 2n bit 0; not dead, $3EEC + 2n bit 7) */
 	int monType[6];    /* monster numbers ($2001), -1 none */
 	int monX[6], monY[6]; /* places on the battlefield ($80C3, $80CF) */
+	/* targeting (the game's checks, cursor.asm's target select) */
+	int targetFlags;   /* the action's ($7A84: TARGET in the disassembly's const.inc) */
+	int validParty;    /* $201D & $61AC & $61AD & $6193 */
+	int validMons;     /* $0092 */
+	int attack;        /* the spell or item chosen ($7A85) */
+	/* the lists' cursors, this slot's: Magic scroll, column, row
+	 * ($8913/$8917/$891B + slot), Item scroll, row ($8947/$894F + slot) */
+	int magicScroll, magicX, magicY, itemScroll, itemY;
+	/* an item picked up in the Item list to be moved ($7B02), from where
+	 * ($7B03: its row x 5) */
+	bool itemHeld;
+	int itemHeldAt;
 } Ff6Battle;
 #define FF6_MENU_COMMANDS 0x05
 #define FF6_MENU_TARGET 0x38
+#define FF6_MENU_MAGIC 0x0E
+#define FF6_MENU_ITEM 0x0A
 void ff6_battle(Emu* e, Ff6Battle* b);
 
-/* The command list's rows on the game's picture: row r is
- * y FF6_CMD_Y0 + r * FF6_CMD_DY .. + FF6_CMD_DY, x FF6_CMD_X0 .. FF6_CMD_X1
- * (the window's inside). */
-#define FF6_CMD_X0 8
-#define FF6_CMD_X1 100
-#define FF6_CMD_Y0 160
-#define FF6_CMD_DY 12
-
-/* FF6-3: the presses that take the command list's cursor to row `row`
- * and choose it, as a player's would: Down as many times as the game's
- * cursor needs to get there (it skips greyed commands), then A. Written to
- * keys (up to 8); the count, 0 if the row can't be chosen (none, greyed,
- * or the menu isn't the command list). */
-int ff6_command_presses(const Ff6Battle* b, int row, uint32_t keys[8]);
-
-/* FF6-3: moving the game's target cursor to a chosen target with the
- * D-pad, a press at a time, looking where each press took it. want: a
- * party slot 0 to 3, or 4 + a monster slot (0 to 5). Start with
- * ff6_aim_start, then ff6_aim_next after every press has played: the next
- * key (a direction, then K_A on the target), 0 when done or stuck (12
- * presses, or no way further). */
-typedef struct {
-	int want;          /* -1 none */
-	int steps;
-	int blocked;       /* directions that didn't move it from here: bits L R U D */
-	int lastMask;      /* where the cursor was before the last press */
-	uint32_t lastKey;
-} Ff6Aim;
-void ff6_aim_start(Ff6Aim* a, int want);
-uint32_t ff6_aim_next(Ff6Aim* a, const Ff6Battle* b);
-
-/* FF6-3: the target for a tap on an enemy's name (monsterId: its monster
- * number): 4 + the monster slot the cursor is on if it's one of those,
- * else the nearest alive one; -1 none. */
-int ff6_group_target(const Ff6Battle* b, int monsterId);
+/* FF6-3: touch done as the game's own menu does it: the menu's cursor
+ * written where the tap was (writes.h: the cursor bytes the D-pad moves,
+ * ff6_write_ranges), then A pressed, the game choosing as from its pad.
+ * Each makes the writes into out (up to 4) and returns their count; -1
+ * when the game wouldn't take it (a greyed command, a target its
+ * targeting rules don't allow, an empty list row). */
+const WriteRange* ff6_write_ranges(int* n);
+/* a command: row 0 to 3 of the command list */
+int ff6_command_writes(const Ff6Battle* b, int row, Write* out);
+/* a target: a party slot 0 to 3, or 4 + a monster slot. 0 writes: the
+ * game's cursor already covers it (a spell on all), or it can't be moved
+ * (A takes the game's own choice) */
+int ff6_target_writes(const Ff6Battle* b, int want, Write* out);
+/* a row of the Magic or Item list: its place in the game's list */
+int ff6_list_writes(const Ff6Battle* b, int index, Write* out);
+/* the keys that choose that row once written (up to 3): Magic A; Item A
+ * twice (the game's first A picks an item up to move it, a second on it
+ * uses it), after B if another item is held (else they'd swap) */
+int ff6_list_keys(const Ff6Battle* b, int index, uint32_t keys[3]);
 
 #endif
 
@@ -154,7 +153,15 @@ typedef struct {
 typedef struct {
 	bool ready;        /* the battle's copies are made (not as it starts) */
 	Ff6Fighter f[4];
-	Ff6Battle menu;    /* whose turn, the commands, the cursor */
+	Ff6Battle menu;
+	/* the Magic or Item list while it's open: its rows that hold something,
+	 * in the game's order (their places in its list), the game's cursor's
+	 * row (-1: on none of them), the first row shown (the play session's
+	 * page, FF6_LIST_PAGE rows a page) */
+	int nList;
+	uint8_t listAt[256], listId[256], listVal[256]; /* place, spell or item, MP cost or how many */
+	bool listOff[256];  /* greyed: too little MP, not for battle */
+	int listCursor, listTop;    /* whose turn, the commands, the cursor */
 	int enemy[6];      /* the enemies alive, top to bottom on the battlefield: their monster slots */
 	int nEnemies;
 	bool gauge;        /* Config's time gauge on */
@@ -168,12 +175,14 @@ void ff6_battle_draw(const Ff6Rom* rom, const Ff6BattleView* v, uint32_t* out);
 /* which page it shows: waiting (the party two by two, the enemies),
  * someone's commands (their status, a button each), choosing a target
  * (the enemies' and the party's buttons, Back) */
-enum { FF6_PAGE_WAIT, FF6_PAGE_COMMANDS, FF6_PAGE_TARGET };
+enum { FF6_PAGE_WAIT, FF6_PAGE_COMMANDS, FF6_PAGE_TARGET, FF6_PAGE_LIST };
+#define FF6_LIST_PAGE 10
 int ff6_battle_page(const Ff6BattleView* v);
 /* what's at x, y on it (its pixels): a command (arg: its row), an enemy
  * (arg: its monster slot), a character (arg: the party slot), Back, the
  * status window of whose turn it is (on the command page) */
-enum { FF6_HIT_NONE, FF6_HIT_COMMAND, FF6_HIT_ENEMY, FF6_HIT_PARTY, FF6_HIT_BACK, FF6_HIT_STATUS };
+enum { FF6_HIT_NONE, FF6_HIT_COMMAND, FF6_HIT_ENEMY, FF6_HIT_PARTY, FF6_HIT_BACK, FF6_HIT_STATUS, FF6_HIT_ROW, FF6_HIT_UP, FF6_HIT_DOWN };
+/* (FF6_HIT_ROW: a row of the list, arg its index in the view's list) */
 int ff6_battle_hit(const Ff6BattleView* v, int x, int y, int* arg);
 
 /* FF6-2: the party on the game screen, where the game's battle windows
