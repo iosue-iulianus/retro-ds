@@ -109,8 +109,8 @@ void ff6_tick(void) {
 	 * list opens), which aren't lists */
 	listFrames = bat.open && bat.menu > FF6_MENU_COMMANDS && bat.menu != FF6_MENU_TARGET ? listFrames + 1 : 0;
 	/* FF6-2: the battle screen, drawn again when anything on it changes */
-	if (part == FF6_BATTLE && rom6 && battlePx) {
-		ff6_battle_view(&emu, &bview);
+	if (part == FF6_BATTLE && rom6 && battlePx) ff6_battle_view(&emu, &bview);
+	if (part == FF6_BATTLE && rom6 && battlePx && bview.ready) {
 		/* the waiting page only once nobody's turn has been up for 20
 		 * frames (between turns the menu closes for a few), the last page
 		 * kept till then */
@@ -257,6 +257,11 @@ void draw_ff6(int s) {
 		ui_image_part(s, partyTex, (SDL_Rect) { 0, 0, FF6_PIC_W, FF6_PIC_H }, place(s, FF6_PIC_W, FF6_PIC_H));
 		return;
 	}
+	if (battle_shown() && !bviewValid) {
+		/* (the battle starting: nothing to show yet) */
+		draw_logo_at(s, 0);
+		return;
+	}
 	if (battle_shown() && battle_drawn()) {
 		make_tex(battleTex, FF6_BATTLE_W, FF6_BATTLE_H);
 		if (bviewDirty) {
@@ -289,6 +294,7 @@ int ff6_touch(const Pointer* p) {
 	if (!battle_shown() || p->screen == game_screen()) return 0;
 	if (p->kind != 1) return 1;
 	if (queued > queueAt || aim.want >= 0) return 1; /* (the last tap's presses still playing) */
+	if (!bviewValid) return 1;
 	if (battle_drawn()) {
 		/* the drawn battle screen: its buttons */
 		SDL_Rect d = place(p->screen, FF6_BATTLE_W, FF6_BATTLE_H);

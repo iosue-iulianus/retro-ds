@@ -152,6 +152,7 @@ typedef struct {
 } Ff6Fighter;
 
 typedef struct {
+	bool ready;        /* the battle's copies are made (not as it starts) */
 	Ff6Fighter f[4];
 	Ff6Battle menu;    /* whose turn, the commands, the cursor */
 	int enemy[6];      /* the enemies alive, top to bottom on the battlefield: their monster slots */

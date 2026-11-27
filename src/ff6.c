@@ -452,6 +452,9 @@ void ff6_battle_view(Emu* e, Ff6BattleView* v) {
 	memset(v, 0, sizeof(*v));
 	ff6_battle(e, &v->menu);
 	int shown = emu_read8(e, 0x7E201D); /* (the characters shown: bits 0-3) */
+	/* (as a battle starts, for about a second, its copies aren't made yet:
+	 * $201D is FF and every HP FFFF) */
+	v->ready = shown && !(shown & 0xF0);
 	for (int s = 0; s < 4; ++s) {
 		Ff6Fighter* f = &v->f[s];
 		/* the battle's own copy for its windows ($2EAE + 32 x slot) */
@@ -461,6 +464,7 @@ void ff6_battle_view(Emu* e, Ff6BattleView* v) {
 		f->portrait = emu_read8(e, b);
 		for (int k = 0; k < 6; ++k) f->name[k] = (char) emu_read8(e, b + 1 + (uint32_t) k);
 		f->hp = emu_read16(e, b + 7), f->hpMax = emu_read16(e, b + 9);
+		if (f->hp == 0xFFFF || f->hpMax == 0xFFFF) v->ready = false;
 		f->mp = emu_read16(e, b + 11), f->mpMax = emu_read16(e, b + 13);
 		f->atb = emu_read8(e, 0x7E619E + (uint32_t) s);
 	}
