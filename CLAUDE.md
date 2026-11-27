@@ -53,13 +53,13 @@ logo from the disc, and the game's own menu moved onto the second screen
 and widened, worked with the game's buttons (no memory writes). v1.0.0,
 the first public release, on Nov 25, 2026, then v1.0.1 (PRs #7 and #8:
 the game list's supported-games filter, lists past 256 games);
-`CHANGELOG.md` has the detail. **Next: Final Fantasy VI** (branch `ff6`,
-`docs/games/final-fantasy-vi.md` there). Second screens stay
+`CHANGELOG.md` has the detail. **Next: Final Fantasy VI** (this branch, `ff6`:
+`docs/games/final-fantasy-vi.md`; waiting for the owner's Duo test). Second screens stay
 within the game's own design (the owner took out ALttP's grove panorama:
 ALTTP-17, retired).
 Parked: the 120 Hz map judder (the bottom screen's present
-blocks 6 to 8 ms at 120 Hz). Super Metroid's and A Link to the Past's
-checks run with `scripts/check-games.sh` (Symphony of the Night's: #15).
+blocks 6 to 8 ms at 120 Hz). Super Metroid's, A Link to the Past's and
+Final Fantasy VI's checks run with `scripts/check-games.sh` (Symphony of the Night's: #15).
 Much of `src/` is
 GBA DS's (the game list, menus, settings, Android glue); upstream's session
 notes, with the detail on every inherited subsystem, are
