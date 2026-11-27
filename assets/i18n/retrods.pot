@@ -609,7 +609,7 @@ msgstr ""
 msgid "Continue: %s %d, %d:%02d %s"
 msgstr ""
 
-#: src/esde.c:439
+#: src/esde.c:441
 #, c-format
 msgid "Couldn't change the files in %s/custom_systems: allow RetroDS All files access in Android's settings."
 msgstr ""
@@ -753,7 +753,7 @@ msgstr ""
 msgid "Enter your account in the sign-in box..."
 msgstr ""
 
-#: src/esde.c:426
+#: src/esde.c:428
 msgid "ES-DE's folder wasn't found."
 msgstr ""
 
@@ -1666,11 +1666,11 @@ msgstr ""
 msgid "RetroDS in ES-DE: On"
 msgstr ""
 
-#: src/esde.c:441
+#: src/esde.c:443
 msgid "RetroDS is now ES-DE's emulator for Game Boy Advance games. Quit ES-DE and open it again to see it."
 msgstr ""
 
-#: src/esde.c:443
+#: src/esde.c:445
 msgid "RetroDS is out of ES-DE's emulator list. Quit ES-DE and open it again to see it."
 msgstr ""
 

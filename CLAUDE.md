@@ -2,14 +2,14 @@
 
 RetroDS ("your favourite classics, with the second screen they never had.
 Not a Nintendo DS emulator.") was SNES DS until Nov 24, 2026: a fork of
-kyannon/gba-ds (GBA DS) into a Super Nintendo emulator, now widening to
-other consoles (`docs/SCOPE.md`: the PlayStation next), for dual-screen
-handhelds, built for the **Retroid Pocket Duo** on Android
+kyannon/gba-ds (GBA DS), now a libretro frontend for Super Nintendo
+(bsnes) and PlayStation (SwanStation) games on dual-screen handhelds
+(`docs/SCOPE.md`), built for the **Retroid Pocket Duo** on Android
 16: bottom screen 4.5" 1280x960 (4:3), top screen 5.5" 1920x1080 (16:9),
 both 120 Hz OLED, Qualcomm Q-7790, 8 GB RAM. The game runs on the bottom
-screen; the top screen shows the game's own map or status screen (captured
-from a hidden second copy of the game), a user-supplied map with a live
-marker (custom asset mode), or the game's logo.
+screen; the top screen shows a second screen RetroDS draws itself from the
+game's cartridge or disc and its memory (Super Metroid, A Link to the
+Past, Symphony of the Night), or the game's logo.
 
 The owner (Joshua) decides what gets built and tests on the device.
 Nothing counts as working until it has run on the Duo.
@@ -43,15 +43,24 @@ menus regrouped into Game / Screens / Look / Controls / Fast forward /
 System, 4:3 or Pixel Perfect, big Save / Load with Undo, no quick bar)
 and A Link to the Past's second round (`alttp-map-2`: the items sliding
 over the map with the game's own sounds, the player's markers, the logo
-where there's no map; ALTTP-15 to 17). **Next: the PlayStation with
-Symphony of the Night** (SCOPE.md step 1): the handoff beside the repo,
-`/home/joshua/projects/snes-ds/handoff-sotn.md`, has the plan, the
-owner's decisions and the questions to settle first. Second screens stay
+where there's no map; ALTTP-15 to 17). Then the PlayStation (PR #6,
+Nov 25, 2026; SCOPE.md step 1): SwanStation, with
+`scripts/cores/swanstation-vram.patch` so the game's video memory can be
+read; discs as `.cue` / `.bin` with the player's `scph5501.bin`; and
+Symphony of the Night's second screen (`docs/games/symphony-of-the-night.md`,
+SOTN-1 to 8): the castle map as the game draws it with a ROOMS pane, the
+logo from the disc, and the game's own menu moved onto the second screen
+and widened, worked with the game's buttons (no memory writes). v1.0.0,
+the first public release, on Nov 25, 2026, then v1.0.1 (PRs #7 and #8:
+the game list's supported-games filter, lists past 256 games);
+`CHANGELOG.md` has the detail. **Next: Final Fantasy VI** (branch `ff6`,
+`docs/games/final-fantasy-vi.md` there). Second screens stay
 within the game's own design (the owner took out ALttP's grove panorama:
 ALTTP-17, retired).
 Parked: the 120 Hz map judder (the bottom screen's present
-blocks 6 to 8 ms at 120 Hz). Both games' checks run with
-`scripts/check-games.sh`. Much of `src/` is
+blocks 6 to 8 ms at 120 Hz). Super Metroid's and A Link to the Past's
+checks run with `scripts/check-games.sh` (Symphony of the Night's: #15).
+Much of `src/` is
 GBA DS's (the game list, menus, settings, Android glue); upstream's session
 notes, with the detail on every inherited subsystem, are
 `git show 3b452dc:CLAUDE.md` (GBA DS v1.5.6, the commit this fork starts
@@ -109,23 +118,32 @@ design is in `docs/custom-assets.md`.
 
 1. **Core:** `emu.c` is written against the libretro API, not against a
    specific core; the core is a swappable `.so`. Releases ship **bsnes**
-   (GPLv3, compatible with this project's GPLv3-only licence). **Snes9x is
+   for the Super Nintendo and **SwanStation** for the PlayStation (both
+   GPLv3, compatible with this project's GPLv3-only licence). **Snes9x is
    for local prototyping only**: its licence is non-commercial and not
    GPL-compatible, so it is never distributed, committed or bundled.
-2. **Two instances:** bsnes and snes9x keep their state in globals, so the
-   live game and the hidden copy are two loaded copies of the core. Android:
-   the core built twice under two sonames (`libsnes_a.so`, `libsnes_b.so`),
-   both in the APK, each `dlopen`ed. Linux host: the same `.so` copied to
-   two paths. **Never `fork()` per capture on Android** (forking a
+2. **Core copies, not instances:** bsnes and snes9x keep their state in
+   globals, so each running game (the live one, the hidden copy, the
+   logo's) is a separately loaded copy of the core (`system.c`'s
+   `coreCopies`: 3 for the Super Nintendo, 1 for the PlayStation). Android:
+   bsnes built once and packed under three sonames (`libsnes_a.so`,
+   `libsnes_b.so`, `libsnes_c.so`), SwanStation once (`libswanstation.so`),
+   each `dlopen`ed. Linux host: the same `.so` copied to several paths.
+   **Never `fork()` per capture on Android** (forking a
    multithreaded ART/SDL process keeps only the calling thread and can
    deadlock); fine for host experiments only.
-3. **Game identity:** CRC32 of the ROM with any 512-byte copier header
-   stripped (file size % 1024 == 512). Not the internal header checksum.
-4. **Second screens (updated Nov 22, 2026):** drawn natively from the
+3. **Game identity:** Super Nintendo: CRC32 of the ROM with any 512-byte
+   copier header stripped (file size % 1024 == 512), not the internal
+   header checksum. PlayStation: the disc's serial from its `SYSTEM.CNF`
+   (`SLUS-00067`, `disc.c`).
+4. **Second screens (updated Nov 25, 2026):** drawn natively from the
    game's ROM and RAM where that's best (Super Metroid's map and SAMUS
-   page), assembled from the live game's own pictures (A Link to the
-   Past's overworld, planned), captured on the hidden copy (status
-   screens), custom asset mode, the logo. No renderer patches (GBA DS's
+   page, A Link to the Past's items and dungeon maps), assembled from the
+   live game's own pictures (A Link to the Past's overworld), the game's
+   own drawing read from video memory (Symphony of the Night's map), the
+   game's own screen moved over (Symphony of the Night's menu), the logo.
+   Capture on the hidden copy and custom asset mode stay in the code, used
+   by no game. No renderer patches (GBA DS's
    `emu_hud_*`, `emu_hide_*`, `SpriteRule`); covering a piece of the game
    screen (Super Metroid's mini-map) is a frontend draw, listed per game.
 5. **Framebuffer size is a runtime value:** 256x224 normally, 512 wide in
@@ -140,11 +158,13 @@ page drawn natively from ROM and RAM, touch: drag the map, tap items),
 overworld map assembled from the screens the player has seen, unexplored
 parts dark; dungeon maps drawn or captured), **3. Chrono Trigger**
 (status screen), then **Final Fantasy IV, V, VI** (party / status
-screens, as the FF Advance profiles do). GBA DS's pages for the GBA versions of ALttP and FF
+screens, as the FF Advance profiles do). On the PlayStation, **Symphony
+of the Night** (shipped in v1.0.0, `docs/games/symphony-of-the-night.md`).
+GBA DS's pages for the GBA versions of ALttP and FF
 IV/V/VI, and its general rules (GEN-1 and on, the rule format), are kept in
 `docs/reference/gba/` as references; other GBA games' pages are in git
-history (`git show 3b452dc:docs/games/<game>.md`). SNES games get their own
-`docs/games/<game>.md`.
+history (`git show 3b452dc:docs/games/<game>.md`). RetroDS's games get their
+own `docs/games/<game>.md`.
 
 None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
 (DSP-1: bsnes needs the firmware or HLE) is not a first game.
@@ -156,7 +176,7 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   branches cut from it, merged back when built and tried. `main` and `dev` mirror upstream and are never
   committed to.
 - **Remotes:** `origin` is RetroDS's own repo (iosue-iulianus/retro-ds,
-  private, a standalone copy with GBA DS's history, not a GitHub fork);
+  public since v1.0.0, a standalone copy with GBA DS's history, not a GitHub fork);
   `retrods` is its default branch (the owner renamed the repo from
   snes-ds, Nov 24, 2026; the old URL redirects). `upstream` is GBA DS (kyannon/gba-ds):
   fetch from it to pick up fixes to shared code, never push there.
@@ -186,7 +206,7 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
   commit messages (use a colon, a comma or parentheses). Player-facing text
   in plain sentence case.
 - **ROMs, save states and cores:** never committed. The owner puts ROMs and
-  states in their home directory (`/home/joshua`) and says when they're
+  states in their home directory (`~`) and says when they're
   there; don't search other drives for them. Cores are built in
   `../cores/` (beside the repo).
 - **No new dependencies.** Images load with stb_image and libwebp, already
@@ -194,19 +214,24 @@ None of the priority games use SA-1, SuperFX or DSP chips. Super Mario Kart
 
 ## Building
 
-- Cores: `scripts/build-cores.sh` (bsnes at a pinned commit with
-  `scripts/cores/bsnes-memory.patch`, into `../cores`; `snes9x` also builds
-  snes9x for local experiments; `android` builds bsnes with the NDK).
+- Cores: `scripts/build-cores.sh` (bsnes and SwanStation at pinned
+  commits with `scripts/cores/bsnes-memory.patch` and
+  `scripts/cores/swanstation-vram.patch`, into `../cores`; `snes9x` also
+  builds snes9x for local experiments; `android` builds both with the NDK).
 - Desktop: `scripts/setup-host.sh` once (SDL2 into `deps/`, the cores, the
-  app, the harness, and `build/host/bsnes_libretro.so` linked to the core),
+  app, the harness, and `build/host/bsnes_libretro.so` and
+  `swanstation_libretro.so` linked to the cores),
   then `make` (`build/host/retrods`) and `make tools`
   (`build/host/retrods-harness`). Host builds run with the SDL in `deps/`
-  (rpath). The app finds its core in `RETRODS_CORE`, else
-  `bsnes_libretro.so` beside the program, and copies it into
-  `<state_dir>/cache/core-{a,b,c}.so`.
-- Android: `scripts/build-android.sh` (SDL2, the core with the NDK, packed
-  three times as `libsnes_{a,b,c}.so` with their own sonames by patchelf,
-  extracted to `nativeLibraryDir`, passed as `RETRODS_CORE_DIR`). It needs
+  (rpath). The app finds bsnes in `RETRODS_CORE`, else
+  `bsnes_libretro.so` beside the program, and SwanStation in
+  `RETRODS_PSX_CORE`, else `swanstation_libretro.so`, and copies each
+  into `<state_dir>/cache/` once per core copy. PlayStation games need
+  the player's `scph5501.bin` in `bios/` in the data folder
+  (`RetroDS/bios` on Android).
+- Android: `scripts/build-android.sh` (SDL2, the cores with the NDK, bsnes
+  packed three times as `libsnes_{a,b,c}.so` with their own sonames by
+  patchelf, SwanStation once as `libswanstation.so`, extracted to `nativeLibraryDir`, passed as `RETRODS_CORE_DIR`). It needs
   the SDK and NDK, so it runs on GitHub Actions
   (`.github/workflows/android.yml`: pushes to `retrods`, pull requests into
   it, "Run workflow"); release-signed with the repo's secrets (the key is
@@ -237,7 +262,7 @@ can't build Android itself (no SDK), so:
    cached process in the background is fine (it auto-saves on leaving).
 5. **Back up the owner's states first** (never lose them): pull the
    newest `RetroDS/states/*.state` (and the `.srm` in `ROMs/snes`) into
-   `/home/joshua/projects/snes-ds/test-data/<game>/`, read-only.
+   `~/projects/snes-ds/test-data/<game>/`, read-only.
 6. **Install over the old one:** `adb.exe -s IP:PORT install -r
    "$(wslpath -w APK)"`. Same signing key, so data and settings stay.
    Never suggest uninstalling: without All files access the app's own
@@ -255,8 +280,8 @@ Device details:
   changes whenever wireless debugging restarts (`adb.exe mdns services`
   or `adb.exe devices`).
 - Paths on the device: `/storage/emulated/0/RetroDS/` (log
-  `retrods.log`, `states/`, `launch.log`), ROMs in
-  `/storage/emulated/0/ROMs/snes/`.
+  `retrods.log`, `states/`, `launch.log`, `bios/`), ROMs in
+  `/storage/emulated/0/ROMs/snes/` and `/storage/emulated/0/ROMs/psx/`.
 - Screenshots of each display: `adb.exe exec-out screencap -d DISPLAY_ID
   -p > file.png` with the ids from `dumpsys SurfaceFlinger --display-id`
   (plain `screencap` came back black). The top display (game activity) is
@@ -276,7 +301,7 @@ Device details:
   addresses are written as the CPU sees them (`7E0998`). `RETRODS_SAVE`
   gives copy A a battery save (copied into OUTDIR first).
 - Test states and saves live outside the repo, in
-  `/home/joshua/projects/snes-ds/test-data/<game>/` (Super Metroid:
+  `~/projects/snes-ds/test-data/<game>/` (Super Metroid:
   `crateria-ship.state`, playing at the ship, and
   `crateria-pause-map.state`; A Link to the Past: `harness-*`, made in the
   harness). Never delete them; copy new ones from the
@@ -311,11 +336,13 @@ Device details:
 
 ## Architecture (src/)
 
-- `emu.c` / `emu.h`: the libretro loader. A pool of core copies
-  (`EMU_CORES` = 3: the game, the map's hidden copy, the logo's); each
-  `emu_open` takes a free one. The ROM as played (copier header stripped,
-  patches applied, from a `.zip` too) is cached by CRC32 and loaded from
-  there. Game codes are that ROM file's CRC32 as 8 hex digits. Battery saves
+- `emu.c` / `emu.h`: the libretro loader. A pool of core copies per
+  system (up to `EMU_CORES` = 3: the game, the map's hidden copy, the
+  logo's; the PlayStation has one); each `emu_open` takes a free one. The
+  ROM as played (copier header stripped, patches applied, from a `.zip`
+  too) is cached by CRC32 and loaded from there; a disc is given to the
+  core by its path. Game codes are that ROM file's CRC32 as 8 hex digits,
+  a disc's serial for the PlayStation. Battery saves
   through `RETRO_MEMORY_SAVE_RAM`, written in the background as they
   change. States in RetroArch's RASTATE format with RetroDS's blocks (SDSC:
   ROM CRC, SDSX: the second screen). Rewind keeps XOR deltas of
@@ -323,6 +350,15 @@ Device details:
   the live game for other copies must use `emu_state_save_live` with the
   next frame's keys (the loop takes map and bug-report snapshots just
   before a frame for that).
+- `system.c` / `system.h`: what differs between the consoles (kept
+  small): each system's file extensions, whether its core takes a path,
+  its BIOS and the BIOS's MD5, its core copies, where its work RAM sits
+  in the CPU's address space, its rewind keys. A game's system goes by
+  its file's extension.
+- `disc.c` / `disc.h`: PlayStation discs as `.cue` sheets with their
+  `.bin` tracks: the first data track's ISO 9660 file system, as far as
+  `SYSTEM.CNF` (the serial) and the files RetroDS reads itself (SotN's
+  logo).
 - `smmap.c`: Super Metroid's second screen drawn from the cartridge and
   the game's RAM (map, equipment page, item switching); `game_sm.c`'s
   `native_*` show it in a play session (chrome as a picture, the map's layer and marker as
@@ -336,6 +372,13 @@ Device details:
   drivers wait), made on a thread of their own, the seen record's pieces
   compressed on another ahead of its saves, the minute's
   save copied on the game's thread and written on another.
+- `sotn.c` / `sotn.h`: Symphony of the Night's second screen, read from
+  the game's RAM and video memory (SwanStation's patch): the castle map
+  and its cursor, the ROOMS count, the logo from the disc, and
+  `sotn_widen`, the game's menu widened to the second screen.
+  `game_sotn.c`'s `sot_*` show it in a play session: the map pane, and a
+  page across the game's own menu, opened and worked with its buttons
+  (no memory writes).
 - `writes.h`, `emu_apply` (`emu.c`): the only way the second screen writes
   to a game (SM-10, ALTTP-10): full SNES addresses, each checked against
   the game's list (`smmap_write_ranges`, `alttp_write_ranges`), all of a
@@ -348,10 +391,11 @@ Device details:
   normalized 256x224 picture (hi-res and interlaced ones halved): profiles
   give coordinates on the SNES screen.
 - `profiles.c/.h`: everything game-specific (`MapProfile`), keyed by game
-  code (CRC32). Super Metroid so far (`docs/games/super-metroid.md`).
+  code (CRC32). Super Metroid and A Link to the Past; Symphony of the
+  Night has no profile (`sotn_is` in `sotn.c`).
 - `game.c`: a play session (input, the second screen, pause menu; the
-  two drawn second screens in `game_sm.c` and `game_alttp.c`, what they
-  share with it in `game_screens.h`). The
+  three drawn second screens in `game_sm.c`, `game_alttp.c` and
+  `game_sotn.c`, what they share with it in `game_screens.h`). The
   game's picture is `texW` x `texH` as the core draws it, shown as `picW` x
   `picH` (256 x 224 or 239). The second screen is an SNES-sized picture
   (`SNES_W` x `SNES_H`).
@@ -379,14 +423,18 @@ Device details:
 - **M3:** A Link to the Past (overworld map assembled from what the
   player has seen, dungeon maps).
 - **M4:** Chrono Trigger, then the FF status screens.
+- **The PlayStation (SCOPE.md step 1):** SwanStation and Symphony of the
+  Night (PR #6, Nov 25, 2026), then v1.0.0.
 - Which screen has the game: `swap`, until the player sets it, follows
   the screens' shapes (the one closer to 4:3 gets the game: the Duo's
   bottom screen). `top_screen` only says which display is physically on
   top.
 - Overlays default to Off: the owner doesn't want the bezel (on OLED
   screens the black round the picture is the frame).
-- For the port, left by the rename: ES-DE's integration (`esde.c`) still
-  adds RetroDS to ES-DE's `gba` system; links in `android.c` point at
+- For the port, left by the rename: ES-DE's integration (`esde.c`) is
+  hidden until RetroDS adds itself to ES-DE's `snes` and `psx` systems
+  (it only ever added itself to `gba`; an entry an earlier version made is
+  taken out at start); links in `android.c` point at
   wiki pages RetroDS doesn't have yet (Playing, Overlays); the Display
   theme's hint mentions the web player (a translated string: change it with
   its translations); the .po files keep translations of removed strings
