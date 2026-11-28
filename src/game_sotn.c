@@ -90,6 +90,7 @@ void sot_free(void) {
 	wideW = wideH = 0;
 	sot = sotShown = composed = viewSet = user = focus = drag = pinch = wideOk = pageDrag = false;
 	phase = M_OFF, page = 0, pageX = 0, injectFrames = injectGap = 0, startHeld = false;
+	sotn_widen_forget();
 	viewCrc = 0;
 	cw = ch = 0;
 	zoomI = 0;
@@ -179,6 +180,7 @@ static void to_menu(void) {
 	if (phase == M_OFF) {
 		if (sotn_menu_openable(&emu)) {
 			phase = M_OPENING, phaseFrames = 0;
+			sotn_widen_forget();
 			press(K_START, 2);
 			fprintf(stderr, "sotn: menu page, the game's menu opened (Start pressed for it)\n");
 		} else {
@@ -233,12 +235,14 @@ static void menu_tick(void) {
 }
 
 /* SOTN-6: the player's keys for the next frame: Start is RetroDS's (the
- * pages), nothing of the player's while the menu opens or closes, and
- * what RetroDS presses for the game */
+ * pages) in the castle, the game's elsewhere (the title's "Press Start",
+ * Richter's pause); nothing of the player's while the menu opens or
+ * closes, and what RetroDS presses for the game */
 uint32_t sot_keys(uint32_t keys) {
 	if (!sot) return keys;
 	bool start = keys & K_START, tri = keys & K_X;
-	if (start && !startHeld) {
+	bool ours = page == 1 || phase != M_OFF || sotn_in_castle(&emu);
+	if (ours && start && !startHeld) { /* (held from the title into the castle: no page turn) */
 		if (page == 0) to_menu();
 		else to_map();
 	}
@@ -251,7 +255,7 @@ uint32_t sot_keys(uint32_t keys) {
 		press(K_X, 3);
 	}
 	triHeld = tri;
-	keys &= ~(uint32_t) K_START;
+	if (ours) keys &= ~(uint32_t) K_START;
 	if (phase == M_OPENING || phase == M_CLOSING || phase == M_FROZEN) keys = 0;
 	if (injectFrames > 0) keys |= injectKey, --injectFrames;
 	return keys;

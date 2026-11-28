@@ -4,6 +4,24 @@ RetroDS's history. It started as a fork of GBA DS v1.5.6, then SNES DS;
 GBA DS's own changelog up to then is `git show 3b452dc:CHANGELOG.md` (and
 on [GBA DS's GitHub](https://github.com/kyannon/gba-ds)).
 
+## v1.0.2 (November 28, 2026)
+
+A bugfix release.
+
+- **Symphony of the Night couldn't be started.** Start on the title
+  screen turned the second screen's page instead of starting the game.
+  Start is now the game's everywhere but in the castle.
+- **Rewind could crash.** Rewinding across a big change on screen (a
+  room or scene change) could corrupt memory and crash the game.
+- **Symphony of the Night's menu could crash** on the second screen,
+  depending on where the menu's window sat.
+- **A save state could crash RetroDS** when memory ran short; now the
+  save just fails.
+- **Moving RetroDS's folder** (Settings > Folders) now moves a
+  PlayStation games folder chosen inside it, as it does the Super
+  Nintendo one.
+- `retrods --supported` counts Symphony of the Night as supported.
+
 ## v1.0.1 (November 26, 2026)
 
 A bugfix release.

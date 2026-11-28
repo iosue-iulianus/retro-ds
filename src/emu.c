@@ -1053,9 +1053,12 @@ void emu_rewind_init(Emu* e, size_t entries) {
 	rw.owner = e;
 }
 
-/* XOR of a and b, zero runs written as (0, count): any other byte as it is */
+/* XOR of a and b, zero runs written as (0, count): any other byte as it is.
+ * Room for the worst case first: a run of one zero takes 4 bytes, so
+ * changed and unchanged bytes taking turns come to 2.5 times the state
+ * (given back to the size used at the end) */
 static uint8_t* delta_pack(const uint8_t* a, const uint8_t* b, size_t n, size_t* outN) {
-	uint8_t* out = malloc(n + n / 64 + 16);
+	uint8_t* out = malloc(n / 2 * 5 + 16);
 	if (!out) return NULL;
 	size_t o = 0;
 	for (size_t i = 0; i < n;) {
@@ -1205,17 +1208,20 @@ static bool state_file_read(const char* path, StateFile* sf, StateFileKind* kind
 	return true;
 }
 
-static void block(uint8_t** p, size_t* n, size_t* cap, const char* tag, const void* data, size_t size) {
+/* false if there's no memory for it (*p is then as it was) */
+static bool block(uint8_t** p, size_t* n, size_t* cap, const char* tag, const void* data, size_t size) {
 	size_t need = *n + 8 + ((size + 7) & ~(size_t) 7);
 	if (need > *cap) {
-		*cap = need * 2;
-		*p = realloc(*p, *cap);
+		uint8_t* grown = realloc(*p, need * 2);
+		if (!grown) return false;
+		*p = grown, *cap = need * 2;
 	}
 	memcpy(*p + *n, tag, 4);
 	put_le32(*p + *n + 4, (uint32_t) size);
 	if (size) memcpy(*p + *n + 8, data, size);
 	memset(*p + *n + 8 + size, 0, ((size + 7) & ~(size_t) 7) - size);
 	*n = need;
+	return true;
 }
 
 /* SwanStation's states are a fixed 11 MB buffer the state fills only
@@ -1238,14 +1244,19 @@ bool emu_state_save_file_as(Emu* e, const char* path, const void* extra, size_t 
 	}
 	size_t cap = memN + extraN + 256, n = 8;
 	uint8_t* p = malloc(cap);
-	memcpy(p, "RASTATE\x01", 8);
-	block(&p, &n, &cap, "MEM ", mem, memN);
 	uint8_t crc[4];
 	put_le32(crc, e->romCrc);
-	block(&p, &n, &cap, "SDSC", crc, 4);
-	if (extra && extraN) block(&p, &n, &cap, "SDSX", extra, extraN);
-	block(&p, &n, &cap, "END ", NULL, 0);
+	bool built = p != NULL;
+	if (built) memcpy(p, "RASTATE\x01", 8);
+	built = built && block(&p, &n, &cap, "MEM ", mem, memN);
+	built = built && block(&p, &n, &cap, "SDSC", crc, 4);
+	if (extra && extraN) built = built && block(&p, &n, &cap, "SDSX", extra, extraN);
+	built = built && block(&p, &n, &cap, "END ", NULL, 0);
 	free(mem);
+	if (!built) {
+		free(p);
+		return false;
+	}
 	bool ok;
 	if (fmt == STATE_FORMAT_RETROARCH_RZIP) {
 		size_t zcap = 20 + (n / RZIP_CHUNK + 1) * (compressBound(RZIP_CHUNK) + 4);
