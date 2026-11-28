@@ -235,12 +235,14 @@ static void menu_tick(void) {
 }
 
 /* SOTN-6: the player's keys for the next frame: Start is RetroDS's (the
- * pages), nothing of the player's while the menu opens or closes, and
- * what RetroDS presses for the game */
+ * pages) in the castle, the game's elsewhere (the title's "Press Start",
+ * Richter's pause); nothing of the player's while the menu opens or
+ * closes, and what RetroDS presses for the game */
 uint32_t sot_keys(uint32_t keys) {
 	if (!sot) return keys;
 	bool start = keys & K_START, tri = keys & K_X;
-	if (start && !startHeld) {
+	bool ours = page == 1 || phase != M_OFF || sotn_in_castle(&emu);
+	if (ours && start && !startHeld) { /* (held from the title into the castle: no page turn) */
 		if (page == 0) to_menu();
 		else to_map();
 	}
@@ -253,7 +255,7 @@ uint32_t sot_keys(uint32_t keys) {
 		press(K_X, 3);
 	}
 	triHeld = tri;
-	keys &= ~(uint32_t) K_START;
+	if (ours) keys &= ~(uint32_t) K_START;
 	if (phase == M_OPENING || phase == M_CLOSING || phase == M_FROZEN) keys = 0;
 	if (injectFrames > 0) keys |= injectKey, --injectFrames;
 	return keys;

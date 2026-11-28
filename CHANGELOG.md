@@ -8,6 +8,9 @@ on [GBA DS's GitHub](https://github.com/kyannon/gba-ds)).
 
 A bugfix release.
 
+- **Symphony of the Night couldn't be started.** Start on the title
+  screen turned the second screen's page instead of starting the game.
+  Start is now the game's everywhere but in the castle.
 - **Rewind could crash.** Rewinding across a big change on screen (a
   room or scene change) could corrupt memory and crash the game.
 - **Symphony of the Night's menu could crash** on the second screen,

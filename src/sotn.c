@@ -315,6 +315,12 @@ int sotn_menu_step(Emu* e) {
 	return (int) emu_read32(e, MENU_STEP);
 }
 
+/* Alucard in the castle (not the title, the file screens, Richter's
+ * prologue, game over or the ending): Start is RetroDS's only then */
+bool sotn_in_castle(Emu* e) {
+	return sotn_is(e->gameCode) && emu_read32(e, GAME_STATE) == 2 && emu_read32(e, ROOM_COUNT) > 0;
+}
+
 bool sotn_menu_openable(Emu* e) {
 	return sotn_is(e->gameCode) && emu_read32(e, GAME_STATE) == 2 && sotn_engine(e) == SOTN_ENGINE_PLAYING && emu_read32(e, PAUSE_ALLOWED) &&
 	       emu_read32(e, ROOM_COUNT) > 0; /* (the prologue: Richter's pause, not the menu) */

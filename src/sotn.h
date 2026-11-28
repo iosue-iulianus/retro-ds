@@ -85,6 +85,7 @@ void sotn_cursor_rect(const SotnView* v, int t, int* x, int* y, int* size);
 int sotn_engine(Emu* e);      /* the game's engine step */
 int sotn_menu_step(Emu* e);   /* its menu's step (SOTN_MENU_TOP at the menu's top) */
 /* Start would open the game's menu now */
+bool sotn_in_castle(Emu* e);
 bool sotn_menu_openable(Emu* e);
 /* SOTN-7: the game's picture fb (w x h, RGBA) widened to ow x h (ow > w):
  * its window in the middle, carried out to the edges (its white edge at
